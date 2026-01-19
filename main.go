@@ -36,9 +36,7 @@ func main() {
 	addr := ":" + port
 
 	// Start server
-	fmt.Printf("Starting Word Flashcard server on port %s...\n", port)
-	fmt.Printf("Visit: http://localhost:%s\n", port)
-	fmt.Printf("API Status: http://localhost:%s/api/status\n", port)
+	fmt.Printf("Starting server on port %s...\n", port)
 
 	if err := http.ListenAndServe(addr, mux); err != nil {
 		log.Fatal("Server failed to start:", err)

@@ -1,8 +1,11 @@
 # If you prefer the allow list template instead of the deny list, see community template:
 # https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
 #
-# Binaries for programs and plugins
-*.exe
+# Build output directory contents (but keep the directory)
+dist/*
+!dist/.gitkeep
+
+# Binaries for programs and plugins (if not in dist/)
 *.exe~
 *.dll
 *.so
@@ -28,8 +31,8 @@ go.work.sum
 .env
 
 # Editor/IDE
-# .idea/
-# .vscode/
+.idea/
+.vscode/
 
 # claude code
 .claude/

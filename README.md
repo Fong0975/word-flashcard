@@ -16,6 +16,7 @@ word-flashcard/
 │   │   └── style.css     # Styling
 │   └── templates/
 │       └── index.html    # HTML template
+├── dist/                 # Build output directory
 ├── main.go               # Main server file
 ├── go.mod               # Go module definition
 └── README.md           # This file
@@ -23,14 +24,12 @@ word-flashcard/
 
 ## Features
 
-- **REST API**: Provides `/api/status` endpoint that returns service status
+- **REST API**: Provides RESTful endpoints for various functionalities
 - **Web Interface**: HTML page that can fetch and display API status
-- **Static Assets**: CSS and JavaScript served separately
-- **CORS Support**: API endpoints support cross-origin requests
 
 ## Prerequisites
 
-- Go 1.19 or higher
+- Go `1.19` or higher
 - No external dependencies required (uses only Go standard library)
 
 ## Getting Started
@@ -56,7 +55,7 @@ The service will start on port 8080 by default.
 ### 3. Access the Application
 
 - **Web Interface**: http://localhost:8080
-- **API Status Endpoint**: http://localhost:8080/api/status
+- **API Endpoints**: http://localhost:8080/api
 
 ### 4. Stop the Service
 
@@ -64,17 +63,35 @@ To stop the service, press `Ctrl+C` in the terminal where the service is running
 
 ## API Documentation
 
-### GET /api/status
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Description</th>
+<th>Request</th>
+<th>Response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET</td>
+<td><code>/api/status</code></td>
+<td>Returns the current status of the service</td>
+<td>None</td>
+<td>
 
-Returns the current status of the service.
-
-**Response:**
 ```json
 {
     "status": "OK",
     "message": "Hello World! Service is running normally"
 }
 ```
+
+</td>
+</tr>
+</tbody>
+</table>
 
 ## Development
 
@@ -89,17 +106,18 @@ golangci-lint run
 To build a binary:
 
 ```bash
-go build -o word-flashcard main.go
+# Build the binary to dist directory
+go build -o dist/word-flashcard main.go
 ```
 
 ### Running the Binary
 
 ```bash
 # Windows
-./word-flashcard.exe
+./dist/word-flashcard.exe
 
 # Linux/macOS
-./word-flashcard
+./dist/word-flashcard
 ```
 
 ## Usage
