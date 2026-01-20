@@ -11,7 +11,9 @@ word-flashcard/
 ├── handlers/
 │   └── web.go            # Web page handlers
 ├── utils/
-│   └── cambridge-dictionary-api/  # Cambridge Dictionary API sub-service
+│   ├── cambridge-dictionary-api/  # Cambridge Dictionary API sub-service
+│   ├── database/                   # Database module with MySQL/PostgreSQL support
+│   └── dictionary-testing.json     # Mockoon file for Cambridge Dictionary API sub-service
 ├── web/
 │   ├── static/
 │   └── templates/
@@ -33,6 +35,7 @@ word-flashcard/
 - Go `1.23.7` or higher
 - Node.js and npm
 - Internet connection for fetching dictionary data
+- MySQL or PostgreSQL database
 
 ## Getting Started
 
@@ -55,7 +58,23 @@ npm install
 cd ../..
 ```
 
-### 2. Start the Services
+### 2. Database Setup
+
+Set up database connection information in your project's `.env` file:
+
+```env
+# Database type (mysql or postgresql)
+DB_TYPE=mysql
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=your_password
+DB_NAME=word_flashcard
+```
+
+For detailed database configuration and usage, see [Database Documentation](utils/database/README.md).
+
+### 3. Start the Services
 
 First, start the sub-service:
 
@@ -73,12 +92,12 @@ go run main.go
 ```
 **Note**: All sub-service must be running before starting the main service to ensure full functionality.
 
-### 3. Access the Application
+### 4. Access the Application
 
 - **Web Interface**: http://localhost:8080
 - **API Endpoints**: http://localhost:8080/api
 
-### 4. Stop the Service
+### 5. Stop the Service
 
 To stop the service, press `Ctrl+C` in the terminal where the service is running.
 
