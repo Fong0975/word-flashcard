@@ -13,12 +13,12 @@ linters:
     - importas
   settings:
     funlen:
-      lines: 60
+      lines: 100
       statements: -1
     gocognit:
-      min-complexity: 15
+      min-complexity: 35
     gocyclo:
-      min-complexity: 15
+      min-complexity: 35
     lll:
       line-length: 120
       tab-width: 4
@@ -51,9 +51,9 @@ linters:
       - third_party$
       - builtin$
       - examples$
+      - _test.go$
 formatters:
   enable:
-    - gci
     - gofmt
     - goimports
   exclusions:

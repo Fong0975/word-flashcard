@@ -1,56 +1,77 @@
-# Word Flashcard Service
+# Word Flashcard
 
-A simple Go web service that provides a REST API and HTML interface for a basic "Hello World" demonstration.
+A language learning flashcard system built with Go, designed for quick word and question management.
+The application features a REST API backend and an HTML frontend interface.
 
 ## Project Structure
 
 ```
 word-flashcard/
-├── api/
-│   └── status.go          # REST API handlers
+├── api/                    # REST API handlers
 ├── handlers/
 │   └── web.go            # Web page handlers
+├── utils/
+│   └── cambridge-dictionary-api/  # Cambridge Dictionary API sub-service
 ├── web/
 │   ├── static/
-│   │   ├── app.js        # JavaScript for API interaction
-│   │   └── style.css     # Styling
 │   └── templates/
-│       └── index.html    # HTML template
 ├── dist/                 # Build output directory
+├── .env                 # Environment variables
 ├── main.go               # Main server file
+├── run_dev.bat           # Development startup script for Windows
 ├── go.mod               # Go module definition
 └── README.md           # This file
 ```
 
 ## Features
 
-- **REST API**: Provides RESTful endpoints for various functionalities
-- **Web Interface**: HTML page that can fetch and display API status
+- **REST API**: REST API service. Reference [API Documentation](#api-documentation) for details
+- **Web Interface**: Project HTML page
 
 ## Prerequisites
 
-- Go `1.19` or higher
-- No external dependencies required (uses only Go standard library)
+- Go `1.23.7` or higher
+- Node.js and npm
+- Internet connection for fetching dictionary data
 
 ## Getting Started
 
 ### 1. Install Dependencies
 
-Since this project only uses Go's standard library, no additional packages need to be installed:
+Install the Go dependencies:
 
 ```bash
 go mod tidy
 ```
 
-### 2. Start the Service
+Install the Node.js dependencies:
 
-To start the web service:
+```bash
+# Change the directory
+cd utils/cambridge-dictionary-api
+# Install dependencies
+npm install
+# Return to the root directory
+cd ../..
+```
 
+### 2. Start the Services
+
+First, start the sub-service:
+
+#### Cambridge Dictionary API
+- The service will start on port `8081` by default.
+```bash
+cd utils/cambridge-dictionary-api
+npm run dev
+```
+
+#### Main Service
+- The service will start on port `8080` by default.
 ```bash
 go run main.go
 ```
-
-The service will start on port 8080 by default.
+**Note**: All sub-service must be running before starting the main service to ensure full functionality.
 
 ### 3. Access the Application
 
@@ -90,8 +111,57 @@ To stop the service, press `Ctrl+C` in the terminal where the service is running
 
 </td>
 </tr>
+<tr>
+<td>GET</td>
+<td><code>/api/dictionary/{word}</code></td>
+<td>Fetches English word data</td>
+<td>Path params:<br><code>word</code> (string) - The word to lookup</td>
+<td>
+
+```json
+{
+    "phonetics": [
+        {
+            "language": "uk",
+            "audio": "https://dictionary.cambridge.org/us/media/english-chinese-traditional/uk_pron/u/ukg/ukgan/ukganja011.mp3"
+        },
+        {
+            "language": "us",
+            "audio": "https://dictionary.cambridge.org/us/media/english-chinese-traditional/us_pron/g/gar/garag/garage.mp3"
+        }
+    ],
+    "meanings": [
+        {
+            "partOfSpeech": "noun",
+            "definitions": [
+                {
+                    "definition": "車庫，汽車房 A building where a car is kept, built next to or as part of a house",
+                    "example": ["Did you put the car in the garage? 你把車停到車庫裡了嗎？"]
+                },
+                {
+                    "definition": "汽車修理廠 A place where cars are repaired",
+                    "example": ["The car's still at the garage getting fixed. 車還在汽車修理廠維修呢。"]
+                }
+            ]
+        },
+        {
+            "partOfSpeech": "verb",
+            "definitions": [
+                {
+                    "definition": "把車停在車庫裡 to put or keep a vehicle in a garage",
+                    "example": ["If your car is garaged, you get much cheaper insurance. 如果你把車停放在車庫裡，你買汽車保險時就能省很多錢。"]
+                }
+            ]
+        }
+    ]
+}
+```
+
+</td>
+</tr>
 </tbody>
 </table>
+
 
 ## Development
 
@@ -99,6 +169,24 @@ To stop the service, press `Ctrl+C` in the terminal where the service is running
 ```bash
 # Check formatting issues
 golangci-lint run
+```
+
+### Testing
+
+Run unit tests for the entire project:
+```bash
+# Run all tests with verbose output
+go test ./... -v
+
+# Run tests for specific package
+go test ./api -v
+
+# Run tests with coverage report
+go test ./... -cover
+
+# Generate detailed coverage report
+go test ./... -coverprofile=coverage.out
+go tool cover -html=coverage.out -o coverage.html
 ```
 
 ### Building the Application
@@ -120,16 +208,3 @@ go build -o dist/word-flashcard main.go
 ./dist/word-flashcard
 ```
 
-## Usage
-
-1. Start the service using `go run main.go`
-2. Open your web browser and navigate to http://localhost:8080
-3. Click the "Check API Status" button to test the REST API integration
-4. The page will display the status response from the API
-
-## Notes
-
-- The service runs on port 8080 by default
-- All API responses include CORS headers for cross-origin requests
-- Static files are served from the `/static/` path
-- Templates are loaded from the `web/templates/` directory
