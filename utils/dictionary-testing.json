@@ -1,0 +1,94 @@
+{
+  "uuid": "e98ffc10-6559-46bf-b246-53f900476472",
+  "lastMigration": 33,
+  "name": "Dictionary testing",
+  "endpointPrefix": "",
+  "latency": 0,
+  "port": 8081,
+  "hostname": "",
+  "folders": [],
+  "routes": [
+    {
+      "uuid": "c7d6a1c1-fd04-48a5-a634-007215e12d64",
+      "type": "http",
+      "documentation": "Simulate the ‘cambridge-dictionary-api’ service",
+      "method": "get",
+      "endpoint": "api/dictionary/en-tw/:word",
+      "responses": [
+        {
+          "uuid": "679cdb8c-5589-48a0-89fb-07469b7dbc1c",
+          "body": "{\r\n    \"word\": \"garage\",\r\n    \"testing\": true,\r\n    \"pos\": [\r\n        \"noun\",\r\n        \"verb\"\r\n    ],\r\n    \"verbs\": [\r\n        {\r\n            \"id\": 0,\r\n            \"type\": \"Singular\",\r\n            \"text\": \"garage\"\r\n        },\r\n        {\r\n            \"id\": 1,\r\n            \"type\": \"Plural\",\r\n            \"text\": \"garages\"\r\n        }\r\n    ],\r\n    \"pronunciation\": [\r\n        {\r\n            \"pos\": \"noun\",\r\n            \"lang\": \"uk\",\r\n            \"url\": \"https://dictionary.cambridge.org/us/media/english-chinese-traditional/uk_pron/u/ukg/ukgan/ukganja011.mp3\",\r\n            \"pron\": \"/ˈɡær.ɑːʒ/\"\r\n        },\r\n        {\r\n            \"pos\": \"noun\",\r\n            \"lang\": \"us\",\r\n            \"url\": \"https://dictionary.cambridge.org/us/media/english-chinese-traditional/us_pron/g/gar/garag/garage.mp3\",\r\n            \"pron\": \"/ɡəˈrɑːʒ/\"\r\n        },\r\n        {\r\n            \"pos\": \"verb [ T ]\",\r\n            \"lang\": \"uk\",\r\n            \"url\": \"https://dictionary.cambridge.org/us/media/english-chinese-traditional/uk_pron/u/ukg/ukgan/ukganja011.mp3\",\r\n            \"pron\": \"/ˈɡær.ɑːʒ/\"\r\n        },\r\n        {\r\n            \"pos\": \"verb [ T ]\",\r\n            \"lang\": \"us\",\r\n            \"url\": \"https://dictionary.cambridge.org/us/media/english-chinese-traditional/us_pron/g/gar/garag/garage.mp3\",\r\n            \"pron\": \"/ɡəˈrɑːʒ/\"\r\n        }\r\n    ],\r\n    \"definition\": [\r\n        {\r\n            \"id\": 0,\r\n            \"pos\": \"noun\",\r\n            \"text\": \"a building where a car is kept, built next to or as part of a house\",\r\n            \"translation\": \"車庫，汽車房\",\r\n            \"example\": [\r\n                {\r\n                    \"id\": 0,\r\n                    \"text\": \"Did you put the car in the garage?\",\r\n                    \"translation\": \"你把車停到車庫裡了嗎？\"\r\n                }\r\n            ]\r\n        },\r\n        {\r\n            \"id\": 1,\r\n            \"pos\": \"noun\",\r\n            \"text\": \"a place where cars are repaired\",\r\n            \"translation\": \"汽車修理廠\",\r\n            \"example\": [\r\n                {\r\n                    \"id\": 0,\r\n                    \"text\": \"The car's still at the garage getting fixed.\",\r\n                    \"translation\": \"車還在汽車修理廠維修呢。\"\r\n                }\r\n            ]\r\n        },\r\n        {\r\n            \"id\": 2,\r\n            \"pos\": \"noun\",\r\n            \"text\": \"a place where fuel is sold for cars and other vehicles\",\r\n            \"translation\": \"加油站\",\r\n            \"example\": []\r\n        },\r\n        {\r\n            \"id\": 3,\r\n            \"pos\": \"noun\",\r\n            \"text\": \"a place where cars are sold\",\r\n            \"translation\": \"銷售汽車的地方\",\r\n            \"example\": []\r\n        },\r\n        {\r\n            \"id\": 4,\r\n            \"pos\": \"noun\",\r\n            \"text\": \"fast, electronic dance music with a strong beat, keyboards, and singing\",\r\n            \"translation\": \"車庫樂（一種鍵盤樂器伴奏演唱的快節奏電子舞曲）\",\r\n            \"example\": []\r\n        },\r\n        {\r\n            \"id\": 5,\r\n            \"pos\": \"verb\",\r\n            \"text\": \"to put or keep a vehicle in a garage\",\r\n            \"translation\": \"把車停在車庫裡\",\r\n            \"example\": [\r\n                {\r\n                    \"id\": 0,\r\n                    \"text\": \"If your car is garaged, you get much cheaper insurance.\",\r\n                    \"translation\": \"如果你把車停放在車庫裡，你買汽車保險時就能省很多錢。\"\r\n                }\r\n            ]\r\n        }\r\n    ]\r\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    }
+  ],
+  "rootChildren": [
+    {
+      "type": "route",
+      "uuid": "c7d6a1c1-fd04-48a5-a634-007215e12d64"
+    }
+  ],
+  "proxyMode": false,
+  "proxyHost": "",
+  "proxyRemovePrefix": false,
+  "tlsOptions": {
+    "enabled": false,
+    "type": "CERT",
+    "pfxPath": "",
+    "certPath": "",
+    "keyPath": "",
+    "caPath": "",
+    "passphrase": ""
+  },
+  "cors": true,
+  "headers": [
+    {
+      "key": "Content-Type",
+      "value": "application/json"
+    },
+    {
+      "key": "Access-Control-Allow-Origin",
+      "value": "*"
+    },
+    {
+      "key": "Access-Control-Allow-Methods",
+      "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+    },
+    {
+      "key": "Access-Control-Allow-Headers",
+      "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+    }
+  ],
+  "proxyReqHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "proxyResHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "data": [],
+  "callbacks": []
+}

@@ -4,7 +4,5 @@
 - Something...
 
 ## Features Changes
-
-
 ### ⚙️ Something
 - Details...
