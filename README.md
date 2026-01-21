@@ -7,22 +7,23 @@ The application features a REST API backend and an HTML frontend interface.
 
 ```
 word-flashcard/
-├── api/                    # REST API handlers
-├── handlers/
-│   └── web.go            # Web page handlers
-├── utils/
-│   ├── cambridge-dictionary-api/  # Cambridge Dictionary API sub-service
-│   ├── database/                   # Database module with MySQL/PostgreSQL support
-│   └── dictionary-testing.json     # Mockoon file for Cambridge Dictionary API sub-service
-├── web/
-│   ├── static/
-│   └── templates/
-├── dist/                 # Build output directory
-├── .env                 # Environment variables
-├── main.go               # Main server file
-├── run_dev.bat           # Development startup script for Windows
-├── go.mod               # Go module definition
-└── README.md           # This file
+├── api/                           # REST API handlers
+├── dist/                          # Build output directory
+├── handlers/                      # HTTP Web handlers
+├── utils/                         # Utility modules
+│   ├── cambridge-dictionary-api/ # Cambridge Dictionary API sub-service
+│   ├── config/                   # Configuration module
+│   ├── database/                 # Database module with MySQL/PostgreSQL support
+│   ├── log/                      # Logging module
+│   └── dictionary-testing.json   # Mockoon file for Cambridge Dictionary API sub-service
+├── web/                           # Web frontend files
+│   ├── static/                   # Static assets
+│   └── templates/                # HTML templates
+├── .env.example                  # Environment variables template
+├── go.mod                        # Go module definition
+├── main.go                       # Main server file
+├── README.md                     # This file
+└── run_dev.bat                   # Development startup script for Windows
 ```
 
 ## Features
