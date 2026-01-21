@@ -68,8 +68,11 @@ func getHTTPServer() *http.Server {
 	mux := http.NewServeMux()
 
 	// API routes
-	mux.HandleFunc("/api/status", api.StatusHandler)
-	mux.HandleFunc("/api/dictionary/", api.DictionaryHandler)
+	modules := api.GetModules()
+	for _, module := range modules {
+		slog.Info("Registering API module", "module", fmt.Sprintf("%T", module))
+		module.Register(mux)
+	}
 
 	// Web routes
 	// Create web handler

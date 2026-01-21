@@ -117,15 +117,13 @@ To stop the service, press `Ctrl+C` in the terminal where the service is running
 <tbody>
 <tr>
 <td>GET</td>
-<td><code>/api/status</code></td>
+<td><code>/api/health</code></td>
 <td>Returns the current status of the service</td>
 <td>None</td>
 <td>
 
 ```json
 {
-    "status": "OK",
-    "message": "Hello World! Service is running normally"
 }
 ```
 
