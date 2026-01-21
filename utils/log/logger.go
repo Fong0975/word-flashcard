@@ -27,8 +27,8 @@ func InitLogger() {
 	rotator := &lumberjack.Logger{
 		Filename:   logFilename,
 		MaxSize:    logMaxSize,
-		MaxBackups: 5,    // Keep the last 5 old files
-		MaxAge:     28,   // Retain files for the past 28 days
+		MaxBackups: 5,     // Keep the last 5 old files
+		MaxAge:     28,    // Retain files for the past 28 days
 		Compress:   false, // Compress file
 	}
 
