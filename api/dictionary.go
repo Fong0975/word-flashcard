@@ -86,6 +86,16 @@ func (h *DictionaryHandler) Register(mux *http.ServeMux) {
 }
 
 // dictionarySearch handles dictionary lookup requests
+// @Summary Search dictionary for word definition
+// @Description Get dictionary definition and pronunciation for a given word from Cambridge Dictionary API
+// @Tags dictionary
+// @Accept json
+// @Produce json
+// @Param word path string true "Word to search for"
+// @Success 200 {object} DictionaryResponse "Dictionary definition found successfully"
+// @Failure 400 {string} string "Bad request - Invalid URL format or missing word parameter"
+// @Failure 500 {string} string "Internal server error - Word not found, API error, or JSON encoding failure"
+// @Router /api/dictionary/{word} [get]
 func (h *DictionaryHandler) dictionarySearch(w http.ResponseWriter, r *http.Request) {
 	// Extract parameters from URL path
 	path := r.URL.Path

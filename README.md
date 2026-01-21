@@ -9,6 +9,7 @@ The application features a REST API backend and an HTML frontend interface.
 word-flashcard/
 ├── api/                           # REST API handlers
 ├── dist/                          # Build output directory
+├── docs/                          # Auto-generated Swagger API documentation
 ├── handlers/                      # HTTP Web handlers
 ├── utils/                         # Utility modules
 │   ├── cambridge-dictionary-api/ # Cambridge Dictionary API sub-service
@@ -97,6 +98,7 @@ go run main.go
 
 - **Web Interface**: http://localhost:8080
 - **API Endpoints**: http://localhost:8080/api
+- **Swagger UI**: http://localhost:8080/swagger/
 
 ### 5. Stop the Service
 
@@ -104,84 +106,24 @@ To stop the service, press `Ctrl+C` in the terminal where the service is running
 
 ## API Documentation
 
-<table>
-<thead>
-<tr>
-<th>Method</th>
-<th>Path</th>
-<th>Description</th>
-<th>Request</th>
-<th>Response</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>GET</td>
-<td><code>/api/health</code></td>
-<td>Returns the current status of the service</td>
-<td>None</td>
-<td>
+The API documentation is available through Swagger UI in two ways:
 
-```json
-{
-}
-```
-
-</td>
-</tr>
-<tr>
-<td>GET</td>
-<td><code>/api/dictionary/{word}</code></td>
-<td>Fetches English word data</td>
-<td>Path params:<br><code>word</code> (string) - The word to lookup</td>
-<td>
-
-```json
-{
-    "phonetics": [
-        {
-            "language": "uk",
-            "audio": "https://dictionary.cambridge.org/us/media/english-chinese-traditional/uk_pron/u/ukg/ukgan/ukganja011.mp3"
-        },
-        {
-            "language": "us",
-            "audio": "https://dictionary.cambridge.org/us/media/english-chinese-traditional/us_pron/g/gar/garag/garage.mp3"
-        }
-    ],
-    "meanings": [
-        {
-            "partOfSpeech": "noun",
-            "definitions": [
-                {
-                    "definition": "車庫，汽車房 A building where a car is kept, built next to or as part of a house",
-                    "example": ["Did you put the car in the garage? 你把車停到車庫裡了嗎？"]
-                },
-                {
-                    "definition": "汽車修理廠 A place where cars are repaired",
-                    "example": ["The car's still at the garage getting fixed. 車還在汽車修理廠維修呢。"]
-                }
-            ]
-        },
-        {
-            "partOfSpeech": "verb",
-            "definitions": [
-                {
-                    "definition": "把車停在車庫裡 to put or keep a vehicle in a garage",
-                    "example": ["If your car is garaged, you get much cheaper insurance. 如果你把車停放在車庫裡，你買汽車保險時就能省很多錢。"]
-                }
-            ]
-        }
-    ]
-}
-```
-
-</td>
-</tr>
-</tbody>
-</table>
+- **Local Development**: http://localhost:8080/swagger/ (when the server is running locally)
+- **Online Documentation**: https://fong0975.github.io/word-flashcard/ (automatically updated via GitHub Actions)
 
 
 ## Development
+
+### Swagger API Documentation
+
+When you modify API handlers or add new endpoints, you need to regenerate the Swagger documentation:
+
+```bash
+# Regenerate swagger documentation after API changes
+swag init
+```
+
+This command will update the `docs/` directory with the latest API documentation based on your swagger annotations in the code.
 
 ### Format Code
 ```bash
