@@ -81,13 +81,12 @@ var (
 	cacheTTL   = 30 * time.Minute
 )
 
-// DictionaryHandler handles dictionary lookup requests
-// Supports URL pattern: /api/dictionary/{word}
-func DictionaryHandler(w http.ResponseWriter, r *http.Request) {
-	// Set response headers
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*") // Allow CORS
+func (h *DictionaryHandler) Register(mux *http.ServeMux) {
+	RegisterAPIMethod(mux, METHOD_GET, "dictionary/", h.dictionarySearch)
+}
 
+// dictionarySearch handles dictionary lookup requests
+func (h *DictionaryHandler) dictionarySearch(w http.ResponseWriter, r *http.Request) {
 	// Extract parameters from URL path
 	path := r.URL.Path
 	parts := strings.Split(path, "/")
@@ -136,6 +135,9 @@ func DictionaryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+// DictionaryHandler API module - dictionary lookup
+type DictionaryHandler struct{}
 
 // Cache management functions
 func getFromCache(key string) interface{} {
