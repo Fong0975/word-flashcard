@@ -2,7 +2,7 @@ package database
 
 import (
 	"fmt"
-	"log"
+	"log/slog"
 	"sync"
 
 	"word-flashcard/utils/database/domain"
@@ -28,7 +28,7 @@ func RegisterTableSchemas() {
 
 	for _, table := range tables {
 		if err := RegisterTable(table); err != nil {
-			log.Printf("Failed to register table %s: %v", table.Name, err)
+			slog.Error("Failed to register table", "table", table.Name, "error", err)
 		}
 	}
 }

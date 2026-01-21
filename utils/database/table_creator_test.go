@@ -1,6 +1,7 @@
 package database
 
 import (
+	"errors"
 	"strings"
 	"testing"
 
@@ -262,6 +263,10 @@ func TestCreateDatabaseTables(t *testing.T) {
 	db, mock, cleanup := createMockDatabase(t, "mysql")
 	defer cleanup()
 
+	// Mock table existence check (table doesn't exist)
+	mock.ExpectExec("SELECT 1 FROM wfc_test_table WHERE 1=0").
+		WillReturnError(errors.New("Table 'testdb.wfc_test_table' doesn't exist"))
+
 	// Mock expectations for CREATE TABLE
 	mock.ExpectExec("CREATE TABLE IF NOT EXISTS wfc_test_table").
 		WillReturnResult(sqlmock.NewResult(0, 0))
@@ -294,6 +299,10 @@ func TestCreateDatabaseTablesWithFailure(t *testing.T) {
 	db, mock, cleanup := createMockDatabase(t, "mysql")
 	defer cleanup()
 
+	// Mock table existence check (table doesn't exist)
+	mock.ExpectExec("SELECT 1 FROM wfc_test_table WHERE 1=0").
+		WillReturnError(errors.New("Table 'testdb.wfc_test_table' doesn't exist"))
+
 	// Mock CREATE TABLE to fail
 	mock.ExpectExec("CREATE TABLE IF NOT EXISTS wfc_test_table").
 		WillReturnError(sqlmock.ErrCancelled)
@@ -320,6 +329,10 @@ func TestCreateDatabaseTablesIndexFailure(t *testing.T) {
 	db, mock, cleanup := createMockDatabase(t, "mysql")
 	defer cleanup()
 
+	// Mock table existence check (table doesn't exist)
+	mock.ExpectExec("SELECT 1 FROM wfc_test_table WHERE 1=0").
+		WillReturnError(errors.New("Table 'testdb.wfc_test_table' doesn't exist"))
+
 	// Mock CREATE TABLE to succeed
 	mock.ExpectExec("CREATE TABLE IF NOT EXISTS wfc_test_table").
 		WillReturnResult(sqlmock.NewResult(0, 0))
@@ -336,6 +349,162 @@ func TestCreateDatabaseTablesIndexFailure(t *testing.T) {
 	err := CreateDatabaseTables(db, "mysql", "wfc_")
 	if err != nil {
 		t.Errorf("CreateDatabaseTables() should not fail on index errors, but got: %v", err)
+	}
+
+	// Verify all expectations were met
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("Unfulfilled expectations: %v", err)
+	}
+}
+
+// Test tableExists function for database table existence
+func TestTableExistsInDatabase(t *testing.T) {
+	tests := []struct {
+		name          string
+		dbType        string
+		tableName     string
+		execError     error
+		expectedExists bool
+		expectError   bool
+	}{
+		{
+			name:          "Table exists - MySQL",
+			dbType:        "mysql",
+			tableName:     "users",
+			execError:     nil,
+			expectedExists: true,
+			expectError:   false,
+		},
+		{
+			name:          "Table does not exist - MySQL",
+			dbType:        "mysql",
+			tableName:     "nonexistent_table",
+			execError:     errors.New("Table 'testdb.nonexistent_table' doesn't exist"),
+			expectedExists: false,
+			expectError:   false, // Should be handled as table doesn't exist, not an error
+		},
+		{
+			name:          "Table exists - PostgreSQL",
+			dbType:        "postgresql",
+			tableName:     "users",
+			execError:     nil,
+			expectedExists: true,
+			expectError:   false,
+		},
+		{
+			name:          "Table does not exist - PostgreSQL",
+			dbType:        "postgresql",
+			tableName:     "missing_table",
+			execError:     errors.New("relation \"missing_table\" does not exist"),
+			expectedExists: false,
+			expectError:   false,
+		},
+		{
+			name:          "Database connection error",
+			dbType:        "mysql",
+			tableName:     "any_table",
+			execError:     errors.New("connection lost to database server"),
+			expectedExists: false,
+			expectError:   true, // This should be treated as a real error
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			db, mock, cleanup := createMockDatabase(t, tt.dbType)
+			defer cleanup()
+
+			expectedQuery := "SELECT 1 FROM " + tt.tableName + " WHERE 1=0"
+			if tt.execError != nil {
+				mock.ExpectExec(expectedQuery).WillReturnError(tt.execError)
+			} else {
+				mock.ExpectExec(expectedQuery).WillReturnResult(sqlmock.NewResult(0, 0))
+			}
+
+			exists, err := tableExists(db, tt.tableName, tt.dbType)
+
+			if tt.expectError && err == nil {
+				t.Error("Expected error but got nil")
+				return
+			}
+
+			if !tt.expectError && err != nil {
+				t.Errorf("Unexpected error: %v", err)
+				return
+			}
+
+			if !tt.expectError && exists != tt.expectedExists {
+				t.Errorf("Expected exists=%v, got %v", tt.expectedExists, exists)
+			}
+
+			// Verify all expectations were met
+			if err := mock.ExpectationsWereMet(); err != nil {
+				t.Errorf("Unfulfilled expectations: %v", err)
+			}
+		})
+	}
+}
+
+// Test CreateDatabaseTables skips existing tables
+func TestCreateDatabaseTablesSkipsExistingTables(t *testing.T) {
+	// Setup clean registry and register test table
+	setupCleanRegistry()
+	testTable := createTestTableDefinitionForCreator()
+	RegisterTable(testTable)
+
+	db, mock, cleanup := createMockDatabase(t, "mysql")
+	defer cleanup()
+
+	// Mock table existence check (table exists)
+	mock.ExpectExec("SELECT 1 FROM wfc_test_table WHERE 1=0").
+		WillReturnResult(sqlmock.NewResult(0, 0)) // No error means table exists
+
+	// Mock expectations for CREATE INDEX (should still create indexes even if table exists)
+	mock.ExpectExec("CREATE INDEX IF NOT EXISTS").
+		WillReturnResult(sqlmock.NewResult(0, 0))
+	mock.ExpectExec("CREATE UNIQUE INDEX IF NOT EXISTS").
+		WillReturnResult(sqlmock.NewResult(0, 0))
+
+	// Execute test
+	err := CreateDatabaseTables(db, "mysql", "wfc_")
+	if err != nil {
+		t.Errorf("CreateDatabaseTables() failed: %v", err)
+	}
+
+	// Verify all expectations were met
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("Unfulfilled expectations: %v", err)
+	}
+}
+
+// Test CreateDatabaseTables creates non-existing tables
+func TestCreateDatabaseTablesCreatesNonExistingTable(t *testing.T) {
+	// Setup clean registry and register test table
+	setupCleanRegistry()
+	testTable := createTestTableDefinitionForCreator()
+	RegisterTable(testTable)
+
+	db, mock, cleanup := createMockDatabase(t, "mysql")
+	defer cleanup()
+
+	// Mock table existence check (table doesn't exist)
+	mock.ExpectExec("SELECT 1 FROM wfc_test_table WHERE 1=0").
+		WillReturnError(errors.New("Table 'testdb.wfc_test_table' doesn't exist"))
+
+	// Mock expectations for CREATE TABLE
+	mock.ExpectExec("CREATE TABLE IF NOT EXISTS wfc_test_table").
+		WillReturnResult(sqlmock.NewResult(0, 0))
+
+	// Mock expectations for CREATE INDEX
+	mock.ExpectExec("CREATE INDEX IF NOT EXISTS").
+		WillReturnResult(sqlmock.NewResult(0, 0))
+	mock.ExpectExec("CREATE UNIQUE INDEX IF NOT EXISTS").
+		WillReturnResult(sqlmock.NewResult(0, 0))
+
+	// Execute test
+	err := CreateDatabaseTables(db, "mysql", "wfc_")
+	if err != nil {
+		t.Errorf("CreateDatabaseTables() failed: %v", err)
 	}
 
 	// Verify all expectations were met
