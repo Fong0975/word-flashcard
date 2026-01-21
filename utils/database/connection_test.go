@@ -8,8 +8,8 @@ import (
 )
 
 // createTestConfig creates a default test configuration
-func createTestConfig() *Config {
-	return &Config{
+func createTestConfig() *DBConfig {
+	return &DBConfig{
 		Type:         "mysql",
 		Host:         "localhost",
 		Port:         3306,
@@ -24,7 +24,7 @@ func createTestConfig() *Config {
 }
 
 // createPostgreSQLTestConfig creates a PostgreSQL test configuration
-func createPostgreSQLTestConfig() *Config {
+func createPostgreSQLTestConfig() *DBConfig {
 	config := createTestConfig()
 	config.Type = "postgresql"
 	config.Port = 5432

@@ -2,7 +2,7 @@ package database
 
 import (
 	"fmt"
-	"log"
+	"log/slog"
 	"strings"
 
 	"word-flashcard/utils/database/domain"
@@ -12,34 +12,44 @@ import (
 func CreateDatabaseTables(db Database, dbType string, tablePrefix string) error {
 	tables := GetAllTables()
 
-	log.Printf("Initializing %d tables...", len(tables))
+	slog.Info("Initializing database tables", "count", len(tables))
 
 	for tableName, tableDef := range tables {
-		log.Printf("Creating table: %s", tableName)
+		fullTableName := tablePrefix + tableDef.Name
 
-		// Generate CREATE TABLE SQL
-		createSQL := GetCreateSQL(tableDef, dbType, tablePrefix)
-
-		// Execute CREATE TABLE
-		_, err := db.Exec(createSQL)
+		// Check if table already exists
+		exists, err := tableExists(db, fullTableName, dbType)
 		if err != nil {
-			return fmt.Errorf("failed to create table %s: %v", tableName, err)
+			return fmt.Errorf("failed to check if table %s exists: %v", tableName, err)
 		}
 
-		// Create indexes
+		if exists {
+			slog.Debug("Table already exists, skipping creation", "table", tableName)
+		} else {
+			// Generate CREATE TABLE SQL
+			createSQL := GetCreateSQL(tableDef, dbType, tablePrefix)
+
+			// Execute CREATE TABLE
+			_, err := db.Exec(createSQL)
+			if err != nil {
+				return fmt.Errorf("failed to create table %s: %v", tableName, err)
+			}
+
+			slog.Info("Table created successfully", "table", tableName)
+		}
+
+		// Create indexes (even if table already exists, indexes might be new)
 		indexSQLs := GetIndexSQL(tableDef, dbType, tablePrefix)
 		for _, indexSQL := range indexSQLs {
 			_, err := db.Exec(indexSQL)
 			if err != nil {
-				log.Printf("Warning: failed to create index for table %s: %v", tableName, err)
+				slog.Warn("Failed to create index for table", "table", tableName, "error", err)
 				// Don't fail on index creation errors, just warn
 			}
 		}
-
-		log.Printf("Table %s created successfully", tableName)
 	}
 
-	log.Println("All tables initialized successfully")
+	slog.Info("Database tables initialized successfully")
 	return nil
 }
 
@@ -156,4 +166,26 @@ func GetIndexSQL(td *domain.TableDefinition, dbType, tablePrefix string) []strin
 	}
 
 	return indexSQLs
+}
+
+// tableExists checks if a table exists in the database
+func tableExists(db Database, tableName string, dbType string) (bool, error) {
+	// Try to execute a query that would fail if table doesn't exist
+	checkQuery := fmt.Sprintf("SELECT 1 FROM %s WHERE 1=0", tableName)
+	_, err := db.Exec(checkQuery)
+
+	if err != nil {
+		// If error contains "doesn't exist" or similar, table doesn't exist
+		errorMsg := strings.ToLower(err.Error())
+		if strings.Contains(errorMsg, "doesn't exist") ||
+			strings.Contains(errorMsg, "does not exist") ||
+			strings.Contains(errorMsg, "relation") && strings.Contains(errorMsg, "does not exist") {
+			return false, nil
+		}
+		// Other error, return it
+		return false, err
+	}
+
+	// Query succeeded, table exists
+	return true, nil
 }

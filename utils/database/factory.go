@@ -5,7 +5,7 @@ import (
 )
 
 // NewDatabase creates a new database instance based on configuration
-func NewDatabase(config *Config) (Database, error) {
+func NewDatabase(config *DBConfig) (Database, error) {
 	if config == nil {
 		return nil, fmt.Errorf("database config is required")
 	}

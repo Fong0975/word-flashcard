@@ -202,8 +202,8 @@ func TestListTableNames(t *testing.T) {
 	}
 }
 
-// Test checking if a table exists
-func TestTableExists(t *testing.T) {
+// Test checking if a table exists in registry
+func TestTableExistsInRegistry(t *testing.T) {
 	setupCleanRegistry()
 
 	testTable := createTestTableDefinition()

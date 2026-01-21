@@ -220,7 +220,7 @@ func TestNewDatabaseError(t *testing.T) {
 
 // Test BaseDatabase initialization and table name generation
 func TestNewBaseDatabase(t *testing.T) {
-	config := &Config{
+	config := &DBConfig{
 		Type:         "mysql",
 		Host:         "localhost",
 		Port:         3306,
@@ -243,7 +243,7 @@ func TestNewBaseDatabase(t *testing.T) {
 
 // Test table name generation with prefix
 func TestGetTableName(t *testing.T) {
-	config := &Config{
+	config := &DBConfig{
 		TablePrefix: "wfc_",
 	}
 

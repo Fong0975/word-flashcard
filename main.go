@@ -1,11 +1,17 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"log"
+	"log/slog"
+	"net"
 	"net/http"
 	"os"
+	"os/signal"
 	"path/filepath"
+	"syscall"
+	"time"
+	"word-flashcard/utils/log"
 
 	"github.com/joho/godotenv"
 
@@ -15,22 +21,49 @@ import (
 )
 
 func main() {
-	// Load .env file
-	if err := godotenv.Load(); err != nil {
-		log.Println("Warning: .env file not found, using default values")
+	// Call bootstrap to set up environment and logger or exit on failure
+	if err := bootstrap(); err != nil {
+		fmt.Println("Bootstrap error:", err)
+		return
 	}
+
+	slog.Info("=============== Start Start Up Server ===============")
 
 	// Initialize database
 	if err := initializeDatabase(); err != nil {
-		log.Fatal("Failed to initialize database:", err)
+		slog.Error("Failed to initialize database:", "error", err)
 	}
 
-	// Create web handler
-	webHandler, err := handlers.NewWebHandler()
+	// Get HTTP server
+	server := getHTTPServer()
+
+	_, port, err := net.SplitHostPort(server.Addr)
 	if err != nil {
-		log.Fatal("Failed to initialize web handler:", err)
+		port = "unknown"
+	}
+	fmt.Printf("Starting server on port %s...\n", port)
+	slog.Info("Starting server on port " + port)
+
+	slog.Info("=============== Completed Start Up Server ===============")
+
+	// Run HTTP server
+	runHTTPServer(server)
+}
+
+func bootstrap() error {
+	// Load .env file first
+	if err := godotenv.Load(); err != nil {
+		return fmt.Errorf(".env file not found, using default values: %v", err)
 	}
 
+	// Initialize logger after loading .env
+	log.InitLogger()
+
+	return nil
+}
+
+// getHTTPServer sets up and returns the HTTP server
+func getHTTPServer() *http.Server {
 	// Setup routes
 	mux := http.NewServeMux()
 
@@ -39,6 +72,11 @@ func main() {
 	mux.HandleFunc("/api/dictionary/", api.DictionaryHandler)
 
 	// Web routes
+	// Create web handler
+	webHandler, err := handlers.NewWebHandler()
+	if err != nil {
+		slog.Error("Failed to initialize web handler", "error", err)
+	}
 	mux.HandleFunc("/", webHandler.IndexHandler)
 
 	// Static files
@@ -53,17 +91,44 @@ func main() {
 	}
 	addr := ":" + port
 
-	// Start server
-	fmt.Printf("Starting server on port %s...\n", port)
+	// Create and return HTTP server
+	return &http.Server{
+		Addr:    addr,
+		Handler: mux,
+	}
+}
 
-	if err := http.ListenAndServe(addr, mux); err != nil {
-		log.Fatal("Server failed to start:", err)
+func runHTTPServer(server *http.Server) {
+	go func() {
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			slog.Error("Failed to start server", "error", err)
+		}
+	}()
+
+	// Create channel to listen for OS signals
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
+	// Wait for signal
+	<-quit
+	slog.Debug("Server shutdown signal received")
+
+	// Create context with timeout for shutdown
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	// Attempt graceful shutdown
+	if err := server.Shutdown(ctx); err != nil {
+		slog.Error("Server shutdown error", "error", err)
+		slog.Info("Server stopped forcefully")
+	} else {
+		slog.Info("Server stopped")
 	}
 }
 
 // initializeDatabase initializes database connection and creates tables
 func initializeDatabase() error {
-	log.Println("Initializing database...")
+	slog.Info("Initializing database start")
 
 	// Register table schemas to memory
 	database.RegisterTableSchemas()
@@ -87,9 +152,9 @@ func initializeDatabase() error {
 
 	// Close the initialization connection
 	if err := db.Close(); err != nil {
-		log.Printf("Warning: failed to close initialization connection: %v", err)
+		slog.Warn("Failed to close database connection", "error", err)
 	}
 
-	log.Println("Database initialized successfully")
+	slog.Info("Database initialized successfully")
 	return nil
 }

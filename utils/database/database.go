@@ -47,13 +47,13 @@ func NewDatabaseError(operation string, err error) *DatabaseError {
 
 // BaseDatabase provides common functionality for both MySQL and PostgreSQL
 type BaseDatabase struct {
-	config            *Config
+	config            *DBConfig
 	db                *sql.DB
 	placeholderFormat squirrel.PlaceholderFormat
 }
 
 // NewBaseDatabase creates a new base database instance
-func NewBaseDatabase(config *Config, placeholderFormat squirrel.PlaceholderFormat) *BaseDatabase {
+func NewBaseDatabase(config *DBConfig, placeholderFormat squirrel.PlaceholderFormat) *BaseDatabase {
 	return &BaseDatabase{
 		config:            config,
 		placeholderFormat: placeholderFormat,

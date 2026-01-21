@@ -2,12 +2,12 @@ package database
 
 import (
 	"fmt"
-	"os"
 	"strconv"
+	"word-flashcard/utils/config"
 )
 
-// Config holds database configuration
-type Config struct {
+// DBConfig holds database configuration
+type DBConfig struct {
 	Type         string // mysql, postgresql
 	Host         string
 	Port         int
@@ -21,8 +21,8 @@ type Config struct {
 }
 
 // LoadConfig loads database configuration from environment variables
-func LoadConfig() (*Config, error) {
-	config := &Config{
+func LoadConfig() (*DBConfig, error) {
+	dbConfig := &DBConfig{
 		// Fixed values
 		SSLMode:      "disable",
 		TablePrefix:  "wfc_",
@@ -31,46 +31,38 @@ func LoadConfig() (*Config, error) {
 	}
 
 	// Load from environment variables
-	config.Type = getEnvOrDefault("DB_TYPE", "mysql")
-	config.Host = getEnvOrDefault("DB_HOST", "localhost")
-	config.User = getEnvOrDefault("DB_USER", "root")
-	config.Password = getEnvOrDefault("DB_PASSWORD", "")
-	config.DatabaseName = getEnvOrDefault("DB_NAME", "word_flashcard")
+	dbConfig.Type = config.GetOrDefault("DB_TYPE", "mysql")
+	dbConfig.Host = config.GetOrDefault("DB_HOST", "localhost")
+	dbConfig.User = config.GetOrDefault("DB_USER", "root")
+	dbConfig.Password = config.GetOrDefault("DB_PASSWORD", "")
+	dbConfig.DatabaseName = config.GetOrDefault("DB_NAME", "word_flashcard")
 
 	// Parse port
-	portStr := getEnvOrDefault("DB_PORT", "3306")
+	portStr := config.GetOrDefault("DB_PORT", "3306")
 	port, err := strconv.Atoi(portStr)
 	if err != nil {
 		return nil, fmt.Errorf("invalid DB_PORT: %v", err)
 	}
-	config.Port = port
+	dbConfig.Port = port
 
 	// Validate required fields
-	if config.Type == "" {
+	if dbConfig.Type == "" {
 		return nil, fmt.Errorf("DB_TYPE is required")
 	}
-	if config.Host == "" {
+	if dbConfig.Host == "" {
 		return nil, fmt.Errorf("DB_HOST is required")
 	}
-	if config.User == "" {
+	if dbConfig.User == "" {
 		return nil, fmt.Errorf("DB_USER is required")
 	}
-	if config.DatabaseName == "" {
+	if dbConfig.DatabaseName == "" {
 		return nil, fmt.Errorf("DB_NAME is required")
 	}
 
 	// Validate database type
-	if config.Type != "mysql" && config.Type != "postgresql" {
-		return nil, fmt.Errorf("unsupported database type: %s", config.Type)
+	if dbConfig.Type != "mysql" && dbConfig.Type != "postgresql" {
+		return nil, fmt.Errorf("unsupported database type: %s", dbConfig.Type)
 	}
 
-	return config, nil
-}
-
-// getEnvOrDefault returns environment variable value or default
-func getEnvOrDefault(key, defaultValue string) string {
-	if value := os.Getenv(key); value != "" {
-		return value
-	}
-	return defaultValue
+	return dbConfig, nil
 }

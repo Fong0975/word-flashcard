@@ -3,6 +3,7 @@ package database
 import (
 	"os"
 	"testing"
+	"word-flashcard/utils/config"
 )
 
 // Test loading default configuration values from environment variables
@@ -121,13 +122,13 @@ func TestGetEnvOrDefault(t *testing.T) {
 	os.Setenv("TEST_VAR", "test_value")
 	defer os.Unsetenv("TEST_VAR")
 
-	result := getEnvOrDefault("TEST_VAR", "default_value")
+	result := config.GetOrDefault("TEST_VAR", "default_value")
 	if result != "test_value" {
 		t.Errorf("Expected test_value, got %s", result)
 	}
 
 	// Test case when environment variable does not exist
-	result = getEnvOrDefault("NON_EXISTENT_VAR", "default_value")
+	result = config.GetOrDefault("NON_EXISTENT_VAR", "default_value")
 	if result != "default_value" {
 		t.Errorf("Expected default_value, got %s", result)
 	}
