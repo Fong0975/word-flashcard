@@ -15,7 +15,7 @@ type UniversalDatabase struct {
 }
 
 // NewUniversalDatabase creates a new database instance that works with both MySQL and PostgreSQL
-func NewUniversalDatabase(config *Config) *UniversalDatabase {
+func NewUniversalDatabase(config *DBConfig) *UniversalDatabase {
 	var placeholderFormat squirrel.PlaceholderFormat
 	switch config.Type {
 	case "mysql":

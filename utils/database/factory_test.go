@@ -17,7 +17,7 @@ func TestNewDatabase(t *testing.T) {
 	}
 
 	// Test with valid MySQL config
-	mysqlConfig := &Config{
+	mysqlConfig := &DBConfig{
 		Type:         "mysql",
 		Host:         "localhost",
 		Port:         3306,
@@ -39,7 +39,7 @@ func TestNewDatabase(t *testing.T) {
 	}
 
 	// Test with valid PostgreSQL config
-	postgresConfig := &Config{
+	postgresConfig := &DBConfig{
 		Type:         "postgresql",
 		Host:         "localhost",
 		Port:         5432,
@@ -61,7 +61,7 @@ func TestNewDatabase(t *testing.T) {
 	}
 
 	// Test with unsupported database type
-	invalidConfig := &Config{
+	invalidConfig := &DBConfig{
 		Type:         "oracle",
 		Host:         "localhost",
 		Port:         1521,
