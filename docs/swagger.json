@@ -1,0 +1,158 @@
+{
+    "schemes": [
+        "http"
+    ],
+    "swagger": "2.0",
+    "info": {
+        "description": "Flashcards help you learn more vocabulary anytime, anywhere.",
+        "title": "Word Flashcard API",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "API Support",
+            "url": "http://www.swagger.io/support",
+            "email": "support@swagger.io"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/api/dictionary/{word}": {
+            "get": {
+                "description": "Get dictionary definition and pronunciation for a given word from Cambridge Dictionary API",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dictionary"
+                ],
+                "summary": "Search dictionary for word definition",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Word to search for",
+                        "name": "word",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Dictionary definition found successfully",
+                        "schema": {
+                            "$ref": "#/definitions/api.DictionaryResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid URL format or missing word parameter",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Word not found, API error, or JSON encoding failure",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/health": {
+            "get": {
+                "description": "Returns server status to verify the service is running",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "health"
+                ],
+                "summary": "Health check endpoint",
+                "responses": {
+                    "200": {
+                        "description": "Server is healthy",
+                        "schema": {
+                            "$ref": "#/definitions/api.HealthResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "api.DefinitionInfo": {
+            "type": "object",
+            "properties": {
+                "definition": {
+                    "type": "string"
+                },
+                "example": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "api.DictionaryResponse": {
+            "type": "object",
+            "properties": {
+                "meanings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.MeaningInfo"
+                    }
+                },
+                "phonetics": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.PhoneticInfo"
+                    }
+                }
+            }
+        },
+        "api.HealthResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.MeaningInfo": {
+            "type": "object",
+            "properties": {
+                "definitions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.DefinitionInfo"
+                    }
+                },
+                "partOfSpeech": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.PhoneticInfo": {
+            "type": "object",
+            "properties": {
+                "audio": {
+                    "type": "string"
+                },
+                "language": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

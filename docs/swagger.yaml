@@ -1,0 +1,106 @@
+basePath: /
+definitions:
+  api.DefinitionInfo:
+    properties:
+      definition:
+        type: string
+      example:
+        items:
+          type: string
+        type: array
+    type: object
+  api.DictionaryResponse:
+    properties:
+      meanings:
+        items:
+          $ref: '#/definitions/api.MeaningInfo'
+        type: array
+      phonetics:
+        items:
+          $ref: '#/definitions/api.PhoneticInfo'
+        type: array
+    type: object
+  api.HealthResponse:
+    properties:
+      status:
+        type: string
+    type: object
+  api.MeaningInfo:
+    properties:
+      definitions:
+        items:
+          $ref: '#/definitions/api.DefinitionInfo'
+        type: array
+      partOfSpeech:
+        type: string
+    type: object
+  api.PhoneticInfo:
+    properties:
+      audio:
+        type: string
+      language:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: Flashcards help you learn more vocabulary anytime, anywhere.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: Word Flashcard API
+  version: "1.0"
+paths:
+  /api/dictionary/{word}:
+    get:
+      consumes:
+      - application/json
+      description: Get dictionary definition and pronunciation for a given word from
+        Cambridge Dictionary API
+      parameters:
+      - description: Word to search for
+        in: path
+        name: word
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Dictionary definition found successfully
+          schema:
+            $ref: '#/definitions/api.DictionaryResponse'
+        "400":
+          description: Bad request - Invalid URL format or missing word parameter
+          schema:
+            type: string
+        "500":
+          description: Internal server error - Word not found, API error, or JSON
+            encoding failure
+          schema:
+            type: string
+      summary: Search dictionary for word definition
+      tags:
+      - dictionary
+  /api/health:
+    get:
+      consumes:
+      - application/json
+      description: Returns server status to verify the service is running
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Server is healthy
+          schema:
+            $ref: '#/definitions/api.HealthResponse'
+      summary: Health check endpoint
+      tags:
+      - health
+schemes:
+- http
+swagger: "2.0"

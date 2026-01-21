@@ -14,11 +14,29 @@ import (
 	"word-flashcard/utils/log"
 
 	"github.com/joho/godotenv"
+	httpSwagger "github.com/swaggo/http-swagger"
 
 	"word-flashcard/api"
+	_ "word-flashcard/docs"
 	"word-flashcard/handlers"
 	"word-flashcard/utils/database"
 )
+
+// @title Word Flashcard API
+// @version 1.0
+// @description Flashcards help you learn more vocabulary anytime, anywhere.
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+
+// @host localhost:8080
+// @BasePath /
+// @schemes http
 
 func main() {
 	// Call bootstrap to set up environment and logger or exit on failure
@@ -86,6 +104,9 @@ func getHTTPServer() *http.Server {
 	staticDir := filepath.Join("web", "static")
 	fileServer := http.FileServer(http.Dir(staticDir))
 	mux.Handle("/static/", http.StripPrefix("/static/", fileServer))
+
+	// Swagger UI
+	mux.HandleFunc("/swagger/", httpSwagger.WrapHandler)
 
 	// Server configuration
 	port := os.Getenv("APP_PORT")
