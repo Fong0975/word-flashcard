@@ -8,18 +8,15 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"syscall"
 	"time"
 	"word-flashcard/utils/log"
 
-	"github.com/joho/godotenv"
-	httpSwagger "github.com/swaggo/http-swagger"
-
-	"word-flashcard/api"
 	_ "word-flashcard/docs"
-	"word-flashcard/handlers"
+	"word-flashcard/internal/routers"
 	"word-flashcard/utils/database"
+
+	"github.com/joho/godotenv"
 )
 
 // @title Word Flashcard API
@@ -54,6 +51,10 @@ func main() {
 
 	// Get HTTP server
 	server := getHTTPServer()
+	if server == nil {
+		slog.Error("Failed to create HTTP server")
+		return
+	}
 
 	_, port, err := net.SplitHostPort(server.Addr)
 	if err != nil {
@@ -82,31 +83,12 @@ func bootstrap() error {
 
 // getHTTPServer sets up and returns the HTTP server
 func getHTTPServer() *http.Server {
-	// Setup routes
-	mux := http.NewServeMux()
-
-	// API routes
-	modules := api.GetModules()
-	for _, module := range modules {
-		slog.Info("Registering API module", "module", fmt.Sprintf("%T", module))
-		module.Register(mux)
-	}
-
-	// Web routes
-	// Create web handler
-	webHandler, err := handlers.NewWebHandler()
+	// Setup gin router
+	router, err := routers.SetupRouter()
 	if err != nil {
-		slog.Error("Failed to initialize web handler", "error", err)
+		slog.Error("Failed to setup router:", "error", err)
+		return nil
 	}
-	mux.HandleFunc("/", webHandler.IndexHandler)
-
-	// Static files
-	staticDir := filepath.Join("web", "static")
-	fileServer := http.FileServer(http.Dir(staticDir))
-	mux.Handle("/static/", http.StripPrefix("/static/", fileServer))
-
-	// Swagger UI
-	mux.HandleFunc("/swagger/", httpSwagger.WrapHandler)
 
 	// Server configuration
 	port := os.Getenv("APP_PORT")
@@ -118,7 +100,7 @@ func getHTTPServer() *http.Server {
 	// Create and return HTTP server
 	return &http.Server{
 		Addr:    addr,
-		Handler: mux,
+		Handler: router,
 	}
 }
 
