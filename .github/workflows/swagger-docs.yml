@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'api/**'
+      - 'internal/**'
       - 'main.go'
   workflow_dispatch: # Allow manual trigger
 

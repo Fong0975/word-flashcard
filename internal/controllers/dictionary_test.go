@@ -1,4 +1,4 @@
-package api
+package controllers
 
 import (
 	"encoding/json"
@@ -10,29 +10,40 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/suite"
+	"word-flashcard/internal/models"
 )
 
-// dictionaryTestSuite contains all dictionary-related tests
-type dictionaryTestSuite struct {
+// dictionaryControllerTestSuite contains all dictionary controller tests
+type dictionaryControllerTestSuite struct {
 	suite.Suite
+	controller          *DictionaryController
+	router              *gin.Engine
 	mockCambridgeServer *httptest.Server
 	originalPort        string
 }
 
-// TestDictionaryService runs all dictionary tests using the test suite
-func TestDictionaryService(t *testing.T) {
-	suite.Run(t, new(dictionaryTestSuite))
+// TestDictionaryController runs all dictionary controller tests using the test suite
+func TestDictionaryController(t *testing.T) {
+	suite.Run(t, new(dictionaryControllerTestSuite))
 }
 
 // SetupTest is called before each test method
-func (s *dictionaryTestSuite) SetupTest() {
-	setupDictionaryTestLogging()
+func (s *dictionaryControllerTestSuite) SetupTest() {
+	setupDictionaryControllerTestLogging()
+
+	// Set gin to test mode
+	gin.SetMode(gin.TestMode)
 
 	// Clear cache before each test
-	cacheMutex.Lock()
-	cache = make(map[string]CacheEntry)
-	cacheMutex.Unlock()
+	s.controller = NewDictionaryController()
+
+	// Initialize router
+	s.router = gin.New()
+
+	// Register dictionary route
+	s.router.GET("/api/dictionary/:word", s.controller.SearchWord)
 
 	// Store original port and setup mock server
 	s.originalPort = os.Getenv("CAMBRIDGE_API_PORT")
@@ -40,7 +51,7 @@ func (s *dictionaryTestSuite) SetupTest() {
 }
 
 // TearDownTest is called after each test method
-func (s *dictionaryTestSuite) TearDownTest() {
+func (s *dictionaryControllerTestSuite) TearDownTest() {
 	if s.mockCambridgeServer != nil {
 		s.mockCambridgeServer.Close()
 	}
@@ -52,8 +63,8 @@ func (s *dictionaryTestSuite) TearDownTest() {
 	}
 }
 
-// setupDictionaryTestLogging configures logging for dictionary tests
-func setupDictionaryTestLogging() {
+// setupDictionaryControllerTestLogging configures logging for dictionary controller tests
+func setupDictionaryControllerTestLogging() {
 	handler := slog.NewTextHandler(io.Discard, &slog.HandlerOptions{
 		Level: slog.LevelError,
 	})
@@ -62,14 +73,14 @@ func setupDictionaryTestLogging() {
 }
 
 // setupMockCambridgeServer creates a mock server that simulates Cambridge API responses
-func (s *dictionaryTestSuite) setupMockCambridgeServer() {
+func (s *dictionaryControllerTestSuite) setupMockCambridgeServer() {
 	s.mockCambridgeServer = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Mock Cambridge API response for successful word lookup
 		if strings.Contains(r.URL.Path, "/api/dictionary/en-tw/hello") {
-			mockResponse := CambridgeResponse{
+			mockResponse := models.CambridgeResponse{
 				Word: "hello",
 				POS:  []string{"noun", "verb"},
-				Pronunciation: []CambridgePronunciation{
+				Pronunciation: []models.CambridgePronunciation{
 					{
 						POS:  "noun",
 						Lang: "en",
@@ -77,13 +88,13 @@ func (s *dictionaryTestSuite) setupMockCambridgeServer() {
 						Pron: "/həˈloʊ/",
 					},
 				},
-				Definition: []CambridgeDefinition{
+				Definition: []models.CambridgeDefinition{
 					{
 						ID:          1,
 						POS:         "noun",
 						Text:        "a greeting",
 						Translation: "問候",
-						Example: []CambridgeExample{
+						Example: []models.CambridgeExample{
 							{
 								ID:          1,
 								Text:        "hello there!",
@@ -110,29 +121,20 @@ func (s *dictionaryTestSuite) setupMockCambridgeServer() {
 	os.Setenv("CAMBRIDGE_API_PORT", port)
 }
 
-// TestDictionarySearchSuccess tests that dictionarySearch successfully handles a valid word request
-func (s *dictionaryTestSuite) TestDictionarySearchSuccess() {
-	// Create a new ServeMux for testing
-	mux := http.NewServeMux()
-
-	// Create a DictionaryHandler instance
-	dictionaryHandler := &DictionaryHandler{}
-
-	// Register the dictionary handler
-	dictionaryHandler.Register(mux)
-
+// TestSearchWordSuccess tests that SearchWord successfully handles a valid word request
+func (s *dictionaryControllerTestSuite) TestSearchWordSuccess() {
 	// Create a test request to search for the word "hello"
 	req := httptest.NewRequest("GET", "/api/dictionary/hello", nil)
 	recorder := httptest.NewRecorder()
 
-	// Execute the request through the mux
-	mux.ServeHTTP(recorder, req)
+	// Execute the request through the gin router
+	s.router.ServeHTTP(recorder, req)
 
 	// Verify the response status code is 200 OK
 	s.Equal(http.StatusOK, recorder.Code, "Dictionary search should respond with 200 OK")
 
 	// Verify the response contains valid JSON
-	var response DictionaryResponse
+	var response models.DictionaryResponse
 	err := json.Unmarshal(recorder.Body.Bytes(), &response)
 	s.NoError(err, "Response should be valid JSON")
 
@@ -148,4 +150,39 @@ func (s *dictionaryTestSuite) TestDictionarySearchSuccess() {
 	s.Equal("noun", response.Meanings[0].PartOfSpeech, "First meaning should be part of speech 'noun'")
 	s.NotEmpty(response.Meanings[0].Definitions, "Meaning should contain definitions")
 	s.Contains(response.Meanings[0].Definitions[0].Definition, "問候", "Definition should contain Chinese translation")
+
+	// Verify content type header
+	s.Equal("application/json; charset=utf-8", recorder.Header().Get("Content-Type"), "Content-Type should be application/json")
+}
+
+// TestSearchWordEmptyParameter tests that SearchWord handles empty word parameter correctly
+func (s *dictionaryControllerTestSuite) TestSearchWordEmptyParameter() {
+	// Create a test request with empty word parameter
+	req := httptest.NewRequest("GET", "/api/dictionary/", nil)
+	recorder := httptest.NewRecorder()
+
+	// Execute the request through the gin router
+	s.router.ServeHTTP(recorder, req)
+
+	// Verify that the endpoint responds with 404 Not Found (gin route doesn't match)
+	s.Equal(http.StatusNotFound, recorder.Code, "Empty word parameter should result in 404 Not Found")
+}
+
+// TestSearchWordNotFound tests that SearchWord handles word not found scenarios
+func (s *dictionaryControllerTestSuite) TestSearchWordNotFound() {
+	// Create a test request for a word that doesn't exist in mock server
+	req := httptest.NewRequest("GET", "/api/dictionary/nonexistentword", nil)
+	recorder := httptest.NewRecorder()
+
+	// Execute the request through the gin router
+	s.router.ServeHTTP(recorder, req)
+
+	// Verify that the endpoint responds with 500 Internal Server Error
+	s.Equal(http.StatusInternalServerError, recorder.Code, "Word not found should respond with 500")
+
+	// Verify error response format
+	var response gin.H
+	err := json.Unmarshal(recorder.Body.Bytes(), &response)
+	s.NoError(err, "Error response should be valid JSON")
+	s.Contains(response["error"], "Error fetching word data", "Error message should contain 'Error fetching word data'")
 }

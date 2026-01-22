@@ -50,7 +50,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Dictionary definition found successfully",
                         "schema": {
-                            "$ref": "#/definitions/api.DictionaryResponse"
+                            "$ref": "#/definitions/models.DictionaryResponse"
                         }
                     },
                     "400": {
@@ -85,7 +85,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Server is healthy",
                         "schema": {
-                            "$ref": "#/definitions/api.HealthResponse"
+                            "$ref": "#/definitions/models.HealthResponse"
                         }
                     }
                 }
@@ -93,7 +93,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "api.DefinitionInfo": {
+        "models.DefinitionInfo": {
             "type": "object",
             "properties": {
                 "definition": {
@@ -107,24 +107,24 @@ const docTemplate = `{
                 }
             }
         },
-        "api.DictionaryResponse": {
+        "models.DictionaryResponse": {
             "type": "object",
             "properties": {
                 "meanings": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/api.MeaningInfo"
+                        "$ref": "#/definitions/models.MeaningInfo"
                     }
                 },
                 "phonetics": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/api.PhoneticInfo"
+                        "$ref": "#/definitions/models.PhoneticInfo"
                     }
                 }
             }
         },
-        "api.HealthResponse": {
+        "models.HealthResponse": {
             "type": "object",
             "properties": {
                 "status": {
@@ -132,13 +132,13 @@ const docTemplate = `{
                 }
             }
         },
-        "api.MeaningInfo": {
+        "models.MeaningInfo": {
             "type": "object",
             "properties": {
                 "definitions": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/api.DefinitionInfo"
+                        "$ref": "#/definitions/models.DefinitionInfo"
                     }
                 },
                 "partOfSpeech": {
@@ -146,7 +146,7 @@ const docTemplate = `{
                 }
             }
         },
-        "api.PhoneticInfo": {
+        "models.PhoneticInfo": {
             "type": "object",
             "properties": {
                 "audio": {

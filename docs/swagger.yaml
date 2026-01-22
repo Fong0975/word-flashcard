@@ -1,6 +1,6 @@
 basePath: /
 definitions:
-  api.DefinitionInfo:
+  models.DefinitionInfo:
     properties:
       definition:
         type: string
@@ -9,32 +9,32 @@ definitions:
           type: string
         type: array
     type: object
-  api.DictionaryResponse:
+  models.DictionaryResponse:
     properties:
       meanings:
         items:
-          $ref: '#/definitions/api.MeaningInfo'
+          $ref: '#/definitions/models.MeaningInfo'
         type: array
       phonetics:
         items:
-          $ref: '#/definitions/api.PhoneticInfo'
+          $ref: '#/definitions/models.PhoneticInfo'
         type: array
     type: object
-  api.HealthResponse:
+  models.HealthResponse:
     properties:
       status:
         type: string
     type: object
-  api.MeaningInfo:
+  models.MeaningInfo:
     properties:
       definitions:
         items:
-          $ref: '#/definitions/api.DefinitionInfo'
+          $ref: '#/definitions/models.DefinitionInfo'
         type: array
       partOfSpeech:
         type: string
     type: object
-  api.PhoneticInfo:
+  models.PhoneticInfo:
     properties:
       audio:
         type: string
@@ -73,7 +73,7 @@ paths:
         "200":
           description: Dictionary definition found successfully
           schema:
-            $ref: '#/definitions/api.DictionaryResponse'
+            $ref: '#/definitions/models.DictionaryResponse'
         "400":
           description: Bad request - Invalid URL format or missing word parameter
           schema:
@@ -97,7 +97,7 @@ paths:
         "200":
           description: Server is healthy
           schema:
-            $ref: '#/definitions/api.HealthResponse'
+            $ref: '#/definitions/models.HealthResponse'
       summary: Health check endpoint
       tags:
       - health

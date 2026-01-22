@@ -7,10 +7,14 @@ The application features a REST API backend and an HTML frontend interface.
 
 ```
 word-flashcard/
-├── api/                           # REST API handlers
 ├── dist/                          # Build output directory
 ├── docs/                          # Auto-generated Swagger API documentation
 ├── handlers/                      # HTTP Web handlers
+├── internal/                      # Internal application code
+│   ├── controllers/              # API controllers
+│   ├── middleware/               # HTTP middleware
+│   ├── models/                   # Data models
+│   └── routers/                  # Route configuration
 ├── utils/                         # Utility modules
 │   ├── cambridge-dictionary-api/ # Cambridge Dictionary API sub-service
 │   ├── config/                   # Configuration module
@@ -98,7 +102,7 @@ go run main.go
 
 - **Web Interface**: http://localhost:8080
 - **API Endpoints**: http://localhost:8080/api
-- **Swagger UI**: http://localhost:8080/swagger/
+- **Swagger UI**: http://localhost:8080/swagger
 
 ### 5. Stop the Service
 
@@ -108,7 +112,7 @@ To stop the service, press `Ctrl+C` in the terminal where the service is running
 
 The API documentation is available through Swagger UI in two ways:
 
-- **Local Development**: http://localhost:8080/swagger/ (when the server is running locally)
+- **Local Development**: http://localhost:8080/swagger (when the server is running locally)
 - **Online Documentation**: https://fong0975.github.io/word-flashcard/ (automatically updated via GitHub Actions)
 
 
@@ -139,7 +143,9 @@ Run unit tests for the entire project:
 go test ./... -v
 
 # Run tests for specific package
-go test ./api -v
+go test ./internal/controllers -v
+go test ./internal/middleware -v
+go test ./internal/routers -v
 
 # Run tests with coverage report
 go test ./... -cover
