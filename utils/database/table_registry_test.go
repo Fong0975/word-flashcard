@@ -255,25 +255,6 @@ func TestClearRegistry(t *testing.T) {
 	}
 }
 
-// Test registering predefined table schemas
-func TestRegisterTableSchemas(t *testing.T) {
-	setupCleanRegistry()
-
-	// Call RegisterTableSchemas to register all predefined tables
-	RegisterTableSchemas()
-
-	// Verify that at least the words table is registered
-	// (based on the implementation that registers domain.WordsTable())
-	exists := TableExists("words")
-	if !exists {
-		t.Error("Expected 'words' table to be registered after RegisterTableSchemas()")
-	}
-
-	tables := GetAllTables()
-	if len(tables) == 0 {
-		t.Error("Expected at least one table after RegisterTableSchemas()")
-	}
-}
 
 // Test concurrent access to the registry
 func TestConcurrentAccess(t *testing.T) {

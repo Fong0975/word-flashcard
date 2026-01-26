@@ -12,6 +12,7 @@ import (
 	"time"
 	"word-flashcard/utils/log"
 
+	"word-flashcard/data"
 	_ "word-flashcard/docs"
 	"word-flashcard/internal/routers"
 	"word-flashcard/utils/database"
@@ -136,8 +137,8 @@ func runHTTPServer(server *http.Server) {
 func initializeDatabase() error {
 	slog.Info("Initializing database start")
 
-	// Register table schemas to memory
-	database.RegisterTableSchemas()
+	// Register table schemas from data layer
+	data.RegisterAllTables()
 
 	// Create database instance from environment variables
 	db, err := database.NewDatabaseFromEnv()

@@ -2,7 +2,6 @@ package database
 
 import (
 	"fmt"
-	"log/slog"
 	"sync"
 
 	"word-flashcard/utils/database/domain"
@@ -17,20 +16,6 @@ type TableRegistry struct {
 // Global registry instance
 var registry = &TableRegistry{
 	tables: make(map[string]*domain.TableDefinition),
-}
-
-// RegisterTableSchemas registers all table definitions to the in-memory registry
-func RegisterTableSchemas() {
-	// Register all table definitions
-	tables := []*domain.TableDefinition{
-		domain.WordsTable(),
-	}
-
-	for _, table := range tables {
-		if err := RegisterTable(table); err != nil {
-			slog.Error("Failed to register table", "table", table.Name, "error", err)
-		}
-	}
 }
 
 // RegisterTable adds a table definition to the registry

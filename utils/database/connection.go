@@ -298,6 +298,12 @@ func (u *UniversalDatabase) buildPostgreSQLDSN() string {
 		u.config.DatabaseName, u.config.SSLMode)
 }
 
+// GetDB returns the underlying sql.DB connection
+// This method provides access to the raw database connection for advanced operations
+func (u *UniversalDatabase) GetDB() *sql.DB {
+	return u.db
+}
+
 // configureConnection configures database connection parameters
 func (u *UniversalDatabase) configureConnection(db *sql.DB) {
 	db.SetMaxOpenConns(u.config.MaxOpenConns)
