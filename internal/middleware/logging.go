@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"log/slog"
+	"regexp"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,12 +18,15 @@ func LoggingMiddleware() gin.HandlerFunc {
 			requestPath += "?" + param.Request.URL.RawQuery
 		}
 
-		// Choose log level based on status code
+		debugRegex := regexp.MustCompile(`^(/static.*|/swagger/.*\.\w+[^html])$`)
+		// Choose log level based on request path and status code
 		logLevel := slog.LevelInfo
 		if param.StatusCode >= 400 && param.StatusCode < 500 {
 			logLevel = slog.LevelWarn // 4xx errors including 404
 		} else if param.StatusCode >= 500 {
 			logLevel = slog.LevelError // 5xx errors
+		} else if debugRegex.MatchString(requestPath) {
+			logLevel = slog.LevelDebug
 		}
 
 		// Log the request using slog
