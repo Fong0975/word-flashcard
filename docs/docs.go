@@ -56,13 +56,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid URL format or missing word parameter",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Word not found, API error, or JSON encoding failure",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -121,6 +121,14 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/models.PhoneticInfo"
                     }
+                }
+            }
+        },
+        "models.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
                 }
             }
         },

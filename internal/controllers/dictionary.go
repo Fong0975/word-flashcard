@@ -45,8 +45,8 @@ func NewDictionaryController() *DictionaryController {
 // @Produce json
 // @Param word path string true "Word to search for"
 // @Success 200 {object} models.DictionaryResponse "Dictionary definition found successfully"
-// @Failure 400 {string} string "Bad request - Invalid URL format or missing word parameter"
-// @Failure 500 {string} string "Internal server error - Word not found, API error, or JSON encoding failure"
+// @Failure 400 {object} models.ErrorResponse "Bad request - Invalid URL format or missing word parameter"
+// @Failure 500 {object} models.ErrorResponse "Internal server error - Word not found, API error, or JSON encoding failure"
 // @Router /api/dictionary/{word} [get]
 func (dc *DictionaryController) SearchWord(c *gin.Context) {
 	word := c.Param("word")
