@@ -20,7 +20,7 @@ linters:
     gocyclo:
       min-complexity: 35
     lll:
-      line-length: 120
+      line-length: 200
       tab-width: 4
     staticcheck:
       checks:

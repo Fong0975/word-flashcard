@@ -24,7 +24,7 @@ func WordsTable() *domain.TableDefinition {
 				Name:    "familiarity",
 				Type:    domain.VarcharType(20),
 				NotNull: true,
-				Default: "'RED'",
+				Default: "'red'",
 			},
 			{
 				Name:    "created_at",
