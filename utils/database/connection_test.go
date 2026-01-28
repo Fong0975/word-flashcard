@@ -5,7 +5,24 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/Masterminds/squirrel"
+	"github.com/stretchr/testify/suite"
 )
+
+// connectionTestSuite testing suite components
+type connectionTestSuite struct {
+	suite.Suite
+	t *testing.T
+}
+
+// TestConnectionSuite runs the test suite
+func TestConnectionSuite(t *testing.T) {
+	suite.Run(t, new(connectionTestSuite))
+}
+
+// SetupTest for the test suite
+func (s *connectionTestSuite) SetupTest() {
+	s.t = s.T()
+}
 
 // createTestConfig creates a default test configuration
 func createTestConfig() *DBConfig {
@@ -53,19 +70,19 @@ func createMockDatabase(t *testing.T, dbType string) (*UniversalDatabase, sqlmoc
 }
 
 // Test create different type of database connections
-func TestNewUniversalDatabase(t *testing.T) {
+func (suite *connectionTestSuite) TestNewUniversalDatabase() {
 	// Test with MySQL config
 	mysqlConfig := createTestConfig()
 	db := NewUniversalDatabase(mysqlConfig)
 	if db == nil {
-		t.Error("Expected non-nil UniversalDatabase for MySQL config")
+		suite.t.Error("Expected non-nil UniversalDatabase for MySQL config")
 	}
 
 	// Test with PostgreSQL config
 	postgresConfig := createPostgreSQLTestConfig()
 	db = NewUniversalDatabase(postgresConfig)
 	if db == nil {
-		t.Error("Expected non-nil UniversalDatabase for PostgreSQL config")
+		suite.t.Error("Expected non-nil UniversalDatabase for PostgreSQL config")
 	}
 
 	// Test with unsupported database type
@@ -73,37 +90,37 @@ func TestNewUniversalDatabase(t *testing.T) {
 	unknownConfig.Type = "unknown"
 	db = NewUniversalDatabase(unknownConfig)
 	if db == nil {
-		t.Error("Expected non-nil UniversalDatabase even for unknown type (should default to MySQL format)")
+		suite.t.Error("Expected non-nil UniversalDatabase even for unknown type (should default to MySQL format)")
 	}
 }
 
 // Test MySQL connection string building
-func TestBuildMySQLDSN(t *testing.T) {
+func (suite *connectionTestSuite) TestBuildMySQLDSN() {
 	config := createTestConfig()
 	db := NewUniversalDatabase(config)
 	dsn := db.buildMySQLDSN()
 
 	expected := "testuser:testpass@tcp(localhost:3306)/testdb?parseTime=true"
 	if dsn != expected {
-		t.Errorf("Expected DSN=%s, got %s", expected, dsn)
+		suite.t.Errorf("Expected DSN=%s, got %s", expected, dsn)
 	}
 }
 
 // Test PostgreSQL connection string building
-func TestBuildPostgreSQLDSN(t *testing.T) {
+func (suite *connectionTestSuite) TestBuildPostgreSQLDSN() {
 	config := createPostgreSQLTestConfig()
 	db := NewUniversalDatabase(config)
 	dsn := db.buildPostgreSQLDSN()
 
 	expected := "host=localhost port=5432 user=testuser password=testpass dbname=testdb sslmode=disable"
 	if dsn != expected {
-		t.Errorf("Expected DSN=%s, got %s", expected, dsn)
+		suite.t.Errorf("Expected DSN=%s, got %s", expected, dsn)
 	}
 }
 
 // Test Select feature
-func TestSelectWithMockDB(t *testing.T) {
-	db, mock, cleanup := createMockDatabase(t, "mysql")
+func (suite *connectionTestSuite) TestSelectWithMockDB() {
+	db, mock, cleanup := createMockDatabase(suite.t, "mysql")
 	defer cleanup()
 
 	// Setup expectations
@@ -117,22 +134,22 @@ func TestSelectWithMockDB(t *testing.T) {
 	var results []TestStruct
 	err := db.Select("users", nil, &results)
 	if err != nil {
-		t.Errorf("Select() failed: %v", err)
+		suite.t.Errorf("Select() failed: %v", err)
 	}
 
 	if len(results) != 2 {
-		t.Errorf("Expected 2 results, got %d", len(results))
+		suite.t.Errorf("Expected 2 results, got %d", len(results))
 	}
 
 	// Verify all expectations were met
 	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("Unfulfilled expectations: %v", err)
+		suite.t.Errorf("Unfulfilled expectations: %v", err)
 	}
 }
 
 // Test Select with where condition
-func TestSelectWithWhereCondition(t *testing.T) {
-	db, mock, cleanup := createMockDatabase(t, "mysql")
+func (suite *connectionTestSuite) TestSelectWithWhereCondition() {
+	db, mock, cleanup := createMockDatabase(suite.t, "mysql")
 	defer cleanup()
 
 	rows := sqlmock.NewRows([]string{"id", "name", "email"}).
@@ -146,17 +163,17 @@ func TestSelectWithWhereCondition(t *testing.T) {
 	where := squirrel.Eq{"id": 1}
 	err := db.Select("users", where, &results)
 	if err != nil {
-		t.Errorf("Select() with where condition failed: %v", err)
+		suite.t.Errorf("Select() with where condition failed: %v", err)
 	}
 
 	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("Unfulfilled expectations: %v", err)
+		suite.t.Errorf("Unfulfilled expectations: %v", err)
 	}
 }
 
 // Test Insert feature (MySQL)
-func TestInsertWithMySQLMockDB(t *testing.T) {
-	db, mock, cleanup := createMockDatabase(t, "mysql")
+func (suite *connectionTestSuite) TestInsertWithMySQLMockDB() {
+	db, mock, cleanup := createMockDatabase(suite.t, "mysql")
 	defer cleanup()
 
 	testData := TestStruct{
@@ -172,21 +189,21 @@ func TestInsertWithMySQLMockDB(t *testing.T) {
 
 	id, err := db.Insert("users", testData)
 	if err != nil {
-		t.Errorf("Insert() failed: %v", err)
+		suite.t.Errorf("Insert() failed: %v", err)
 	}
 
 	if id != 1 {
-		t.Errorf("Expected ID=1, got %d", id)
+		suite.t.Errorf("Expected ID=1, got %d", id)
 	}
 
 	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("Unfulfilled expectations: %v", err)
+		suite.t.Errorf("Unfulfilled expectations: %v", err)
 	}
 }
 
 // Test Insert feature (PostgreSQL)
-func TestInsertWithPostgreSQLMockDB(t *testing.T) {
-	db, mock, cleanup := createMockDatabase(t, "postgresql")
+func (suite *connectionTestSuite) TestInsertWithPostgreSQLMockDB() {
+	db, mock, cleanup := createMockDatabase(suite.t, "postgresql")
 	defer cleanup()
 
 	testData := TestStruct{
@@ -202,21 +219,21 @@ func TestInsertWithPostgreSQLMockDB(t *testing.T) {
 
 	id, err := db.Insert("users", testData)
 	if err != nil {
-		t.Errorf("Insert() failed: %v", err)
+		suite.t.Errorf("Insert() failed: %v", err)
 	}
 
 	if id != 1 {
-		t.Errorf("Expected ID=1, got %d", id)
+		suite.t.Errorf("Expected ID=1, got %d", id)
 	}
 
 	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("Unfulfilled expectations: %v", err)
+		suite.t.Errorf("Unfulfilled expectations: %v", err)
 	}
 }
 
 // Test Update feature
-func TestUpdateWithMockDB(t *testing.T) {
-	db, mock, cleanup := createMockDatabase(t, "mysql")
+func (suite *connectionTestSuite) TestUpdateWithMockDB() {
+	db, mock, cleanup := createMockDatabase(suite.t, "mysql")
 	defer cleanup()
 
 	updateData := TestStruct{
@@ -230,21 +247,21 @@ func TestUpdateWithMockDB(t *testing.T) {
 	where := squirrel.Eq{"id": 1}
 	rowsAffected, err := db.Update("users", updateData, where)
 	if err != nil {
-		t.Errorf("Update() failed: %v", err)
+		suite.t.Errorf("Update() failed: %v", err)
 	}
 
 	if rowsAffected != 1 {
-		t.Errorf("Expected rowsAffected=1, got %d", rowsAffected)
+		suite.t.Errorf("Expected rowsAffected=1, got %d", rowsAffected)
 	}
 
 	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("Unfulfilled expectations: %v", err)
+		suite.t.Errorf("Unfulfilled expectations: %v", err)
 	}
 }
 
 // Test Delete feature
-func TestDeleteWithMockDB(t *testing.T) {
-	db, mock, cleanup := createMockDatabase(t, "mysql")
+func (suite *connectionTestSuite) TestDeleteWithMockDB() {
+	db, mock, cleanup := createMockDatabase(suite.t, "mysql")
 	defer cleanup()
 
 	mock.ExpectExec("DELETE FROM users WHERE id = \\?").
@@ -254,21 +271,21 @@ func TestDeleteWithMockDB(t *testing.T) {
 	where := squirrel.Eq{"id": 1}
 	rowsAffected, err := db.Delete("users", where)
 	if err != nil {
-		t.Errorf("Delete() failed: %v", err)
+		suite.t.Errorf("Delete() failed: %v", err)
 	}
 
 	if rowsAffected != 1 {
-		t.Errorf("Expected rowsAffected=1, got %d", rowsAffected)
+		suite.t.Errorf("Expected rowsAffected=1, got %d", rowsAffected)
 	}
 
 	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("Unfulfilled expectations: %v", err)
+		suite.t.Errorf("Unfulfilled expectations: %v", err)
 	}
 }
 
 // Test Count feature
-func TestCountWithMockDB(t *testing.T) {
-	db, mock, cleanup := createMockDatabase(t, "mysql")
+func (suite *connectionTestSuite) TestCountWithMockDB() {
+	db, mock, cleanup := createMockDatabase(suite.t, "mysql")
 	defer cleanup()
 
 	rows := sqlmock.NewRows([]string{"count"}).AddRow(5)
@@ -276,45 +293,45 @@ func TestCountWithMockDB(t *testing.T) {
 
 	count, err := db.Count("users", nil)
 	if err != nil {
-		t.Errorf("Count() failed: %v", err)
+		suite.t.Errorf("Count() failed: %v", err)
 	}
 
 	if count != 5 {
-		t.Errorf("Expected count=5, got %d", count)
+		suite.t.Errorf("Expected count=5, got %d", count)
 	}
 
 	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("Unfulfilled expectations: %v", err)
+		suite.t.Errorf("Unfulfilled expectations: %v", err)
 	}
 }
 
 // Test Exec feature - general query execution
-func TestExecWithMockDB(t *testing.T) {
-	db, mock, cleanup := createMockDatabase(t, "mysql")
+func (suite *connectionTestSuite) TestExecWithMockDB() {
+	db, mock, cleanup := createMockDatabase(suite.t, "mysql")
 	defer cleanup()
 
 	mock.ExpectExec("CREATE TABLE test").WillReturnResult(sqlmock.NewResult(0, 0))
 
 	result, err := db.Exec("CREATE TABLE test (id INT PRIMARY KEY)")
 	if err != nil {
-		t.Errorf("Exec() failed: %v", err)
+		suite.t.Errorf("Exec() failed: %v", err)
 	}
 
 	if result == nil {
-		t.Error("Expected non-nil result from Exec()")
+		suite.t.Error("Expected non-nil result from Exec()")
 	}
 
 	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("Unfulfilled expectations: %v", err)
+		suite.t.Errorf("Unfulfilled expectations: %v", err)
 	}
 }
 
 // Test Close connection
-func TestCloseDatabase(t *testing.T) {
+func (suite *connectionTestSuite) TestCloseDatabase() {
 	// Create mock database without using createMockDatabase to avoid cleanup conflicts
 	mockDB, mock, err := sqlmock.New()
 	if err != nil {
-		t.Fatalf("Failed to create sqlmock: %v", err)
+		suite.t.Fatalf("Failed to create sqlmock: %v", err)
 	}
 
 	config := createTestConfig()
@@ -327,24 +344,24 @@ func TestCloseDatabase(t *testing.T) {
 	// Test closing the connection
 	err = db.Close()
 	if err != nil {
-		t.Errorf("Close() failed: %v", err)
+		suite.t.Errorf("Close() failed: %v", err)
 	}
 
 	// Verify expectations
 	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("Unfulfilled expectations: %v", err)
+		suite.t.Errorf("Unfulfilled expectations: %v", err)
 	}
 
 	// Test closing when db is nil
 	db.db = nil
 	err = db.Close()
 	if err != nil {
-		t.Errorf("Close() failed when db is nil: %v", err)
+		suite.t.Errorf("Close() failed when db is nil: %v", err)
 	}
 }
 
 // Test operations without an active connection
-func TestOperationsWithoutConnection(t *testing.T) {
+func (suite *connectionTestSuite) TestOperationsWithoutConnection() {
 	config := createTestConfig()
 	db := NewUniversalDatabase(config)
 
@@ -352,42 +369,42 @@ func TestOperationsWithoutConnection(t *testing.T) {
 	var results []TestStruct
 	err := db.Select("users", nil, &results)
 	if err == nil {
-		t.Error("Expected error for Select() without connection, got nil")
+		suite.t.Error("Expected error for Select() without connection, got nil")
 	}
 
 	// Test Insert without connection
 	_, err = db.Insert("users", TestStruct{Name: "test"})
 	if err == nil {
-		t.Error("Expected error for Insert() without connection, got nil")
+		suite.t.Error("Expected error for Insert() without connection, got nil")
 	}
 
 	// Test Update without connection
 	_, err = db.Update("users", TestStruct{Name: "test"}, nil)
 	if err == nil {
-		t.Error("Expected error for Update() without connection, got nil")
+		suite.t.Error("Expected error for Update() without connection, got nil")
 	}
 
 	// Test Delete without connection
 	_, err = db.Delete("users", nil)
 	if err == nil {
-		t.Error("Expected error for Delete() without connection, got nil")
+		suite.t.Error("Expected error for Delete() without connection, got nil")
 	}
 
 	// Test Count without connection
 	_, err = db.Count("users", nil)
 	if err == nil {
-		t.Error("Expected error for Count() without connection, got nil")
+		suite.t.Error("Expected error for Count() without connection, got nil")
 	}
 
 	// Test Exec without connection
 	_, err = db.Exec("SELECT 1")
 	if err == nil {
-		t.Error("Expected error for Exec() without connection, got nil")
+		suite.t.Error("Expected error for Exec() without connection, got nil")
 	}
 
 	// Test InitializeTables without connection
 	err = db.InitializeTables()
 	if err == nil {
-		t.Error("Expected error for InitializeTables() without connection, got nil")
+		suite.t.Error("Expected error for InitializeTables() without connection, got nil")
 	}
 }

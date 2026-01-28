@@ -3,17 +3,35 @@ package database
 import (
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/suite"
 )
 
+// factoryTestSuite testing suite components
+type factoryTestSuite struct {
+	suite.Suite
+	t *testing.T
+}
+
+// TestFactorySuite runs the test suite
+func TestFactorySuite(t *testing.T) {
+	suite.Run(t, new(factoryTestSuite))
+}
+
+// SetupTest for the test suite
+func (s *factoryTestSuite) SetupTest() {
+	s.t = s.T()
+}
+
 // Test create different database instances based on configuration
-func TestNewDatabase(t *testing.T) {
+func (suite *factoryTestSuite) TestNewDatabase() {
 	// Test with nil config
 	db, err := NewDatabase(nil)
 	if err == nil {
-		t.Error("Expected error for nil config, got nil")
+		suite.t.Error("Expected error for nil config, got nil")
 	}
 	if db != nil {
-		t.Error("Expected nil database instance for nil config")
+		suite.t.Error("Expected nil database instance for nil config")
 	}
 
 	// Test with valid MySQL config
@@ -31,10 +49,10 @@ func TestNewDatabase(t *testing.T) {
 
 	db, err = NewDatabase(mysqlConfig)
 	if err != nil {
-		t.Errorf("NewDatabase() failed for MySQL config: %v", err)
+		suite.t.Errorf("NewDatabase() failed for MySQL config: %v", err)
 	}
 	if db == nil {
-		t.Error("Expected non-nil database instance for valid MySQL config")
+		suite.t.Error("Expected non-nil database instance for valid MySQL config")
 	}
 
 	// Test with valid PostgreSQL config
@@ -52,10 +70,10 @@ func TestNewDatabase(t *testing.T) {
 
 	db, err = NewDatabase(postgresConfig)
 	if err != nil {
-		t.Errorf("NewDatabase() failed for PostgreSQL config: %v", err)
+		suite.t.Errorf("NewDatabase() failed for PostgreSQL config: %v", err)
 	}
 	if db == nil {
-		t.Error("Expected non-nil database instance for valid PostgreSQL config")
+		suite.t.Error("Expected non-nil database instance for valid PostgreSQL config")
 	}
 
 	// Test with unsupported database type
@@ -73,15 +91,15 @@ func TestNewDatabase(t *testing.T) {
 
 	db, err = NewDatabase(invalidConfig)
 	if err == nil {
-		t.Error("Expected error for unsupported database type, got nil")
+		suite.t.Error("Expected error for unsupported database type, got nil")
 	}
 	if db != nil {
-		t.Error("Expected nil database instance for unsupported database type")
+		suite.t.Error("Expected nil database instance for unsupported database type")
 	}
 }
 
 // Test creating database instance from environment variables
-func TestNewDatabaseFromEnv(t *testing.T) {
+func (suite *factoryTestSuite) TestNewDatabaseFromEnv() {
 	// Set up valid environment variables
 	os.Setenv("DB_TYPE", "mysql")
 	os.Setenv("DB_HOST", "localhost")
@@ -101,24 +119,24 @@ func TestNewDatabaseFromEnv(t *testing.T) {
 
 	db, err := NewDatabaseFromEnv()
 	if err != nil {
-		t.Errorf("NewDatabaseFromEnv() failed: %v", err)
+		suite.t.Errorf("NewDatabaseFromEnv() failed: %v", err)
 	}
 	if db == nil {
-		t.Error("Expected non-nil database instance from environment variables")
+		suite.t.Error("Expected non-nil database instance from environment variables")
 	}
 }
 
 // Test creating database instance with invalid environment variables
-func TestNewDatabaseFromEnvWithInvalidEnvironment(t *testing.T) {
+func (suite *factoryTestSuite) TestNewDatabaseFromEnvWithInvalidEnvironment() {
 	// Set invalid environment variables
 	os.Setenv("DB_PORT", "invalid_port")
 	defer os.Unsetenv("DB_PORT")
 
 	db, err := NewDatabaseFromEnv()
 	if err == nil {
-		t.Error("Expected error for invalid environment variables, got nil")
+		suite.t.Error("Expected error for invalid environment variables, got nil")
 	}
 	if db != nil {
-		t.Error("Expected nil database instance for invalid environment variables")
+		suite.t.Error("Expected nil database instance for invalid environment variables")
 	}
 }
