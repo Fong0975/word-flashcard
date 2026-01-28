@@ -78,7 +78,7 @@ func (wp *WordPeer) Insert(wordEntity *entities.Word) error {
 	// 2. Insert all definitions
 	for _, definition := range wordEntity.Definitions {
 		defModel := &models.WordDefinition{
-			WordID:       int(wordID),
+			WordId:       int(wordID),
 			PartOfSpeech: definition.PartOfSpeech,
 			Definition:   definition.Definition,
 			Phonetics:    definition.Phonetics,
@@ -92,7 +92,7 @@ func (wp *WordPeer) Insert(wordEntity *entities.Word) error {
 					 (word_id, part_of_speech, definition, phonetics, examples, notes, created_at, updated_at)
 					 VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
 		defResult, err := tx.Exec(defQuery,
-			defModel.WordID,
+			defModel.WordId,
 			defModel.PartOfSpeech,
 			defModel.Definition,
 			defModel.Phonetics,
@@ -135,7 +135,7 @@ func (wp *WordPeer) Select(conditions map[string]interface{}, limit int, offset 
 	// 2. Batch query definitions for these words
 	wordIDs := make([]interface{}, len(wordModels))
 	for i, word := range wordModels {
-		wordIDs[i] = word.ID
+		wordIDs[i] = word.Id
 	}
 
 	definitionsMap, err := wp.queryDefinitionsByWordIDs(wordIDs)
@@ -146,7 +146,7 @@ func (wp *WordPeer) Select(conditions map[string]interface{}, limit int, offset 
 	// 3. Combine into entities objects
 	var wordEntities []*entities.Word
 	for _, wordModel := range wordModels {
-		definitions := definitionsMap[wordModel.ID]
+		definitions := definitionsMap[wordModel.Id]
 		wordEntity := entities.FromModels(wordModel, definitions)
 		wordEntities = append(wordEntities, wordEntity)
 	}
@@ -186,7 +186,7 @@ func (wp *WordPeer) queryWords(conditions map[string]interface{}, limit int, off
 	var words []*models.Word
 	for rows.Next() {
 		word := &models.Word{}
-		if err := rows.Scan(&word.ID, &word.Word, &word.Familiarity, &word.CreatedAt, &word.UpdatedAt); err != nil {
+		if err := rows.Scan(&word.Id, &word.Word, &word.Familiarity, &word.CreatedAt, &word.UpdatedAt); err != nil {
 			return nil, fmt.Errorf("failed to scan word: %w", err)
 		}
 		words = append(words, word)
@@ -221,8 +221,8 @@ func (wp *WordPeer) queryDefinitionsByWordIDs(wordIDs []interface{}) (map[int][]
 	for rows.Next() {
 		def := &models.WordDefinition{}
 		if err := rows.Scan(
-			&def.ID,
-			&def.WordID,
+			&def.Id,
+			&def.WordId,
 			&def.PartOfSpeech,
 			&def.Definition,
 			&def.Phonetics,
@@ -234,7 +234,7 @@ func (wp *WordPeer) queryDefinitionsByWordIDs(wordIDs []interface{}) (map[int][]
 			return nil, fmt.Errorf("failed to scan definition: %w", err)
 		}
 
-		definitionsMap[def.WordID] = append(definitionsMap[def.WordID], def)
+		definitionsMap[def.WordId] = append(definitionsMap[def.WordId], def)
 	}
 
 	return definitionsMap, rows.Err()
@@ -287,7 +287,7 @@ func (wp *WordPeer) Update(wordEntity *entities.Word) error {
 	wordModel.UpdatedAt = time.Now()
 
 	wordQuery := `UPDATE words SET word = ?, familiarity = ?, updated_at = ? WHERE id = ?`
-	result, err := tx.Exec(wordQuery, wordModel.Word, wordModel.Familiarity, wordModel.UpdatedAt, wordModel.ID)
+	result, err := tx.Exec(wordQuery, wordModel.Word, wordModel.Familiarity, wordModel.UpdatedAt, wordModel.Id)
 	if err != nil {
 		return fmt.Errorf("failed to update word: %w", err)
 	}

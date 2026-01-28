@@ -4,8 +4,8 @@ import "time"
 
 // WordDefinition represents a word definition record from the database
 type WordDefinition struct {
-	ID           int       `db:"id" json:"id"`
-	WordID       int       `db:"word_id" json:"word_id"`
+	Id           int       `db:"id" json:"id"`
+	WordId       int       `db:"word_id" json:"word_id"`
 	PartOfSpeech string    `db:"part_of_speech" json:"part_of_speech"`
 	Definition   string    `db:"definition" json:"definition"`
 	Phonetics    string    `db:"phonetics" json:"phonetics"`
