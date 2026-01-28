@@ -44,7 +44,6 @@ DB_NAME=word_flashcard
 The following parameters are predefined in the code and don't need to be set in `.env`:
 
 - **SSL Mode**: `disable`
-- **Table Prefix**: `wfc_`
 - **Max Open Connections**: `25`
 - **Max Idle Connections**: `25`
 
@@ -227,7 +226,7 @@ config := &database.Config{
     User:         "root",
     Password:     "password",
     DatabaseName: "word_flashcard",
-    // Other parameters use defaults: SSLMode, TablePrefix, MaxOpenConns, MaxIdleConns
+    // Other parameters use defaults: SSLMode, MaxOpenConns, MaxIdleConns
 }
 
 db, err := database.NewDatabase(config)
@@ -363,7 +362,7 @@ rowsAffected, err = db.Delete("words", where)
 ```go
 // Create custom table
 createSQL := `
-CREATE TABLE IF NOT EXISTS wfc_custom (
+CREATE TABLE IF NOT EXISTS custom (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL
 )`
@@ -513,7 +512,7 @@ func TestUserOperations(t *testing.T) {
     defer mockDB.Close()
 
     // Setup expectations
-    mock.ExpectExec("INSERT INTO wfc_users").
+    mock.ExpectExec("INSERT INTO users").
         WillReturnResult(sqlmock.NewResult(1, 1))
 
     // Test your code...
@@ -522,11 +521,10 @@ func TestUserOperations(t *testing.T) {
 
 ## Important Notes
 
-1. **Table Prefix**: All tables are automatically prefixed with `wfc_`
-2. **Field Exclusion**: Fields named `id`, `created_at`, `updated_at` are automatically excluded from INSERT/UPDATE operations
-3. **Thread Safety**: The table registry uses `sync.RWMutex` for concurrent access
-4. **Connection Pool**: Default connection pool settings are optimized for typical applications
-5. **SQL Injection Protection**: Always use the provided CRUD methods or parameterized queries
+1. **Field Exclusion**: Fields named `id`, `created_at`, `updated_at` are automatically excluded from INSERT/UPDATE operations
+2. **Thread Safety**: The table registry uses `sync.RWMutex` for concurrent access
+3. **Connection Pool**: Default connection pool settings are optimized for typical applications
+4. **SQL Injection Protection**: Always use the provided CRUD methods or parameterized queries
 
 ## Example: Complete Word Management
 

@@ -39,9 +39,6 @@ func TestLoadConfig(t *testing.T) {
 	if config.SSLMode != "disable" {
 		t.Errorf("Expected SSLMode=disable, got %s", config.SSLMode)
 	}
-	if config.TablePrefix != "wfc_" {
-		t.Errorf("Expected TablePrefix=wfc_, got %s", config.TablePrefix)
-	}
 	if config.MaxOpenConns != 25 {
 		t.Errorf("Expected MaxOpenConns=25, got %d", config.MaxOpenConns)
 	}

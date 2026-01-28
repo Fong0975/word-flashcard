@@ -67,10 +67,10 @@ func TestGetCreateSQL(t *testing.T) {
 	testTable := createTestTableDefinitionForCreator()
 
 	// Test MySQL CREATE SQL
-	mysqlSQL := GetCreateSQL(testTable, "mysql", "wfc_")
+	mysqlSQL := GetCreateSQL(testTable, "mysql")
 
 	expectedSubstrings := []string{
-		"CREATE TABLE IF NOT EXISTS wfc_test_table",
+		"CREATE TABLE IF NOT EXISTS test_table",
 		"id INT AUTO_INCREMENT NOT NULL PRIMARY KEY",
 		"name VARCHAR(255) NOT NULL",
 		"email VARCHAR(255) UNIQUE",
@@ -85,10 +85,10 @@ func TestGetCreateSQL(t *testing.T) {
 	}
 
 	// Test PostgreSQL CREATE SQL
-	postgresSQL := GetCreateSQL(testTable, "postgresql", "wfc_")
+	postgresSQL := GetCreateSQL(testTable, "postgresql")
 
 	expectedPostgresSubstrings := []string{
-		"CREATE TABLE IF NOT EXISTS wfc_test_table",
+		"CREATE TABLE IF NOT EXISTS test_table",
 		"id SERIAL NOT NULL PRIMARY KEY",
 		"name VARCHAR(255) NOT NULL",
 		"email VARCHAR(255) UNIQUE",
@@ -220,7 +220,7 @@ func TestGetIndexSQL(t *testing.T) {
 	testTable := createTestTableDefinitionForCreator()
 
 	// Test MySQL index SQL
-	mysqlIndexes := GetIndexSQL(testTable, "mysql", "wfc_")
+	mysqlIndexes := GetIndexSQL(testTable, "mysql")
 
 	if len(mysqlIndexes) != 2 {
 		t.Errorf("Expected 2 index SQL statements, got %d", len(mysqlIndexes))
@@ -247,7 +247,7 @@ func TestGetIndexSQL(t *testing.T) {
 	}
 
 	// Test PostgreSQL index SQL (should be same as MySQL for basic indexes)
-	postgresIndexes := GetIndexSQL(testTable, "postgresql", "wfc_")
+	postgresIndexes := GetIndexSQL(testTable, "postgresql")
 	if len(postgresIndexes) != 2 {
 		t.Errorf("Expected 2 PostgreSQL index SQL statements, got %d", len(postgresIndexes))
 	}
@@ -264,11 +264,11 @@ func TestCreateDatabaseTables(t *testing.T) {
 	defer cleanup()
 
 	// Mock table existence check (table doesn't exist)
-	mock.ExpectExec("SELECT 1 FROM wfc_test_table WHERE 1=0").
-		WillReturnError(errors.New("Table 'testdb.wfc_test_table' doesn't exist"))
+	mock.ExpectExec("SELECT 1 FROM test_table WHERE 1=0").
+		WillReturnError(errors.New("Table 'testdb.test_table' doesn't exist"))
 
 	// Mock expectations for CREATE TABLE
-	mock.ExpectExec("CREATE TABLE IF NOT EXISTS wfc_test_table").
+	mock.ExpectExec("CREATE TABLE IF NOT EXISTS test_table").
 		WillReturnResult(sqlmock.NewResult(0, 0))
 
 	// Mock expectations for CREATE INDEX (2 indexes)
@@ -278,7 +278,7 @@ func TestCreateDatabaseTables(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(0, 0))
 
 	// Execute test
-	err := CreateDatabaseTables(db, "mysql", "wfc_")
+	err := CreateDatabaseTables(db, "mysql")
 	if err != nil {
 		t.Errorf("CreateDatabaseTables() failed: %v", err)
 	}
@@ -300,15 +300,15 @@ func TestCreateDatabaseTablesWithFailure(t *testing.T) {
 	defer cleanup()
 
 	// Mock table existence check (table doesn't exist)
-	mock.ExpectExec("SELECT 1 FROM wfc_test_table WHERE 1=0").
-		WillReturnError(errors.New("Table 'testdb.wfc_test_table' doesn't exist"))
+	mock.ExpectExec("SELECT 1 FROM test_table WHERE 1=0").
+		WillReturnError(errors.New("Table 'testdb.test_table' doesn't exist"))
 
 	// Mock CREATE TABLE to fail
-	mock.ExpectExec("CREATE TABLE IF NOT EXISTS wfc_test_table").
+	mock.ExpectExec("CREATE TABLE IF NOT EXISTS test_table").
 		WillReturnError(sqlmock.ErrCancelled)
 
 	// Execute test
-	err := CreateDatabaseTables(db, "mysql", "wfc_")
+	err := CreateDatabaseTables(db, "mysql")
 	if err == nil {
 		t.Error("Expected CreateDatabaseTables() to fail, but it succeeded")
 	}
@@ -330,11 +330,11 @@ func TestCreateDatabaseTablesIndexFailure(t *testing.T) {
 	defer cleanup()
 
 	// Mock table existence check (table doesn't exist)
-	mock.ExpectExec("SELECT 1 FROM wfc_test_table WHERE 1=0").
-		WillReturnError(errors.New("Table 'testdb.wfc_test_table' doesn't exist"))
+	mock.ExpectExec("SELECT 1 FROM test_table WHERE 1=0").
+		WillReturnError(errors.New("Table 'testdb.test_table' doesn't exist"))
 
 	// Mock CREATE TABLE to succeed
-	mock.ExpectExec("CREATE TABLE IF NOT EXISTS wfc_test_table").
+	mock.ExpectExec("CREATE TABLE IF NOT EXISTS test_table").
 		WillReturnResult(sqlmock.NewResult(0, 0))
 
 	// Mock first index to fail (should not stop execution)
@@ -346,7 +346,7 @@ func TestCreateDatabaseTablesIndexFailure(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(0, 0))
 
 	// Execute test - should succeed even if index creation fails
-	err := CreateDatabaseTables(db, "mysql", "wfc_")
+	err := CreateDatabaseTables(db, "mysql")
 	if err != nil {
 		t.Errorf("CreateDatabaseTables() should not fail on index errors, but got: %v", err)
 	}
@@ -456,7 +456,7 @@ func TestCreateDatabaseTablesSkipsExistingTables(t *testing.T) {
 	defer cleanup()
 
 	// Mock table existence check (table exists)
-	mock.ExpectExec("SELECT 1 FROM wfc_test_table WHERE 1=0").
+	mock.ExpectExec("SELECT 1 FROM test_table WHERE 1=0").
 		WillReturnResult(sqlmock.NewResult(0, 0)) // No error means table exists
 
 	// Mock expectations for CREATE INDEX (should still create indexes even if table exists)
@@ -466,7 +466,7 @@ func TestCreateDatabaseTablesSkipsExistingTables(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(0, 0))
 
 	// Execute test
-	err := CreateDatabaseTables(db, "mysql", "wfc_")
+	err := CreateDatabaseTables(db, "mysql")
 	if err != nil {
 		t.Errorf("CreateDatabaseTables() failed: %v", err)
 	}
@@ -488,11 +488,11 @@ func TestCreateDatabaseTablesCreatesNonExistingTable(t *testing.T) {
 	defer cleanup()
 
 	// Mock table existence check (table doesn't exist)
-	mock.ExpectExec("SELECT 1 FROM wfc_test_table WHERE 1=0").
-		WillReturnError(errors.New("Table 'testdb.wfc_test_table' doesn't exist"))
+	mock.ExpectExec("SELECT 1 FROM test_table WHERE 1=0").
+		WillReturnError(errors.New("Table 'testdb.test_table' doesn't exist"))
 
 	// Mock expectations for CREATE TABLE
-	mock.ExpectExec("CREATE TABLE IF NOT EXISTS wfc_test_table").
+	mock.ExpectExec("CREATE TABLE IF NOT EXISTS test_table").
 		WillReturnResult(sqlmock.NewResult(0, 0))
 
 	// Mock expectations for CREATE INDEX
@@ -502,7 +502,7 @@ func TestCreateDatabaseTablesCreatesNonExistingTable(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(0, 0))
 
 	// Execute test
-	err := CreateDatabaseTables(db, "mysql", "wfc_")
+	err := CreateDatabaseTables(db, "mysql")
 	if err != nil {
 		t.Errorf("CreateDatabaseTables() failed: %v", err)
 	}

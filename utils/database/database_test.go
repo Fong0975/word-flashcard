@@ -227,7 +227,6 @@ func TestNewBaseDatabase(t *testing.T) {
 		User:         "testuser",
 		Password:     "testpass",
 		DatabaseName: "testdb",
-		TablePrefix:  "test_",
 	}
 
 	base := NewBaseDatabase(config, nil)
@@ -241,18 +240,3 @@ func TestNewBaseDatabase(t *testing.T) {
 	}
 }
 
-// Test table name generation with prefix
-func TestGetTableName(t *testing.T) {
-	config := &DBConfig{
-		TablePrefix: "wfc_",
-	}
-
-	base := NewBaseDatabase(config, nil)
-
-	tableName := base.getTableName("users")
-	expectedTableName := "wfc_users"
-
-	if tableName != expectedTableName {
-		t.Errorf("Expected table name=%s, got %s", expectedTableName, tableName)
-	}
-}

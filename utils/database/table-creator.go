@@ -9,16 +9,14 @@ import (
 )
 
 // CreateDatabaseTables creates all registered tables in the database
-func CreateDatabaseTables(db Database, dbType string, tablePrefix string) error {
+func CreateDatabaseTables(db Database, dbType string) error {
 	tables := GetAllTables()
 
 	slog.Info("Initializing database tables", "count", len(tables))
 
 	for tableName, tableDef := range tables {
-		fullTableName := tablePrefix + tableDef.Name
-
 		// Check if table already exists
-		exists, err := tableExists(db, fullTableName, dbType)
+		exists, err := tableExists(db, tableDef.Name, dbType)
 		if err != nil {
 			return fmt.Errorf("failed to check if table %s exists: %v", tableName, err)
 		}
@@ -27,7 +25,7 @@ func CreateDatabaseTables(db Database, dbType string, tablePrefix string) error 
 			slog.Debug("Table already exists, skipping creation", "table", tableName)
 		} else {
 			// Generate CREATE TABLE SQL
-			createSQL := GetCreateSQL(tableDef, dbType, tablePrefix)
+			createSQL := GetCreateSQL(tableDef, dbType)
 
 			// Execute CREATE TABLE
 			_, err := db.Exec(createSQL)
@@ -39,7 +37,7 @@ func CreateDatabaseTables(db Database, dbType string, tablePrefix string) error 
 		}
 
 		// Create indexes (even if table already exists, indexes might be new)
-		indexSQLs := GetIndexSQL(tableDef, dbType, tablePrefix)
+		indexSQLs := GetIndexSQL(tableDef, dbType)
 		for _, indexSQL := range indexSQLs {
 			_, err := db.Exec(indexSQL)
 			if err != nil {
@@ -54,7 +52,7 @@ func CreateDatabaseTables(db Database, dbType string, tablePrefix string) error 
 }
 
 // GetCreateSQL generates CREATE TABLE SQL for the specified database type
-func GetCreateSQL(td *domain.TableDefinition, dbType, tablePrefix string) string {
+func GetCreateSQL(td *domain.TableDefinition, dbType string) string {
 	var columns []string
 
 	// Add columns
@@ -70,9 +68,8 @@ func GetCreateSQL(td *domain.TableDefinition, dbType, tablePrefix string) string
 			strings.Join(pkColumns, ", ")))
 	}
 
-	tableName := tablePrefix + td.Name
 	return fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s (\n    %s\n)",
-		tableName, strings.Join(columns, ",\n    "))
+		td.Name, strings.Join(columns, ",\n    "))
 }
 
 // buildColumnSQL builds SQL for a single column
@@ -146,9 +143,8 @@ func getPrimaryKeyColumns(columns []domain.Column) []string {
 }
 
 // GetIndexSQL generates CREATE INDEX SQL statements
-func GetIndexSQL(td *domain.TableDefinition, dbType, tablePrefix string) []string {
+func GetIndexSQL(td *domain.TableDefinition, dbType string) []string {
 	var indexSQLs []string
-	tableName := tablePrefix + td.Name
 
 	for _, idx := range td.Indexes {
 		var sql string
@@ -156,10 +152,10 @@ func GetIndexSQL(td *domain.TableDefinition, dbType, tablePrefix string) []strin
 
 		if idx.Unique {
 			sql = fmt.Sprintf("CREATE UNIQUE INDEX IF NOT EXISTS %s ON %s (%s)",
-				indexName, tableName, strings.Join(idx.Columns, ", "))
+				indexName, td.Name, strings.Join(idx.Columns, ", "))
 		} else {
 			sql = fmt.Sprintf("CREATE INDEX IF NOT EXISTS %s ON %s (%s)",
-				indexName, tableName, strings.Join(idx.Columns, ", "))
+				indexName, td.Name, strings.Join(idx.Columns, ", "))
 		}
 
 		indexSQLs = append(indexSQLs, sql)

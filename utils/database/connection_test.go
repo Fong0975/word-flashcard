@@ -17,7 +17,6 @@ func createTestConfig() *DBConfig {
 		Password:     "testpass",
 		DatabaseName: "testdb",
 		SSLMode:      "disable",
-		TablePrefix:  "wfc_",
 		MaxOpenConns: 25,
 		MaxIdleConns: 25,
 	}
@@ -112,7 +111,7 @@ func TestSelectWithMockDB(t *testing.T) {
 		AddRow(1, "John Doe", "john@example.com").
 		AddRow(2, "Jane Smith", "jane@example.com")
 
-	mock.ExpectQuery("SELECT \\* FROM wfc_users").WillReturnRows(rows)
+	mock.ExpectQuery("SELECT \\* FROM users").WillReturnRows(rows)
 
 	// Execute test
 	var results []TestStruct
@@ -139,7 +138,7 @@ func TestSelectWithWhereCondition(t *testing.T) {
 	rows := sqlmock.NewRows([]string{"id", "name", "email"}).
 		AddRow(1, "John Doe", "john@example.com")
 
-	mock.ExpectQuery("SELECT \\* FROM wfc_users WHERE id = \\?").
+	mock.ExpectQuery("SELECT \\* FROM users WHERE id = \\?").
 		WithArgs(1).
 		WillReturnRows(rows)
 
@@ -168,7 +167,7 @@ func TestInsertWithMySQLMockDB(t *testing.T) {
 		Description: "Test user",
 	}
 
-	mock.ExpectExec("INSERT INTO wfc_users").
+	mock.ExpectExec("INSERT INTO users").
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	id, err := db.Insert("users", testData)
@@ -198,7 +197,7 @@ func TestInsertWithPostgreSQLMockDB(t *testing.T) {
 		Description: "Test user",
 	}
 
-	mock.ExpectQuery("INSERT INTO wfc_users .* RETURNING id").
+	mock.ExpectQuery("INSERT INTO users .* RETURNING id").
 		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
 
 	id, err := db.Insert("users", testData)
@@ -225,7 +224,7 @@ func TestUpdateWithMockDB(t *testing.T) {
 		Email: "updated@example.com",
 	}
 
-	mock.ExpectExec("UPDATE wfc_users SET").
+	mock.ExpectExec("UPDATE users SET").
 		WillReturnResult(sqlmock.NewResult(0, 1))
 
 	where := squirrel.Eq{"id": 1}
@@ -248,7 +247,7 @@ func TestDeleteWithMockDB(t *testing.T) {
 	db, mock, cleanup := createMockDatabase(t, "mysql")
 	defer cleanup()
 
-	mock.ExpectExec("DELETE FROM wfc_users WHERE id = \\?").
+	mock.ExpectExec("DELETE FROM users WHERE id = \\?").
 		WithArgs(1).
 		WillReturnResult(sqlmock.NewResult(0, 1))
 
@@ -273,7 +272,7 @@ func TestCountWithMockDB(t *testing.T) {
 	defer cleanup()
 
 	rows := sqlmock.NewRows([]string{"count"}).AddRow(5)
-	mock.ExpectQuery("SELECT COUNT\\(\\*\\) FROM wfc_users").WillReturnRows(rows)
+	mock.ExpectQuery("SELECT COUNT\\(\\*\\) FROM users").WillReturnRows(rows)
 
 	count, err := db.Count("users", nil)
 	if err != nil {

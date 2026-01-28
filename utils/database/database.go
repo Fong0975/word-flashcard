@@ -60,11 +60,6 @@ func NewBaseDatabase(config *DBConfig, placeholderFormat squirrel.PlaceholderFor
 	}
 }
 
-// getTableName returns the full table name with prefix
-func (b *BaseDatabase) getTableName(table string) string {
-	return b.config.TablePrefix + table
-}
-
 // structToMap converts a struct to map[string]interface{} using reflection
 func structToMap(data interface{}) (map[string]interface{}, error) {
 	result := make(map[string]interface{})

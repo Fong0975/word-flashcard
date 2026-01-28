@@ -25,7 +25,6 @@ func TestNewDatabase(t *testing.T) {
 		Password:     "testpass",
 		DatabaseName: "testdb",
 		SSLMode:      "disable",
-		TablePrefix:  "wfc_",
 		MaxOpenConns: 25,
 		MaxIdleConns: 25,
 	}
@@ -47,7 +46,6 @@ func TestNewDatabase(t *testing.T) {
 		Password:     "testpass",
 		DatabaseName: "testdb",
 		SSLMode:      "disable",
-		TablePrefix:  "wfc_",
 		MaxOpenConns: 25,
 		MaxIdleConns: 25,
 	}
@@ -69,7 +67,6 @@ func TestNewDatabase(t *testing.T) {
 		Password:     "testpass",
 		DatabaseName: "testdb",
 		SSLMode:      "disable",
-		TablePrefix:  "wfc_",
 		MaxOpenConns: 25,
 		MaxIdleConns: 25,
 	}

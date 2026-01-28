@@ -83,7 +83,7 @@ func (u *UniversalDatabase) Select(table string, where squirrel.Sqlizer, dest in
 	}
 
 	query := squirrel.Select("*").
-		From(u.getTableName(table)).
+		From(table).
 		PlaceholderFormat(u.placeholderFormat)
 
 	if where != nil {
@@ -128,7 +128,7 @@ func (u *UniversalDatabase) Insert(table string, data interface{}) (int64, error
 		values = append(values, value)
 	}
 
-	query := squirrel.Insert(u.getTableName(table)).
+	query := squirrel.Insert(table).
 		PlaceholderFormat(u.placeholderFormat).
 		Columns(columns...).
 		Values(values...)
@@ -182,7 +182,7 @@ func (u *UniversalDatabase) Update(table string, data interface{}, where squirre
 		return 0, NewDatabaseError("update", fmt.Errorf("no data to update"))
 	}
 
-	query := squirrel.Update(u.getTableName(table)).
+	query := squirrel.Update(table).
 		PlaceholderFormat(u.placeholderFormat)
 
 	for column, value := range dataMap {
@@ -212,7 +212,7 @@ func (u *UniversalDatabase) Delete(table string, where squirrel.Sqlizer) (int64,
 		return 0, NewDatabaseError("delete", fmt.Errorf("not connected"))
 	}
 
-	query := squirrel.Delete(u.getTableName(table)).
+	query := squirrel.Delete(table).
 		PlaceholderFormat(u.placeholderFormat)
 
 	if where != nil {
@@ -239,7 +239,7 @@ func (u *UniversalDatabase) Count(table string, where squirrel.Sqlizer) (int64, 
 	}
 
 	query := squirrel.Select("COUNT(*)").
-		From(u.getTableName(table)).
+		From(table).
 		PlaceholderFormat(u.placeholderFormat)
 
 	if where != nil {
@@ -280,7 +280,7 @@ func (u *UniversalDatabase) InitializeTables() error {
 		return NewDatabaseError("initialize_tables", fmt.Errorf("not connected"))
 	}
 
-	return CreateDatabaseTables(u, u.config.Type, u.config.TablePrefix)
+	return CreateDatabaseTables(u, u.config.Type)
 }
 
 // buildMySQLDSN builds MySQL data source name

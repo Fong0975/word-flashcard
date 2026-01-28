@@ -31,7 +31,7 @@ func TestDatabaseIntegration(t *testing.T) {
 
 	// 1. Query (SELECT) - should return empty result initially
 	emptyRows := sqlmock.NewRows([]string{"id", "name", "email", "age", "is_active"})
-	mock.ExpectQuery("SELECT \\* FROM wfc_users").WillReturnRows(emptyRows)
+	mock.ExpectQuery("SELECT \\* FROM users").WillReturnRows(emptyRows)
 
 	var results []TestUser // Initialize empty slice
 	err = db.Select("users", nil, &results)
@@ -44,7 +44,7 @@ func TestDatabaseIntegration(t *testing.T) {
 
 	// 2. Count - should return 0 initially
 	countRows := sqlmock.NewRows([]string{"count"}).AddRow(0)
-	mock.ExpectQuery("SELECT COUNT\\(\\*\\) FROM wfc_users").WillReturnRows(countRows)
+	mock.ExpectQuery("SELECT COUNT\\(\\*\\) FROM users").WillReturnRows(countRows)
 
 	count, err := db.Count("users", nil)
 	if err != nil {
@@ -62,7 +62,7 @@ func TestDatabaseIntegration(t *testing.T) {
 		IsActive: true,
 	}
 
-	mock.ExpectExec("INSERT INTO wfc_users").
+	mock.ExpectExec("INSERT INTO users").
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	id, err := db.Insert("users", testUser)
@@ -76,7 +76,7 @@ func TestDatabaseIntegration(t *testing.T) {
 	// 4. Query (SELECT) - should return the inserted user
 	userRows := sqlmock.NewRows([]string{"id", "name", "email", "age", "is_active"}).
 		AddRow(1, "John Doe", "john@example.com", 30, true)
-	mock.ExpectQuery("SELECT \\* FROM wfc_users").WillReturnRows(userRows)
+	mock.ExpectQuery("SELECT \\* FROM users").WillReturnRows(userRows)
 
 	results = []TestUser{} // Reset slice before query
 	err = db.Select("users", nil, &results)
@@ -92,7 +92,7 @@ func TestDatabaseIntegration(t *testing.T) {
 
 	// 5. Count - should return 1 after insert
 	countRows = sqlmock.NewRows([]string{"count"}).AddRow(1)
-	mock.ExpectQuery("SELECT COUNT\\(\\*\\) FROM wfc_users").WillReturnRows(countRows)
+	mock.ExpectQuery("SELECT COUNT\\(\\*\\) FROM users").WillReturnRows(countRows)
 
 	count, err = db.Count("users", nil)
 	if err != nil {
@@ -109,7 +109,7 @@ func TestDatabaseIntegration(t *testing.T) {
 		Age:   31,
 	}
 
-	mock.ExpectExec("UPDATE wfc_users SET").
+	mock.ExpectExec("UPDATE users SET").
 		WillReturnResult(sqlmock.NewResult(0, 1))
 
 	where := squirrel.Eq{"id": 1}
@@ -124,7 +124,7 @@ func TestDatabaseIntegration(t *testing.T) {
 	// 7. Query (SELECT) - should return the updated user
 	updatedRows := sqlmock.NewRows([]string{"id", "name", "email", "age", "is_active"}).
 		AddRow(1, "John Updated", "john.updated@example.com", 31, true)
-	mock.ExpectQuery("SELECT \\* FROM wfc_users").WillReturnRows(updatedRows)
+	mock.ExpectQuery("SELECT \\* FROM users").WillReturnRows(updatedRows)
 
 	results = []TestUser{} // Reset slice before query
 	err = db.Select("users", nil, &results)
@@ -139,7 +139,7 @@ func TestDatabaseIntegration(t *testing.T) {
 	}
 
 	// 8. Delete - remove the user
-	mock.ExpectExec("DELETE FROM wfc_users WHERE id = \\?").
+	mock.ExpectExec("DELETE FROM users WHERE id = \\?").
 		WithArgs(1).
 		WillReturnResult(sqlmock.NewResult(0, 1))
 
@@ -153,7 +153,7 @@ func TestDatabaseIntegration(t *testing.T) {
 
 	// 9. Query (SELECT) - should return empty result after delete
 	emptyRowsAgain := sqlmock.NewRows([]string{"id", "name", "email", "age", "is_active"})
-	mock.ExpectQuery("SELECT \\* FROM wfc_users").WillReturnRows(emptyRowsAgain)
+	mock.ExpectQuery("SELECT \\* FROM users").WillReturnRows(emptyRowsAgain)
 
 	results = []TestUser{} // Reset slice before query
 	err = db.Select("users", nil, &results)
@@ -166,7 +166,7 @@ func TestDatabaseIntegration(t *testing.T) {
 
 	// 10. Count - should return 0 after delete
 	countRowsFinal := sqlmock.NewRows([]string{"count"}).AddRow(0)
-	mock.ExpectQuery("SELECT COUNT\\(\\*\\) FROM wfc_users").WillReturnRows(countRowsFinal)
+	mock.ExpectQuery("SELECT COUNT\\(\\*\\) FROM users").WillReturnRows(countRowsFinal)
 
 	count, err = db.Count("users", nil)
 	if err != nil {
