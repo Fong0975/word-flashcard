@@ -38,7 +38,7 @@ func WordDefinitionsTable() *domain.TableDefinition {
 			{
 				Name:    WORD_DEFINITIONS_PART_OF_SPEECH,
 				Type:    domain.VarcharType(50),
-				NotNull: false,
+				NotNull: true,
 			},
 			{
 				Name:    WORD_DEFINITIONS_DEFINITION,
