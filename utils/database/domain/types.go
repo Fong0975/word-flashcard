@@ -30,6 +30,12 @@ var (
 	}
 )
 
+// ForeignKey represents a foreign key constraint
+type ForeignKey struct {
+	Table  string
+	Column string
+}
+
 // Column represents a database column
 type Column struct {
 	Name          string
@@ -40,6 +46,7 @@ type Column struct {
 	PrimaryKey    bool
 	Unique        bool
 	Index         bool
+	ForeignKey    *ForeignKey
 }
 
 // TableDefinition represents a complete table structure
