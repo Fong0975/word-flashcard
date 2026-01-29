@@ -48,6 +48,16 @@ func createTestColumnDefinitions() []domain.Column {
 			Unique:  true,
 		},
 		{
+			Name:    "category_id",
+			Type:    domain.ColumnType{MySQL: "INT", PostgreSQL: "INTEGER"},
+			NotNull: true,
+			Index:   true,
+			ForeignKey: &domain.ForeignKey{
+				Table:  "categories",
+				Column: "id",
+			},
+		},
+		{
 			Name:    "created_at",
 			Type:    domain.ColumnType{MySQL: "TIMESTAMP", PostgreSQL: "TIMESTAMP"},
 			Default: "CURRENT_TIMESTAMP",
@@ -92,8 +102,10 @@ func (suite *tableCreatorTestSuite) TestGetCreateSQL() {
 		"id INT AUTO_INCREMENT NOT NULL PRIMARY KEY",
 		"name VARCHAR(255) NOT NULL",
 		"email VARCHAR(255) UNIQUE",
+		"category_id INT NOT NULL",
 		"created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
 		"updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP",
+		"FOREIGN KEY (category_id) REFERENCES categories(id)",
 	}
 
 	for _, expected := range expectedSubstrings {
@@ -110,8 +122,10 @@ func (suite *tableCreatorTestSuite) TestGetCreateSQL() {
 		"id SERIAL NOT NULL PRIMARY KEY",
 		"name VARCHAR(255) NOT NULL",
 		"email VARCHAR(255) UNIQUE",
+		"category_id INTEGER NOT NULL",
 		"created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
 		"updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP", // PostgreSQL doesn't support ON UPDATE
+		"FOREIGN KEY (category_id) REFERENCES categories(id)",
 	}
 
 	for _, expected := range expectedPostgresSubstrings {
@@ -240,13 +254,14 @@ func (suite *tableCreatorTestSuite) TestGetIndexSQL() {
 	// Test MySQL index SQL
 	mysqlIndexes := GetIndexSQL(testTable, "mysql")
 
-	if len(mysqlIndexes) != 2 {
-		suite.t.Errorf("Expected 2 index SQL statements, got %d", len(mysqlIndexes))
+	if len(mysqlIndexes) != 3 {
+		suite.t.Errorf("Expected 3 index SQL statements, got %d", len(mysqlIndexes))
 	}
 
-	// Check for regular index
+	// Check for regular index, unique index, and category_id index
 	regularIndexFound := false
 	uniqueIndexFound := false
+	categoryIndexFound := false
 
 	for _, indexSQL := range mysqlIndexes {
 		if strings.Contains(indexSQL, "idx_test_table_idx_name") && strings.Contains(indexSQL, "CREATE INDEX") && !strings.Contains(indexSQL, "UNIQUE") {
@@ -254,6 +269,9 @@ func (suite *tableCreatorTestSuite) TestGetIndexSQL() {
 		}
 		if strings.Contains(indexSQL, "idx_test_table_idx_email_unique") && strings.Contains(indexSQL, "CREATE UNIQUE INDEX") {
 			uniqueIndexFound = true
+		}
+		if strings.Contains(indexSQL, "idx_test_table_category_id") && strings.Contains(indexSQL, "CREATE INDEX") && !strings.Contains(indexSQL, "UNIQUE") {
+			categoryIndexFound = true
 		}
 	}
 
@@ -263,11 +281,14 @@ func (suite *tableCreatorTestSuite) TestGetIndexSQL() {
 	if !uniqueIndexFound {
 		suite.t.Error("Unique index SQL not found")
 	}
+	if !categoryIndexFound {
+		suite.t.Error("Category ID index SQL not found")
+	}
 
 	// Test PostgreSQL index SQL (should be same as MySQL for basic indexes)
 	postgresIndexes := GetIndexSQL(testTable, "postgresql")
-	if len(postgresIndexes) != 2 {
-		suite.t.Errorf("Expected 2 PostgreSQL index SQL statements, got %d", len(postgresIndexes))
+	if len(postgresIndexes) != 3 {
+		suite.t.Errorf("Expected 3 PostgreSQL index SQL statements, got %d", len(postgresIndexes))
 	}
 }
 
@@ -584,5 +605,108 @@ func (suite *tableCreatorTestSuite) TestCreateDatabaseTablesCreatesNonExistingTa
 	// Verify all expectations were met
 	if err := mock.ExpectationsWereMet(); err != nil {
 		suite.t.Errorf("Unfulfilled expectations: %v", err)
+	}
+}
+
+// Test getForeignKeyConstraints function
+func (suite *tableCreatorTestSuite) TestGetForeignKeyConstraints() {
+	tests := []struct {
+		name             string
+		columns          []domain.Column
+		expectedCount    int
+		expectedContains []string
+	}{
+		{
+			name: "No foreign keys",
+			columns: []domain.Column{
+				{
+					Name:       "id",
+					Type:       domain.ColumnType{MySQL: "INT", PostgreSQL: "INTEGER"},
+					PrimaryKey: true,
+				},
+				{
+					Name: "name",
+					Type: domain.ColumnType{MySQL: "VARCHAR(255)", PostgreSQL: "VARCHAR(255)"},
+				},
+			},
+			expectedCount:    0,
+			expectedContains: []string{},
+		},
+		{
+			name: "Single foreign key",
+			columns: []domain.Column{
+				{
+					Name:       "id",
+					Type:       domain.ColumnType{MySQL: "INT", PostgreSQL: "INTEGER"},
+					PrimaryKey: true,
+				},
+				{
+					Name: "user_id",
+					Type: domain.ColumnType{MySQL: "INT", PostgreSQL: "INTEGER"},
+					ForeignKey: &domain.ForeignKey{
+						Table:  "users",
+						Column: "id",
+					},
+				},
+			},
+			expectedCount: 1,
+			expectedContains: []string{
+				"FOREIGN KEY (user_id) REFERENCES users(id)",
+			},
+		},
+		{
+			name: "Multiple foreign keys",
+			columns: []domain.Column{
+				{
+					Name:       "id",
+					Type:       domain.ColumnType{MySQL: "INT", PostgreSQL: "INTEGER"},
+					PrimaryKey: true,
+				},
+				{
+					Name: "user_id",
+					Type: domain.ColumnType{MySQL: "INT", PostgreSQL: "INTEGER"},
+					ForeignKey: &domain.ForeignKey{
+						Table:  "users",
+						Column: "id",
+					},
+				},
+				{
+					Name: "category_id",
+					Type: domain.ColumnType{MySQL: "INT", PostgreSQL: "INTEGER"},
+					ForeignKey: &domain.ForeignKey{
+						Table:  "categories",
+						Column: "id",
+					},
+				},
+			},
+			expectedCount: 2,
+			expectedContains: []string{
+				"FOREIGN KEY (user_id) REFERENCES users(id)",
+				"FOREIGN KEY (category_id) REFERENCES categories(id)",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		suite.t.Run(tt.name, func(t *testing.T) {
+			constraints := getForeignKeyConstraints(tt.columns)
+
+			if len(constraints) != tt.expectedCount {
+				suite.t.Errorf("Expected %d foreign key constraints, got %d", tt.expectedCount, len(constraints))
+			}
+
+			for _, expectedConstraint := range tt.expectedContains {
+				found := false
+				for _, constraint := range constraints {
+					if constraint == expectedConstraint {
+						found = true
+						break
+					}
+				}
+				if !found {
+					suite.t.Errorf("Expected constraint '%s' not found in result: %v", expectedConstraint, constraints)
+				}
+			}
+		})
 	}
 }

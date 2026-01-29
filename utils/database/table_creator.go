@@ -68,6 +68,10 @@ func GetCreateSQL(td *domain.TableDefinition, dbType string) string {
 			strings.Join(pkColumns, ", ")))
 	}
 
+	// Add foreign key constraints
+	fkConstraints := getForeignKeyConstraints(td.Columns)
+	columns = append(columns, fkConstraints...)
+
 	return fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s (\n    %s\n)",
 		td.Name, strings.Join(columns, ",\n    "))
 }
@@ -200,6 +204,19 @@ func isColumnInExplicitIndexes(columnName string, indexes []domain.Index) bool {
 		}
 	}
 	return false
+}
+
+// getForeignKeyConstraints returns list of foreign key constraint SQL strings
+func getForeignKeyConstraints(columns []domain.Column) []string {
+	var fkConstraints []string
+	for _, col := range columns {
+		if col.ForeignKey != nil {
+			constraintSQL := fmt.Sprintf("FOREIGN KEY (%s) REFERENCES %s(%s)",
+				col.Name, col.ForeignKey.Table, col.ForeignKey.Column)
+			fkConstraints = append(fkConstraints, constraintSQL)
+		}
+	}
+	return fkConstraints
 }
 
 // tableExists checks if a table exists in the database

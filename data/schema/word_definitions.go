@@ -19,6 +19,10 @@ func WordDefinitionsTable() *domain.TableDefinition {
 				Type:    domain.IntType,
 				NotNull: true,
 				Index:   true,
+				ForeignKey: &domain.ForeignKey{
+					Table:  "words",
+					Column: "id",
+				},
 			},
 			{
 				Name:    "part_of_speech",
