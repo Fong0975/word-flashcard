@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"log/slog"
 	"reflect"
 	"strings"
 
@@ -151,7 +152,10 @@ func scanToStruct(rows *sql.Rows, dest interface{}) error {
 		return err
 	}
 
+	count := 0
 	for rows.Next() {
+		count++
+
 		// Create new instance of element type
 		elem := reflect.New(elementType).Elem()
 
@@ -180,6 +184,7 @@ func scanToStruct(rows *sql.Rows, dest interface{}) error {
 			destValue.Set(reflect.Append(destValue, elem))
 		}
 	}
+	slog.Debug("Scanned rows", "count", count)
 
 	return rows.Err()
 }
