@@ -146,6 +146,7 @@ func getPrimaryKeyColumns(columns []domain.Column) []string {
 func GetIndexSQL(td *domain.TableDefinition, dbType string) []string {
 	var indexSQLs []string
 
+	// 1. Process explicitly defined indexes from Indexes array
 	for _, idx := range td.Indexes {
 		var sql string
 		indexName := fmt.Sprintf("idx_%s_%s", td.Name, idx.Name)
@@ -161,7 +162,44 @@ func GetIndexSQL(td *domain.TableDefinition, dbType string) []string {
 		indexSQLs = append(indexSQLs, sql)
 	}
 
+	// 2. Process column-level Index and Unique attributes
+	for _, col := range td.Columns {
+		// Skip if column already has explicit index definition or is primary key
+		if col.PrimaryKey || isColumnInExplicitIndexes(col.Name, td.Indexes) {
+			continue
+		}
+
+		var sql string
+		var indexName string
+
+		if col.Unique {
+			// Create unique index for column with Unique: true
+			indexName = fmt.Sprintf("idx_%s_%s_unique", td.Name, col.Name)
+			sql = fmt.Sprintf("CREATE UNIQUE INDEX IF NOT EXISTS %s ON %s (%s)",
+				indexName, td.Name, col.Name)
+			indexSQLs = append(indexSQLs, sql)
+		} else if col.Index {
+			// Create regular index for column with Index: true
+			indexName = fmt.Sprintf("idx_%s_%s", td.Name, col.Name)
+			sql = fmt.Sprintf("CREATE INDEX IF NOT EXISTS %s ON %s (%s)",
+				indexName, td.Name, col.Name)
+			indexSQLs = append(indexSQLs, sql)
+		}
+	}
+
 	return indexSQLs
+}
+
+// isColumnInExplicitIndexes checks if a column is already covered by explicitly defined indexes
+func isColumnInExplicitIndexes(columnName string, indexes []domain.Index) bool {
+	for _, idx := range indexes {
+		for _, idxCol := range idx.Columns {
+			if idxCol == columnName {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // tableExists checks if a table exists in the database

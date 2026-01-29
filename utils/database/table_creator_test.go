@@ -271,6 +271,62 @@ func (suite *tableCreatorTestSuite) TestGetIndexSQL() {
 	}
 }
 
+// Test column-level Unique attribute creates unique indexes
+func (suite *tableCreatorTestSuite) TestGetIndexSQL_ColumnLevelUniqueIndex() {
+	testTable := &domain.TableDefinition{
+		Name: "test_unique_columns",
+		Columns: []domain.Column{
+			{
+				Name:       "id",
+				Type:       domain.ColumnType{MySQL: "INT", PostgreSQL: "INTEGER"},
+				PrimaryKey: true,
+			},
+			{
+				Name:   "username",
+				Type:   domain.ColumnType{MySQL: "VARCHAR(255)", PostgreSQL: "VARCHAR(255)"},
+				Unique: true, // Should create unique index
+			},
+			{
+				Name:  "category_id",
+				Type:  domain.ColumnType{MySQL: "INT", PostgreSQL: "INTEGER"},
+				Index: true, // Should create regular index
+			},
+			{
+				Name: "description",
+				Type: domain.ColumnType{MySQL: "TEXT", PostgreSQL: "TEXT"},
+				// No index attributes
+			},
+		},
+		Indexes: []domain.Index{}, // No explicit indexes
+	}
+
+	indexes := GetIndexSQL(testTable, "mysql")
+
+	// Should create 2 indexes: unique for username and regular for category_id
+	if len(indexes) != 2 {
+		suite.t.Errorf("Expected 2 index SQL statements, got %d", len(indexes))
+	}
+
+	usernameUniqueIndexFound := false
+	categoryIndexFound := false
+
+	for _, indexSQL := range indexes {
+		if strings.Contains(indexSQL, "idx_test_unique_columns_username_unique") && strings.Contains(indexSQL, "CREATE UNIQUE INDEX") {
+			usernameUniqueIndexFound = true
+		}
+		if strings.Contains(indexSQL, "idx_test_unique_columns_category_id") && strings.Contains(indexSQL, "CREATE INDEX") && !strings.Contains(indexSQL, "UNIQUE") {
+			categoryIndexFound = true
+		}
+	}
+
+	if !usernameUniqueIndexFound {
+		suite.t.Error("Unique index SQL for 'username' column not found")
+	}
+	if !categoryIndexFound {
+		suite.t.Error("Regular index SQL for 'category_id' column not found")
+	}
+}
+
 // Test create database tables
 func (suite *tableCreatorTestSuite) TestCreateDatabaseTables() {
 	// Setup clean registry and register test table

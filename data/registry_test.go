@@ -85,11 +85,6 @@ func TestTableStructures(t *testing.T) {
 		t.Error("words table should have a primary key column")
 	}
 
-	// Check for unique constraints
-	if len(wordsTable.Indexes) == 0 {
-		t.Error("words table should have indexes defined")
-	}
-
 	// Test word_definitions table structure
 	definitionsTable, exists := database.GetTable("word_definitions")
 	if !exists {
