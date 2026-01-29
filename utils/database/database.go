@@ -17,11 +17,10 @@ type Database interface {
 	Close() error
 
 	// CRUD operations
-	Select(table string, where squirrel.Sqlizer, dest interface{}) error
+	Select(table string, columns []*string, where squirrel.Sqlizer, orderBy []*string, dest interface{}) error
 	Insert(table string, data interface{}) (int64, error)
 	Update(table string, data interface{}, where squirrel.Sqlizer) (int64, error)
 	Delete(table string, where squirrel.Sqlizer) (int64, error)
-	Count(table string, where squirrel.Sqlizer) (int64, error)
 
 	// Low-level operations (for table creation and migrations)
 	Exec(query string, args ...interface{}) (sql.Result, error)

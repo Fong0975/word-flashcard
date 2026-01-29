@@ -2,7 +2,11 @@ package database
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
+	"log/slog"
+	"strings"
+	"time"
 
 	"github.com/Masterminds/squirrel"
 	_ "github.com/go-sql-driver/mysql"
@@ -13,6 +17,8 @@ import (
 type UniversalDatabase struct {
 	*BaseDatabase
 }
+
+// ================================= Connection Management =================================
 
 // NewUniversalDatabase creates a new database instance that works with both MySQL and PostgreSQL
 func NewUniversalDatabase(config *DBConfig) *UniversalDatabase {
@@ -76,189 +82,252 @@ func (u *UniversalDatabase) Close() error {
 	return nil
 }
 
+// ================================= CRUD Operations =================================
+
 // Select retrieves records from the database and populates the dest slice
-func (u *UniversalDatabase) Select(table string, where squirrel.Sqlizer, dest interface{}) error {
+func (u *UniversalDatabase) Select(table string, columns []*string, where squirrel.Sqlizer, orderBy []*string, dest interface{}) error {
 	if u.db == nil {
+		slog.Error("Database is not connected")
 		return NewDatabaseError("select", fmt.Errorf("not connected"))
 	}
 
-	query := squirrel.Select("*").
+	// --------------- 1. Prepare Select Parameters ---------------
+	sqlColumn := "*"
+	if len(columns) > 0 {
+		var colNames []string
+		for _, col := range columns {
+			colNames = append(colNames, *col)
+		}
+		sqlColumn = strings.Join(colNames, ", ")
+	}
+
+	// --------------- 2. Build Query Object ---------------
+	query := squirrel.Select(sqlColumn).
 		From(table).
 		PlaceholderFormat(u.placeholderFormat)
 
+	// Where
 	if where != nil {
 		query = query.Where(where)
 	}
+	// OrderBy
+	if len(orderBy) > 0 {
+		var orderCols []string
+		for _, col := range orderBy {
+			orderCols = append(orderCols, *col)
+		}
+		query = query.OrderBy(orderCols...)
+	}
 
+	// --------------- 3. Convert to SQL ---------------
 	sql, args, err := query.ToSql()
 	if err != nil {
+		slog.Error("Select had been done but failed to build SELECT query", "error", err)
 		return NewDatabaseError("select", err)
 	}
 
+	// --------------- 4. Run the SQL ---------------
+	u.logQuery(sql, args)
 	rows, err := u.db.Query(sql, args...)
 	if err != nil {
+		slog.Error("Select had been done but failed to execute query", "error", err)
 		return NewDatabaseError("select", err)
 	}
 	defer rows.Close()
 
+	// --------------- 5. Convert Result & Return ---------------
 	return scanToStruct(rows, dest)
 }
 
-// Insert inserts a record into the database
+// Insert adds a new record to the database and returns the inserted ID
 func (u *UniversalDatabase) Insert(table string, data interface{}) (int64, error) {
 	if u.db == nil {
+		slog.Error("Database is not connected")
 		return 0, NewDatabaseError("insert", fmt.Errorf("not connected"))
 	}
 
+	// --------------- 1. Parse Insert Data ---------------
 	dataMap, err := structToMap(data)
 	if err != nil {
+		slog.Error("Insert had been done but failed to convert to map", "error", err)
 		return 0, NewDatabaseError("insert", err)
 	}
-
+	// Empty check
 	if len(dataMap) == 0 {
+		slog.Error("Insert had been done but no data to insert", "data", data)
 		return 0, NewDatabaseError("insert", fmt.Errorf("no data to insert"))
 	}
 
-	// Collect columns and values separately
+	// --------------- 2. Prepare Insert Parameters ---------------
 	columns := make([]string, 0, len(dataMap))
 	values := make([]interface{}, 0, len(dataMap))
-
 	for column, value := range dataMap {
 		columns = append(columns, column)
 		values = append(values, value)
 	}
 
+	// --------------- 3. Build Query Object ---------------
 	query := squirrel.Insert(table).
-		PlaceholderFormat(u.placeholderFormat).
 		Columns(columns...).
-		Values(values...)
-
-	switch u.config.Type {
-	case "mysql":
-		sql, args, err := query.ToSql()
-		if err != nil {
-			return 0, NewDatabaseError("insert", err)
-		}
-
-		result, err := u.db.Exec(sql, args...)
-		if err != nil {
-			return 0, NewDatabaseError("insert", err)
-		}
-
-		return result.LastInsertId()
-
-	case "postgresql":
-		query = query.Suffix("RETURNING id")
-		sql, args, err := query.ToSql()
-		if err != nil {
-			return 0, NewDatabaseError("insert", err)
-		}
-
-		var id int64
-		err = u.db.QueryRow(sql, args...).Scan(&id)
-		if err != nil {
-			return 0, NewDatabaseError("insert", err)
-		}
-
-		return id, nil
-
-	default:
-		return 0, NewDatabaseError("insert", fmt.Errorf("unsupported database type: %s", u.config.Type))
-	}
-}
-
-// Update updates records in the database
-func (u *UniversalDatabase) Update(table string, data interface{}, where squirrel.Sqlizer) (int64, error) {
-	if u.db == nil {
-		return 0, NewDatabaseError("update", fmt.Errorf("not connected"))
-	}
-
-	dataMap, err := structToMap(data)
-	if err != nil {
-		return 0, NewDatabaseError("update", err)
-	}
-
-	if len(dataMap) == 0 {
-		return 0, NewDatabaseError("update", fmt.Errorf("no data to update"))
-	}
-
-	query := squirrel.Update(table).
+		Values(values...).
 		PlaceholderFormat(u.placeholderFormat)
 
-	for column, value := range dataMap {
-		query = query.Set(column, value)
-	}
-
-	if where != nil {
-		query = query.Where(where)
-	}
-
+	// --------------- 4. Convert to SQL ---------------
 	sql, args, err := query.ToSql()
 	if err != nil {
-		return 0, NewDatabaseError("update", err)
+		slog.Error("Insert had been done but failed to build INSERT ID query", "error", err)
+		return 0, NewDatabaseError("insert", err)
 	}
 
-	result, err := u.db.Exec(sql, args...)
+	// -------------- 5. Run the SQL ---------------
+	u.logQuery(sql, args)
+	_, err = u.db.Exec(sql, args...)
 	if err != nil {
-		return 0, NewDatabaseError("update", err)
+		slog.Error("Insert had been done but failed to insert ID query", "error", err)
+		return 0, NewDatabaseError("insert", err)
 	}
 
-	return result.RowsAffected()
-}
-
-// Delete removes records from the database
-func (u *UniversalDatabase) Delete(table string, where squirrel.Sqlizer) (int64, error) {
-	if u.db == nil {
-		return 0, NewDatabaseError("delete", fmt.Errorf("not connected"))
-	}
-
-	query := squirrel.Delete(table).
-		PlaceholderFormat(u.placeholderFormat)
-
-	if where != nil {
-		query = query.Where(where)
-	}
-
-	sql, args, err := query.ToSql()
-	if err != nil {
-		return 0, NewDatabaseError("delete", err)
-	}
-
-	result, err := u.db.Exec(sql, args...)
-	if err != nil {
-		return 0, NewDatabaseError("delete", err)
-	}
-
-	return result.RowsAffected()
-}
-
-// Count counts records in the database
-func (u *UniversalDatabase) Count(table string, where squirrel.Sqlizer) (int64, error) {
-	if u.db == nil {
-		return 0, NewDatabaseError("count", fmt.Errorf("not connected"))
-	}
-
-	query := squirrel.Select("COUNT(*)").
+	// --------------- 6. Query Inserted ID ---------------
+	// Convert insert parameters as Where
+	querySelect := squirrel.Select("id").
 		From(table).
 		PlaceholderFormat(u.placeholderFormat)
 
+	// Add insert parameters as Where
+	for column, value := range dataMap {
+		querySelect = querySelect.Where(squirrel.Eq{column: value})
+	}
+
+	// Convert to SQL
+	sqlSelect, argsSelect, err := querySelect.ToSql()
+	if err != nil {
+		slog.Warn("Insert had been done but failed to build INSERT ID query", "error", err)
+		return 0, nil
+	}
+
+	// Run the SQL
+	u.logQuery(sql, args)
+	row := u.db.QueryRow(sqlSelect, argsSelect...)
+
+	// Scan the result
+	var insertedID int64
+	err = row.Scan(&insertedID)
+	if err != nil {
+		slog.Warn("Insert had been done but failed to scan INSERT ID", "error", err)
+		return 0, nil
+	}
+
+	// --------------- 6. Return Result ---------------
+	return insertedID, nil
+}
+
+// Update modifies existing records in the database and returns the number of affected rows
+func (u *UniversalDatabase) Update(table string, data interface{}, where squirrel.Sqlizer) (int64, error) {
+	if u.db == nil {
+		slog.Error("Database is not connected")
+		return 0, NewDatabaseError("update", fmt.Errorf("not connected"))
+	}
+
+	// --------------- 1. Parse Update Data ---------------
+	dataMap, err := structToMap(data)
+	if err != nil {
+		slog.Error("Update had been done but failed to convert to map", "error", err)
+		return 0, NewDatabaseError("update", err)
+	}
+	// Empty check
+	if len(dataMap) == 0 {
+		slog.Error("Update had been done but no data to update", "data", data)
+		return 0, NewDatabaseError("update", fmt.Errorf("no data to update"))
+	}
+	// Add UpdatedAt timestamp if applicable
+	dataMap["updated_at"] = time.Now()
+
+	// --------------- 2. Build Query Object ---------------
+	query := squirrel.Update(table).
+		SetMap(dataMap).
+		PlaceholderFormat(u.placeholderFormat)
+	// Where
 	if where != nil {
 		query = query.Where(where)
+	} else {
+		// now allow full table updates
+		slog.Error("Update had been done but failed to build UPDATE ID query")
+		return 0, NewDatabaseError("update", fmt.Errorf("update operation requires a WHERE clause"))
 	}
 
+	// --------------- 3. Convert to SQL ---------------
 	sql, args, err := query.ToSql()
 	if err != nil {
-		return 0, NewDatabaseError("count", err)
+		slog.Error("Update had been done but failed to build UPDATE ID query", "error", err)
+		return 0, NewDatabaseError("update", err)
 	}
 
-	var count int64
-	err = u.db.QueryRow(sql, args...).Scan(&count)
+	// --------------- 4. Run the SQL ---------------
+	u.logQuery(sql, args)
+	result, err := u.db.Exec(sql, args...)
 	if err != nil {
-		return 0, NewDatabaseError("count", err)
+		slog.Error("Update had been done but failed to update ID query", "error", err)
+		return 0, NewDatabaseError("update", err)
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		slog.Error("Update had been done but failed to get affected rows", "error", err)
+		return 0, NewDatabaseError("update", err)
+	} else if rowsAffected == 0 {
+		slog.Warn("Update executed but no rows were affected")
+		return 0, NewDatabaseError("update", fmt.Errorf("no rows were affected"))
 	}
 
-	return count, nil
+	// --------------- 5. Return Result ---------------
+	return rowsAffected, nil
 }
+
+func (u *UniversalDatabase) Delete(table string, where squirrel.Sqlizer) (int64, error) {
+	if u.db == nil {
+		slog.Error("Database is not connected")
+		return 0, NewDatabaseError("delete", fmt.Errorf("not connected"))
+	}
+
+	// --------------- 1. Build Query Object ---------------
+	query := squirrel.Delete(table).
+		PlaceholderFormat(u.placeholderFormat)
+	// Where
+	if where != nil {
+		query = query.Where(where)
+	} else {
+		// now allow full table deletes
+		slog.Error("Delete had been done but failed to build DELETE ID query")
+		return 0, NewDatabaseError("delete", fmt.Errorf("delete operation requires a WHERE clause"))
+	}
+
+	// --------------- 2. Convert to SQL ---------------
+	sql, args, err := query.ToSql()
+	if err != nil {
+		slog.Error("Delete had been done but failed to build DELETE ID query", "error", err)
+		return 0, NewDatabaseError("delete", err)
+	}
+
+	// --------------- 3. Run the SQL ---------------
+	u.logQuery(sql, args)
+	result, err := u.db.Exec(sql, args...)
+	if err != nil {
+		slog.Error("Delete had been done but failed to delete ID query", "error", err)
+		return 0, NewDatabaseError("delete", err)
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		slog.Error("Delete had been done but failed to get affected rows", "error", err)
+		return 0, NewDatabaseError("delete", err)
+	} else if rowsAffected == 0 {
+		slog.Warn("Delete executed but no rows were affected")
+		return 0, NewDatabaseError("delete", fmt.Errorf("no rows were affected"))
+	}
+
+	// --------------- 4. Return Result ---------------
+	return rowsAffected, nil
+}
+
+// ================================= Low-level Operations =================================
 
 // Exec executes a raw SQL query (for table creation and migrations)
 func (u *UniversalDatabase) Exec(query string, args ...interface{}) (sql.Result, error) {
@@ -308,4 +377,18 @@ func (u *UniversalDatabase) GetDB() *sql.DB {
 func (u *UniversalDatabase) configureConnection(db *sql.DB) {
 	db.SetMaxOpenConns(u.config.MaxOpenConns)
 	db.SetMaxIdleConns(u.config.MaxIdleConns)
+}
+
+func (u *UniversalDatabase) logQuery(sql string, args []interface{}) {
+	var query string
+
+	jsonArgs, err := json.Marshal(args)
+	if err != nil {
+		slog.Warn("Error marshalling query args to JSON", "error", err)
+		query = ""
+	} else {
+		query = string(jsonArgs)
+	}
+
+	slog.Debug("Executing query", "sql", sql, "args", query)
 }
