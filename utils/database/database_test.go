@@ -7,7 +7,24 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/stretchr/testify/suite"
 )
+
+// databaseTestSuite testing suite components
+type databaseTestSuite struct {
+	suite.Suite
+	t *testing.T
+}
+
+// TestDatabaseSuite runs the test suite
+func TestDatabaseSuite(t *testing.T) {
+	suite.Run(t, new(databaseTestSuite))
+}
+
+// SetupTest for the test suite
+func (s *databaseTestSuite) SetupTest() {
+	s.t = s.T()
+}
 
 // Test struct for structToMap tests
 type TestStruct struct {
@@ -22,14 +39,14 @@ type TestStruct struct {
 }
 
 // Test converting struct to map
-func TestStructToMap(t *testing.T) {
+func (suite *databaseTestSuite) TestStructToMap() {
 	// Test with nil input
 	result, err := structToMap(nil)
 	if err != nil {
-		t.Errorf("structToMap(nil) returned error: %v", err)
+		suite.t.Errorf("structToMap(nil) returned error: %v", err)
 	}
 	if len(result) != 0 {
-		t.Errorf("Expected empty map for nil input, got %v", result)
+		suite.t.Errorf("Expected empty map for nil input, got %v", result)
 	}
 
 	// Test with map input
@@ -39,10 +56,10 @@ func TestStructToMap(t *testing.T) {
 	}
 	result, err = structToMap(inputMap)
 	if err != nil {
-		t.Errorf("structToMap(map) returned error: %v", err)
+		suite.t.Errorf("structToMap(map) returned error: %v", err)
 	}
 	if !reflect.DeepEqual(result, inputMap) {
-		t.Errorf("Expected %v, got %v", inputMap, result)
+		suite.t.Errorf("Expected %v, got %v", inputMap, result)
 	}
 
 	// Test with valid struct
@@ -56,13 +73,13 @@ func TestStructToMap(t *testing.T) {
 	}
 	result, err = structToMap(testStruct)
 	if err != nil {
-		t.Errorf("structToMap(struct) returned error: %v", err)
+		suite.t.Errorf("structToMap(struct) returned error: %v", err)
 	}
 
 	expectedKeys := []string{"name", "email_address", "age", "is_active", "description"}
 	for _, key := range expectedKeys {
 		if _, exists := result[key]; !exists {
-			t.Errorf("Expected key %s not found in result", key)
+			suite.t.Errorf("Expected key %s not found in result", key)
 		}
 	}
 
@@ -70,30 +87,30 @@ func TestStructToMap(t *testing.T) {
 	excludedKeys := []string{"id", "created_at", "updated_at"}
 	for _, key := range excludedKeys {
 		if _, exists := result[key]; exists {
-			t.Errorf("Auto-generated key %s should be excluded from result", key)
+			suite.t.Errorf("Auto-generated key %s should be excluded from result", key)
 		}
 	}
 
 	// Test with pointer to struct
 	result, err = structToMap(&testStruct)
 	if err != nil {
-		t.Errorf("structToMap(pointer) returned error: %v", err)
+		suite.t.Errorf("structToMap(pointer) returned error: %v", err)
 	}
 	for _, key := range expectedKeys {
 		if _, exists := result[key]; !exists {
-			t.Errorf("Expected key %s not found in result for pointer", key)
+			suite.t.Errorf("Expected key %s not found in result for pointer", key)
 		}
 	}
 
 	// Test with invalid type
 	_, err = structToMap("string")
 	if err == nil {
-		t.Error("Expected error for string input, got nil")
+		suite.t.Error("Expected error for string input, got nil")
 	}
 }
 
 // Test camelCase to snake_case conversion
-func TestCamelToSnake(t *testing.T) {
+func (suite *databaseTestSuite) TestCamelToSnake() {
 	tests := []struct {
 		input    string
 		expected string
@@ -111,13 +128,13 @@ func TestCamelToSnake(t *testing.T) {
 	for _, test := range tests {
 		result := camelToSnake(test.input)
 		if result != test.expected {
-			t.Errorf("camelToSnake(%s) = %s, expected %s", test.input, result, test.expected)
+			suite.t.Errorf("camelToSnake(%s) = %s, expected %s", test.input, result, test.expected)
 		}
 	}
 }
 
 // Test snake_case to CamelCase conversion
-func TestSnakeToCamel(t *testing.T) {
+func (suite *databaseTestSuite) TestSnakeToCamel() {
 	tests := []struct {
 		input    string
 		expected string
@@ -135,17 +152,17 @@ func TestSnakeToCamel(t *testing.T) {
 	for _, test := range tests {
 		result := snakeToCamel(test.input)
 		if result != test.expected {
-			t.Errorf("snakeToCamel(%s) = %s, expected %s", test.input, result, test.expected)
+			suite.t.Errorf("snakeToCamel(%s) = %s, expected %s", test.input, result, test.expected)
 		}
 	}
 }
 
 // Test scanning sql.Rows to struct slice
-func TestScanToStruct(t *testing.T) {
+func (suite *databaseTestSuite) TestScanToStruct() {
 	// Create mock database and rows
 	db, mock, err := sqlmock.New()
 	if err != nil {
-		t.Fatalf("Failed to create sqlmock: %v", err)
+		suite.t.Fatalf("Failed to create sqlmock: %v", err)
 	}
 	defer db.Close()
 
@@ -159,7 +176,7 @@ func TestScanToStruct(t *testing.T) {
 	// Execute query to get sql.Rows
 	sqlRows, err := db.Query("SELECT id, name, email, age, is_active FROM test_table")
 	if err != nil {
-		t.Fatalf("Failed to execute query: %v", err)
+		suite.t.Fatalf("Failed to execute query: %v", err)
 	}
 	defer sqlRows.Close()
 
@@ -167,59 +184,59 @@ func TestScanToStruct(t *testing.T) {
 	var results []TestStruct
 	err = scanToStruct(sqlRows, &results)
 	if err != nil {
-		t.Errorf("scanToStruct() returned error: %v", err)
+		suite.t.Errorf("scanToStruct() returned error: %v", err)
 	}
 
 	if len(results) != 2 {
-		t.Errorf("Expected 2 results, got %d", len(results))
+		suite.t.Errorf("Expected 2 results, got %d", len(results))
 	}
 
 	// Verify first result
 	if results[0].Name != "John Doe" {
-		t.Errorf("Expected Name=John Doe, got %s", results[0].Name)
+		suite.t.Errorf("Expected Name=John Doe, got %s", results[0].Name)
 	}
 	if results[0].Email != "john@example.com" {
-		t.Errorf("Expected Email=john@example.com, got %s", results[0].Email)
+		suite.t.Errorf("Expected Email=john@example.com, got %s", results[0].Email)
 	}
 
 	// Test with invalid destination (not a pointer)
 	var invalidDest []TestStruct
 	err = scanToStruct(sqlRows, invalidDest)
 	if err == nil {
-		t.Error("Expected error for non-pointer destination, got nil")
+		suite.t.Error("Expected error for non-pointer destination, got nil")
 	}
 
 	// Test with invalid destination (not a slice)
 	var notSlice string
 	err = scanToStruct(sqlRows, &notSlice)
 	if err == nil {
-		t.Error("Expected error for non-slice destination, got nil")
+		suite.t.Error("Expected error for non-slice destination, got nil")
 	}
 }
 
 // Test error wrapping for database errors
-func TestNewDatabaseError(t *testing.T) {
+func (suite *databaseTestSuite) TestNewDatabaseError() {
 	operation := "test_operation"
 	originalErr := sql.ErrNoRows
 
 	dbErr := NewDatabaseError(operation, originalErr)
 
 	if dbErr.Operation != operation {
-		t.Errorf("Expected Operation=%s, got %s", operation, dbErr.Operation)
+		suite.t.Errorf("Expected Operation=%s, got %s", operation, dbErr.Operation)
 	}
 
 	if dbErr.Err != originalErr {
-		t.Errorf("Expected Err=%v, got %v", originalErr, dbErr.Err)
+		suite.t.Errorf("Expected Err=%v, got %v", originalErr, dbErr.Err)
 	}
 
 	expectedErrorMsg := "database test_operation error: sql: no rows in result set"
 	if dbErr.Error() != expectedErrorMsg {
-		t.Errorf("Expected error message=%s, got %s", expectedErrorMsg, dbErr.Error())
+		suite.t.Errorf("Expected error message=%s, got %s", expectedErrorMsg, dbErr.Error())
 	}
 }
 
 // Test BaseDatabase initialization and table name generation
-func TestNewBaseDatabase(t *testing.T) {
+func (suite *databaseTestSuite) TestNewBaseDatabase() {
 	config := &DBConfig{
 		Type:         "mysql",
 		Host:         "localhost",
@@ -227,32 +244,15 @@ func TestNewBaseDatabase(t *testing.T) {
 		User:         "testuser",
 		Password:     "testpass",
 		DatabaseName: "testdb",
-		TablePrefix:  "test_",
 	}
 
 	base := NewBaseDatabase(config, nil)
 
 	if base == nil {
-		t.Error("Expected non-nil BaseDatabase instance")
+		suite.t.Error("Expected non-nil BaseDatabase instance")
 	}
 
 	if base.config != config {
-		t.Error("Expected config to be set correctly")
-	}
-}
-
-// Test table name generation with prefix
-func TestGetTableName(t *testing.T) {
-	config := &DBConfig{
-		TablePrefix: "wfc_",
-	}
-
-	base := NewBaseDatabase(config, nil)
-
-	tableName := base.getTableName("users")
-	expectedTableName := "wfc_users"
-
-	if tableName != expectedTableName {
-		t.Errorf("Expected table name=%s, got %s", expectedTableName, tableName)
+		suite.t.Error("Expected config to be set correctly")
 	}
 }

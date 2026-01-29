@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"log/slog"
 	"reflect"
 	"strings"
 
@@ -58,11 +59,6 @@ func NewBaseDatabase(config *DBConfig, placeholderFormat squirrel.PlaceholderFor
 		config:            config,
 		placeholderFormat: placeholderFormat,
 	}
-}
-
-// getTableName returns the full table name with prefix
-func (b *BaseDatabase) getTableName(table string) string {
-	return b.config.TablePrefix + table
 }
 
 // structToMap converts a struct to map[string]interface{} using reflection
@@ -156,7 +152,10 @@ func scanToStruct(rows *sql.Rows, dest interface{}) error {
 		return err
 	}
 
+	count := 0
 	for rows.Next() {
+		count++
+
 		// Create new instance of element type
 		elem := reflect.New(elementType).Elem()
 
@@ -185,6 +184,7 @@ func scanToStruct(rows *sql.Rows, dest interface{}) error {
 			destValue.Set(reflect.Append(destValue, elem))
 		}
 	}
+	slog.Debug("Scanned rows", "count", count)
 
 	return rows.Err()
 }

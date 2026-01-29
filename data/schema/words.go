@@ -18,7 +18,7 @@ func WordsTable() *domain.TableDefinition {
 				Name:    "word",
 				Type:    domain.VarcharType(255),
 				NotNull: true,
-				Index:   true,
+				Unique:  true,
 			},
 			{
 				Name:    "familiarity",
@@ -39,13 +39,7 @@ func WordsTable() *domain.TableDefinition {
 				Default: "CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP",
 			},
 		},
-		Indexes: []domain.Index{
-			{
-				Name:    "word_unique",
-				Columns: []string{"word"},
-				Unique:  true,
-			},
-		},
+		Indexes:     []domain.Index{},
 		Description: "Dictionary words with their definitions",
 	}
 }

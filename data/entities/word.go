@@ -30,7 +30,7 @@ type WordDefinition struct {
 // FromModels creates a Word entity from database models
 func FromModels(word *models.Word, definitions []*models.WordDefinition) *Word {
 	entity := &Word{
-		ID:          word.ID,
+		ID:          word.Id,
 		Word:        word.Word,
 		Familiarity: word.Familiarity,
 		CreatedAt:   word.CreatedAt,
@@ -40,7 +40,7 @@ func FromModels(word *models.Word, definitions []*models.WordDefinition) *Word {
 
 	for i, def := range definitions {
 		entity.Definitions[i] = &WordDefinition{
-			ID:           def.ID,
+			ID:           def.Id,
 			PartOfSpeech: def.PartOfSpeech,
 			Definition:   def.Definition,
 			Phonetics:    def.Phonetics,
@@ -57,7 +57,7 @@ func FromModels(word *models.Word, definitions []*models.WordDefinition) *Word {
 // ToWordModel converts the entity back to a Word database model
 func (w *Word) ToWordModel() *models.Word {
 	return &models.Word{
-		ID:          w.ID,
+		Id:          w.ID,
 		Word:        w.Word,
 		Familiarity: w.Familiarity,
 		CreatedAt:   w.CreatedAt,
@@ -71,8 +71,8 @@ func (w *Word) ToDefinitionModels(wordID int) []*models.WordDefinition {
 
 	for i, def := range w.Definitions {
 		definitions[i] = &models.WordDefinition{
-			ID:           def.ID,
-			WordID:       wordID,
+			Id:           def.ID,
+			WordId:       wordID,
 			PartOfSpeech: def.PartOfSpeech,
 			Definition:   def.Definition,
 			Phonetics:    def.Phonetics,

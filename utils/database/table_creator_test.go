@@ -5,9 +5,27 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	"word-flashcard/utils/database/domain"
+
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/stretchr/testify/suite"
 )
+
+// tableCreatorTestSuite testing suite components
+type tableCreatorTestSuite struct {
+	suite.Suite
+	t *testing.T
+}
+
+// TestTableCreatorSuite runs the test suite
+func TestTableCreatorSuite(t *testing.T) {
+	suite.Run(t, new(tableCreatorTestSuite))
+}
+
+// SetupTest for the test suite
+func (s *tableCreatorTestSuite) SetupTest() {
+	s.t = s.T()
+}
 
 // createTestColumnDefinitions creates test column definitions for testing
 func createTestColumnDefinitions() []domain.Column {
@@ -63,14 +81,14 @@ func createTestTableDefinitionForCreator() *domain.TableDefinition {
 }
 
 // Test CREATE TABLE SQL generation for different databases
-func TestGetCreateSQL(t *testing.T) {
+func (suite *tableCreatorTestSuite) TestGetCreateSQL() {
 	testTable := createTestTableDefinitionForCreator()
 
 	// Test MySQL CREATE SQL
-	mysqlSQL := GetCreateSQL(testTable, "mysql", "wfc_")
+	mysqlSQL := GetCreateSQL(testTable, "mysql")
 
 	expectedSubstrings := []string{
-		"CREATE TABLE IF NOT EXISTS wfc_test_table",
+		"CREATE TABLE IF NOT EXISTS test_table",
 		"id INT AUTO_INCREMENT NOT NULL PRIMARY KEY",
 		"name VARCHAR(255) NOT NULL",
 		"email VARCHAR(255) UNIQUE",
@@ -80,15 +98,15 @@ func TestGetCreateSQL(t *testing.T) {
 
 	for _, expected := range expectedSubstrings {
 		if !strings.Contains(mysqlSQL, expected) {
-			t.Errorf("MySQL SQL missing expected substring: %s\nActual SQL: %s", expected, mysqlSQL)
+			suite.t.Errorf("MySQL SQL missing expected substring: %s\nActual SQL: %s", expected, mysqlSQL)
 		}
 	}
 
 	// Test PostgreSQL CREATE SQL
-	postgresSQL := GetCreateSQL(testTable, "postgresql", "wfc_")
+	postgresSQL := GetCreateSQL(testTable, "postgresql")
 
 	expectedPostgresSubstrings := []string{
-		"CREATE TABLE IF NOT EXISTS wfc_test_table",
+		"CREATE TABLE IF NOT EXISTS test_table",
 		"id SERIAL NOT NULL PRIMARY KEY",
 		"name VARCHAR(255) NOT NULL",
 		"email VARCHAR(255) UNIQUE",
@@ -98,18 +116,18 @@ func TestGetCreateSQL(t *testing.T) {
 
 	for _, expected := range expectedPostgresSubstrings {
 		if !strings.Contains(postgresSQL, expected) {
-			t.Errorf("PostgreSQL SQL missing expected substring: %s\nActual SQL: %s", expected, postgresSQL)
+			suite.t.Errorf("PostgreSQL SQL missing expected substring: %s\nActual SQL: %s", expected, postgresSQL)
 		}
 	}
 
 	// PostgreSQL should not contain ON UPDATE
 	if strings.Contains(postgresSQL, "ON UPDATE") {
-		t.Error("PostgreSQL SQL should not contain 'ON UPDATE' clause")
+		suite.t.Error("PostgreSQL SQL should not contain 'ON UPDATE' clause")
 	}
 }
 
 // Test buildColumnSQL for different column configurations
-func TestBuildColumnSQL(t *testing.T) {
+func (suite *tableCreatorTestSuite) TestBuildColumnSQL() {
 	tests := []struct {
 		name     string
 		column   domain.Column
@@ -173,12 +191,12 @@ func TestBuildColumnSQL(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		suite.t.Run(tt.name, func(t *testing.T) {
 			result := buildColumnSQL(tt.column, tt.dbType)
 
 			for _, expected := range tt.expected {
 				if !strings.Contains(result, expected) {
-					t.Errorf("Expected substring '%s' not found in result: %s", expected, result)
+					suite.t.Errorf("Expected substring '%s' not found in result: %s", expected, result)
 				}
 			}
 		})
@@ -186,7 +204,7 @@ func TestBuildColumnSQL(t *testing.T) {
 }
 
 // Test retrieving primary key columns from a list of columns
-func TestGetPrimaryKeyColumns(t *testing.T) {
+func (suite *tableCreatorTestSuite) TestGetPrimaryKeyColumns() {
 	columns := []domain.Column{
 		{Name: "id", PrimaryKey: true},
 		{Name: "name", PrimaryKey: false},
@@ -197,7 +215,7 @@ func TestGetPrimaryKeyColumns(t *testing.T) {
 	pkColumns := getPrimaryKeyColumns(columns)
 
 	if len(pkColumns) != 2 {
-		t.Errorf("Expected 2 primary key columns, got %d", len(pkColumns))
+		suite.t.Errorf("Expected 2 primary key columns, got %d", len(pkColumns))
 	}
 
 	expectedPKs := []string{"id", "tenant_id"}
@@ -210,20 +228,20 @@ func TestGetPrimaryKeyColumns(t *testing.T) {
 			}
 		}
 		if !found {
-			t.Errorf("Expected primary key column '%s' not found in result", expected)
+			suite.t.Errorf("Expected primary key column '%s' not found in result", expected)
 		}
 	}
 }
 
 // Test index SQL generation for different databases
-func TestGetIndexSQL(t *testing.T) {
+func (suite *tableCreatorTestSuite) TestGetIndexSQL() {
 	testTable := createTestTableDefinitionForCreator()
 
 	// Test MySQL index SQL
-	mysqlIndexes := GetIndexSQL(testTable, "mysql", "wfc_")
+	mysqlIndexes := GetIndexSQL(testTable, "mysql")
 
 	if len(mysqlIndexes) != 2 {
-		t.Errorf("Expected 2 index SQL statements, got %d", len(mysqlIndexes))
+		suite.t.Errorf("Expected 2 index SQL statements, got %d", len(mysqlIndexes))
 	}
 
 	// Check for regular index
@@ -240,35 +258,91 @@ func TestGetIndexSQL(t *testing.T) {
 	}
 
 	if !regularIndexFound {
-		t.Error("Regular index SQL not found")
+		suite.t.Error("Regular index SQL not found")
 	}
 	if !uniqueIndexFound {
-		t.Error("Unique index SQL not found")
+		suite.t.Error("Unique index SQL not found")
 	}
 
 	// Test PostgreSQL index SQL (should be same as MySQL for basic indexes)
-	postgresIndexes := GetIndexSQL(testTable, "postgresql", "wfc_")
+	postgresIndexes := GetIndexSQL(testTable, "postgresql")
 	if len(postgresIndexes) != 2 {
-		t.Errorf("Expected 2 PostgreSQL index SQL statements, got %d", len(postgresIndexes))
+		suite.t.Errorf("Expected 2 PostgreSQL index SQL statements, got %d", len(postgresIndexes))
+	}
+}
+
+// Test column-level Unique attribute creates unique indexes
+func (suite *tableCreatorTestSuite) TestGetIndexSQL_ColumnLevelUniqueIndex() {
+	testTable := &domain.TableDefinition{
+		Name: "test_unique_columns",
+		Columns: []domain.Column{
+			{
+				Name:       "id",
+				Type:       domain.ColumnType{MySQL: "INT", PostgreSQL: "INTEGER"},
+				PrimaryKey: true,
+			},
+			{
+				Name:   "username",
+				Type:   domain.ColumnType{MySQL: "VARCHAR(255)", PostgreSQL: "VARCHAR(255)"},
+				Unique: true, // Should create unique index
+			},
+			{
+				Name:  "category_id",
+				Type:  domain.ColumnType{MySQL: "INT", PostgreSQL: "INTEGER"},
+				Index: true, // Should create regular index
+			},
+			{
+				Name: "description",
+				Type: domain.ColumnType{MySQL: "TEXT", PostgreSQL: "TEXT"},
+				// No index attributes
+			},
+		},
+		Indexes: []domain.Index{}, // No explicit indexes
+	}
+
+	indexes := GetIndexSQL(testTable, "mysql")
+
+	// Should create 2 indexes: unique for username and regular for category_id
+	if len(indexes) != 2 {
+		suite.t.Errorf("Expected 2 index SQL statements, got %d", len(indexes))
+	}
+
+	usernameUniqueIndexFound := false
+	categoryIndexFound := false
+
+	for _, indexSQL := range indexes {
+		if strings.Contains(indexSQL, "idx_test_unique_columns_username_unique") && strings.Contains(indexSQL, "CREATE UNIQUE INDEX") {
+			usernameUniqueIndexFound = true
+		}
+		if strings.Contains(indexSQL, "idx_test_unique_columns_category_id") && strings.Contains(indexSQL, "CREATE INDEX") && !strings.Contains(indexSQL, "UNIQUE") {
+			categoryIndexFound = true
+		}
+	}
+
+	if !usernameUniqueIndexFound {
+		suite.t.Error("Unique index SQL for 'username' column not found")
+	}
+	if !categoryIndexFound {
+		suite.t.Error("Regular index SQL for 'category_id' column not found")
 	}
 }
 
 // Test create database tables
-func TestCreateDatabaseTables(t *testing.T) {
+func (suite *tableCreatorTestSuite) TestCreateDatabaseTables() {
 	// Setup clean registry and register test table
-	setupCleanRegistry()
+	ClearRegistry()
 	testTable := createTestTableDefinitionForCreator()
 	RegisterTable(testTable)
 
-	db, mock, cleanup := createMockDatabase(t, "mysql")
+	db, mock, cleanup := createMockDatabase(suite.t, "mysql")
 	defer cleanup()
 
 	// Mock table existence check (table doesn't exist)
-	mock.ExpectExec("SELECT 1 FROM wfc_test_table WHERE 1=0").
-		WillReturnError(errors.New("Table 'testdb.wfc_test_table' doesn't exist"))
+	mock.ExpectExec("SELECT 1 FROM test_table WHERE 1=0").
+		WillReturnError(errors.New("Table 'testdb.test_table' doesn't exist"))
 
 	// Mock expectations for CREATE TABLE
-	mock.ExpectExec("CREATE TABLE IF NOT EXISTS wfc_test_table").
+	mock.ExpectExec("CREATE TABLE IF NOT EXISTS test_table").
 		WillReturnResult(sqlmock.NewResult(0, 0))
 
 	// Mock expectations for CREATE INDEX (2 indexes)
@@ -278,63 +352,63 @@ func TestCreateDatabaseTables(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(0, 0))
 
 	// Execute test
-	err := CreateDatabaseTables(db, "mysql", "wfc_")
+	err := CreateDatabaseTables(db, "mysql")
 	if err != nil {
-		t.Errorf("CreateDatabaseTables() failed: %v", err)
+		suite.t.Errorf("CreateDatabaseTables() failed: %v", err)
 	}
 
 	// Verify all expectations were met
 	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("Unfulfilled expectations: %v", err)
+		suite.t.Errorf("Unfulfilled expectations: %v", err)
 	}
 }
 
 // Test error handling during table creation
-func TestCreateDatabaseTablesWithFailure(t *testing.T) {
+func (suite *tableCreatorTestSuite) TestCreateDatabaseTablesWithFailure() {
 	// Setup clean registry and register test table
-	setupCleanRegistry()
+	ClearRegistry()
 	testTable := createTestTableDefinitionForCreator()
 	RegisterTable(testTable)
 
-	db, mock, cleanup := createMockDatabase(t, "mysql")
+	db, mock, cleanup := createMockDatabase(suite.t, "mysql")
 	defer cleanup()
 
 	// Mock table existence check (table doesn't exist)
-	mock.ExpectExec("SELECT 1 FROM wfc_test_table WHERE 1=0").
-		WillReturnError(errors.New("Table 'testdb.wfc_test_table' doesn't exist"))
+	mock.ExpectExec("SELECT 1 FROM test_table WHERE 1=0").
+		WillReturnError(errors.New("Table 'testdb.test_table' doesn't exist"))
 
 	// Mock CREATE TABLE to fail
-	mock.ExpectExec("CREATE TABLE IF NOT EXISTS wfc_test_table").
+	mock.ExpectExec("CREATE TABLE IF NOT EXISTS test_table").
 		WillReturnError(sqlmock.ErrCancelled)
 
 	// Execute test
-	err := CreateDatabaseTables(db, "mysql", "wfc_")
+	err := CreateDatabaseTables(db, "mysql")
 	if err == nil {
-		t.Error("Expected CreateDatabaseTables() to fail, but it succeeded")
+		suite.t.Error("Expected CreateDatabaseTables() to fail, but it succeeded")
 	}
 
 	// Verify all expectations were met
 	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("Unfulfilled expectations: %v", err)
+		suite.t.Errorf("Unfulfilled expectations: %v", err)
 	}
 }
 
 // Test error handling during index creation
-func TestCreateDatabaseTablesIndexFailure(t *testing.T) {
+func (suite *tableCreatorTestSuite) TestCreateDatabaseTablesIndexFailure() {
 	// Setup clean registry and register test table
-	setupCleanRegistry()
+	ClearRegistry()
 	testTable := createTestTableDefinitionForCreator()
 	RegisterTable(testTable)
 
-	db, mock, cleanup := createMockDatabase(t, "mysql")
+	db, mock, cleanup := createMockDatabase(suite.t, "mysql")
 	defer cleanup()
 
 	// Mock table existence check (table doesn't exist)
-	mock.ExpectExec("SELECT 1 FROM wfc_test_table WHERE 1=0").
-		WillReturnError(errors.New("Table 'testdb.wfc_test_table' doesn't exist"))
+	mock.ExpectExec("SELECT 1 FROM test_table WHERE 1=0").
+		WillReturnError(errors.New("Table 'testdb.test_table' doesn't exist"))
 
 	// Mock CREATE TABLE to succeed
-	mock.ExpectExec("CREATE TABLE IF NOT EXISTS wfc_test_table").
+	mock.ExpectExec("CREATE TABLE IF NOT EXISTS test_table").
 		WillReturnResult(sqlmock.NewResult(0, 0))
 
 	// Mock first index to fail (should not stop execution)
@@ -346,19 +420,19 @@ func TestCreateDatabaseTablesIndexFailure(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(0, 0))
 
 	// Execute test - should succeed even if index creation fails
-	err := CreateDatabaseTables(db, "mysql", "wfc_")
+	err := CreateDatabaseTables(db, "mysql")
 	if err != nil {
-		t.Errorf("CreateDatabaseTables() should not fail on index errors, but got: %v", err)
+		suite.t.Errorf("CreateDatabaseTables() should not fail on index errors, but got: %v", err)
 	}
 
 	// Verify all expectations were met
 	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("Unfulfilled expectations: %v", err)
+		suite.t.Errorf("Unfulfilled expectations: %v", err)
 	}
 }
 
 // Test tableExists function for database table existence
-func TestTableExistsInDatabase(t *testing.T) {
+func (suite *tableCreatorTestSuite) TestTableExistsInDatabase() {
 	tests := []struct {
 		name          string
 		dbType        string
@@ -410,7 +484,7 @@ func TestTableExistsInDatabase(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		suite.t.Run(tt.name, func(t *testing.T) {
 			db, mock, cleanup := createMockDatabase(t, tt.dbType)
 			defer cleanup()
 
@@ -424,39 +498,39 @@ func TestTableExistsInDatabase(t *testing.T) {
 			exists, err := tableExists(db, tt.tableName, tt.dbType)
 
 			if tt.expectError && err == nil {
-				t.Error("Expected error but got nil")
+				suite.t.Error("Expected error but got nil")
 				return
 			}
 
 			if !tt.expectError && err != nil {
-				t.Errorf("Unexpected error: %v", err)
+				suite.t.Errorf("Unexpected error: %v", err)
 				return
 			}
 
 			if !tt.expectError && exists != tt.expectedExists {
-				t.Errorf("Expected exists=%v, got %v", tt.expectedExists, exists)
+				suite.t.Errorf("Expected exists=%v, got %v", tt.expectedExists, exists)
 			}
 
 			// Verify all expectations were met
 			if err := mock.ExpectationsWereMet(); err != nil {
-				t.Errorf("Unfulfilled expectations: %v", err)
+				suite.t.Errorf("Unfulfilled expectations: %v", err)
 			}
 		})
 	}
 }
 
 // Test CreateDatabaseTables skips existing tables
-func TestCreateDatabaseTablesSkipsExistingTables(t *testing.T) {
+func (suite *tableCreatorTestSuite) TestCreateDatabaseTablesSkipsExistingTables() {
 	// Setup clean registry and register test table
-	setupCleanRegistry()
+	ClearRegistry()
 	testTable := createTestTableDefinitionForCreator()
 	RegisterTable(testTable)
 
-	db, mock, cleanup := createMockDatabase(t, "mysql")
+	db, mock, cleanup := createMockDatabase(suite.t, "mysql")
 	defer cleanup()
 
 	// Mock table existence check (table exists)
-	mock.ExpectExec("SELECT 1 FROM wfc_test_table WHERE 1=0").
+	mock.ExpectExec("SELECT 1 FROM test_table WHERE 1=0").
 		WillReturnResult(sqlmock.NewResult(0, 0)) // No error means table exists
 
 	// Mock expectations for CREATE INDEX (should still create indexes even if table exists)
@@ -466,33 +540,33 @@ func TestCreateDatabaseTablesSkipsExistingTables(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(0, 0))
 
 	// Execute test
-	err := CreateDatabaseTables(db, "mysql", "wfc_")
+	err := CreateDatabaseTables(db, "mysql")
 	if err != nil {
-		t.Errorf("CreateDatabaseTables() failed: %v", err)
+		suite.t.Errorf("CreateDatabaseTables() failed: %v", err)
 	}
 
 	// Verify all expectations were met
 	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("Unfulfilled expectations: %v", err)
+		suite.t.Errorf("Unfulfilled expectations: %v", err)
 	}
 }
 
 // Test CreateDatabaseTables creates non-existing tables
-func TestCreateDatabaseTablesCreatesNonExistingTable(t *testing.T) {
+func (suite *tableCreatorTestSuite) TestCreateDatabaseTablesCreatesNonExistingTable() {
 	// Setup clean registry and register test table
-	setupCleanRegistry()
+	ClearRegistry()
 	testTable := createTestTableDefinitionForCreator()
 	RegisterTable(testTable)
 
-	db, mock, cleanup := createMockDatabase(t, "mysql")
+	db, mock, cleanup := createMockDatabase(suite.t, "mysql")
 	defer cleanup()
 
 	// Mock table existence check (table doesn't exist)
-	mock.ExpectExec("SELECT 1 FROM wfc_test_table WHERE 1=0").
-		WillReturnError(errors.New("Table 'testdb.wfc_test_table' doesn't exist"))
+	mock.ExpectExec("SELECT 1 FROM test_table WHERE 1=0").
+		WillReturnError(errors.New("Table 'testdb.test_table' doesn't exist"))
 
 	// Mock expectations for CREATE TABLE
-	mock.ExpectExec("CREATE TABLE IF NOT EXISTS wfc_test_table").
+	mock.ExpectExec("CREATE TABLE IF NOT EXISTS test_table").
 		WillReturnResult(sqlmock.NewResult(0, 0))
 
 	// Mock expectations for CREATE INDEX
@@ -502,13 +576,13 @@ func TestCreateDatabaseTablesCreatesNonExistingTable(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(0, 0))
 
 	// Execute test
-	err := CreateDatabaseTables(db, "mysql", "wfc_")
+	err := CreateDatabaseTables(db, "mysql")
 	if err != nil {
-		t.Errorf("CreateDatabaseTables() failed: %v", err)
+		suite.t.Errorf("CreateDatabaseTables() failed: %v", err)
 	}
 
 	// Verify all expectations were met
 	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("Unfulfilled expectations: %v", err)
+		suite.t.Errorf("Unfulfilled expectations: %v", err)
 	}
 }

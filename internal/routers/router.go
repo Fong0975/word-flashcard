@@ -1,9 +1,10 @@
 package routers
 
 import (
+	"net/http"
 	"path/filepath"
+	"word-flashcard/internal/handlers"
 
-	"word-flashcard/handlers"
 	"word-flashcard/internal/middleware"
 
 	"github.com/gin-gonic/gin"
@@ -16,48 +17,45 @@ func SetupRouter() (*gin.Engine, error) {
 	// Create gin router
 	router := gin.New()
 
-	// Add global middleware
-	router.Use(middleware.LoggingMiddleware())
-	router.Use(middleware.CORSMiddleware())
-	router.Use(gin.Recovery())
-
-	// Setup API routes
+	// Global middleware
+	setMiddleware(router)
+	// API routes
 	SetupAPIRoutes(router)
-
-	// Setup web routes
-	if err := setupWebRoutes(router); err != nil {
+	// Web routes
+	webHandler, err := handlers.NewWebHandler()
+	if err != nil {
 		return nil, err
 	}
-
-	// Setup Swagger routes
+	setupWebRoutes(router, webHandler)
+	// Swagger routes
 	setupSwaggerRoutes(router)
 
 	return router, nil
 }
 
-// setupWebRoutes configures web-related routes (non-API)
-func setupWebRoutes(router *gin.Engine) error {
-	// Create web handler
-	webHandler, err := handlers.NewWebHandler()
-	if err != nil {
-		return err
-	}
+// setMiddleware adds global middleware to the router
+func setMiddleware(router *gin.Engine) {
+	// Add global middleware
+	router.Use(middleware.LoggingMiddleware())
+	router.Use(middleware.CORSMiddleware())
+	router.Use(gin.Recovery())
+}
 
+// setupWebRoutes configures web-related routes with injected handlers
+func setupWebRoutes(router *gin.Engine, handler handlers.WebHandlerInterface) {
 	// Index route
-	router.GET("/", gin.WrapF(webHandler.IndexHandler))
+	router.GET("/", gin.WrapF(handler.IndexHandler))
 
 	// Static files
 	staticDir := filepath.Join("web", "static")
 	router.Static("/static", staticDir)
-
-	return nil
 }
 
 // setupSwaggerRoutes configures Swagger documentation routes
 func setupSwaggerRoutes(router *gin.Engine) {
 	// Handle direct access to /swagger (without trailing slash)
 	router.GET("/swagger", func(c *gin.Context) {
-		c.Redirect(302, "/swagger/index.html")
+		c.Redirect(http.StatusFound, "/swagger/index.html")
 	})
 
 	// Swagger UI endpoint with wildcard handler

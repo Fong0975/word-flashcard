@@ -15,7 +15,6 @@ type DBConfig struct {
 	Password     string
 	DatabaseName string
 	SSLMode      string // Fixed to "disable"
-	TablePrefix  string // Fixed to "wfc_"
 	MaxOpenConns int    // Fixed to 25
 	MaxIdleConns int    // Fixed to 25
 }
@@ -25,7 +24,6 @@ func LoadConfig() (*DBConfig, error) {
 	dbConfig := &DBConfig{
 		// Fixed values
 		SSLMode:      "disable",
-		TablePrefix:  "wfc_",
 		MaxOpenConns: 25,
 		MaxIdleConns: 25,
 	}

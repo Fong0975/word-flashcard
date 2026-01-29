@@ -32,7 +32,7 @@ func WordDefinitionsTable() *domain.TableDefinition {
 			},
 			{
 				Name:    "phonetics",
-				Type:    domain.VarcharType(255),
+				Type:    domain.TextType,
 				NotNull: false,
 			},
 			{
