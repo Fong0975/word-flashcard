@@ -3,10 +3,13 @@ package schema
 import "word-flashcard/utils/database/domain"
 
 const (
-	WORD_TABLE_NAME  = "words"
-	WORD_ID          = COMMON_ID
-	WORD_WORD        = "word"
-	WORD_FAMILIARITY = "familiarity"
+	WORD_TABLE_NAME         = "words"
+	WORD_ID                 = COMMON_ID
+	WORD_WORD               = "word"
+	WORD_FAMILIARITY        = "familiarity"
+	WORD_FAMILIARITY_RED    = "red"
+	WORD_FAMILIARITY_YELLOW = "yellow"
+	WORD_FAMILIARITY_GREEN  = "green"
 )
 
 // WordsTable defines the words table structure

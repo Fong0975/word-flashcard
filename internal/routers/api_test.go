@@ -34,11 +34,13 @@ func (s *apiRoutesTestSuite) SetupTest() {
 	// Create mock controllers
 	mockHealthController := mocks.NewMockHealthController()
 	mockDictionaryController := mocks.NewMockDictionaryController()
+	mockWordController := mocks.NewMockWordController()
 
 	// Create controller dependencies with mock controllers
 	deps := &ControllerDependencies{
 		HealthController:     mockHealthController,
 		DictionaryController: mockDictionaryController,
+		WordController:       mockWordController,
 	}
 
 	// Create a new gin router and setup API routes with mock controllers
@@ -67,6 +69,14 @@ func (s *apiRoutesTestSuite) TestAPIRouteMappings() {
 	}{
 		{"GET", "/api/health", "HealthController.HealthCheck", "HealthCheck", "HealthController"},
 		{"GET", "/api/dictionary/test", "DictionaryController.SearchWord", "SearchWord", "DictionaryController"},
+		{"GET", "/api/words", "WordController.ListWords", "ListWords", "WordController"},
+		{"POST", "/api/words/search", "WordController.SearchWords", "SearchWords", "WordController"},
+		{"POST", "/api/words", "WordController.CreateWord", "CreateWord", "WordController"},
+		{"POST", "/api/words/definition/1", "WordController.CreateWordDefinition", "CreateWordDefinition", "WordController"},
+		{"PUT", "/api/words/1", "WordController.UpdateWord", "UpdateWord", "WordController"},
+		{"PUT", "/api/words/definition/1", "WordController.UpdateWordDefinition", "UpdateWordDefinition", "WordController"},
+		{"DELETE", "/api/words/1", "WordController.DeleteWord", "DeleteWord", "WordController"},
+		{"DELETE", "/api/words/definition/1", "WordController.DeleteWordDefinition", "DeleteWordDefinition", "WordController"},
 	}
 
 	// Test each route mapping calls the correct method
