@@ -7,12 +7,19 @@ The application features a REST API backend and an HTML frontend interface.
 
 ```
 word-flashcard/
+├── data/                          # Database peers and models
+│   ├── mocks/                    # Mock function for testing
+│   ├── models/                   # Data models
+│   ├── peers/                    # Database peers (query builders)
+│   ├── schema/                   # Database schema definitions
+│   └── registry.go               # Data model registry
 ├── dist/                          # Build output directory
 ├── docs/                          # Auto-generated Swagger API documentation
-├── handlers/                      # HTTP Web handlers
 ├── internal/                      # Internal application code
 │   ├── controllers/              # API controllers
+│   ├── handlers/                 # HTTP Web handlers
 │   ├── middleware/               # HTTP middleware
+│   ├── mocks/                    # Mock interfaces for testing
 │   ├── models/                   # Data models
 │   └── routers/                  # Route configuration
 ├── utils/                         # Utility modules
@@ -20,7 +27,9 @@ word-flashcard/
 │   ├── config/                   # Configuration module
 │   ├── database/                 # Database module with MySQL/PostgreSQL support
 │   ├── log/                      # Logging module
-│   └── dictionary-testing.json   # Mockoon file for Cambridge Dictionary API sub-service
+│   ├── conversion_utils.go       # Type conversion utilities
+│   ├── dictionary-testing.json   # Mockoon file for Cambridge Dictionary API sub-service
+│   └── pointer_utils.go          # Pointer utility functions
 ├── web/                           # Web frontend files
 │   ├── static/                   # Static assets
 │   └── templates/                # HTML templates
