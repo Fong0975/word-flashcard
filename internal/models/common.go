@@ -4,3 +4,9 @@ package models
 type ErrorResponse struct {
 	Error string `json:"error"`
 }
+
+type SearchFilter struct {
+	Key      string `json:"key" binding:"required"`
+	Operator string `json:"operator" binding:"required"`
+	Value    string `json:"value" binding:"required"`
+}

@@ -1,14 +1,13 @@
 package peers
 
 import (
-	"database/sql"
 	"fmt"
 	"word-flashcard/utils/database"
 )
 
 // BasePeer provides common database operations for all peers
 type BasePeer struct {
-	db *sql.DB
+	db *database.UniversalDatabase
 }
 
 // NewBasePeer creates a new base peer with database connection
@@ -30,19 +29,6 @@ func NewBasePeer() (*BasePeer, error) {
 	}
 
 	return &BasePeer{
-		db: universalDB.GetDB(),
+		db: universalDB,
 	}, nil
-}
-
-// GetDB returns the database connection
-func (bp *BasePeer) GetDB() *sql.DB {
-	return bp.db
-}
-
-// Close closes the database connection
-func (bp *BasePeer) Close() error {
-	if bp.db != nil {
-		return bp.db.Close()
-	}
-	return nil
 }

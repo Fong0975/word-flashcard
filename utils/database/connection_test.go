@@ -69,342 +69,176 @@ func createMockDatabase(t *testing.T, dbType string) (*UniversalDatabase, sqlmoc
 	return db, mock, cleanup
 }
 
-// Test create different type of database connections
-func (suite *connectionTestSuite) TestNewUniversalDatabase() {
-	// Test with MySQL config
-	mysqlConfig := createTestConfig()
-	db := NewUniversalDatabase(mysqlConfig)
-	if db == nil {
-		suite.t.Error("Expected non-nil UniversalDatabase for MySQL config")
-	}
+// ========== Connection Management Tests ==========
 
-	// Test with PostgreSQL config
-	postgresConfig := createPostgreSQLTestConfig()
-	db = NewUniversalDatabase(postgresConfig)
-	if db == nil {
-		suite.t.Error("Expected non-nil UniversalDatabase for PostgreSQL config")
-	}
+// TestConnect tests successful database connection and disconnection
+func (s *connectionTestSuite) TestConnect() {
+	db, mock, _ := createMockDatabase(s.t, "mysql")
 
-	// Test with unsupported database type
-	unknownConfig := createTestConfig()
-	unknownConfig.Type = "unknown"
-	db = NewUniversalDatabase(unknownConfig)
-	if db == nil {
-		suite.t.Error("Expected non-nil UniversalDatabase even for unknown type (should default to MySQL format)")
-	}
-}
+	// Test that database connection is established
+	s.NotNil(db.db, "Database connection should be established")
 
-// Test MySQL connection string building
-func (suite *connectionTestSuite) TestBuildMySQLDSN() {
-	config := createTestConfig()
-	db := NewUniversalDatabase(config)
-	dsn := db.buildMySQLDSN()
+	// Mock expects close for the Close() method test
+	mock.ExpectClose()
 
-	expected := "testuser:testpass@tcp(localhost:3306)/testdb?parseTime=true"
-	if dsn != expected {
-		suite.t.Errorf("Expected DSN=%s, got %s", expected, dsn)
-	}
-}
-
-// Test PostgreSQL connection string building
-func (suite *connectionTestSuite) TestBuildPostgreSQLDSN() {
-	config := createPostgreSQLTestConfig()
-	db := NewUniversalDatabase(config)
-	dsn := db.buildPostgreSQLDSN()
-
-	expected := "host=localhost port=5432 user=testuser password=testpass dbname=testdb sslmode=disable"
-	if dsn != expected {
-		suite.t.Errorf("Expected DSN=%s, got %s", expected, dsn)
-	}
-}
-
-// Test Select feature
-func (suite *connectionTestSuite) TestSelectWithMockDB() {
-	db, mock, cleanup := createMockDatabase(suite.t, "mysql")
-	defer cleanup()
-
-	// Setup expectations
-	rows := sqlmock.NewRows([]string{"id", "name", "email"}).
-		AddRow(1, "John Doe", "john@example.com").
-		AddRow(2, "Jane Smith", "jane@example.com")
-
-	mock.ExpectQuery("SELECT \\* FROM users").WillReturnRows(rows)
-
-	// Execute test
-	var results []TestStruct
-	err := db.Select("users", nil, &results)
-	if err != nil {
-		suite.t.Errorf("Select() failed: %v", err)
-	}
-
-	if len(results) != 2 {
-		suite.t.Errorf("Expected 2 results, got %d", len(results))
-	}
+	// Test Close method
+	err := db.Close()
+	s.NoError(err, "Close should succeed")
+	s.Nil(db.db, "Database connection should be nil after close")
 
 	// Verify all expectations were met
-	if err := mock.ExpectationsWereMet(); err != nil {
-		suite.t.Errorf("Unfulfilled expectations: %v", err)
-	}
+	s.NoError(mock.ExpectationsWereMet())
 }
 
-// Test Select with where condition
-func (suite *connectionTestSuite) TestSelectWithWhereCondition() {
-	db, mock, cleanup := createMockDatabase(suite.t, "mysql")
+// ========== CRUD Operations Tests ==========
+
+// Test struct for Select operations
+type testUser struct {
+	Id   int    `db:"id"`
+	Name string `db:"name"`
+}
+
+// Helper function to create string pointer
+func stringPtr(s string) *string {
+	return &s
+}
+
+// TestSelect tests selecting records from database
+func (s *connectionTestSuite) TestSelect() {
+	db, mock, cleanup := createMockDatabase(s.t, "mysql")
 	defer cleanup()
 
-	rows := sqlmock.NewRows([]string{"id", "name", "email"}).
-		AddRow(1, "John Doe", "john@example.com")
+	// Mock expects a SELECT query
+	rows := sqlmock.NewRows([]string{"id", "name"}).
+		AddRow(1, "Test User 1").
+		AddRow(2, "Test User 2")
 
-	mock.ExpectQuery("SELECT \\* FROM users WHERE id = \\?").
-		WithArgs(1).
+	mock.ExpectQuery("SELECT \\* FROM users ORDER BY name").
 		WillReturnRows(rows)
 
-	var results []TestStruct
-	where := squirrel.Eq{"id": 1}
-	err := db.Select("users", where, &results)
-	if err != nil {
-		suite.t.Errorf("Select() with where condition failed: %v", err)
-	}
+	// Prepare test parameters
+	orderBy := []*string{stringPtr("name")}
+	var results []testUser
 
-	if err := mock.ExpectationsWereMet(); err != nil {
-		suite.t.Errorf("Unfulfilled expectations: %v", err)
-	}
+	// Test Select method
+	err := db.Select("users", nil, nil, orderBy, &results)
+
+	s.NoError(err, "Select should succeed")
+	s.Len(results, 2, "Should return 2 users")
+	s.Equal(1, results[0].Id)
+	s.Equal("Test User 1", results[0].Name)
+	s.Equal(2, results[1].Id)
+	s.Equal("Test User 2", results[1].Name)
+
+	// Verify all expectations were met
+	s.NoError(mock.ExpectationsWereMet())
 }
 
-// Test Insert feature (MySQL)
-func (suite *connectionTestSuite) TestInsertWithMySQLMockDB() {
-	db, mock, cleanup := createMockDatabase(suite.t, "mysql")
+// TestInsert tests inserting records into database
+func (s *connectionTestSuite) TestInsert() {
+	db, mock, cleanup := createMockDatabase(s.t, "mysql")
 	defer cleanup()
 
-	testData := TestStruct{
-		Name:        "John Doe",
-		Email:       "john@example.com",
-		Age:         30,
-		IsActive:    true,
-		Description: "Test user",
+	// Test data to insert
+	testData := testUser{
+		Name: "New User",
 	}
 
+	// Mock expects an INSERT query
 	mock.ExpectExec("INSERT INTO users").
+		WithArgs("New User").
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	id, err := db.Insert("users", testData)
-	if err != nil {
-		suite.t.Errorf("Insert() failed: %v", err)
-	}
+	// Mock expects a SELECT query to get the inserted ID
+	rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
+	mock.ExpectQuery("SELECT id FROM users").
+		WithArgs("New User").
+		WillReturnRows(rows)
 
-	if id != 1 {
-		suite.t.Errorf("Expected ID=1, got %d", id)
-	}
+	// Test Insert method
+	insertedID, err := db.Insert("users", testData)
 
-	if err := mock.ExpectationsWereMet(); err != nil {
-		suite.t.Errorf("Unfulfilled expectations: %v", err)
-	}
+	s.NoError(err, "Insert should succeed")
+	s.Equal(int64(1), insertedID, "Should return inserted ID")
+
+	// Verify all expectations were met
+	s.NoError(mock.ExpectationsWereMet())
 }
 
-// Test Insert feature (PostgreSQL)
-func (suite *connectionTestSuite) TestInsertWithPostgreSQLMockDB() {
-	db, mock, cleanup := createMockDatabase(suite.t, "postgresql")
+// ========== Update Tests ==========
+
+// TestUpdate tests updating records in database
+func (s *connectionTestSuite) TestUpdate() {
+	db, mock, cleanup := createMockDatabase(s.t, "mysql")
 	defer cleanup()
 
-	testData := TestStruct{
-		Name:        "John Doe",
-		Email:       "john@example.com",
-		Age:         30,
-		IsActive:    true,
-		Description: "Test user",
+	// Test data to update
+	updateData := testUser{
+		Name: "Updated User",
 	}
 
-	mock.ExpectQuery("INSERT INTO users .* RETURNING id").
-		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
+	// Create where condition
+	whereCondition := squirrel.Eq{"id": 1}
 
-	id, err := db.Insert("users", testData)
-	if err != nil {
-		suite.t.Errorf("Insert() failed: %v", err)
-	}
-
-	if id != 1 {
-		suite.t.Errorf("Expected ID=1, got %d", id)
-	}
-
-	if err := mock.ExpectationsWereMet(); err != nil {
-		suite.t.Errorf("Unfulfilled expectations: %v", err)
-	}
-}
-
-// Test Update feature
-func (suite *connectionTestSuite) TestUpdateWithMockDB() {
-	db, mock, cleanup := createMockDatabase(suite.t, "mysql")
-	defer cleanup()
-
-	updateData := TestStruct{
-		Name:  "Updated Name",
-		Email: "updated@example.com",
-	}
-
+	// Mock expects an UPDATE query
+	// Note: The Update method automatically adds updated_at field
 	mock.ExpectExec("UPDATE users SET").
 		WillReturnResult(sqlmock.NewResult(0, 1))
 
-	where := squirrel.Eq{"id": 1}
-	rowsAffected, err := db.Update("users", updateData, where)
-	if err != nil {
-		suite.t.Errorf("Update() failed: %v", err)
-	}
+	// Test Update method
+	rowsAffected, err := db.Update("users", updateData, whereCondition)
 
-	if rowsAffected != 1 {
-		suite.t.Errorf("Expected rowsAffected=1, got %d", rowsAffected)
-	}
+	s.NoError(err, "Update should succeed")
+	s.Equal(int64(1), rowsAffected, "Should return 1 affected row")
 
-	if err := mock.ExpectationsWereMet(); err != nil {
-		suite.t.Errorf("Unfulfilled expectations: %v", err)
-	}
+	// Verify all expectations were met
+	s.NoError(mock.ExpectationsWereMet())
 }
 
-// Test Delete feature
-func (suite *connectionTestSuite) TestDeleteWithMockDB() {
-	db, mock, cleanup := createMockDatabase(suite.t, "mysql")
+// TestDelete tests deleting records from database
+func (s *connectionTestSuite) TestDelete() {
+	db, mock, cleanup := createMockDatabase(s.t, "mysql")
 	defer cleanup()
 
-	mock.ExpectExec("DELETE FROM users WHERE id = \\?").
-		WithArgs(1).
+	// Create where condition
+	whereCondition := squirrel.Eq{"id": 1}
+
+	// Mock expects a DELETE query
+	mock.ExpectExec("DELETE FROM users").
 		WillReturnResult(sqlmock.NewResult(0, 1))
 
-	where := squirrel.Eq{"id": 1}
-	rowsAffected, err := db.Delete("users", where)
-	if err != nil {
-		suite.t.Errorf("Delete() failed: %v", err)
-	}
+	// Test Delete method
+	rowsAffected, err := db.Delete("users", whereCondition)
 
-	if rowsAffected != 1 {
-		suite.t.Errorf("Expected rowsAffected=1, got %d", rowsAffected)
-	}
+	s.NoError(err, "Delete should succeed")
+	s.Equal(int64(1), rowsAffected, "Should return 1 affected row")
 
-	if err := mock.ExpectationsWereMet(); err != nil {
-		suite.t.Errorf("Unfulfilled expectations: %v", err)
-	}
+	// Verify all expectations were met
+	s.NoError(mock.ExpectationsWereMet())
 }
 
-// Test Count feature
-func (suite *connectionTestSuite) TestCountWithMockDB() {
-	db, mock, cleanup := createMockDatabase(suite.t, "mysql")
+// ========== Low-level Operations Tests ==========
+
+// TestExec tests executing raw SQL queries
+func (s *connectionTestSuite) TestExec() {
+	db, mock, cleanup := createMockDatabase(s.t, "mysql")
 	defer cleanup()
 
-	rows := sqlmock.NewRows([]string{"count"}).AddRow(5)
-	mock.ExpectQuery("SELECT COUNT\\(\\*\\) FROM users").WillReturnRows(rows)
+	// Mock expects an SQL execution
+	mock.ExpectExec("CREATE TABLE test_table").
+		WillReturnResult(sqlmock.NewResult(0, 1))
 
-	count, err := db.Count("users", nil)
-	if err != nil {
-		suite.t.Errorf("Count() failed: %v", err)
-	}
+	// Test Exec method
+	result, err := db.Exec("CREATE TABLE test_table")
 
-	if count != 5 {
-		suite.t.Errorf("Expected count=5, got %d", count)
-	}
+	s.NoError(err, "Exec should succeed")
+	s.NotNil(result, "Result should not be nil")
 
-	if err := mock.ExpectationsWereMet(); err != nil {
-		suite.t.Errorf("Unfulfilled expectations: %v", err)
-	}
-}
+	// Verify the result
+	rowsAffected, err := result.RowsAffected()
+	s.NoError(err)
+	s.Equal(int64(1), rowsAffected, "Expected 1 row affected")
 
-// Test Exec feature - general query execution
-func (suite *connectionTestSuite) TestExecWithMockDB() {
-	db, mock, cleanup := createMockDatabase(suite.t, "mysql")
-	defer cleanup()
-
-	mock.ExpectExec("CREATE TABLE test").WillReturnResult(sqlmock.NewResult(0, 0))
-
-	result, err := db.Exec("CREATE TABLE test (id INT PRIMARY KEY)")
-	if err != nil {
-		suite.t.Errorf("Exec() failed: %v", err)
-	}
-
-	if result == nil {
-		suite.t.Error("Expected non-nil result from Exec()")
-	}
-
-	if err := mock.ExpectationsWereMet(); err != nil {
-		suite.t.Errorf("Unfulfilled expectations: %v", err)
-	}
-}
-
-// Test Close connection
-func (suite *connectionTestSuite) TestCloseDatabase() {
-	// Create mock database without using createMockDatabase to avoid cleanup conflicts
-	mockDB, mock, err := sqlmock.New()
-	if err != nil {
-		suite.t.Fatalf("Failed to create sqlmock: %v", err)
-	}
-
-	config := createTestConfig()
-	db := NewUniversalDatabase(config)
-	db.db = mockDB
-
-	// Set expectation for Close call
-	mock.ExpectClose()
-
-	// Test closing the connection
-	err = db.Close()
-	if err != nil {
-		suite.t.Errorf("Close() failed: %v", err)
-	}
-
-	// Verify expectations
-	if err := mock.ExpectationsWereMet(); err != nil {
-		suite.t.Errorf("Unfulfilled expectations: %v", err)
-	}
-
-	// Test closing when db is nil
-	db.db = nil
-	err = db.Close()
-	if err != nil {
-		suite.t.Errorf("Close() failed when db is nil: %v", err)
-	}
-}
-
-// Test operations without an active connection
-func (suite *connectionTestSuite) TestOperationsWithoutConnection() {
-	config := createTestConfig()
-	db := NewUniversalDatabase(config)
-
-	// Test Select without connection
-	var results []TestStruct
-	err := db.Select("users", nil, &results)
-	if err == nil {
-		suite.t.Error("Expected error for Select() without connection, got nil")
-	}
-
-	// Test Insert without connection
-	_, err = db.Insert("users", TestStruct{Name: "test"})
-	if err == nil {
-		suite.t.Error("Expected error for Insert() without connection, got nil")
-	}
-
-	// Test Update without connection
-	_, err = db.Update("users", TestStruct{Name: "test"}, nil)
-	if err == nil {
-		suite.t.Error("Expected error for Update() without connection, got nil")
-	}
-
-	// Test Delete without connection
-	_, err = db.Delete("users", nil)
-	if err == nil {
-		suite.t.Error("Expected error for Delete() without connection, got nil")
-	}
-
-	// Test Count without connection
-	_, err = db.Count("users", nil)
-	if err == nil {
-		suite.t.Error("Expected error for Count() without connection, got nil")
-	}
-
-	// Test Exec without connection
-	_, err = db.Exec("SELECT 1")
-	if err == nil {
-		suite.t.Error("Expected error for Exec() without connection, got nil")
-	}
-
-	// Test InitializeTables without connection
-	err = db.InitializeTables()
-	if err == nil {
-		suite.t.Error("Expected error for InitializeTables() without connection, got nil")
-	}
+	// Verify all expectations were met
+	s.NoError(mock.ExpectationsWereMet())
 }

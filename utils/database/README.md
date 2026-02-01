@@ -54,14 +54,13 @@ The following parameters are predefined in the code and don't need to be set in 
 ```
 utils/database/
 ├── domain/                    # Table schema definitions
-│   ├── types.go              # Column types and table definition structures
-│   └── words.go              # Example: words table definition
+│   └── types.go              # Column types and table definition structures
 ├── config.go                 # Configuration management and environment loading
 ├── factory.go                # Database factory functions
 ├── database.go               # Core database interface and utility functions
 ├── connection.go             # UniversalDatabase implementation (MySQL/PostgreSQL)
-├── table-registry.go         # Table registration and management system
-├── table-creator.go          # SQL generation and table creation
+├── table_registry.go         # Table registration and management system
+├── table_creator.go          # SQL generation and table creation
 └── README.md                 # This file
 ```
 
@@ -69,7 +68,7 @@ utils/database/
 
 #### 1. Configuration System (`config.go`)
 - `LoadConfig()`: Loads database configuration from environment variables
-- `getEnvOrDefault()`: Helper function for environment variable handling
+- Uses `config.GetOrDefault()` helper function for environment variable handling
 
 #### 2. Database Factory (`factory.go`)
 - `NewDatabase(config)`: Creates database instance with manual configuration
@@ -88,12 +87,11 @@ utils/database/
 - Database-specific SQL generation for INSERT operations
 
 #### 5. Table Management System
-- **Registry (`table-registry.go`)**: Thread-safe in-memory table definition storage
-- **Creator (`table-creator.go`)**: SQL generation and table creation logic
+- **Registry (`table_registry.go`)**: Thread-safe in-memory table definition storage
+- **Creator (`table_creator.go`)**: SQL generation and table creation logic
 
 #### 6. Domain Models (`domain/`)
 - **types.go**: Column types and table structure definitions
-- **words.go**: Example table schema for word flashcards
 
 ## Table Schema Management
 
@@ -161,21 +159,13 @@ func UsersTable() *TableDefinition {
 }
 ```
 
-Register the table in `table-registry.go`:
+Register the table using the individual `RegisterTable()` function:
 
 ```go
-// utils/database/table-registry.go
-func RegisterTableSchemas() {
-    tables := []*domain.TableDefinition{
-        domain.WordsTable(),
-        domain.UsersTable(), // Add your new table here
-    }
-
-    for _, table := range tables {
-        if err := RegisterTable(table); err != nil {
-            log.Printf("Failed to register table %s: %v", table.Name, err)
-        }
-    }
+// Register your table definition
+table := domain.UsersTable()
+if err := database.RegisterTable(table); err != nil {
+    log.Printf("Failed to register table %s: %v", table.Name, err)
 }
 ```
 
@@ -192,8 +182,10 @@ import (
 )
 
 func main() {
-    // Register table schemas to memory
-    database.RegisterTableSchemas()
+    // Register table schemas to memory (manual registration example)
+    // You need to register your table definitions individually
+    // table := domain.YourTableDefinition()
+    // database.RegisterTable(table)
 
     // Create database instance from environment variables
     db, err := database.NewDatabaseFromEnv()
@@ -219,7 +211,7 @@ func main() {
 ### 2. Manual Configuration
 
 ```go
-config := &database.Config{
+config := &database.DBConfig{
     Type:         "mysql",
     Host:         "localhost",
     Port:         3306,
@@ -448,7 +440,9 @@ var dbOnce sync.Once
 
 func GetDB() database.Database {
     dbOnce.Do(func() {
-        database.RegisterTableSchemas()
+        // Register your table definitions individually here
+        // table := domain.YourTableDefinition()
+        // database.RegisterTable(table)
 
         db, err := database.NewDatabaseFromEnv()
         if err != nil {
@@ -545,7 +539,10 @@ type Word struct {
 
 func main() {
     // Initialize database
-    database.RegisterTableSchemas()
+    // Register your table definitions individually
+    // table := domain.YourTableDefinition()
+    // database.RegisterTable(table)
+
     db, _ := database.NewDatabaseFromEnv()
     db.Connect()
     defer db.Close()

@@ -46,6 +46,50 @@ definitions:
       language:
         type: string
     type: object
+  models.SearchFilter:
+    properties:
+      key:
+        type: string
+      operator:
+        type: string
+      value:
+        type: string
+    required:
+    - key
+    - operator
+    - value
+    type: object
+  word-flashcard_internal_models.Word:
+    properties:
+      definitions:
+        items:
+          $ref: '#/definitions/word-flashcard_internal_models.WordDefinition'
+        type: array
+      familiarity:
+        type: string
+      id:
+        type: integer
+      word:
+        type: string
+    type: object
+  word-flashcard_internal_models.WordDefinition:
+    properties:
+      definition:
+        type: string
+      examples:
+        items:
+          type: string
+        type: array
+      id:
+        type: integer
+      notes:
+        type: string
+      part_of_speech:
+        type: string
+      phonetics:
+        additionalProperties: true
+        type: object
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -106,6 +150,236 @@ paths:
       summary: Health check endpoint
       tags:
       - health
+  /api/words:
+    get:
+      consumes:
+      - application/json
+      description: Get all words with their definitions and pronunciation information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of words retrieved successfully
+          schema:
+            items:
+              $ref: '#/definitions/word-flashcard_internal_models.Word'
+            type: array
+        "500":
+          description: Internal server error - Failed to fetch data from database
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      tags:
+      - words
+    post:
+      consumes:
+      - application/json
+      description: Create a new word entry in the dictionary
+      parameters:
+      - description: Word data to create
+        in: body
+        name: word
+        required: true
+        schema:
+          $ref: '#/definitions/word-flashcard_internal_models.Word'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Word created successfully
+          schema:
+            $ref: '#/definitions/word-flashcard_internal_models.Word'
+        "400":
+          description: Bad request - Invalid request body
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error - Failed to insert data into database
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      tags:
+      - words
+  /api/words/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a word and all its associated definitions
+      parameters:
+      - description: Word ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Word deleted successfully
+        "400":
+          description: Bad request - Invalid word ID
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error - Failed to delete data from database
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      tags:
+      - words
+    put:
+      consumes:
+      - application/json
+      description: Update an existing word's properties like familiarity level
+      parameters:
+      - description: Word ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Word data to update
+        in: body
+        name: word
+        required: true
+        schema:
+          $ref: '#/definitions/word-flashcard_internal_models.Word'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Word updated successfully
+          schema:
+            $ref: '#/definitions/word-flashcard_internal_models.Word'
+        "400":
+          description: Bad request - Invalid word ID or request body
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error - Failed to update data in database
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      tags:
+      - words
+  /api/words/definition/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a specific word definition
+      parameters:
+      - description: Word definition ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Word definition deleted successfully
+        "400":
+          description: Bad request - Invalid definition ID
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error - Failed to delete data from database
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      tags:
+      - words
+    post:
+      consumes:
+      - application/json
+      description: Add a new definition to an existing word
+      parameters:
+      - description: Word ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Word definition data
+        in: body
+        name: definition
+        required: true
+        schema:
+          $ref: '#/definitions/word-flashcard_internal_models.WordDefinition'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Word definition created successfully
+          schema:
+            $ref: '#/definitions/word-flashcard_internal_models.Word'
+        "400":
+          description: Bad request - Invalid word ID or request body
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error - Failed to insert data into database
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      tags:
+      - words
+    put:
+      consumes:
+      - application/json
+      description: Update an existing word definition's content
+      parameters:
+      - description: Word definition ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Definition data to update
+        in: body
+        name: definition
+        required: true
+        schema:
+          $ref: '#/definitions/word-flashcard_internal_models.WordDefinition'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Word definition updated successfully
+          schema:
+            $ref: '#/definitions/word-flashcard_internal_models.Word'
+        "400":
+          description: Bad request - Invalid definition ID or request body
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error - Failed to update data in database
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      tags:
+      - words
+  /api/words/search:
+    post:
+      consumes:
+      - application/json
+      description: Search for words using specified filter criteria
+      parameters:
+      - description: Search filter criteria
+        in: body
+        name: searchFilter
+        required: true
+        schema:
+          $ref: '#/definitions/models.SearchFilter'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Words found matching the search criteria
+          schema:
+            items:
+              $ref: '#/definitions/word-flashcard_internal_models.Word'
+            type: array
+        "400":
+          description: Bad request - Invalid request body or filter
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error - Failed to fetch data from database
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      tags:
+      - words
 schemes:
 - http
 swagger: "2.0"
