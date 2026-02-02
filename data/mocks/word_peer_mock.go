@@ -35,8 +35,8 @@ func (_m *MockWordPeer) EXPECT() *MockWordPeer_Expecter {
 }
 
 // Select expecter method
-func (_e *MockWordPeer_Expecter) Select(columns interface{}, where interface{}, orderBy interface{}) *mock.Call {
-	return _e.mock.On("Select", columns, where, orderBy)
+func (_e *MockWordPeer_Expecter) Select(columns interface{}, where interface{}, orderBy interface{}, limit interface{}, offset interface{}) *mock.Call {
+	return _e.mock.On("Select", columns, where, orderBy, limit, offset)
 }
 
 // Insert expecter method
@@ -55,12 +55,12 @@ func (_e *MockWordPeer_Expecter) Delete(where interface{}) *mock.Call {
 }
 
 // Select mock implementation
-func (_m *MockWordPeer) Select(columns []*string, where squirrel.Sqlizer, orderBy []*string) ([]*models.Word, error) {
-	ret := _m.Called(columns, where, orderBy)
+func (_m *MockWordPeer) Select(columns []*string, where squirrel.Sqlizer, orderBy []*string, limit *uint64, offset *uint64) ([]*models.Word, error) {
+	ret := _m.Called(columns, where, orderBy, limit, offset)
 
 	var r0 []*models.Word
-	if rf, ok := ret.Get(0).(func([]*string, squirrel.Sqlizer, []*string) []*models.Word); ok {
-		r0 = rf(columns, where, orderBy)
+	if rf, ok := ret.Get(0).(func([]*string, squirrel.Sqlizer, []*string, *uint64, *uint64) []*models.Word); ok {
+		r0 = rf(columns, where, orderBy, limit, offset)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*models.Word)
@@ -68,8 +68,8 @@ func (_m *MockWordPeer) Select(columns []*string, where squirrel.Sqlizer, orderB
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func([]*string, squirrel.Sqlizer, []*string) error); ok {
-		r1 = rf(columns, where, orderBy)
+	if rf, ok := ret.Get(1).(func([]*string, squirrel.Sqlizer, []*string, *uint64, *uint64) error); ok {
+		r1 = rf(columns, where, orderBy, limit, offset)
 	} else {
 		r1 = ret.Error(1)
 	}

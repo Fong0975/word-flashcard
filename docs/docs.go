@@ -93,7 +93,7 @@ const docTemplate = `{
         },
         "/api/words": {
             "get": {
-                "description": "Get all words with their definitions and pronunciation information",
+                "description": "Get all words with their definitions and pronunciation information, supports pagination through query parameters",
                 "consumes": [
                     "application/json"
                 ],
@@ -103,6 +103,20 @@ const docTemplate = `{
                 "tags": [
                     "words"
                 ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Maximum number of records to return (default: 100, max: 1000)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of records to skip (default: 0)",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "List of words retrieved successfully",
@@ -111,6 +125,12 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/word-flashcard_internal_models.Word"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid query parameters",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
@@ -307,7 +327,7 @@ const docTemplate = `{
         },
         "/api/words/search": {
             "post": {
-                "description": "Search for words using specified filter criteria",
+                "description": "Search for words using specified filter criteria, supports pagination through query parameters",
                 "consumes": [
                     "application/json"
                 ],
@@ -326,6 +346,18 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/models.SearchFilter"
                         }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Maximum number of records to return (default: 100, max: 1000)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of records to skip (default: 0)",
+                        "name": "offset",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -339,7 +371,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad request - Invalid request body or filter",
+                        "description": "Bad request - Invalid request body, filter, or query parameters",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }

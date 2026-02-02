@@ -85,7 +85,7 @@ func (u *UniversalDatabase) Close() error {
 // ================================= CRUD Operations =================================
 
 // Select retrieves records from the database and populates the dest slice
-func (u *UniversalDatabase) Select(table string, columns []*string, where squirrel.Sqlizer, orderBy []*string, dest interface{}) error {
+func (u *UniversalDatabase) Select(table string, columns []*string, where squirrel.Sqlizer, orderBy []*string, limit *uint64, offset *uint64, dest interface{}) error {
 	if u.db == nil {
 		slog.Error("Database is not connected")
 		return NewDatabaseError("select", fmt.Errorf("not connected"))
@@ -117,6 +117,14 @@ func (u *UniversalDatabase) Select(table string, columns []*string, where squirr
 			orderCols = append(orderCols, *col)
 		}
 		query = query.OrderBy(orderCols...)
+	}
+	// Limit
+	if limit != nil {
+		query = query.Limit(*limit)
+	}
+	// Offset
+	if offset != nil {
+		query = query.Offset(*offset)
 	}
 
 	// --------------- 3. Convert to SQL ---------------

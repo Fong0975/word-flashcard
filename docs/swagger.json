@@ -90,7 +90,7 @@
         },
         "/api/words": {
             "get": {
-                "description": "Get all words with their definitions and pronunciation information",
+                "description": "Get all words with their definitions and pronunciation information, supports pagination through query parameters",
                 "consumes": [
                     "application/json"
                 ],
@@ -100,6 +100,20 @@
                 "tags": [
                     "words"
                 ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Maximum number of records to return (default: 100, max: 1000)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of records to skip (default: 0)",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "List of words retrieved successfully",
@@ -108,6 +122,12 @@
                             "items": {
                                 "$ref": "#/definitions/word-flashcard_internal_models.Word"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid query parameters",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
@@ -304,7 +324,7 @@
         },
         "/api/words/search": {
             "post": {
-                "description": "Search for words using specified filter criteria",
+                "description": "Search for words using specified filter criteria, supports pagination through query parameters",
                 "consumes": [
                     "application/json"
                 ],
@@ -323,6 +343,18 @@
                         "schema": {
                             "$ref": "#/definitions/models.SearchFilter"
                         }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Maximum number of records to return (default: 100, max: 1000)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of records to skip (default: 0)",
+                        "name": "offset",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -336,7 +368,7 @@
                         }
                     },
                     "400": {
-                        "description": "Bad request - Invalid request body or filter",
+                        "description": "Bad request - Invalid request body, filter, or query parameters",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }

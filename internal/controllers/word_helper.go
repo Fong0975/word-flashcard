@@ -14,10 +14,10 @@ import (
 )
 
 // queryWord is a helper function to query words with given criteria
-func (wc *WordController) queryWord(columns []*string, where squirrel.Sqlizer, orderBy []*string) ([]*models.Word, error) {
+func (wc *WordController) queryWord(columns []*string, where squirrel.Sqlizer, orderBy []*string, limit *uint64, offset *uint64) ([]*models.Word, error) {
 	// ============== 1. Query 'words' table ================
 	// Query 'words' table
-	words, err := wc.wordPeer.Select(columns, where, orderBy)
+	words, err := wc.wordPeer.Select(columns, where, orderBy, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +43,7 @@ func (wc *WordController) getWordDefinitionsByWords(words []*dbModels.Word) ([]*
 	// Query 'word_definitions' table
 	whereDefs := squirrel.Eq{schema.WORD_DEFINITIONS_WORD_ID: wordIDs}
 	orderBy := fmt.Sprintf("%s ASC", schema.WORD_ID)
-	wordsDefs, err := wc.wordDefinitionPeer.Select([]*string{}, whereDefs, []*string{&orderBy})
+	wordsDefs, err := wc.wordDefinitionPeer.Select([]*string{}, whereDefs, []*string{&orderBy}, nil, nil)
 	if err != nil {
 		return nil, err
 	}
