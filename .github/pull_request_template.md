@@ -1,8 +1,14 @@
 # Title
-
 ## Summary
-- Something...
-
 ## Features Changes
-### ⚙️ Something
+### 🖥️ API Enhancements
+- Details...
+
+### 🌍 Webpage Enhancements
+- Details...
+
+### 🛢 Database Enhancements
+- Details...
+
+### ⚙️ Others
 - Details...
