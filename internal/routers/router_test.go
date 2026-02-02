@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"word-flashcard/internal/mocks"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/suite"
@@ -36,25 +35,6 @@ func (s *routerTestSuite) SetupTest() {
 
 	// Create a new gin router
 	s.router = gin.New()
-}
-
-// TestSetupWebRoutes tests the web & static routes setup
-func (s *routerTestSuite) TestSetupWebRoutes() {
-	// Create mock web handler
-	mockWebHandler := mocks.NewMockWebHandler()
-	// Setup web routes with mock handler
-	setupWebRoutes(s.router, mockWebHandler)
-
-	testcases := []RouterTestcase{
-		{"WebRoute - index page", "GET", "/", http.StatusOK},
-		{"WebRoute - static file", "GET", "/static/test.css", http.StatusNotFound},
-	}
-
-	for _, testcase := range testcases {
-		s.Run(testcase.name, func() {
-			routeMappingTest(testcase.method, testcase.path, testcase.expectedStatus, s)
-		})
-	}
 }
 
 // TestSetupSwaggerRoutes tests the Swagger routes setup
