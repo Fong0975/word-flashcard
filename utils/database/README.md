@@ -14,6 +14,7 @@ A unified database operation module that supports both MySQL and PostgreSQL, pro
 - 📋 Centralized table schema definitions
 - 🔒 Thread-safe table registry management
 - 🎯 Mock-friendly design for testing
+- 📄 Built-in pagination support with LIMIT and OFFSET
 
 ## Installation
 
@@ -273,7 +274,7 @@ type Word struct {
 
 // Query all records
 var words []Word
-err := db.Select("words", nil, &words)
+err := db.Select("words", nil, nil, nil, nil, nil, &words)
 if err != nil {
     log.Printf("Select failed: %v", err)
     return
@@ -282,15 +283,82 @@ if err != nil {
 // Query with WHERE condition using squirrel
 where := squirrel.Eq{"word": "hello"}
 var results []Word
-err = db.Select("words", where, &results)
+err = db.Select("words", nil, where, nil, nil, nil, &results)
 
 // Query with complex conditions
 where = squirrel.And{
     squirrel.Like{"word": "hel%"},
     squirrel.Gt{"id": 10},
 }
-err = db.Select("words", where, &results)
+err = db.Select("words", nil, where, nil, nil, nil, &results)
+
+// Query with pagination (LIMIT and OFFSET)
+limit := uint64(10)    // Limit to 10 records
+offset := uint64(20)   // Skip first 20 records
+orderBy := []*string{stringPtr("id ASC")}
+err = db.Select("words", nil, nil, orderBy, &limit, &offset, &results)
+if err != nil {
+    log.Printf("Select with pagination failed: %v", err)
+    return
+}
+
+// Query with only LIMIT (first page)
+limit = uint64(5)
+err = db.Select("words", nil, nil, orderBy, &limit, nil, &results)
+
+// Query with only OFFSET (skip records)
+offset = uint64(10)
+err = db.Select("words", nil, nil, orderBy, nil, &offset, &results)
+
+// Helper function to create string pointer
+func stringPtr(s string) *string {
+    return &s
+}
 ```
+
+### Pagination Support
+
+The `Select` method supports pagination through `limit` and `offset` parameters:
+
+```go
+// Method signature
+Select(table string, columns []*string, where squirrel.Sqlizer, orderBy []*string, limit *uint64, offset *uint64, dest interface{}) error
+```
+
+#### Parameters:
+- **limit**: Pointer to `uint64` - Maximum number of records to return (use `nil` for no limit)
+- **offset**: Pointer to `uint64` - Number of records to skip (use `nil` for no offset)
+
+#### Pagination Examples:
+
+```go
+// Page 1: Get first 10 records
+limit := uint64(10)
+err := db.Select("words", nil, nil, orderBy, &limit, nil, &results)
+
+// Page 2: Get records 11-20 (skip first 10, take next 10)
+limit = uint64(10)
+offset := uint64(10)
+err = db.Select("words", nil, nil, orderBy, &limit, &offset, &results)
+
+// Page 3: Get records 21-30
+offset = uint64(20)
+err = db.Select("words", nil, nil, orderBy, &limit, &offset, &results)
+
+// Get all records after the 100th
+offset = uint64(100)
+err = db.Select("words", nil, nil, orderBy, nil, &offset, &results)
+
+// Get only the first 5 records
+limit = uint64(5)
+err = db.Select("words", nil, nil, orderBy, &limit, nil, &results)
+```
+
+#### Best Practices:
+1. Always use `ORDER BY` with pagination to ensure consistent results
+2. Use appropriate page sizes (typically 10-100 records per page)
+3. Consider database performance with large offsets
+4. Both MySQL and PostgreSQL are fully supported
 
 ### Update Data
 
@@ -314,21 +382,6 @@ updateMap := map[string]interface{}{
     "definition": "Another updated definition",
 }
 rowsAffected, err = db.Update("words", updateMap, where)
-```
-
-### Count Records
-
-```go
-// Count all records
-count, err := db.Count("words", nil)
-if err != nil {
-    log.Printf("Count failed: %v", err)
-    return
-}
-
-// Count with condition
-where := squirrel.Like{"word": "hello%"}
-count, err = db.Count("words", where)
 ```
 
 ### Delete Data
@@ -554,7 +607,7 @@ func main() {
 
     // Read
     var words []Word
-    db.Select("words", squirrel.Eq{"id": id}, &words)
+    db.Select("words", nil, squirrel.Eq{"id": id}, nil, nil, nil, &words)
 
     // Update
     db.Update("words", map[string]interface{}{"definition": "Updated definition"},
@@ -562,8 +615,4 @@ func main() {
 
     // Delete
     db.Delete("words", squirrel.Eq{"id": id})
-
-    // Count
-    count, _ := db.Count("words", nil)
-    log.Printf("Total words: %d", count)
 }

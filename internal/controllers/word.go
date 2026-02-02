@@ -40,19 +40,47 @@ func GetReelPeers() (peers.WordPeerInterface, peers.WordDefinitionsPeerInterface
 	return wordPeer, wordDefinitionPeer, nil
 }
 
-// ListWords @Summary List all words
-// @Description Get all words with their definitions and pronunciation information
+// ListWords @Summary List all words with pagination
+// @Description Get all words with their definitions and pronunciation information, supports pagination through query parameters
 // @Tags words
 // @Accept json
 // @Produce json
+// @Param limit query int false "Maximum number of records to return (default: 100, max: 1000)"
+// @Param offset query int false "Number of records to skip (default: 0)"
 // @Success 200 {array} models.Word "List of words retrieved successfully"
+// @Failure 400 {object} models.ErrorResponse "Bad request - Invalid query parameters"
 // @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to fetch data from database"
 // @Router /api/words [get]
 func (wc *WordController) ListWords(c *gin.Context) {
-	// ================ 1. Fetch data from database ================
+	// ================ 1. Parse pagination parameters ================
+	limit, err := ParseIntQueryParam(c, "limit", 100)
+	if err != nil {
+		ResponseError(http.StatusBadRequest, "Invalid limit parameter", err, c)
+		return
+	}
+	if limit <= 0 || limit > 1000 {
+		ResponseError(http.StatusBadRequest, "Limit must be between 1 and 1000", nil, c)
+		return
+	}
+
+	offset, err := ParseIntQueryParam(c, "offset", 0)
+	if err != nil {
+		ResponseError(http.StatusBadRequest, "Invalid offset parameter", err, c)
+		return
+	}
+	if offset < 0 {
+		ResponseError(http.StatusBadRequest, "Offset must be non-negative", nil, c)
+		return
+	}
+
+	// Convert to *uint64 for database layer
+	limitPtr := uint64(limit)
+	offsetPtr := uint64(offset)
+
+	// ================ 2. Fetch data from database ================
 	// Query 'words' table
 	orderBy := fmt.Sprintf("%s ASC", schema.WORD_ID)
-	words, err := wc.wordPeer.Select([]*string{}, nil, []*string{&orderBy})
+	words, err := wc.wordPeer.Select([]*string{}, nil, []*string{&orderBy}, &limitPtr, &offsetPtr)
 	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", err, c)
 		return
@@ -65,21 +93,23 @@ func (wc *WordController) ListWords(c *gin.Context) {
 		return
 	}
 
-	// ================ 2. Transform data to API model ================
+	// ================ 3. Transform data to API model ================
 	wordEntities := convertToEntities(words, wordsDefs)
 
-	// ================ 3. Send response ================
+	// ================ 4. Send response ================
 	ResponseSuccess(http.StatusOK, wordEntities, c)
 }
 
-// SearchWords @Summary Search words with filters
-// @Description Search for words using specified filter criteria
+// SearchWords @Summary Search words with filters and pagination
+// @Description Search for words using specified filter criteria, supports pagination through query parameters
 // @Tags words
 // @Accept json
 // @Produce json
 // @Param searchFilter body models.SearchFilter true "Search filter criteria"
+// @Param limit query int false "Maximum number of records to return (default: 100, max: 1000)"
+// @Param offset query int false "Number of records to skip (default: 0)"
 // @Success 200 {array} models.Word "Words found matching the search criteria"
-// @Failure 400 {object} models.ErrorResponse "Bad request - Invalid request body or filter"
+// @Failure 400 {object} models.ErrorResponse "Bad request - Invalid request body, filter, or query parameters"
 // @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to fetch data from database"
 // @Router /api/words/search [post]
 func (wc *WordController) SearchWords(c *gin.Context) {
@@ -91,10 +121,35 @@ func (wc *WordController) SearchWords(c *gin.Context) {
 		return
 	}
 
-	// ================ 2. Fetch data from database ================
+	// ================ 2. Parse pagination parameters ================
+	limit, err := ParseIntQueryParam(c, "limit", 100)
+	if err != nil {
+		ResponseError(http.StatusBadRequest, "Invalid limit parameter", err, c)
+		return
+	}
+	if limit <= 0 || limit > 1000 {
+		ResponseError(http.StatusBadRequest, "Limit must be between 1 and 1000", nil, c)
+		return
+	}
+
+	offset, err := ParseIntQueryParam(c, "offset", 0)
+	if err != nil {
+		ResponseError(http.StatusBadRequest, "Invalid offset parameter", err, c)
+		return
+	}
+	if offset < 0 {
+		ResponseError(http.StatusBadRequest, "Offset must be non-negative", nil, c)
+		return
+	}
+
+	// Convert to *uint64 for database layer
+	limitPtr := uint64(limit)
+	offsetPtr := uint64(offset)
+
+	// ================ 3. Fetch data from database ================
 	where := squirrel.Eq{searchReq.Key: searchReq.Value}
 	orderBy := fmt.Sprintf("%s ASC", schema.WORD_ID)
-	wordEntities, err := wc.queryWord([]*string{}, where, []*string{&orderBy})
+	wordEntities, err := wc.queryWord([]*string{}, where, []*string{&orderBy}, &limitPtr, &offsetPtr)
 	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", err, c)
 		return
@@ -103,7 +158,7 @@ func (wc *WordController) SearchWords(c *gin.Context) {
 		wordEntities = []*models.Word{}
 	}
 
-	// ================ 3. Send response ================
+	// ================ 4. Send response ================
 	ResponseSuccess(http.StatusOK, wordEntities, c)
 }
 
@@ -139,7 +194,7 @@ func (wc *WordController) CreateWord(c *gin.Context) {
 	// ================ 4. Query inserted data ================
 	where := squirrel.Eq{schema.WORD_ID: wordID}
 	orderBy := fmt.Sprintf("%s DESC", schema.WORD_ID)
-	wordEntities, err := wc.queryWord([]*string{}, where, []*string{&orderBy})
+	wordEntities, err := wc.queryWord([]*string{}, where, []*string{&orderBy}, nil, nil)
 	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Inserted but failed to fetch data from database", err, c)
 		return
@@ -190,7 +245,7 @@ func (wc *WordController) CreateWordDefinition(c *gin.Context) {
 	// ================ 4. Query inserted data ================
 	where := squirrel.Eq{schema.WORD_ID: wordID}
 	orderBy := fmt.Sprintf("%s DESC", schema.WORD_ID)
-	wordEntities, err := wc.queryWord([]*string{}, where, []*string{&orderBy})
+	wordEntities, err := wc.queryWord([]*string{}, where, []*string{&orderBy}, nil, nil)
 	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Inserted but failed to fetch data from database", err, c)
 		return
@@ -240,7 +295,7 @@ func (wc *WordController) UpdateWord(c *gin.Context) {
 	// ================ 4. Query inserted data ================
 	whereQuery := squirrel.Eq{schema.WORD_ID: wordID}
 	orderBy := fmt.Sprintf("%s DESC", schema.WORD_ID)
-	wordEntities, err := wc.queryWord([]*string{}, whereQuery, []*string{&orderBy})
+	wordEntities, err := wc.queryWord([]*string{}, whereQuery, []*string{&orderBy}, nil, nil)
 	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Updated but failed to fetch data from database", err, c)
 		return
@@ -292,7 +347,7 @@ func (wc *WordController) UpdateWordDefinition(c *gin.Context) {
 	orderBy := fmt.Sprintf("%s DESC", schema.COMMON_ID)
 	// Query updated word definition to get the associated word ID
 	whereQueryDef := squirrel.Eq{schema.WORD_DEFINITIONS_ID: wordDefID}
-	wordDefModels, err := wc.wordDefinitionPeer.Select([]*string{}, whereQueryDef, []*string{&orderBy})
+	wordDefModels, err := wc.wordDefinitionPeer.Select([]*string{}, whereQueryDef, []*string{&orderBy}, nil, nil)
 	if err != nil || len(wordDefModels) == 0 {
 		ResponseError(http.StatusInternalServerError, "Updated but failed to fetch data from database", err, c)
 		return
@@ -300,7 +355,7 @@ func (wc *WordController) UpdateWordDefinition(c *gin.Context) {
 	// Query the associated word
 	wordID := *wordDefModels[0].WordId
 	whereQuery := squirrel.Eq{schema.WORD_ID: wordID}
-	wordEntities, err := wc.queryWord([]*string{}, whereQuery, []*string{&orderBy})
+	wordEntities, err := wc.queryWord([]*string{}, whereQuery, []*string{&orderBy}, nil, nil)
 	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Updated but failed to fetch data from database", err, c)
 		return

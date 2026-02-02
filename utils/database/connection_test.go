@@ -121,7 +121,7 @@ func (s *connectionTestSuite) TestSelect() {
 	var results []testUser
 
 	// Test Select method
-	err := db.Select("users", nil, nil, orderBy, &results)
+	err := db.Select("users", nil, nil, orderBy, nil, nil, &results)
 
 	s.NoError(err, "Select should succeed")
 	s.Len(results, 2, "Should return 2 users")
@@ -129,6 +129,136 @@ func (s *connectionTestSuite) TestSelect() {
 	s.Equal("Test User 1", results[0].Name)
 	s.Equal(2, results[1].Id)
 	s.Equal("Test User 2", results[1].Name)
+
+	// Verify all expectations were met
+	s.NoError(mock.ExpectationsWereMet())
+}
+
+// TestSelectWithLimit tests selecting records with LIMIT clause
+func (s *connectionTestSuite) TestSelectWithLimit() {
+	db, mock, cleanup := createMockDatabase(s.t, "mysql")
+	defer cleanup()
+
+	// Mock expects a SELECT query with LIMIT
+	rows := sqlmock.NewRows([]string{"id", "name"}).
+		AddRow(1, "Test User 1").
+		AddRow(2, "Test User 2")
+
+	mock.ExpectQuery("SELECT \\* FROM users ORDER BY name LIMIT 2").
+		WillReturnRows(rows)
+
+	// Prepare test parameters
+	orderBy := []*string{stringPtr("name")}
+	limit := uint64(2)
+	var results []testUser
+
+	// Test Select method with limit
+	err := db.Select("users", nil, nil, orderBy, &limit, nil, &results)
+
+	s.NoError(err, "Select with limit should succeed")
+	s.Len(results, 2, "Should return 2 users")
+	s.Equal(1, results[0].Id)
+	s.Equal("Test User 1", results[0].Name)
+	s.Equal(2, results[1].Id)
+	s.Equal("Test User 2", results[1].Name)
+
+	// Verify all expectations were met
+	s.NoError(mock.ExpectationsWereMet())
+}
+
+// TestSelectWithOffset tests selecting records with OFFSET clause
+func (s *connectionTestSuite) TestSelectWithOffset() {
+	db, mock, cleanup := createMockDatabase(s.t, "mysql")
+	defer cleanup()
+
+	// Mock expects a SELECT query with OFFSET
+	rows := sqlmock.NewRows([]string{"id", "name"}).
+		AddRow(3, "Test User 3").
+		AddRow(4, "Test User 4")
+
+	mock.ExpectQuery("SELECT \\* FROM users ORDER BY name OFFSET 2").
+		WillReturnRows(rows)
+
+	// Prepare test parameters
+	orderBy := []*string{stringPtr("name")}
+	offset := uint64(2)
+	var results []testUser
+
+	// Test Select method with offset
+	err := db.Select("users", nil, nil, orderBy, nil, &offset, &results)
+
+	s.NoError(err, "Select with offset should succeed")
+	s.Len(results, 2, "Should return 2 users")
+	s.Equal(3, results[0].Id)
+	s.Equal("Test User 3", results[0].Name)
+	s.Equal(4, results[1].Id)
+	s.Equal("Test User 4", results[1].Name)
+
+	// Verify all expectations were met
+	s.NoError(mock.ExpectationsWereMet())
+}
+
+// TestSelectWithLimitAndOffset tests selecting records with both LIMIT and OFFSET clauses
+func (s *connectionTestSuite) TestSelectWithLimitAndOffset() {
+	db, mock, cleanup := createMockDatabase(s.t, "mysql")
+	defer cleanup()
+
+	// Mock expects a SELECT query with LIMIT and OFFSET
+	rows := sqlmock.NewRows([]string{"id", "name"}).
+		AddRow(3, "Test User 3").
+		AddRow(4, "Test User 4")
+
+	mock.ExpectQuery("SELECT \\* FROM users ORDER BY name LIMIT 2 OFFSET 2").
+		WillReturnRows(rows)
+
+	// Prepare test parameters
+	orderBy := []*string{stringPtr("name")}
+	limit := uint64(2)
+	offset := uint64(2)
+	var results []testUser
+
+	// Test Select method with both limit and offset
+	err := db.Select("users", nil, nil, orderBy, &limit, &offset, &results)
+
+	s.NoError(err, "Select with limit and offset should succeed")
+	s.Len(results, 2, "Should return 2 users")
+	s.Equal(3, results[0].Id)
+	s.Equal("Test User 3", results[0].Name)
+	s.Equal(4, results[1].Id)
+	s.Equal("Test User 4", results[1].Name)
+
+	// Verify all expectations were met
+	s.NoError(mock.ExpectationsWereMet())
+}
+
+// TestSelectWithLimitAndOffsetPostgreSQL tests LIMIT/OFFSET with PostgreSQL
+func (s *connectionTestSuite) TestSelectWithLimitAndOffsetPostgreSQL() {
+	db, mock, cleanup := createMockDatabase(s.t, "postgresql")
+	defer cleanup()
+
+	// Mock expects a SELECT query with LIMIT and OFFSET using PostgreSQL placeholder format
+	rows := sqlmock.NewRows([]string{"id", "name"}).
+		AddRow(3, "Test User 3").
+		AddRow(4, "Test User 4")
+
+	mock.ExpectQuery("SELECT \\* FROM users ORDER BY name LIMIT 2 OFFSET 2").
+		WillReturnRows(rows)
+
+	// Prepare test parameters
+	orderBy := []*string{stringPtr("name")}
+	limit := uint64(2)
+	offset := uint64(2)
+	var results []testUser
+
+	// Test Select method with both limit and offset
+	err := db.Select("users", nil, nil, orderBy, &limit, &offset, &results)
+
+	s.NoError(err, "PostgreSQL Select with limit and offset should succeed")
+	s.Len(results, 2, "Should return 2 users")
+	s.Equal(3, results[0].Id)
+	s.Equal("Test User 3", results[0].Name)
+	s.Equal(4, results[1].Id)
+	s.Equal("Test User 4", results[1].Name)
 
 	// Verify all expectations were met
 	s.NoError(mock.ExpectationsWereMet())

@@ -17,7 +17,7 @@ type Database interface {
 	Close() error
 
 	// CRUD operations
-	Select(table string, columns []*string, where squirrel.Sqlizer, orderBy []*string, dest interface{}) error
+	Select(table string, columns []*string, where squirrel.Sqlizer, orderBy []*string, limit *uint64, offset *uint64, dest interface{}) error
 	Insert(table string, data interface{}) (int64, error)
 	Update(table string, data interface{}, where squirrel.Sqlizer) (int64, error)
 	Delete(table string, where squirrel.Sqlizer) (int64, error)

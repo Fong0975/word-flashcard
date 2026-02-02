@@ -25,11 +25,11 @@ func NewWordDefinitionsPeer() (*WordDefinitionsPeer, error) {
 }
 
 // Select retrieves WordDefinition records from the database based on the provided criteria
-func (wdp *WordDefinitionsPeer) Select(columns []*string, where squirrel.Sqlizer, orderBy []*string) ([]*models.WordDefinition, error) {
+func (wdp *WordDefinitionsPeer) Select(columns []*string, where squirrel.Sqlizer, orderBy []*string, limit *uint64, offset *uint64) ([]*models.WordDefinition, error) {
 	var definitions []*models.WordDefinition
 
 	// Perform the select operation
-	err := wdp.db.Select(wdp.tableName, columns, where, orderBy, &definitions)
+	err := wdp.db.Select(wdp.tableName, columns, where, orderBy, limit, offset, &definitions)
 	if err != nil {
 		return nil, err
 	}

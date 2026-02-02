@@ -45,11 +45,13 @@ func (suite *WordControllerTestSuite) SetupTest() {
 // TestListWords tests the ListWords handler
 func (suite *WordControllerTestSuite) TestListWords() {
 	// Mock wordPeer & wordDefinitionPeer methods as needed
+	limitPtr := uint64(100)
+	offsetPtr := uint64(0)
 	suite.mockWordPeer.EXPECT().
-		Select(mock.Anything, mock.Anything, mock.Anything).
+		Select(mock.Anything, mock.Anything, mock.Anything, &limitPtr, &offsetPtr).
 		Return(getSampleWords(), nil).Times(1)
 	suite.mockWordDefinitionPeer.EXPECT().
-		Select(mock.Anything, mock.Anything, mock.Anything).
+		Select(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(getSampleWordDefinitions(), nil).Times(1)
 
 	// Create a test HTTP request and call the handler
@@ -72,11 +74,13 @@ func (suite *WordControllerTestSuite) TestSearchWords() {
 	whereWord := squirrel.Eq{schema.WORD_WORD: "apple"}
 	whereDefinitionID := squirrel.Eq{schema.WORD_DEFINITIONS_WORD_ID: []int{1}}
 
+	limitPtr := uint64(100)
+	offsetPtr := uint64(0)
 	suite.mockWordPeer.EXPECT().
-		Select(mock.Anything, whereWord, mock.Anything).
+		Select(mock.Anything, whereWord, mock.Anything, &limitPtr, &offsetPtr).
 		Return([]*dbModels.Word{getSampleWords()[0]}, nil).Times(1)
 	suite.mockWordDefinitionPeer.EXPECT().
-		Select(mock.Anything, whereDefinitionID, mock.Anything).
+		Select(mock.Anything, whereDefinitionID, mock.Anything, mock.Anything, mock.Anything).
 		Return([]*dbModels.WordDefinition{getSampleWordDefinitions()[0]}, nil).Times(1)
 
 	// Create a test HTTP request and call the handler
@@ -110,10 +114,10 @@ func (suite *WordControllerTestSuite) TestCreateWord() {
 		})).
 		Return(int64(testWordID), nil).Times(1)
 	suite.mockWordPeer.EXPECT().
-		Select(mock.Anything, whereWord, mock.Anything).
+		Select(mock.Anything, whereWord, mock.Anything, mock.Anything, mock.Anything).
 		Return([]*dbModels.Word{getSampleWords()[0]}, nil).Times(1)
 	suite.mockWordDefinitionPeer.EXPECT().
-		Select(mock.Anything, whereDefinitionID, mock.Anything).
+		Select(mock.Anything, whereDefinitionID, mock.Anything, mock.Anything, mock.Anything).
 		Return([]*dbModels.WordDefinition{}, nil).Times(1)
 
 	// Create a test HTTP request and call the handler
@@ -153,10 +157,10 @@ func (suite *WordControllerTestSuite) TestCreateWordDefinition() {
 		})).
 		Return(int64(testDefinitionID), nil).Times(1)
 	suite.mockWordPeer.EXPECT().
-		Select(mock.Anything, whereWord, mock.Anything).
+		Select(mock.Anything, whereWord, mock.Anything, mock.Anything, mock.Anything).
 		Return([]*dbModels.Word{getSampleWords()[0]}, nil).Times(1)
 	suite.mockWordDefinitionPeer.EXPECT().
-		Select(mock.Anything, whereDefinitionID, mock.Anything).
+		Select(mock.Anything, whereDefinitionID, mock.Anything, mock.Anything, mock.Anything).
 		Return([]*dbModels.WordDefinition{getSampleWordDefinitions()[0]}, nil).Times(1)
 
 	// Create a test HTTP request and call the handler
@@ -192,10 +196,10 @@ func (suite *WordControllerTestSuite) TestUpdateWord() {
 		}), whereWord).
 		Return(int64(1), nil).Times(1)
 	suite.mockWordPeer.EXPECT().
-		Select(mock.Anything, whereWord, mock.Anything).
+		Select(mock.Anything, whereWord, mock.Anything, mock.Anything, mock.Anything).
 		Return([]*dbModels.Word{dbWord}, nil).Times(1)
 	suite.mockWordDefinitionPeer.EXPECT().
-		Select(mock.Anything, whereDefinitionID, mock.Anything).
+		Select(mock.Anything, whereDefinitionID, mock.Anything, mock.Anything, mock.Anything).
 		Return([]*dbModels.WordDefinition{getSampleWordDefinitions()[0]}, nil).Times(1)
 
 	// Create a test HTTP request and call the handler

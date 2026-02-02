@@ -154,7 +154,17 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get all words with their definitions and pronunciation information
+      description: Get all words with their definitions and pronunciation information,
+        supports pagination through query parameters
+      parameters:
+      - description: 'Maximum number of records to return (default: 100, max: 1000)'
+        in: query
+        name: limit
+        type: integer
+      - description: 'Number of records to skip (default: 0)'
+        in: query
+        name: offset
+        type: integer
       produces:
       - application/json
       responses:
@@ -164,6 +174,10 @@ paths:
             items:
               $ref: '#/definitions/word-flashcard_internal_models.Word'
             type: array
+        "400":
+          description: Bad request - Invalid query parameters
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal server error - Failed to fetch data from database
           schema:
@@ -353,7 +367,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: Search for words using specified filter criteria
+      description: Search for words using specified filter criteria, supports pagination
+        through query parameters
       parameters:
       - description: Search filter criteria
         in: body
@@ -361,6 +376,14 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.SearchFilter'
+      - description: 'Maximum number of records to return (default: 100, max: 1000)'
+        in: query
+        name: limit
+        type: integer
+      - description: 'Number of records to skip (default: 0)'
+        in: query
+        name: offset
+        type: integer
       produces:
       - application/json
       responses:
@@ -371,7 +394,7 @@ paths:
               $ref: '#/definitions/word-flashcard_internal_models.Word'
             type: array
         "400":
-          description: Bad request - Invalid request body or filter
+          description: Bad request - Invalid request body, filter, or query parameters
           schema:
             $ref: '#/definitions/models.ErrorResponse'
         "500":

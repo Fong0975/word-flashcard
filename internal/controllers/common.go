@@ -24,6 +24,20 @@ func parseIDFromPath(c *gin.Context, paramName string) (int, error) {
 	return id, nil
 }
 
+// ParseIntQueryParam extracts and validates an integer query parameter, returning a default value if not present.
+func ParseIntQueryParam(c *gin.Context, paramName string, defaultValue int) (int, error) {
+	paramStr := c.Query(paramName)
+	if paramStr == "" {
+		return defaultValue, nil
+	}
+	paramInt, err := strconv.Atoi(paramStr)
+	if err != nil {
+		slog.Error("Invalid query parameter format", "param", paramName, "value", paramStr, "error", err)
+		return 0, errors.New("invalid query parameter format for " + paramName)
+	}
+	return paramInt, nil
+}
+
 // ParseRequestBody parses the JSON request body into the provided object and logs the details.
 func ParseRequestBody(obj any, c *gin.Context) error {
 	// Get the request object form the body

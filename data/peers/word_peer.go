@@ -27,11 +27,11 @@ func NewWordPeer() (*WordPeer, error) {
 }
 
 // Select retrieves Word records from the database based on the provided criteria
-func (wp *WordPeer) Select(columns []*string, where squirrel.Sqlizer, orderBy []*string) ([]*models.Word, error) {
+func (wp *WordPeer) Select(columns []*string, where squirrel.Sqlizer, orderBy []*string, limit *uint64, offset *uint64) ([]*models.Word, error) {
 	var words []*models.Word
 
 	// Perform the select operation
-	err := wp.db.Select(wp.tableName, columns, where, orderBy, &words)
+	err := wp.db.Select(wp.tableName, columns, where, orderBy, limit, offset, &words)
 	if err != nil {
 		return nil, err
 	}
