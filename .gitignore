@@ -39,3 +39,8 @@ go.work.sum
 
 # claude code
 .claude/
+
+# React/Node.js dependencies and build artifacts
+web/node_modules/
+web/build/
+web/dist/

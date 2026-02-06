@@ -2,9 +2,6 @@ package routers
 
 import (
 	"net/http"
-	"path/filepath"
-	"word-flashcard/internal/handlers"
-
 	"word-flashcard/internal/middleware"
 
 	"github.com/gin-gonic/gin"
@@ -21,12 +18,6 @@ func SetupRouter() (*gin.Engine, error) {
 	setMiddleware(router)
 	// API routes
 	SetupAPIRoutes(router)
-	// Web routes
-	webHandler, err := handlers.NewWebHandler()
-	if err != nil {
-		return nil, err
-	}
-	setupWebRoutes(router, webHandler)
 	// Swagger routes
 	setupSwaggerRoutes(router)
 
@@ -39,16 +30,6 @@ func setMiddleware(router *gin.Engine) {
 	router.Use(middleware.LoggingMiddleware())
 	router.Use(middleware.CORSMiddleware())
 	router.Use(gin.Recovery())
-}
-
-// setupWebRoutes configures web-related routes with injected handlers
-func setupWebRoutes(router *gin.Engine, handler handlers.WebHandlerInterface) {
-	// Index route
-	router.GET("/", gin.WrapF(handler.IndexHandler))
-
-	// Static files
-	staticDir := filepath.Join("web", "static")
-	router.Static("/static", staticDir)
 }
 
 // setupSwaggerRoutes configures Swagger documentation routes
