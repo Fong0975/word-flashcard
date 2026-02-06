@@ -30,9 +30,16 @@ word-flashcard/
 │   ├── conversion_utils.go       # Type conversion utilities
 │   ├── dictionary-testing.json   # Mockoon file for Cambridge Dictionary API sub-service
 │   └── pointer_utils.go          # Pointer utility functions
-├── web/                           # Web frontend files
-│   ├── static/                   # Static assets
-│   └── templates/                # HTML templates
+├── web/                           # React frontend application
+│   ├── public/                   # Public assets
+│   ├── src/                      # React source code
+│   ├── .env.example              # Environment variables template
+│   ├── README.md                 # React app documentation
+│   ├── package.json              # React dependencies
+│   ├── package-lock.json         # React dependency lock file
+│   ├── postcss.config.js         # PostCSS configuration
+│   ├── tailwind.config.js        # Tailwind CSS configuration
+│   └── tsconfig.json             # TypeScript configuration
 ├── .env.example                  # Environment variables template
 ├── go.mod                        # Go module definition
 ├── main.go                       # Main server file
@@ -43,7 +50,7 @@ word-flashcard/
 ## Features
 
 - **REST API**: REST API service. Reference [API Documentation](#api-documentation) for details
-- **Web Interface**: Project HTML page
+- **Web Interface**: React frontend application
 
 ## Prerequisites
 
@@ -65,26 +72,56 @@ go mod tidy
 Install the Node.js dependencies:
 
 ```bash
-# Change the directory
+# Install Cambridge Dictionary API dependencies
 cd utils/cambridge-dictionary-api
-# Install dependencies
 npm install
-# Return to the root directory
 cd ../..
+
+# Install React frontend dependencies
+cd web
+npm install
+cd ..
 ```
 
-### 2. Database Setup
+### 2. Environment Configuration
 
-Set up database connection information in your project's `.env` file:
+Set up environment variables for both backend and frontend applications:
+
+#### Backend Configuration (`.env`)
+
+Create a `.env` file in the project root directory with the following configuration:
 
 ```env
-# Database type (mysql or postgresql)
+# Main Go application port
+APP_PORT=8080
+
+# Cambridge Dictionary API service port
+CAMBRIDGE_API_PORT=8081
+
+# Logging Configuration
+# - Level: DEBUG, INFO, WARN, ERROR
+LOG_FILE_PATH=word-flashcard.log
+LOG_FILE_MAX_SIZE_MB=10
+LOG_LEVEL=INFO
+
+# Database Configuration
+# Supported types: mysql, postgresql
 DB_TYPE=mysql
 DB_HOST=localhost
 DB_PORT=3306
 DB_USER=root
 DB_PASSWORD=your_password
 DB_NAME=word_flashcard
+```
+
+#### Frontend Configuration (`web/.env`)
+
+Create a `.env` file in the `web/` directory with the following configuration:
+
+```env
+# API Configuration
+REACT_API_HOSTNAME=localhost
+REACT_API_PORT=8080
 ```
 
 For detailed database configuration and usage, see [Database Documentation](utils/database/README.md).
@@ -105,11 +142,19 @@ npm run dev
 ```bash
 go run main.go
 ```
-**Note**: All sub-service must be running before starting the main service to ensure full functionality.
+
+#### React Frontend
+- The development server will start on port `3000` by default.
+```bash
+cd web
+npm start
+```
+
+**Note**: All sub-services must be running before starting the main service to ensure full functionality.
 
 ### 4. Access the Application
 
-- **Web Interface**: http://localhost:8080
+- **Web Interface**: http://localhost:3000
 - **API Endpoints**: http://localhost:8080/api
 - **Swagger UI**: http://localhost:8080/swagger
 
@@ -166,12 +211,21 @@ go tool cover -html=coverage.out -o coverage.html
 
 ### Building the Application
 
-To build a binary:
+To build the Go binary:
 
 ```bash
 # Build the binary to dist directory
 go build -o dist/word-flashcard main.go
 ```
+
+To build the React frontend for production:
+
+```bash
+cd web
+npm run build
+```
+
+The built React application will be available in the `web/build/` directory.
 
 ### Running the Binary
 

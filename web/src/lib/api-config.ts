@@ -1,0 +1,29 @@
+// API configuration from environment variables
+export const API_CONFIG = {
+  // Get base URL from environment variables
+  // Note: React only exposes environment variables that start with REACT_APP_
+  // For local development, we'll use localhost as default
+  hostname: process.env.REACT_API_HOSTNAME || 'localhost',
+  port: process.env.REACT_API_PORT || '8080',
+
+  // Construct base URL
+  get baseURL() {
+    return `http://${this.hostname}:${this.port}/api`;
+  },
+
+  // Default request timeout
+  timeout: 10000,
+
+  // Default headers
+  headers: {
+    'Content-Type': 'application/json',
+  },
+};
+
+// API endpoints
+export const API_ENDPOINTS = {
+  words: '/words',
+  wordDefinition: (wordId: number) => `/words/definition/${wordId}`,
+  updateDefinition: (definitionId: number) => `/words/definition/${definitionId}`,
+  deleteDefinition: (definitionId: number) => `/words/definition/${definitionId}`,
+} as const;
