@@ -41,6 +41,10 @@ linters:
       - legacy
       - std-error-handling
     rules:
+      - path: demo\.go$
+        linters:
+          - funlen
+          - lll
       - linters:
           - funlen
           - gocognit
