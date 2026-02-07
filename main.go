@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 	"word-flashcard/utils/log"
@@ -160,6 +161,14 @@ func initializeDatabase() error {
 	// Close the initialization connection
 	if err := db.Close(); err != nil {
 		slog.Warn("Failed to close database connection", "error", err)
+	}
+
+	strDevMode := os.Getenv("DEV_MODE")
+	devMode, err := strconv.ParseBool(strDevMode)
+	if err != nil {
+		slog.Warn("Failed to get dev mode value from env variables.", "DEV_MODE", strDevMode)
+	} else if devMode {
+		data.InsertDemoData()
 	}
 
 	slog.Info("Database initialized successfully")
