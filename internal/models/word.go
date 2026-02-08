@@ -129,3 +129,9 @@ func (wd *WordDefinition) ToDataModel() *models.WordDefinition {
 		Notes:        wd.Notes,
 	}
 }
+
+// RandomFilter represents the request structure for random word selection
+type RandomFilter struct {
+	Count  int           `json:"count" binding:"required,min=1,max=1000"`
+	Filter *SearchFilter `json:"filter,omitempty"`
+}

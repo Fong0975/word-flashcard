@@ -46,6 +46,17 @@ definitions:
       language:
         type: string
     type: object
+  models.RandomFilter:
+    properties:
+      count:
+        maximum: 1000
+        minimum: 1
+        type: integer
+      filter:
+        $ref: '#/definitions/models.SearchFilter'
+    required:
+    - count
+    type: object
   models.SearchFilter:
     properties:
       key:
@@ -363,12 +374,44 @@ paths:
             $ref: '#/definitions/models.ErrorResponse'
       tags:
       - words
+  /api/words/random:
+    post:
+      consumes:
+      - application/json
+      description: Get random words using specified filter criteria
+      parameters:
+      - description: Random filter criteria including count and optional filter
+        in: body
+        name: randomFilter
+        required: true
+        schema:
+          $ref: '#/definitions/models.RandomFilter'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Random words retrieved successfully
+          schema:
+            items:
+              $ref: '#/definitions/word-flashcard_internal_models.Word'
+            type: array
+        "400":
+          description: Bad request - Invalid request body or count parameter
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error - Failed to fetch data from database
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      tags:
+      - words
   /api/words/search:
     post:
       consumes:
       - application/json
-      description: Search for words using specified filter criteria, supports pagination
-        through query parameters
+      description: Search for words using specified filter criteria with support for
+        equal, not equal, in, and not in operations. Supports pagination through query
+        parameters.
       parameters:
       - description: Search filter criteria
         in: body

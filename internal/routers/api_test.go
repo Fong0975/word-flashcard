@@ -71,6 +71,7 @@ func (s *apiRoutesTestSuite) TestAPIRouteMappings() {
 		{"GET", "/api/dictionary/test", "DictionaryController.SearchWord", "SearchWord", "DictionaryController"},
 		{"GET", "/api/words", "WordController.ListWords", "ListWords", "WordController"},
 		{"POST", "/api/words/search", "WordController.SearchWords", "SearchWords", "WordController"},
+		{"POST", "/api/words/random", "WordController.RandomWords", "RandomWords", "WordController"},
 		{"POST", "/api/words", "WordController.CreateWord", "CreateWord", "WordController"},
 		{"POST", "/api/words/definition/1", "WordController.CreateWordDefinition", "CreateWordDefinition", "WordController"},
 		{"PUT", "/api/words/1", "WordController.UpdateWord", "UpdateWord", "WordController"},

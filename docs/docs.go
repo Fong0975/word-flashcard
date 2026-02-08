@@ -325,9 +325,57 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/words/random": {
+            "post": {
+                "description": "Get random words using specified filter criteria",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "words"
+                ],
+                "parameters": [
+                    {
+                        "description": "Random filter criteria including count and optional filter",
+                        "name": "randomFilter",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.RandomFilter"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Random words retrieved successfully",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/word-flashcard_internal_models.Word"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid request body or count parameter",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to fetch data from database",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/words/search": {
             "post": {
-                "description": "Search for words using specified filter criteria, supports pagination through query parameters",
+                "description": "Search for words using specified filter criteria with support for equal, not equal, in, and not in operations. Supports pagination through query parameters.",
                 "consumes": [
                     "application/json"
                 ],
@@ -546,6 +594,22 @@ const docTemplate = `{
                 },
                 "language": {
                     "type": "string"
+                }
+            }
+        },
+        "models.RandomFilter": {
+            "type": "object",
+            "required": [
+                "count"
+            ],
+            "properties": {
+                "count": {
+                    "type": "integer",
+                    "maximum": 1000,
+                    "minimum": 1
+                },
+                "filter": {
+                    "$ref": "#/definitions/models.SearchFilter"
                 }
             }
         },

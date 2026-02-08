@@ -5,7 +5,9 @@ import (
 	"errors"
 	"log/slog"
 	"strconv"
+	"word-flashcard/internal/models"
 
+	"github.com/Masterminds/squirrel"
 	"github.com/gin-gonic/gin"
 )
 
@@ -89,4 +91,77 @@ func ResponseError(statusCode int, message string, err error, c *gin.Context) {
 	c.JSON(statusCode, gin.H{"error": message})
 	// Log the error
 	slog.Error("API error response.", "path", c.Request.RequestURI, "status", statusCode, "message", message, "error", err)
+}
+
+// ConvertFilterToSqlizer converts a SearchFilter to squirrel.Sqlizer with validation and transformation logic.
+// Supports operations:
+//   - 'equal'/'eq': Single value matching, e.g., value: "high"
+//   - 'not_equal'/'ne'/'neq': Single value exclusion, e.g., value: "low"
+//   - 'in': Multiple value matching, e.g., value: "[\"yellow\", \"green\"]"
+//   - 'not_in'/'nin': Multiple value exclusion, e.g., value: "[\"yellow\", \"green\"]"
+func ConvertFilterToSqlizer(filter *models.SearchFilter) (squirrel.Sqlizer, error) {
+	if filter == nil {
+		return nil, nil
+	}
+
+	// Validate required fields
+	if filter.Key == "" {
+		return nil, errors.New("filter key cannot be empty")
+	}
+	if filter.Operator == "" {
+		return nil, errors.New("filter operator cannot be empty")
+	}
+
+	switch filter.Operator {
+	case "equal", "eq":
+		// Equal operation: column = value
+		if filter.Value == "" {
+			return nil, errors.New("filter value cannot be empty for equal operation")
+		}
+		return squirrel.Eq{filter.Key: filter.Value}, nil
+
+	case "not_equal", "ne", "neq":
+		// Not equal operation: column != value
+		if filter.Value == "" {
+			return nil, errors.New("filter value cannot be empty for not_equal operation")
+		}
+		return squirrel.NotEq{filter.Key: filter.Value}, nil
+
+	case "in":
+		// In operation: column IN (value1, value2, ...)
+		// Value should be a JSON array string
+		return parseArrayFilter(filter.Key, filter.Value, false)
+
+	case "not_in", "nin":
+		// Not in operation: column NOT IN (value1, value2, ...)
+		// Value should be a JSON array string
+		return parseArrayFilter(filter.Key, filter.Value, true)
+
+	default:
+		return nil, errors.New("unsupported operator: " + filter.Operator + ". Supported operators: equal/eq, not_equal/ne/neq, in, not_in/nin")
+	}
+}
+
+// parseArrayFilter parses the filter value as JSON array and creates appropriate squirrel condition
+func parseArrayFilter(key, value string, isNotIn bool) (squirrel.Sqlizer, error) {
+	if value == "" {
+		return nil, errors.New("filter value cannot be empty for array operations")
+	}
+
+	// Parse JSON array
+	var values []interface{}
+	if err := json.Unmarshal([]byte(value), &values); err != nil {
+		return nil, errors.New("filter value must be a valid JSON array for array operations: " + err.Error())
+	}
+
+	// Validate array is not empty
+	if len(values) == 0 {
+		return nil, errors.New("filter value array cannot be empty for array operations")
+	}
+
+	// Create appropriate condition
+	if isNotIn {
+		return squirrel.NotEq{key: values}, nil
+	}
+	return squirrel.Eq{key: values}, nil
 }

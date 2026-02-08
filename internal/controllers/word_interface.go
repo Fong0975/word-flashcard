@@ -8,6 +8,7 @@ import (
 type WordControllerInterface interface {
 	ListWords(c *gin.Context)
 	SearchWords(c *gin.Context)
+	RandomWords(c *gin.Context)
 	CreateWord(c *gin.Context)
 	CreateWordDefinition(c *gin.Context)
 	UpdateWord(c *gin.Context)

@@ -98,6 +98,38 @@ func (suite *WordControllerTestSuite) TestSearchWords() {
 	assert.Equal(suite.T(), string(expectedWord), w.Body.String())
 }
 
+// TestRandomWords tests the RandomWords handler
+func (suite *WordControllerTestSuite) TestRandomWords() {
+	// Mock wordPeer & wordDefinitionPeer methods as needed
+	whereWord := squirrel.Eq{schema.WORD_FAMILIARITY: "yellow"}
+	whereDefinitionID := squirrel.Eq{schema.WORD_DEFINITIONS_WORD_ID: []int{2, 4}}
+
+	limitPtr := uint64(2)
+	suite.mockWordPeer.EXPECT().
+		Select(mock.Anything, whereWord, mock.MatchedBy(func(orderBy []*string) bool {
+			b := len(orderBy) == 1 && orderBy[0] != nil && *orderBy[0] == "RANDOM()"
+			return b
+		}), &limitPtr, (*uint64)(nil)).
+		Return([]*dbModels.Word{getSampleWords()[1], getSampleWords()[3]}, nil).Times(1)
+	suite.mockWordDefinitionPeer.EXPECT().
+		Select(mock.Anything, whereDefinitionID, mock.Anything, mock.Anything, mock.Anything).
+		Return([]*dbModels.WordDefinition{getSampleWordDefinitions()[1], getSampleWordDefinitions()[3]}, nil).Times(1)
+
+	// Create a test HTTP request and call the handler
+	w := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(w)
+	requestFilter := "{\"count\": 2, \"filter\": {\"key\": \"familiarity\", \"operator\": \"eq\", \"value\": \"yellow\"}}"
+	ctx.Request = httptest.NewRequest(http.MethodPost, "/api/words/random", io.NopCloser(bytes.NewReader([]byte(requestFilter))))
+	suite.wc.RandomWords(ctx)
+
+	// Verify the response status code
+	assert.Equal(suite.T(), http.StatusOK, w.Code)
+	// Verify the response body
+	expectedWords, err := json.Marshal([]*models.Word{getExpectedWords()[1], getExpectedWords()[3]})
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), string(expectedWords), w.Body.String())
+}
+
 // TestCreateWord tests the CreateWord handler
 func (suite *WordControllerTestSuite) TestCreateWord() {
 	testWordID := 1
@@ -282,6 +314,8 @@ func getSampleWords() []*dbModels.Word {
 		{1, "apple", "green"},
 		{2, "banana", "yellow"},
 		{3, "cherry", "red"},
+		{4, "lemon", "yellow"},
+		{5, "corn", "yellow"},
 	}
 
 	words := make([]*dbModels.Word, 0, len(testData))
@@ -336,6 +370,24 @@ func getSampleWordDefinitions() []*dbModels.WordDefinition {
 			"櫻桃 A small, round fruit that is typically bright or dark red.",
 			"",
 			"[\"She picked cherries from the tree.她從樹上摘櫻桃。\"]",
+			"",
+		},
+		{
+			4,
+			4,
+			"noun",
+			"檸檬 A yellow citrus fruit with acidic juice.",
+			"",
+			"[\"Add lemon juice to the salad.在沙拉中加檸檬汁。\"]",
+			"",
+		},
+		{
+			5,
+			5,
+			"noun",
+			"玉米 A tall cereal plant that produces kernels on large ears.",
+			"",
+			"[\"We grilled corn on the cob.我們烤了玉米棒。\"]",
 			"",
 		},
 	}
@@ -428,6 +480,40 @@ func getExpectedWords() []*models.Word {
 					Phonetics:    &map[string]interface{}{},
 					Examples: &[]string{
 						"She picked cherries from the tree.她從樹上摘櫻桃。",
+					},
+					Notes: utils.StrPtr(""),
+				},
+			},
+		},
+		{
+			ID:          utils.IntPtr(4),
+			Word:        utils.StrPtr("lemon"),
+			Familiarity: utils.StrPtr("yellow"),
+			Definitions: []models.WordDefinition{
+				{
+					ID:           utils.IntPtr(4),
+					PartOfSpeech: utils.StrPtr("noun"),
+					Definition:   utils.StrPtr("檸檬 A yellow citrus fruit with acidic juice."),
+					Phonetics:    &map[string]interface{}{},
+					Examples: &[]string{
+						"Add lemon juice to the salad.在沙拉中加檸檬汁。",
+					},
+					Notes: utils.StrPtr(""),
+				},
+			},
+		},
+		{
+			ID:          utils.IntPtr(5),
+			Word:        utils.StrPtr("corn"),
+			Familiarity: utils.StrPtr("yellow"),
+			Definitions: []models.WordDefinition{
+				{
+					ID:           utils.IntPtr(5),
+					PartOfSpeech: utils.StrPtr("noun"),
+					Definition:   utils.StrPtr("玉米 A tall cereal plant that produces kernels on large ears."),
+					Phonetics:    &map[string]interface{}{},
+					Examples: &[]string{
+						"We grilled corn on the cob.我們烤了玉米棒。",
 					},
 					Notes: utils.StrPtr(""),
 				},

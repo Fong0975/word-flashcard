@@ -101,7 +101,7 @@ func (wc *WordController) ListWords(c *gin.Context) {
 }
 
 // SearchWords @Summary Search words with filters and pagination
-// @Description Search for words using specified filter criteria, supports pagination through query parameters
+// @Description Search for words using specified filter criteria with support for equal, not equal, in, and not in operations. Supports pagination through query parameters.
 // @Tags words
 // @Accept json
 // @Produce json
@@ -116,7 +116,7 @@ func (wc *WordController) SearchWords(c *gin.Context) {
 	// ============== 1. Get search filter from request ================
 	var searchReq models.SearchFilter
 	err := ParseRequestBody(&searchReq, c)
-	if err != nil || searchReq.Operator != "eq" {
+	if err != nil {
 		ResponseError(http.StatusBadRequest, "Invalid request body", err, c)
 		return
 	}
@@ -147,9 +147,64 @@ func (wc *WordController) SearchWords(c *gin.Context) {
 	offsetPtr := uint64(offset)
 
 	// ================ 3. Fetch data from database ================
-	where := squirrel.Eq{searchReq.Key: searchReq.Value}
+	where, err := ConvertFilterToSqlizer(&searchReq)
+	if err != nil {
+		ResponseError(http.StatusBadRequest, "Invalid filter", err, c)
+		return
+	}
 	orderBy := fmt.Sprintf("%s ASC", schema.WORD_ID)
 	wordEntities, err := wc.queryWord([]*string{}, where, []*string{&orderBy}, &limitPtr, &offsetPtr)
+	if err != nil {
+		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", err, c)
+		return
+	}
+	if len(wordEntities) == 0 {
+		wordEntities = []*models.Word{}
+	}
+
+	// ================ 4. Send response ================
+	ResponseSuccess(http.StatusOK, wordEntities, c)
+}
+
+// RandomWords @Summary Get random words with filters
+// @Description Get random words using specified filter criteria
+// @Tags words
+// @Accept json
+// @Produce json
+// @Param randomFilter body models.RandomFilter true "Random filter criteria including count and optional filter"
+// @Success 200 {array} models.Word "Random words retrieved successfully"
+// @Failure 400 {object} models.ErrorResponse "Bad request - Invalid request body or count parameter"
+// @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to fetch data from database"
+// @Router /api/words/random [post]
+func (wc *WordController) RandomWords(c *gin.Context) {
+	// ============== 1. Get random filter from request ================
+	var randomReq models.RandomFilter
+	err := ParseRequestBody(&randomReq, c)
+	if err != nil {
+		ResponseError(http.StatusBadRequest, "Invalid request body", err, c)
+		return
+	}
+
+	// Validate count parameter
+	if randomReq.Count <= 0 || randomReq.Count > 1000 {
+		ResponseError(http.StatusBadRequest, "Count must be between 1 and 1000", nil, c)
+		return
+	}
+
+	// Convert count to uint64 for database layer
+	limitPtr := uint64(randomReq.Count)
+
+	// ================ 2. Build where condition ================
+	where, err := ConvertFilterToSqlizer(randomReq.Filter)
+	if err != nil {
+		ResponseError(http.StatusBadRequest, "Invalid filter", err, c)
+		return
+	}
+
+	// ================ 3. Fetch data from database ================
+	// Use RANDOM() for random ordering
+	orderBy := "RANDOM()"
+	wordEntities, err := wc.queryWord([]*string{}, where, []*string{&orderBy}, &limitPtr, nil)
 	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", err, c)
 		return
