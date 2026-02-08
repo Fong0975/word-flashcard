@@ -9,6 +9,40 @@ const PART_OF_SPEECH_OPTIONS = [
 ];
 
 // Interface for definition form data
+// Cambridge Dictionary API interfaces
+interface CambridgePronunciation {
+  pos: string;
+  lang: 'uk' | 'us';
+  url: string;
+  pron: string;
+}
+
+interface CambridgeExample {
+  id: number;
+  text: string;
+  translation: string;
+}
+
+interface CambridgeDefinition {
+  id: number;
+  pos: string;
+  text: string;
+  translation: string;
+  example: CambridgeExample[];
+}
+
+interface CambridgeApiResponse {
+  word: string;
+  pos: string[];
+  verbs: Array<{
+    id: number;
+    type: string;
+    text: string;
+  }>;
+  pronunciation: CambridgePronunciation[];
+  definition: CambridgeDefinition[];
+}
+
 interface DefinitionForm {
   part_of_speech: string[];
   definition: string;
@@ -47,6 +81,15 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
 
   // Loading state for form submission
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Cambridge Dictionary API related states
+  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [dictionaryData, setDictionaryData] = useState<CambridgeApiResponse | null>(null);
+  const [isLoadingDictionary, setIsLoadingDictionary] = useState(false);
+  const [dictionaryError, setDictionaryError] = useState<string | null>(null);
+
+  // Success notification states
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   // Reset or populate form when modal opens/closes
   useEffect(() => {
@@ -201,6 +244,96 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
     }
   };
 
+  // Fetch Cambridge Dictionary data
+  const fetchDictionaryData = async () => {
+    if (!wordText) {
+      setDictionaryError('No word available to search');
+      return;
+    }
+
+    setIsLoadingDictionary(true);
+    setDictionaryError(null);
+    setSuccessMessage(null);
+
+    try {
+      const response = await fetch(
+        `http://${process.env.REACT_API_HOSTNAME || 'localhost'}:${process.env.REACT_API_PORT_DICTIONARY || '8081'}/api/dictionary/en-tw/${encodeURIComponent(wordText)}`
+      );
+
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status}`);
+      }
+
+      const data: CambridgeApiResponse = await response.json();
+      setDictionaryData(data);
+      setIsCollapsed(false); // Expand section after successful fetch
+    } catch (error) {
+      console.error('Error fetching dictionary data:', error);
+      setDictionaryError(error instanceof Error ? error.message : 'Failed to fetch dictionary data');
+    } finally {
+      setIsLoadingDictionary(false);
+    }
+  };
+
+  // Helper function to show success message
+  const showSuccessMessage = (message: string) => {
+    setSuccessMessage(message);
+    setTimeout(() => setSuccessMessage(null), 3000); // Auto hide after 3 seconds
+  };
+
+  // Helper function to apply pronunciation data to form
+  const applyPronunciation = (ukUrl: string, usUrl: string) => {
+    setFormData(prev => ({
+      ...prev,
+      phonetics: {
+        uk: ukUrl || prev.phonetics.uk,
+        us: usUrl || prev.phonetics.us
+      }
+    }));
+
+    // Show success message
+    const appliedUrls = [];
+    if (ukUrl) appliedUrls.push('UK');
+    if (usUrl) appliedUrls.push('US');
+
+    if (appliedUrls.length > 0) {
+      const urlText = appliedUrls.join(' and ');
+      showSuccessMessage(`${urlText} pronunciation URL${appliedUrls.length > 1 ? 's' : ''} applied successfully!`);
+    } else {
+      showSuccessMessage('Pronunciation data applied successfully!');
+    }
+  };
+
+  // Helper function to apply definition data to form
+  const applyDefinition = (definition: CambridgeDefinition) => {
+    const examples = definition.example.map(ex => `${ex.text} ${ex.translation}`);
+
+    setFormData(prev => ({
+      ...prev,
+      part_of_speech: definition.pos ? [definition.pos] : prev.part_of_speech,
+      definition: `${definition.translation} ${definition.text}`,
+      examples: examples.length > 0 ? examples : prev.examples
+    }));
+
+    // Show success message
+    const itemsApplied = [];
+    if (definition.pos) itemsApplied.push('part of speech');
+    itemsApplied.push('definition');
+    if (examples.length > 0) itemsApplied.push(`${examples.length} example${examples.length > 1 ? 's' : ''}`);
+
+    showSuccessMessage(`Applied ${itemsApplied.join(', ')} successfully!`);
+  };
+
+  // Reset dictionary data when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setDictionaryData(null);
+      setDictionaryError(null);
+      setIsCollapsed(true);
+      setSuccessMessage(null);
+    }
+  }, [isOpen]);
+
   // Form validation
   const isFormValid = formData.definition.trim() && formData.part_of_speech.length > 0;
 
@@ -209,11 +342,13 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       maxWidth="xl"
-      className="max-h-[95vh] overflow-hidden"
+      className="max-h-[90vh] overflow-hidden"
     >
-      <div className="p-6">
-        {/* Header */}
-        <div className="mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex flex-col h-[80vh] -m-6 -mt-4">
+        {/* Fixed Header */}
+        <div className="flex-shrink-0 px-6 pt-4 pb-0">
+          {/* Header */}
+          <div className="mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
             {mode === 'edit' ? 'Edit Definition' : 'Add New Definition'}
           </h2>
@@ -222,10 +357,179 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
               for "<span className="font-semibold text-gray-800 dark:text-gray-200">{wordText}</span>"
             </p>
           )}
+          </div>
         </div>
 
-        {/* Form Content */}
-        <div className="space-y-6 max-h-[65vh] overflow-y-auto pr-2">
+        {/* Scrollable Content */}
+        <div className="flex-1 min-h-0 overflow-y-auto px-6 py-4 space-y-6">
+          {/* Cambridge Dictionary Section */}
+          {wordText && (
+            <div className="mb-4 pb-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                Dictionary Lookup
+              </h3>
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  onClick={fetchDictionaryData}
+                  disabled={isLoadingDictionary}
+                  className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed border border-transparent rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
+                >
+                  {isLoadingDictionary ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Loading...
+                    </>
+                  ) : (
+                    'Fetch Definition'
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsCollapsed(!isCollapsed)}
+                  className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 focus:outline-none transition-colors"
+                >
+                  <svg
+                    className={`w-5 h-5 transform transition-transform ${isCollapsed ? 'rotate-0' : 'rotate-180'}`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="2"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Dictionary Content */}
+            {!isCollapsed && (
+              <div className="space-y-4 border-t border-gray-200 dark:border-gray-700 pt-4">
+                {/* Success Notification */}
+                {successMessage && (
+                  <div className="p-3 text-sm text-green-700 bg-green-100 dark:bg-green-900 dark:text-green-300 rounded-md flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <svg className="w-4 h-4 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span>{successMessage}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setSuccessMessage(null)}
+                      className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200 transition-colors"
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                )}
+
+                {/* Error Display */}
+                {dictionaryError && (
+                  <div className="p-3 text-sm text-red-700 bg-red-100 dark:bg-red-900 dark:text-red-300 rounded-md">
+                    {dictionaryError}
+                  </div>
+                )}
+
+                {/* Dictionary Data Display */}
+                {dictionaryData && (
+                  <div className="space-y-4">
+                    {/* Pronunciation Section */}
+                    {dictionaryData.pronunciation && dictionaryData.pronunciation.length > 0 && (
+                      <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="text-md font-medium text-blue-900 dark:text-blue-300">
+                            Pronunciation
+                          </h4>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const ukPron = dictionaryData.pronunciation.find(p => p.lang === 'uk');
+                              const usPron = dictionaryData.pronunciation.find(p => p.lang === 'us');
+                              applyPronunciation(ukPron?.url || '', usPron?.url || '');
+                            }}
+                            className="px-3 py-1 text-xs font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 dark:bg-blue-800 dark:text-blue-300 dark:hover:bg-blue-700 rounded transition-colors"
+                          >
+                            Apply
+                          </button>
+                        </div>
+                        <div className="space-y-2">
+                          {dictionaryData.pronunciation
+                            .filter(p => p.lang === 'uk' || p.lang === 'us')
+                            .map((pron, index) => (
+                            <div key={index} className="flex items-center justify-between text-sm">
+                              <div>
+                                <span className="font-medium text-blue-800 dark:text-blue-300 uppercase">
+                                  {pron.lang}:
+                                </span>
+                                <span className="ml-2 text-gray-700 dark:text-gray-300">
+                                  {pron.pron}
+                                </span>
+                              </div>
+                              {pron.url && (
+                                <audio controls className="w-32">
+                                  <source src={pron.url} type="audio/mpeg" />
+                                </audio>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Definitions Section */}
+                    {dictionaryData.definition && dictionaryData.definition.length > 0 && (
+                      <div className="space-y-3">
+                        {dictionaryData.definition.map((def, index) => (
+                          <div key={def.id} className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                            <div className="flex items-start justify-between mb-3">
+                              <div className="flex-1">
+                                <div className="flex items-center space-x-2 mb-2">
+                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-300">
+                                    {def.pos}
+                                  </span>
+                                </div>
+                                <p className="text-sm text-gray-900 dark:text-gray-100 mb-2">
+                                  <span className="font-medium">{def.translation}</span> {def.text}
+                                </p>
+                                {def.example && def.example.length > 0 && (
+                                  <div className="space-y-1">
+                                    <p className="text-xs font-medium text-gray-600 dark:text-gray-400">Examples:</p>
+                                    {def.example.map((example, exIndex) => (
+                                      <p key={example.id} className="text-xs text-gray-600 dark:text-gray-400 italic">
+                                        • {example.text} {example.translation}
+                                      </p>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => applyDefinition(def)}
+                                className="ml-4 px-3 py-1 text-xs font-medium text-green-700 bg-green-100 hover:bg-green-200 dark:bg-green-800 dark:text-green-300 dark:hover:bg-green-700 rounded transition-colors flex-shrink-0"
+                              >
+                                Apply
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Form Fields Section */}
+          <div className="space-y-6">
           {/* Part of Speech - Required */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
@@ -345,10 +649,13 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
             </div>
           </div>
         </div>
+        </div>
 
-        {/* Modal Actions */}
-        <div className="flex justify-end space-x-3 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-          <button
+        {/* Fixed Footer */}
+        <div className="flex-shrink-0 px-6 pt-0 pb-4">
+          {/* Modal Actions */}
+          <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <button
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
@@ -356,7 +663,7 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
           >
             Cancel
           </button>
-          <button
+            <button
             type="button"
             onClick={handleSubmit}
             disabled={isSubmitting || !isFormValid}
@@ -374,6 +681,7 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
               mode === 'edit' ? 'Update Definition' : 'Add Definition'
             )}
           </button>
+          </div>
         </div>
       </div>
     </Modal>
