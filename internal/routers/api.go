@@ -51,6 +51,7 @@ func SetupAPIRoutesWithDependencies(router *gin.Engine, deps *ControllerDependen
 	// Words routes
 	apiGroup.GET("/words", deps.WordController.ListWords)
 	apiGroup.POST("/words/search", deps.WordController.SearchWords)
+	apiGroup.POST("/words/random", deps.WordController.RandomWords)
 	apiGroup.POST("/words", deps.WordController.CreateWord)
 	apiGroup.PUT("/words/:id", deps.WordController.UpdateWord)
 	apiGroup.DELETE("/words/:id", deps.WordController.DeleteWord)

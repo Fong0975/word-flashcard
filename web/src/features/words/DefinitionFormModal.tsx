@@ -47,6 +47,7 @@ interface DefinitionForm {
   part_of_speech: string[];
   definition: string;
   examples: string[];
+  notes: string;
   phonetics: { uk?: string; us?: string };
 }
 
@@ -76,6 +77,7 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
     part_of_speech: [],
     definition: '',
     examples: [''],
+    notes: '',
     phonetics: {}
   });
 
@@ -98,6 +100,7 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
         part_of_speech: [],
         definition: '',
         examples: [''],
+        notes: '',
         phonetics: {}
       });
     } else if (isOpen && mode === 'edit' && definition) {
@@ -106,6 +109,7 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
         part_of_speech: definition.part_of_speech ? definition.part_of_speech.split(',') : [],
         definition: definition.definition || '',
         examples: definition.examples && definition.examples.length > 0 ? definition.examples : [''],
+        notes: definition.notes ? definition.notes.replace(/\\n/g, '\n') : '',
         phonetics: definition.phonetics || {}
       });
     } else if (isOpen && mode === 'add') {
@@ -114,6 +118,7 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
         part_of_speech: [],
         definition: '',
         examples: [''],
+        notes: '',
         phonetics: {}
       });
     }
@@ -132,6 +137,11 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
   // Handle definition change
   const handleDefinitionChange = (definition: string) => {
     setFormData(prev => ({ ...prev, definition }));
+  };
+
+  // Handle notes change
+  const handleNotesChange = (notes: string) => {
+    setFormData(prev => ({ ...prev, notes }));
   };
 
   // Handle examples change
@@ -214,8 +224,10 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
         payload.phonetics = phoneticsPayload;
       }
 
-      // Add notes if provided (need to check if this exists in form)
-      // Note: The current form doesn't have notes field, but API supports it
+      // Add notes if provided - convert actual newlines to literal \n for storage
+      if (formData.notes.trim()) {
+        payload.notes = formData.notes.trim().replace(/\n/g, '\\n');
+      }
 
       if (mode === 'edit' && definition?.id) {
         // Update existing definition
@@ -614,6 +626,23 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
               </svg>
               Add Another Example
             </button>
+          </div>
+
+          {/* Notes - Optional */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Notes (Optional)
+            </label>
+            <textarea
+              value={formData.notes}
+              onChange={(e) => handleNotesChange(e.target.value)}
+              rows={4}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white resize-none"
+              placeholder="Additional notes in Markdown format&#10;&#10;Example:&#10;# Heading&#10;**Bold text**&#10;- List item&#10;&#10;Use actual line breaks for new lines."
+            />
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Supports Markdown formatting. Use actual line breaks for new lines.
+            </p>
           </div>
 
           {/* Phonetics - Optional */}
