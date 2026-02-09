@@ -5,6 +5,7 @@ import {
   CreateWordRequest,
   UpdateWordRequest,
   WordsQueryParams,
+  WordsRandomRequest,
   ErrorResponse,
   ApiRequestOptions,
 } from '../types/api';
@@ -157,6 +158,10 @@ class ApiService {
     return this.get<Word[]>(endpoint, options);
   }
 
+  async getRandomWords(request: WordsRandomRequest, options?: ApiRequestOptions): Promise<Word[]> {
+    return this.post<Word[]>(API_ENDPOINTS.wordsRandom, request, options);
+  }
+
   async createWord(wordData: CreateWordRequest, options?: ApiRequestOptions): Promise<Word> {
     return this.post<Word>(API_ENDPOINTS.words, wordData, options);
   }
@@ -187,4 +192,4 @@ class ApiService {
 export const apiService = new ApiService();
 
 // Export types for convenience
-export type { Word, WordDefinition, CreateWordRequest, UpdateWordRequest } from '../types/api';
+export type { Word, WordDefinition, CreateWordRequest, UpdateWordRequest, WordsRandomRequest, QuizConfig, QuizResult } from '../types/api';

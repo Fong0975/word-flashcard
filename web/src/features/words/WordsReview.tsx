@@ -4,6 +4,9 @@ import { WordCard } from './WordCard';
 import { Pagination } from '../../components/ui/Pagination';
 import { ActionButton } from '../../components/ui/ActionButton';
 import { WordFormModal } from './WordFormModal';
+import { QuizSetupModal } from './QuizSetupModal';
+import { QuizConfig } from '../../types/api';
+import { QuizModal } from '../quiz/QuizModal';
 
 interface WordsReviewProps {
   className?: string;
@@ -82,6 +85,9 @@ const EmptyState: React.FC<{ onRefresh: () => void }> = ({ onRefresh }) => (
 
 export const WordsReview: React.FC<WordsReviewProps> = ({ className = '' }) => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isQuizSetupModalOpen, setIsQuizSetupModalOpen] = useState(false);
+  const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
+  const [quizConfig, setQuizConfig] = useState<QuizConfig | null>(null);
 
   const {
     words,
@@ -115,6 +121,35 @@ export const WordsReview: React.FC<WordsReviewProps> = ({ className = '' }) => {
   // Handle word added successfully - refresh the word list
   const handleWordAdded = () => {
     refresh();
+  };
+
+  // Handle opening quiz setup modal
+  const handleQuizSetup = () => {
+    setIsQuizSetupModalOpen(true);
+  };
+
+  // Handle closing quiz setup modal
+  const handleCloseQuizSetupModal = () => {
+    setIsQuizSetupModalOpen(false);
+  };
+
+  // Handle starting quiz
+  const handleStartQuiz = (selectedFamiliarity: string[], questionCount: number) => {
+    // Close the setup modal
+    setIsQuizSetupModalOpen(false);
+
+    // Set quiz config and open quiz modal
+    setQuizConfig({
+      selectedFamiliarity,
+      questionCount
+    });
+    setIsQuizModalOpen(true);
+  };
+
+  // Handle closing quiz modal
+  const handleCloseQuizModal = () => {
+    setIsQuizModalOpen(false);
+    setQuizConfig(null);
   };
 
   // Action menu items
@@ -161,17 +196,37 @@ export const WordsReview: React.FC<WordsReviewProps> = ({ className = '' }) => {
   return (
     <div className={`space-y-6 ${className}`}>
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Word Review
-          </h2>
-          <p className="text-gray-600 dark:text-gray-300 mt-1">
-            Practice with flashcards and test your vocabulary knowledge
-          </p>
-        </div>
+      <div>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+          Word Review
+        </h2>
+        <p className="text-gray-600 dark:text-gray-300 mt-1">
+          Practice with flashcards and test your vocabulary knowledge
+        </p>
+      </div>
 
-        {!loading && !error && words.length > 0 && (
+      {/* Action Buttons */}
+      {!loading && !error && words.length > 0 && (
+        <div className="flex justify-end items-center space-x-3">
+          <button
+            onClick={handleQuizSetup}
+            className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-500 hover:bg-blue-600
+                       rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+                       disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={loading}
+          >
+            <svg
+              className="w-4 h-4 mr-2"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="2"
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.847a4.5 4.5 0 003.09 3.09L15.75 12l-2.847.813a4.5 4.5 0 00-3.09 3.091zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+            </svg>
+            Quiz
+          </button>
+
           <ActionButton
             label="Actions"
             items={actionItems}
@@ -188,8 +243,8 @@ export const WordsReview: React.FC<WordsReviewProps> = ({ className = '' }) => {
               </svg>
             }
           />
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Error message */}
       {error && (
@@ -253,6 +308,22 @@ export const WordsReview: React.FC<WordsReviewProps> = ({ className = '' }) => {
         onWordSaved={handleWordAdded}
         mode="create"
       />
+
+      {/* Quiz Setup Modal */}
+      <QuizSetupModal
+        isOpen={isQuizSetupModalOpen}
+        onClose={handleCloseQuizSetupModal}
+        onStartQuiz={handleStartQuiz}
+      />
+
+      {/* Quiz Modal */}
+      {quizConfig && (
+        <QuizModal
+          isOpen={isQuizModalOpen}
+          onClose={handleCloseQuizModal}
+          quizConfig={quizConfig}
+        />
+      )}
     </div>
   );
 };

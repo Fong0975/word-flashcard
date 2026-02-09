@@ -68,3 +68,27 @@ export interface WordsQueryParams extends PaginationParams {
   offset?: number;
 }
 
+// Quiz/Random words API types
+export interface WordsRandomFilter {
+  key: 'familiarity';
+  operator: 'eq' | 'neq' | 'in' | 'nin';
+  value: string | string[];
+}
+
+export interface WordsRandomRequest {
+  count: number;
+  filter: WordsRandomFilter;
+}
+
+// Quiz related types
+export interface QuizConfig {
+  selectedFamiliarity: string[];
+  questionCount: number;
+}
+
+export interface QuizResult {
+  word: Word;
+  oldFamiliarity: string;
+  newFamiliarity: string;
+}
+

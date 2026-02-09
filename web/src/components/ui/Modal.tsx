@@ -7,6 +7,8 @@ interface ModalProps {
   children: React.ReactNode;
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
   className?: string;
+  disableBackdropClose?: boolean;
+  disableEscapeClose?: boolean;
 }
 
 export const Modal: React.FC<ModalProps> = ({
@@ -16,11 +18,13 @@ export const Modal: React.FC<ModalProps> = ({
   children,
   maxWidth = 'lg',
   className = '',
+  disableBackdropClose = false,
+  disableEscapeClose = false,
 }) => {
   // Handle escape key
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+      if (event.key === 'Escape' && !disableEscapeClose) {
         onClose();
       }
     };
@@ -35,7 +39,7 @@ export const Modal: React.FC<ModalProps> = ({
       document.removeEventListener('keydown', handleEscape);
       document.body.style.overflow = 'unset';
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, disableEscapeClose]);
 
   if (!isOpen) return null;
 
@@ -52,7 +56,7 @@ export const Modal: React.FC<ModalProps> = ({
       {/* Background overlay */}
       <div
         className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
-        onClick={onClose}
+        onClick={disableBackdropClose ? undefined : onClose}
         aria-hidden="true"
       />
 
