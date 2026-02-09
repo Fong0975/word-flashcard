@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { Word, QuizResult, WordsRandomRequest } from '../../types/api';
 import { apiService } from '../../lib/api';
 import { PronunciationButton } from '../../components/ui/PronunciationButton';
@@ -283,9 +284,15 @@ export const Quiz: React.FC<QuizProps> = ({
                             <h5 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
                               Notes:
                             </h5>
-                            <p className="text-sm text-gray-600 dark:text-gray-400 bg-yellow-50 dark:bg-yellow-900/20 p-2 rounded">
-                              {definition.notes}
-                            </p>
+                            <div className="bg-yellow-50 dark:bg-yellow-900/20 p-2 rounded prose prose-sm max-w-none prose-slate dark:prose-invert prose-p:text-gray-600 dark:prose-p:text-gray-400 prose-headings:text-gray-800 dark:prose-headings:text-gray-200 prose-ul:text-gray-600 dark:prose-ul:text-gray-400">
+                              <ReactMarkdown
+                                components={{
+                                  br: () => <br />
+                                }}
+                              >
+                                {definition.notes.replace(/\\n/g, '\n')}
+                              </ReactMarkdown>
+                            </div>
                           </div>
                         )}
                       </div>
