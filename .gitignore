@@ -32,6 +32,7 @@ go.work.sum
 
 # env file
 .env
+.env.production.*
 
 # Editor/IDE
 .idea/
@@ -44,3 +45,6 @@ go.work.sum
 web/node_modules/
 web/build/
 web/dist/
+
+# Output for Docker
+docker/

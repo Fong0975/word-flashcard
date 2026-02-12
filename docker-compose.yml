@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  # Cambridge Dictionary API Service
+  cambridge-api:
+    build:
+      context: ./utils/cambridge-dictionary-api
+      dockerfile: Dockerfile
+      network: host
+      args:
+        CAMBRIDGE_API_PORT: ${CAMBRIDGE_API_PORT:-8081}
+    container_name: word-flashcard-cambridge-api
+    image: fong/word-flashcard-cambridge-api
+    network_mode: host
+    environment:
+      CAMBRIDGE_API_PORT: ${CAMBRIDGE_API_PORT:-8081}
+    restart: no
+
+  # Main Go Backend Service
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      network: host
+      args:
+        APP_PORT: ${APP_PORT:-8080}
+    container_name: word-flashcard-backend
+    image: fong/word-flashcard-backend
+    network_mode: host
+    environment:
+      APP_PORT: ${APP_PORT:-8080}
+    depends_on:
+      cambridge-api:
+        condition: service_started
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:${APP_PORT:-8080}/api/health"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+    volumes:
+      - .:/root/logs
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # React Frontend Service
+  frontend:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+      network: host
+      args:
+        FRONTEND_PORT: ${FRONTEND_PORT:-3000}
+    container_name: word-flashcard-frontend
+    image: fong/word-flashcard-frontend
+    network_mode: host
+    environment:
+      FRONTEND_PORT: ${FRONTEND_PORT:-3000}
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:${FRONTEND_PORT:-3000}"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  logs:
+    driver: local

@@ -3,8 +3,8 @@ export const API_CONFIG = {
   // Get base URL from environment variables
   // Note: React only exposes environment variables that start with REACT_APP_
   // For local development, we'll use localhost as default
-  hostname: process.env.REACT_API_HOSTNAME || 'localhost',
-  port: process.env.REACT_API_PORT || '8080',
+  hostname: process.env.REACT_APP_API_HOSTNAME || 'localhost',
+  port: process.env.REACT_APP_API_PORT || '8080',
 
   // Construct base URL
   get baseURL() {

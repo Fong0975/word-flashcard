@@ -269,7 +269,7 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
 
     try {
       const response = await fetch(
-        `http://${process.env.REACT_API_HOSTNAME || 'localhost'}:${process.env.REACT_API_PORT_DICTIONARY || '8081'}/api/dictionary/en-tw/${encodeURIComponent(wordText)}`
+        `http://${process.env.REACT_APP_API_HOSTNAME_DICTIONARY || 'localhost'}:${process.env.REACT_APP_API_PORT_DICTIONARY || '8081'}/api/dictionary/en-tw/${encodeURIComponent(wordText)}`
       );
 
       if (!response.ok) {
