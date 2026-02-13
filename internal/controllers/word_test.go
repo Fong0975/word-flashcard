@@ -13,6 +13,7 @@ import (
 	"word-flashcard/data/schema"
 	"word-flashcard/internal/models"
 	"word-flashcard/utils"
+	"word-flashcard/utils/database"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/gin-gonic/gin"
@@ -107,7 +108,7 @@ func (suite *WordControllerTestSuite) TestRandomWords() {
 	limitPtr := uint64(2)
 	suite.mockWordPeer.EXPECT().
 		Select(mock.Anything, whereWord, mock.MatchedBy(func(orderBy []*string) bool {
-			b := len(orderBy) == 1 && orderBy[0] != nil && *orderBy[0] == "RANDOM()"
+			b := len(orderBy) == 1 && orderBy[0] != nil && *orderBy[0] == database.TERM_MAPPING_FUNC_RANDOM
 			return b
 		}), &limitPtr, (*uint64)(nil)).
 		Return([]*dbModels.Word{getSampleWords()[1], getSampleWords()[3]}, nil).Times(1)

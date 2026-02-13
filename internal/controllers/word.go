@@ -6,6 +6,7 @@ import (
 	"word-flashcard/data/peers"
 	"word-flashcard/data/schema"
 	"word-flashcard/internal/models"
+	"word-flashcard/utils/database"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/gin-gonic/gin"
@@ -202,8 +203,8 @@ func (wc *WordController) RandomWords(c *gin.Context) {
 	}
 
 	// ================ 3. Fetch data from database ================
-	// Use RANDOM() for random ordering
-	orderBy := "RANDOM()"
+	// Use database-agnostic random function pattern
+	orderBy := database.TERM_MAPPING_FUNC_RANDOM
 	wordEntities, err := wc.queryWord([]*string{}, where, []*string{&orderBy}, &limitPtr, nil)
 	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", err, c)

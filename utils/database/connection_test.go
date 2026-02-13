@@ -103,6 +103,8 @@ func stringPtr(s string) *string {
 	return &s
 }
 
+// ========== Select Tests ==========
+
 // TestSelect tests selecting records from database
 func (s *connectionTestSuite) TestSelect() {
 	db, mock, cleanup := createMockDatabase(s.t, "mysql")
@@ -264,6 +266,62 @@ func (s *connectionTestSuite) TestSelectWithLimitAndOffsetPostgreSQL() {
 	s.NoError(mock.ExpectationsWereMet())
 }
 
+// TestSelectWithTermsTranslation tests that terms in orderBy are correctly translated for different databases
+func (s *connectionTestSuite) TestSelectWithTermsTranslation() {
+	// Common test parameters
+	orderBy := []*string{stringPtr(TERM_MAPPING_FUNC_RANDOM)}
+	var results []testUser
+
+	// Test MySQL translation
+	{
+		db, mock, cleanup := createMockDatabase(s.t, "mysql")
+		defer cleanup()
+
+		// Mock expects SELECT query with RAND() for MySQL
+		rows := sqlmock.NewRows([]string{"id", "name"}).
+			AddRow(1, "Test User 1").
+			AddRow(2, "Test User 2")
+
+		mock.ExpectQuery("SELECT \\* FROM users ORDER BY RAND\\(\\)").
+			WillReturnRows(rows)
+
+		// Test Select method
+		err := db.Select("users", nil, nil, orderBy, nil, nil, &results)
+
+		s.NoError(err, "MySQL Select with terms translation should succeed")
+		s.Len(results, 2, "Should return 2 users")
+
+		// Verify all expectations were met
+		s.NoError(mock.ExpectationsWereMet())
+	}
+
+	// Test PostgreSQL translation
+	{
+		db, mock, cleanup := createMockDatabase(s.t, "postgresql")
+		defer cleanup()
+
+		// Mock expects SELECT query with RANDOM() for PostgreSQL
+		rows := sqlmock.NewRows([]string{"id", "name"}).
+			AddRow(3, "Test User 3").
+			AddRow(4, "Test User 4")
+
+		mock.ExpectQuery("SELECT \\* FROM users ORDER BY RANDOM\\(\\)").
+			WillReturnRows(rows)
+
+		// Test Select method
+		results = []testUser{} // Reset results
+		err := db.Select("users", nil, nil, orderBy, nil, nil, &results)
+
+		s.NoError(err, "PostgreSQL Select with terms translation should succeed")
+		s.Len(results, 2, "Should return 2 users")
+
+		// Verify all expectations were met
+		s.NoError(mock.ExpectationsWereMet())
+	}
+}
+
+// ========== Insert Tests ==========
+
 // TestInsert tests inserting records into database
 func (s *connectionTestSuite) TestInsert() {
 	db, mock, cleanup := createMockDatabase(s.t, "mysql")
@@ -325,6 +383,8 @@ func (s *connectionTestSuite) TestUpdate() {
 	s.NoError(mock.ExpectationsWereMet())
 }
 
+// ========== Delete Tests ==========
+
 // TestDelete tests deleting records from database
 func (s *connectionTestSuite) TestDelete() {
 	db, mock, cleanup := createMockDatabase(s.t, "mysql")
@@ -371,4 +431,59 @@ func (s *connectionTestSuite) TestExec() {
 
 	// Verify all expectations were met
 	s.NoError(mock.ExpectationsWereMet())
+}
+
+// TestTranslateDatabaseTerms tests the translateDatabaseTerms method for different database types
+func (s *connectionTestSuite) TestTranslateDatabaseTerms() {
+	// Test MySQL database term translation
+	{
+		db, _, cleanup := createMockDatabase(s.t, "mysql")
+		defer cleanup()
+
+		// Test single pattern replacement
+		input := "{FUNC_RANDOM}"
+		result := db.translateDatabaseTerms(input)
+		s.Equal("RAND()", result, "Should translate {FUNC_RANDOM} to RAND() for MySQL")
+
+		// Test pattern within larger string
+		input2 := "ORDER BY {FUNC_RANDOM}, id ASC"
+		result2 := db.translateDatabaseTerms(input2)
+		s.Equal("ORDER BY RAND(), id ASC", result2, "Should translate pattern within larger string for MySQL")
+
+		// Test multiple occurrences
+		input3 := "SELECT {FUNC_RANDOM} AS rand1, {FUNC_RANDOM} AS rand2"
+		result3 := db.translateDatabaseTerms(input3)
+		s.Equal("SELECT RAND() AS rand1, RAND() AS rand2", result3, "Should translate multiple occurrences for MySQL")
+
+		// Test string without patterns
+		input4 := "ORDER BY name ASC"
+		result4 := db.translateDatabaseTerms(input4)
+		s.Equal("ORDER BY name ASC", result4, "Should not modify string without patterns")
+	}
+
+	// Test PostgreSQL database term translation
+	{
+		db, _, cleanup := createMockDatabase(s.t, "postgresql")
+		defer cleanup()
+
+		// Test single pattern replacement
+		input := "{FUNC_RANDOM}"
+		result := db.translateDatabaseTerms(input)
+		s.Equal("RANDOM()", result, "Should translate {FUNC_RANDOM} to RANDOM() for PostgreSQL")
+
+		// Test pattern within larger string
+		input2 := "ORDER BY {FUNC_RANDOM}, id ASC"
+		result2 := db.translateDatabaseTerms(input2)
+		s.Equal("ORDER BY RANDOM(), id ASC", result2, "Should translate pattern within larger string for PostgreSQL")
+
+		// Test multiple occurrences
+		input3 := "SELECT {FUNC_RANDOM} AS rand1, {FUNC_RANDOM} AS rand2"
+		result3 := db.translateDatabaseTerms(input3)
+		s.Equal("SELECT RANDOM() AS rand1, RANDOM() AS rand2", result3, "Should translate multiple occurrences for PostgreSQL")
+
+		// Test string without patterns
+		input4 := "ORDER BY name ASC"
+		result4 := db.translateDatabaseTerms(input4)
+		s.Equal("ORDER BY name ASC", result4, "Should not modify string without patterns")
+	}
 }
