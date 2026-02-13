@@ -64,7 +64,10 @@ export const useWords = (options: UseWordsOptions = {}): UseWordsReturn => {
         offset,
       };
 
-      const words = await apiService.getWords(params);
+      let words = await apiService.getWords(params);
+      if (words == null || !Array.isArray(words)) {
+        words = [];
+      }
 
       // Calculate pagination info
       // Note: Since API doesn't return total count, we estimate based on returned data
