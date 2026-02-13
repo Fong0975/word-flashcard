@@ -106,7 +106,7 @@ export const useWords = (options: UseWordsOptions = {}): UseWordsReturn => {
         words: [],
       }));
     }
-  }, [state.currentPage, itemsPerPage]);
+  }, [state.currentPage, state.totalPages, itemsPerPage]);
 
   const nextPage = useCallback(async () => {
     if (state.hasNext && !state.loading) {

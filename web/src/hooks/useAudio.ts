@@ -16,18 +16,6 @@ export const useAudio = (): UseAudioReturn => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const currentUrlRef = useRef<string | null>(null);
 
-  const cleanup = useCallback(() => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.removeEventListener('ended', handleEnded);
-      audioRef.current.removeEventListener('error', handleError);
-      audioRef.current.removeEventListener('loadstart', handleLoadStart);
-      audioRef.current.removeEventListener('canplaythrough', handleCanPlay);
-      audioRef.current = null;
-    }
-    currentUrlRef.current = null;
-  }, []);
-
   const handleEnded = useCallback(() => {
     setIsPlaying(false);
     setIsLoading(false);
@@ -47,6 +35,18 @@ export const useAudio = (): UseAudioReturn => {
   const handleCanPlay = useCallback(() => {
     setIsLoading(false);
   }, []);
+
+  const cleanup = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.removeEventListener('ended', handleEnded);
+      audioRef.current.removeEventListener('error', handleError);
+      audioRef.current.removeEventListener('loadstart', handleLoadStart);
+      audioRef.current.removeEventListener('canplaythrough', handleCanPlay);
+      audioRef.current = null;
+    }
+    currentUrlRef.current = null;
+  }, [handleEnded, handleError, handleLoadStart, handleCanPlay]);
 
   const play = useCallback(async (url: string) => {
     try {

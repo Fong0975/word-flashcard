@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export type TabName = 'words' | 'questions';
 
@@ -10,7 +10,7 @@ export const useTab = () => {
     return tabFromURL && ['words', 'questions'].includes(tabFromURL) ? tabFromURL : 'words';
   });
 
-  const switchTab = (tabName: TabName) => {
+  const switchTab = useCallback((tabName: TabName) => {
     if (currentTab === tabName) return;
 
     setCurrentTab(tabName);
@@ -29,7 +29,7 @@ export const useTab = () => {
       detail: { tabName, previousTab: currentTab }
     });
     document.dispatchEvent(event);
-  };
+  }, [currentTab]);
 
   // Listen for browser navigation
   useEffect(() => {
@@ -66,7 +66,7 @@ export const useTab = () => {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [switchTab]);
 
   return { currentTab, switchTab };
 };
