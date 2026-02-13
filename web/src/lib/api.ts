@@ -1,4 +1,4 @@
-import { API_CONFIG, API_ENDPOINTS } from './api-config';
+import { API_CONFIG, API_ENDPOINTS, DICTIONARY_ENDPOINTS } from './api-config';
 import {
   Word,
   WordDefinition,
@@ -41,6 +41,77 @@ class ApiService {
     options: RequestInit & ApiRequestOptions = {}
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
+
+    // Merge default options with provided options
+    const requestOptions: RequestInit = {
+      ...this.defaultOptions,
+      ...options,
+      headers: {
+        ...this.defaultOptions.headers,
+        ...options.headers,
+      },
+    };
+
+    // Add timeout support
+    const timeout = options.timeout || API_CONFIG.timeout;
+    const controller = new AbortController();
+
+    // Use provided signal if available, otherwise use timeout signal
+    if (options.signal) {
+      requestOptions.signal = options.signal;
+    } else {
+      requestOptions.signal = controller.signal;
+      setTimeout(() => controller.abort(), timeout);
+    }
+
+    try {
+      const response = await fetch(url, requestOptions);
+
+      // Handle HTTP errors
+      if (!response.ok) {
+        let errorMessage: string;
+        try {
+          const errorData: ErrorResponse = await response.json();
+          errorMessage = errorData.error || response.statusText;
+        } catch {
+          errorMessage = response.statusText || 'Unknown error occurred';
+        }
+
+        throw new ApiError(
+          response.status,
+          response.statusText,
+          errorMessage,
+          response
+        );
+      }
+
+      // Handle empty responses
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        return {} as T;
+      }
+
+      return await response.json();
+    } catch (error) {
+      // Handle fetch errors (network, timeout, etc.)
+      if (error instanceof ApiError) {
+        throw error;
+      }
+
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        throw new ApiError(0, 'Request Timeout', 'Request timed out');
+      }
+
+      throw new ApiError(0, 'Network Error', error instanceof Error ? error.message : 'Unknown error');
+    }
+  }
+
+  // Dictionary API request method (uses different base URL)
+  private async dictionaryRequest<T>(
+    endpoint: string,
+    options: RequestInit & ApiRequestOptions = {}
+  ): Promise<T> {
+    const url = `${API_CONFIG.dictionaryBaseURL}${endpoint}`;
 
     // Merge default options with provided options
     const requestOptions: RequestInit = {
@@ -184,6 +255,11 @@ class ApiService {
 
   async deleteDefinition(definitionId: number, options?: ApiRequestOptions): Promise<void> {
     await this.delete<void>(API_ENDPOINTS.deleteDefinition(definitionId), options);
+  }
+
+  // Dictionary API methods
+  async lookupWord<T = any>(word: string, options?: ApiRequestOptions): Promise<T> {
+    return this.dictionaryRequest<T>(DICTIONARY_ENDPOINTS.lookup(word), { method: 'GET', ...options });
   }
 
 }
