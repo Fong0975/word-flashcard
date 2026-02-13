@@ -34,6 +34,7 @@ word-flashcard/
 │   ├── public/                   # Public assets
 │   ├── src/                      # React source code
 │   ├── .env.example              # Environment variables template
+│   ├── Dockerfile                # Dockerfile for frontend service
 │   ├── README.md                 # React app documentation
 │   ├── package.json              # React dependencies
 │   ├── package-lock.json         # React dependency lock file
@@ -41,6 +42,9 @@ word-flashcard/
 │   ├── tailwind.config.js        # Tailwind CSS configuration
 │   └── tsconfig.json             # TypeScript configuration
 ├── .env.example                  # Environment variables template
+├── docker-compose.yml            # Definition of multi-container for services in the project
+├── Dockerfile                    # Dockerfile for backend service
+├── export_docker.bat             # Script: Copy files required for Docker deployment
 ├── go.mod                        # Go module definition
 ├── main.go                       # Main server file
 ├── README.md                     # This file
@@ -92,11 +96,11 @@ Set up environment variables for both backend and frontend applications:
 Create a `.env` file in the project root directory with the following configuration:
 
 ```env
-# Main Go application port
+# Services Port
+# (They will also be used during Docker Compose operations)
 APP_PORT=8080
-
-# Cambridge Dictionary API service port
 CAMBRIDGE_API_PORT=8081
+FRONTEND_PORT=3000
 
 # Logging Configuration
 # - Level: DEBUG, INFO, WARN, ERROR
@@ -120,8 +124,10 @@ Create a `.env` file in the `web/` directory with the following configuration:
 
 ```env
 # API Configuration
-REACT_API_HOSTNAME=localhost
-REACT_API_PORT=8080
+REACT_APP_API_HOSTNAME=localhost
+REACT_APP_API_PORT=8080
+REACT_APP_API_HOSTNAME_DICTIONARY=localhost
+REACT_APP_API_PORT_DICTIONARY=8081
 ```
 
 For detailed database configuration and usage, see [Database Documentation](utils/database/README.md).
@@ -237,3 +243,22 @@ The built React application will be available in the `web/build/` directory.
 ./dist/word-flashcard
 ```
 
+## Docker Deployment
+
+Use the Docker to deploy the services for the production environment.
+
+1. Run the `export_docker.bat` script to copy files required by the Docker host into the `docker/` directory.
+2. Clone `.env.example` and `web/.env.example` into `.env` and `web/.env` respectively, then modify their contents to suit the Docker container.
+
+| File     | Variable                          | Description                                                                    | Sample Value                                                                                                      |
+|----------|-----------------------------------|--------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------|
+| .env     | APP_PORT                          | Port for the main application service (default expose port for docker-compose) | 8080                                                                                                              |
+| .env     | CAMBRIDGE_API_PORT                | Port for the Cambridge Dictionary API (default expose port for docker-compose) | 8081                                                                                                              |
+| .env     | FRONTEND_PORT                     | Port for the React frontend service (default expose port for docker-compose)   | 3000                                                                                                              |
+| .env     | LOG_FILE_PATH                     | Log file path inside the container                                             | logs/word-flashcard.log <br/> (Docker binds volumes by default, storing log files in the physical root directory) |
+| web/.env | REACT_APP_API_HOSTNAME            | Hostname for the API service in the frontend                                   | api.flashcard.com                                                                                                 |
+| web/.env | REACT_APP_API_PORT                | Port for the API service in the frontend configuration                         | 8080                                                                                                              |
+| web/.env | REACT_APP_API_HOSTNAME_DICTIONARY | Hostname for the Cambridge Dictionary API in the frontend configuration        | dictionary.flashcard.com                                                                                          |
+| web/.env | REACT_APP_API_PORT_DICTIONARY     | Port for the Cambridge Dictionary API in the frontend configuration            | 8081                                                                                                              |
+
+3. Use `docker\docker-compose.yml` to build the Docker containers.

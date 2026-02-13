@@ -18,6 +18,11 @@ func LoggingMiddleware() gin.HandlerFunc {
 			requestPath += "?" + param.Request.URL.RawQuery
 		}
 
+		// Skip local successful requests to /api/health
+		if requestPath == "/api/health" && param.StatusCode == 200 && param.ClientIP == "::1" {
+			return ""
+		}
+
 		debugRegex := regexp.MustCompile(`^(/static.*|/swagger/.*\.\w+[^html])$`)
 		// Choose log level based on request path and status code
 		logLevel := slog.LevelInfo

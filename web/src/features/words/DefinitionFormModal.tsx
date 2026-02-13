@@ -268,15 +268,7 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
     setSuccessMessage(null);
 
     try {
-      const response = await fetch(
-        `http://${process.env.REACT_API_HOSTNAME || 'localhost'}:${process.env.REACT_API_PORT_DICTIONARY || '8081'}/api/dictionary/en-tw/${encodeURIComponent(wordText)}`
-      );
-
-      if (!response.ok) {
-        throw new Error(`API request failed: ${response.status}`);
-      }
-
-      const data: CambridgeApiResponse = await response.json();
+      const data: CambridgeApiResponse = await apiService.lookupWord<CambridgeApiResponse>(wordText);
       setDictionaryData(data);
       setIsCollapsed(false); // Expand section after successful fetch
     } catch (error) {

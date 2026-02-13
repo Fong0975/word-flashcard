@@ -13,6 +13,19 @@ import (
 	_ "github.com/lib/pq"
 )
 
+// Database syntax pattern constants
+const (
+	TERM_MAPPING_FUNC_RANDOM = "{FUNC_RANDOM}"
+)
+
+// DatabaseTermsMapping maps syntax patterns to database-specific implementations
+var DatabaseTermsMapping = map[string]map[string]string{
+	TERM_MAPPING_FUNC_RANDOM: {
+		"mysql":      "RAND()",
+		"postgresql": "RANDOM()",
+	},
+}
+
 // UniversalDatabase implements the Database interface for both MySQL and PostgreSQL
 type UniversalDatabase struct {
 	*BaseDatabase
@@ -114,7 +127,9 @@ func (u *UniversalDatabase) Select(table string, columns []*string, where squirr
 	if len(orderBy) > 0 {
 		var orderCols []string
 		for _, col := range orderBy {
-			orderCols = append(orderCols, *col)
+			// Apply database terms translation
+			processedCol := u.translateDatabaseTerms(*col)
+			orderCols = append(orderCols, processedCol)
 		}
 		query = query.OrderBy(orderCols...)
 	}
@@ -399,4 +414,15 @@ func (u *UniversalDatabase) logQuery(sql string, args []interface{}) {
 	}
 
 	slog.Debug("Executing query", "sql", sql, "args", query)
+}
+
+// translateDatabaseTerms replaces syntax patterns in the input string with database-specific implementations
+func (u *UniversalDatabase) translateDatabaseTerms(input string) string {
+	result := input
+	for pattern, dbMapping := range DatabaseTermsMapping {
+		if dbTerm, exists := dbMapping[u.config.Type]; exists {
+			result = strings.ReplaceAll(result, pattern, dbTerm)
+		}
+	}
+	return result
 }
