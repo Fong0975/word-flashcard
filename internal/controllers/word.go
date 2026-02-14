@@ -80,7 +80,7 @@ func (wc *WordController) ListWords(c *gin.Context) {
 
 	// ================ 2. Fetch data from database ================
 	// Query 'words' table
-	orderBy := fmt.Sprintf("%s ASC", schema.WORD_ID)
+	orderBy := fmt.Sprintf("%s ASC", schema.WORD_WORD)
 	words, err := wc.wordPeer.Select([]*string{}, nil, []*string{&orderBy}, &limitPtr, &offsetPtr)
 	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", err, c)
@@ -158,7 +158,7 @@ func (wc *WordController) SearchWords(c *gin.Context) {
 			return
 		}
 	}
-	orderBy := fmt.Sprintf("%s ASC", schema.WORD_ID)
+	orderBy := fmt.Sprintf("%s ASC", schema.WORD_WORD)
 	wordEntities, err := wc.queryWord([]*string{}, where, []*string{&orderBy}, &limitPtr, &offsetPtr)
 	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", err, c)
