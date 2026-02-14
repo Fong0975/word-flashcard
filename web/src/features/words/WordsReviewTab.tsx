@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useWords } from '../../hooks/useWords';
 import { WordCard } from './WordCard';
 import { Pagination } from '../../components/ui/Pagination';
@@ -6,8 +6,10 @@ import { ActionButton } from '../../components/ui/ActionButton';
 import { WordFormModal } from './WordFormModal';
 import { WordDetailModal } from './WordDetailModal';
 import { QuizSetupModal } from './QuizSetupModal';
-import { QuizConfig, Word } from '../../types/api';
+import { DefinitionFormModal } from './DefinitionFormModal';
+import { QuizConfig, Word, WordDefinition } from '../../types/api';
 import { QuizModal } from '../quiz/QuizModal';
+import { apiService } from '../../lib/api';
 
 interface WordsReviewTabProps {
   className?: string;
@@ -88,6 +90,11 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({ className = '' }
   const [isWordDetailModalOpen, setIsWordDetailModalOpen] = useState(false);
   const [selectedWord, setSelectedWord] = useState<Word | null>(null);
 
+  // DefinitionFormModal state
+  const [isDefinitionFormModalOpen, setIsDefinitionFormModalOpen] = useState(false);
+  const [definitionFormMode, setDefinitionFormMode] = useState<'add' | 'edit'>('add');
+  const [selectedDefinition, setSelectedDefinition] = useState<WordDefinition | null>(null);
+
   const {
     words,
     loading,
@@ -108,6 +115,43 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({ className = '' }
     itemsPerPage: 50, // As per requirements
     autoFetch: true,
   });
+
+  // Update selectedWord when words list changes (after refresh)
+  useEffect(() => {
+    if (selectedWord) {
+      // Find the updated word in the current words list
+      const updatedWord = words.find(w => w.id === selectedWord.id);
+      if (updatedWord) {
+        setSelectedWord(updatedWord);
+      } else if (words.length > 0) {
+        // If word is not found in current list (possibly due to filtering or pagination),
+        // search for it explicitly using API
+        const searchForUpdatedWord = async () => {
+          try {
+            const searchFilter = {
+              key: 'word',
+              operator: 'like',
+              value: selectedWord.word,
+            };
+
+            const searchResults = await apiService.searchWords({
+              searchFilter,
+              limit: 1,
+            });
+
+            // Update the selected word if found
+            if (searchResults.length > 0) {
+              setSelectedWord(searchResults[0]);
+            }
+          } catch (error) {
+            console.error('Failed to refresh selected word:', error);
+          }
+        };
+
+        searchForUpdatedWord();
+      }
+    }
+  }, [words, selectedWord?.id]); // Depend on words and selectedWord.id
 
   // Handle opening add word modal
   const handleNew = () => {
@@ -168,6 +212,42 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({ className = '' }
   const handleCloseWordDetailModal = () => {
     setIsWordDetailModalOpen(false);
     setSelectedWord(null);
+  };
+
+  // Handle word updated (familiarity, word text, etc.)
+  const handleWordUpdated = () => {
+    refresh(); // Refresh the words list
+  };
+
+  // Handle opening DefinitionFormModal for adding new definition
+  const handleOpenDefinitionModal = () => {
+    setDefinitionFormMode('add');
+    setSelectedDefinition(null);
+    setIsDefinitionFormModalOpen(true);
+  };
+
+  // Handle opening DefinitionFormModal for editing definition
+  const handleOpenEditDefinitionModal = (definition: WordDefinition) => {
+    setDefinitionFormMode('edit');
+    setSelectedDefinition(definition);
+    setIsDefinitionFormModalOpen(true);
+  };
+
+  // Handle closing DefinitionFormModal
+  const handleCloseDefinitionFormModal = () => {
+    setIsDefinitionFormModalOpen(false);
+    setDefinitionFormMode('add');
+    setSelectedDefinition(null);
+  };
+
+  // Handle definition added successfully
+  const handleDefinitionAdded = () => {
+    refresh(); // Refresh the words list
+  };
+
+  // Handle definition updated successfully
+  const handleDefinitionUpdated = () => {
+    refresh(); // Refresh the words list
   };
 
   // Action menu items
@@ -376,6 +456,7 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({ className = '' }
         onWordSaved={handleWordAdded}
         onOpenWordDetail={handleOpenWordDetailFromSuggestion}
         mode="create"
+        currentWords={words}
       />
 
       {/* Quiz Setup Modal */}
@@ -399,7 +480,21 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({ className = '' }
         word={selectedWord}
         isOpen={isWordDetailModalOpen}
         onClose={handleCloseWordDetailModal}
-        onWordUpdated={refresh}
+        onWordUpdated={handleWordUpdated}
+        onOpenDefinitionModal={handleOpenDefinitionModal}
+        onOpenEditDefinitionModal={handleOpenEditDefinitionModal}
+      />
+
+      {/* Definition Form Modal */}
+      <DefinitionFormModal
+        isOpen={isDefinitionFormModalOpen}
+        onClose={handleCloseDefinitionFormModal}
+        onDefinitionAdded={handleDefinitionAdded}
+        onDefinitionUpdated={handleDefinitionUpdated}
+        wordId={selectedWord?.id || null}
+        wordText={selectedWord?.word || null}
+        mode={definitionFormMode}
+        definition={selectedDefinition}
       />
     </div>
   );

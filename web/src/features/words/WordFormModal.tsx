@@ -10,6 +10,7 @@ interface WordFormModalProps {
   onOpenWordDetail?: (word: Word) => void;
   mode: 'create' | 'edit';
   word?: Word; // Required when mode is 'edit'
+  currentWords?: Word[]; // Current words in the list to check if newly created word is present
 }
 
 const FAMILIARITY_OPTIONS = [
@@ -25,6 +26,7 @@ export const WordFormModal: React.FC<WordFormModalProps> = ({
   onOpenWordDetail,
   mode,
   word,
+  currentWords = [],
 }) => {
   const [wordValue, setWordValue] = useState('');
   const [familiarityValue, setFamiliarityValue] = useState('green');
@@ -116,15 +118,17 @@ export const WordFormModal: React.FC<WordFormModalProps> = ({
     setError(null);
 
     try {
+      const newWordText = wordValue.trim();
+
       if (mode === 'create') {
         // Create mode: only send word field
         await apiService.createWord({
-          word: wordValue.trim(),
+          word: newWordText,
         });
       } else if (mode === 'edit' && word) {
         // Edit mode: send word and familiarity fields
         await apiService.updateWordFields(word.id, {
-          word: wordValue.trim(),
+          word: newWordText,
           familiarity: familiarityValue,
         });
       }
@@ -138,6 +142,39 @@ export const WordFormModal: React.FC<WordFormModalProps> = ({
       // Notify parent component to refresh data
       if (onWordSaved) {
         onWordSaved();
+      }
+
+      // In create mode, check if the newly created word is in the current list
+      // If not, search for it and open WordDetailModal
+      if (mode === 'create' && onOpenWordDetail) {
+        // Check if the newly created word is already in the current word list
+        const isWordInCurrentList = currentWords.some(
+          (w) => w.word.toLowerCase() === newWordText.toLowerCase()
+        );
+
+        if (!isWordInCurrentList) {
+          try {
+            // Search for the newly created word
+            const searchFilter = {
+              key: 'word',
+              operator: 'like', // Use like with exact value (no wildcards) for exact match
+              value: newWordText,
+            };
+
+            const searchResults = await apiService.searchWords({
+              searchFilter,
+              limit: 1,
+            });
+
+            // If we found the word, open WordDetailModal
+            if (searchResults.length > 0) {
+              onOpenWordDetail(searchResults[0]);
+            }
+          } catch (searchErr) {
+            // If search fails, we don't want to show an error as the word was created successfully
+            console.warn('Failed to search for newly created word:', searchErr);
+          }
+        }
       }
     } catch (err: any) {
       setError(err.message || `Failed to ${mode} word`);
