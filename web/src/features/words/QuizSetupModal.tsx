@@ -33,7 +33,7 @@ export const QuizSetupModal: React.FC<QuizSetupModalProps> = ({
   onClose,
   onStartQuiz,
 }) => {
-  const [selectedFamiliarity, setSelectedFamiliarity] = useState<string[]>(['red']);
+  const [selectedFamiliarity, setSelectedFamiliarity] = useState<string[]>(['red', 'yellow', 'green']);
   const [questionCount, setQuestionCount] = useState<number>(15);
   const [showCloseConfirm, setShowCloseConfirm] = useState(false);
 

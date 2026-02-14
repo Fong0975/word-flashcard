@@ -122,7 +122,10 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({ className = '' }
       // Find the updated word in the current words list
       const updatedWord = words.find(w => w.id === selectedWord.id);
       if (updatedWord) {
-        setSelectedWord(updatedWord);
+        // Only update if the word content has actually changed
+        if (JSON.stringify(updatedWord) !== JSON.stringify(selectedWord)) {
+          setSelectedWord(updatedWord);
+        }
       } else if (words.length > 0) {
         // If word is not found in current list (possibly due to filtering or pagination),
         // search for it explicitly using API
@@ -139,8 +142,8 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({ className = '' }
               limit: 1,
             });
 
-            // Update the selected word if found
-            if (searchResults.length > 0) {
+            // Update the selected word if found and content has changed
+            if (searchResults.length > 0 && JSON.stringify(searchResults[0]) !== JSON.stringify(selectedWord)) {
               setSelectedWord(searchResults[0]);
             }
           } catch (error) {
@@ -151,7 +154,8 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({ className = '' }
         searchForUpdatedWord();
       }
     }
-  }, [words, selectedWord?.id]); // Depend on words and selectedWord.id
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [words]);
 
   // Handle opening add word modal
   const handleNew = () => {

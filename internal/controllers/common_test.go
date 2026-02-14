@@ -69,7 +69,7 @@ func (suite *CommonTestSuite) TestConvertFilterToSqlizer() {
 				Operator: "like",
 				Value:    "%test%",
 			},
-			expected: squirrel.Like{"word": "%test%"},
+			expected: squirrel.ILike{"word": "%test%"},
 		},
 		{
 			name: "not_like operator",
@@ -78,7 +78,7 @@ func (suite *CommonTestSuite) TestConvertFilterToSqlizer() {
 				Operator: "not_like",
 				Value:    "%temp%",
 			},
-			expected: squirrel.NotLike{"word": "%temp%"},
+			expected: squirrel.NotILike{"word": "%temp%"},
 		},
 	}
 

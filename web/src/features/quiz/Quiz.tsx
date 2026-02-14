@@ -34,22 +34,89 @@ export const Quiz: React.FC<QuizProps> = ({
         setState('loading');
         setError(null);
 
-        const operator = selectedFamiliarity.length === 1 ? 'eq' : 'in';
-        const value = operator === 'eq'
-          ? selectedFamiliarity[0]
-          : JSON.stringify(selectedFamiliarity);
+        // Count for 'red', 'yellow', 'green' shoud be 2:3:5
+        let countRed = 0, countYellow = 0, countGreen = 0;
 
-        const request: WordsRandomRequest = {
-          count: questionCount,
-          filter: {
-            key: 'familiarity',
-            operator,
-            value,
-          },
-        };
+        let remaining = questionCount;
+        const existGreen = selectedFamiliarity.includes('green');
+        const existYellow = selectedFamiliarity.includes('yellow');
+        const existRed = selectedFamiliarity.includes('red');
+        if (existGreen) {
+          const maxGreen = Math.floor(remaining * 0.2);
+          countGreen = Math.floor(Math.random() * (maxGreen + 1));
+          remaining -= countGreen;
+        }
 
-        const randomWords = await apiService.getRandomWords(request);
-        setWords(randomWords);
+        if (existYellow) {
+          const maxYellow = Math.floor(remaining * 0.3);
+          countYellow = Math.floor(Math.random() * (maxYellow + 1));
+          remaining -= countYellow;
+        }
+
+        if (existRed) {
+          countRed = remaining;
+          remaining = 0;
+        } else {
+          // If there is no red but there are remaining quantities, distribute them evenly among the existing colors
+          if (selectedFamiliarity.length > 0) {
+            if (existGreen && existYellow) {
+              // Distribute remaining between green and yellow
+              const maxGreen = Math.floor(remaining * 0.4);
+              countGreen += Math.floor(Math.random() * (maxGreen + 1));
+              countYellow += (remaining - countGreen);
+            } else if (existGreen) {
+              countGreen += remaining;
+            } else if (existYellow) {
+              countYellow += remaining;
+            }
+          }
+        }
+
+        console.log('Quiz word counts:', { countRed, countYellow, countGreen });
+
+        // Construct API request based on selected familiarities
+        const requests: WordsRandomRequest[] = [];
+        if (existRed) {
+          requests.push({
+            count: countRed,
+            filter: {
+              key: 'familiarity',
+              operator: 'eq',
+              value: 'red',
+            },
+          });
+        }
+        if (existYellow) {
+          requests.push({
+            count: countYellow,
+            filter: {
+              key: 'familiarity',
+              operator: 'eq',
+              value: 'yellow',
+            },
+          });
+        }
+        if (existGreen) {
+          requests.push({
+            count: countGreen,
+            filter: {
+              key: 'familiarity',
+              operator: 'eq',
+              value: 'green',
+            },
+          });
+        }
+
+        // Fetch words for each familiarity level and combine results
+        const allWords: Word[] = [];
+        for (const req of requests) {
+          if (req.count <= 0) continue; // Skip if count is zero or negative
+
+          const randomWords = await apiService.getRandomWords(req);
+          allWords.push(...randomWords);
+        }
+
+        setWords(allWords);
         setState('quiz');
       } catch (error) {
         console.error('Failed to fetch quiz words:', error);
