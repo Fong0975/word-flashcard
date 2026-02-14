@@ -14,10 +14,10 @@ function App() {
         {/* Welcome Section */}
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-            歡迎使用 Flashcard 複習系統
+            Welcome to use Flashcard
           </h2>
           <p className="text-lg text-gray-600 dark:text-gray-300">
-            開始您的學習之旅，透過單字卡和題目練習提升您的學習效果
+            Begin your learning journey and enhance your learning effectiveness with flashcards.
           </p>
         </div>
 

@@ -60,35 +60,6 @@ export const WordCard: React.FC<WordCardProps> = ({ word, className = '', onWord
     }
   };
 
-  // Get the most common part of speech
-  const getPrimaryPartOfSpeech = () => {
-    if (!word.definitions || word.definitions.length === 0) {
-      return null;
-    }
-
-    // Count occurrences of each part of speech
-    const partOfSpeechCount: Record<string, number> = {};
-    word.definitions.forEach((def) => {
-      if (def.part_of_speech) {
-        partOfSpeechCount[def.part_of_speech] = (partOfSpeechCount[def.part_of_speech] || 0) + 1;
-      }
-    });
-
-    // Find the most common one
-    let mostCommon = '';
-    let maxCount = 0;
-    Object.entries(partOfSpeechCount).forEach(([pos, count]) => {
-      if (count > maxCount) {
-        maxCount = count;
-        mostCommon = pos;
-      }
-    });
-
-    return mostCommon || null;
-  };
-
-  const primaryPartOfSpeech = getPrimaryPartOfSpeech();
-
   return (
     <>
       <div
@@ -116,13 +87,6 @@ export const WordCard: React.FC<WordCardProps> = ({ word, className = '', onWord
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate mb-1">
             {word.word}
           </h3>
-
-          {/* Part of speech */}
-          {primaryPartOfSpeech && (
-            <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
-              {primaryPartOfSpeech}
-            </p>
-          )}
 
           {/* Definition count hint */}
           {word.definitions && word.definitions.length > 0 && (

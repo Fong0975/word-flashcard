@@ -350,9 +350,9 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
     >
       <div className="flex flex-col h-[80vh] -m-6 -mt-4">
         {/* Fixed Header */}
-        <div className="flex-shrink-0 px-6 pt-4 pb-0">
+        <div className="flex-shrink-0 px-6 pt-4 pb-0 mb-2">
           {/* Header */}
-          <div className="mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="pb-2 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
             {mode === 'edit' ? 'Edit Definition' : 'Add New Definition'}
           </h2>
@@ -368,7 +368,7 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
         <div className="flex-1 min-h-0 overflow-y-auto px-6 py-4 space-y-6">
           {/* Cambridge Dictionary Section */}
           {wordText && (
-            <div className="mb-4 pb-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+            <div className="mb-4 p-2 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-medium text-gray-900 dark:text-white">
                 Dictionary Lookup
@@ -412,7 +412,7 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
 
             {/* Dictionary Content */}
             {!isCollapsed && (
-              <div className="space-y-4 border-t border-gray-200 dark:border-gray-700 pt-4">
+              <div className="space-y-4 border-gray-200 dark:border-gray-700 pt-4">
                 {/* Success Notification */}
                 {successMessage && (
                   <div className="p-3 text-sm text-green-700 bg-green-100 dark:bg-green-900 dark:text-green-300 rounded-md flex items-center justify-between">
@@ -675,7 +675,7 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
         {/* Fixed Footer */}
         <div className="flex-shrink-0 px-6 pt-0 pb-4">
           {/* Modal Actions */}
-          <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex justify-end space-x-3 pt-3 mb-2 border-t border-gray-200 dark:border-gray-700">
             <button
             type="button"
             onClick={onClose}

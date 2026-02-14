@@ -41,7 +41,7 @@ const DefinitionView: React.FC<DefinitionViewProps> = ({ definition, index, onEd
   };
 
   return (
-    <div className="space-y-3 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+    <div className="space-y-3 pt-4 pb-2 px-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           {definition.part_of_speech &&
@@ -121,7 +121,7 @@ const DefinitionView: React.FC<DefinitionViewProps> = ({ definition, index, onEd
       </div>
 
       {/* Action buttons row */}
-      <div className="flex justify-end items-center space-x-2 pt-3 border-t border-gray-200 dark:border-gray-600">
+      <div className="flex justify-end items-center space-x-2 pt-1 border-t border-gray-200 dark:border-gray-600">
         <button
           type="button"
           onClick={() => onEdit(definition)}
@@ -317,9 +317,9 @@ export const WordDetailModal: React.FC<WordDetailModalProps> = ({
       >
       <div className="flex flex-col h-[80vh] -m-6 -mt-4">
         {/* Fixed Header */}
-        <div className="flex-shrink-0 px-6 pt-4 pb-0">
+        <div className="flex-shrink-0 px-6 pt-6 pb-0">
           {/* Header */}
-          <div className="mb-6 pb-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="mb-6 pb-2 border-b border-gray-200 dark:border-gray-700">
             {/* Title */}
             <div className="text-center mb-4">
               <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
@@ -378,28 +378,30 @@ export const WordDetailModal: React.FC<WordDetailModalProps> = ({
         <div className="space-y-4">
           {word.definitions && word.definitions.length > 0 ? (
             <>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-                Definitions ({word.definitions.length})
-              </h2>
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-0">
+                  Definitions ({word.definitions.length})
+                </h2>
 
-              {/* Add Definition Button */}
-              <div className="flex justify-end mb-4">
-                <button
-                  type="button"
-                  onClick={handleNew}
-                  className="p-2 text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-md transition-colors"
-                  title="Add new definition"
-                >
-                  <svg
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth="2"
-                    stroke="currentColor"
+                {/* Add Definition Button */}
+                <div className="flex justify-end mb-4">
+                  <button
+                    type="button"
+                    onClick={handleNew}
+                    className="p-2 text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-md transition-colors"
+                    title="Add new definition"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                  </svg>
-                </button>
+                    <svg
+                      className="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="2"
+                      stroke="currentColor"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                  </button>
+                </div>
               </div>
 
               {word.definitions.map((definition, index) => (
@@ -450,8 +452,8 @@ export const WordDetailModal: React.FC<WordDetailModalProps> = ({
         </div>
 
         {/* Fixed Footer */}
-        <div className="flex-shrink-0 px-6 pt-0 pb-4">
-          <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex-shrink-0 px-6 pt-0 pb-6">
+          <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
               <span>Word ID: {word.id}</span>
               <span>{word.definitions?.length || 0} definition(s)</span>

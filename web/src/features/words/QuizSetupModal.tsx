@@ -13,21 +13,18 @@ const FAMILIARITY_OPTIONS = [
     label: 'Red',
     color: 'text-red-600 dark:text-red-400',
     bgColor: 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700',
-    description: 'Unfamiliar words'
   },
   {
     value: 'yellow',
     label: 'Yellow',
     color: 'text-yellow-600 dark:text-yellow-400',
     bgColor: 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-700',
-    description: 'Somewhat familiar words'
   },
   {
     value: 'green',
     label: 'Green',
     color: 'text-green-600 dark:text-green-400',
     bgColor: 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700',
-    description: 'Familiar words'
   },
 ];
 
@@ -62,7 +59,7 @@ export const QuizSetupModal: React.FC<QuizSetupModalProps> = ({
   };
 
   const handleCloseConfirm = () => {
-    setSelectedFamiliarity(['red']); // Reset to default
+    setSelectedFamiliarity(['red', 'yellow', 'green']); // Reset to default
     setQuestionCount(15); // Reset to default
     setShowCloseConfirm(false);
     onClose();
@@ -113,7 +110,7 @@ export const QuizSetupModal: React.FC<QuizSetupModalProps> = ({
         {/* Familiarity Options */}
         <div className="space-y-3">
           <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-            Familiarity Levels
+            Familiarity
           </div>
 
           {FAMILIARITY_OPTIONS.map((option) => (
@@ -140,9 +137,6 @@ export const QuizSetupModal: React.FC<QuizSetupModalProps> = ({
                   </span>
                   <div className={`w-3 h-3 rounded-full ${option.value === 'red' ? 'bg-red-500' : option.value === 'yellow' ? 'bg-yellow-500' : 'bg-green-500'}`}></div>
                 </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {option.description}
-                </p>
               </div>
             </label>
           ))}

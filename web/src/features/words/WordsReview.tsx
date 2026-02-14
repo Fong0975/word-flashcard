@@ -74,12 +74,6 @@ const EmptyState: React.FC<{ onRefresh: () => void }> = ({ onRefresh }) => (
     <p className="text-gray-600 dark:text-gray-300 max-w-md mx-auto mb-6">
       It looks like there are no words in your collection yet. Try adding some words or check your connection.
     </p>
-    <button
-      onClick={onRefresh}
-      className="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-md font-medium transition-colors"
-    >
-      Refresh
-    </button>
   </div>
 );
 
@@ -201,7 +195,7 @@ export const WordsReview: React.FC<WordsReviewProps> = ({ className = '' }) => {
           Word Review
         </h2>
         <p className="text-gray-600 dark:text-gray-300 mt-1">
-          Practice with flashcards and test your vocabulary knowledge
+          Practice and test your vocabulary
         </p>
       </div>
 
