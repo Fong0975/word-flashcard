@@ -1,12 +1,12 @@
 import React from 'react';
 import { TabName } from '../../hooks/useTab';
-import { WordsReview } from '../../features/words/WordsReview';
+import { WordsReviewTab } from '../../features/words/WordsReviewTab';
 
 interface TabContentProps {
   currentTab: TabName;
 }
 
-const WordsContent: React.FC = () => <WordsReview />;
+const WordsContent: React.FC = () => <WordsReviewTab />;
 
 const QuestionsContent: React.FC = () => (
   <div className="text-center py-12">

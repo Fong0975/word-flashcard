@@ -8,7 +8,7 @@ import { QuizSetupModal } from './QuizSetupModal';
 import { QuizConfig } from '../../types/api';
 import { QuizModal } from '../quiz/QuizModal';
 
-interface WordsReviewProps {
+interface WordsReviewTabProps {
   className?: string;
 }
 
@@ -77,7 +77,7 @@ const EmptyState: React.FC<{ onRefresh: () => void }> = ({ onRefresh }) => (
   </div>
 );
 
-export const WordsReview: React.FC<WordsReviewProps> = ({ className = '' }) => {
+export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({ className = '' }) => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isQuizSetupModalOpen, setIsQuizSetupModalOpen] = useState(false);
   const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
