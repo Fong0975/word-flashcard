@@ -7,6 +7,7 @@ interface WordFormModalProps {
   isOpen: boolean;
   onClose: () => void;
   onWordSaved?: () => void;
+  onOpenWordDetail?: (word: Word) => void;
   mode: 'create' | 'edit';
   word?: Word; // Required when mode is 'edit'
 }
@@ -21,6 +22,7 @@ export const WordFormModal: React.FC<WordFormModalProps> = ({
   isOpen,
   onClose,
   onWordSaved,
+  onOpenWordDetail,
   mode,
   word,
 }) => {
@@ -28,6 +30,11 @@ export const WordFormModal: React.FC<WordFormModalProps> = ({
   const [familiarityValue, setFamiliarityValue] = useState('green');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Search suggestions state
+  const [suggestions, setSuggestions] = useState<Word[]>([]);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   // Initialize form values when modal opens or word changes
   useEffect(() => {
@@ -38,7 +45,64 @@ export const WordFormModal: React.FC<WordFormModalProps> = ({
       setWordValue('');
       setFamiliarityValue('green');
     }
+
+    // Reset suggestions when modal opens
+    setSuggestions([]);
+    setShowSuggestions(false);
   }, [mode, word, isOpen]);
+
+  // Search for similar words
+  const searchSimilarWords = async (searchTerm: string) => {
+    if (!searchTerm.trim()) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    setSuggestionsLoading(true);
+    try {
+      const searchFilter = {
+        key: 'word',
+        operator: 'like',
+        value: `%${searchTerm}%`,
+      };
+
+      const results = await apiService.searchWords({
+        searchFilter,
+        limit: 5, // Limit suggestions to 5 items
+      });
+
+      // Filter out exact matches (if editing) and show only similar words
+      const filteredResults = results.filter(w =>
+        w.word.toLowerCase() !== searchTerm.toLowerCase()
+      );
+
+      setSuggestions(filteredResults);
+      setShowSuggestions(filteredResults.length > 0);
+    } catch (err) {
+      console.error('Failed to search similar words:', err);
+      setSuggestions([]);
+      setShowSuggestions(false);
+    } finally {
+      setSuggestionsLoading(false);
+    }
+  };
+
+  // Handle word input blur
+  const handleWordBlur = async () => {
+    if (wordValue.trim()) {
+      await searchSimilarWords(wordValue.trim());
+    }
+  };
+
+  // Handle suggestion click
+  const handleSuggestionClick = (suggestedWord: Word) => {
+    if (onOpenWordDetail) {
+      // Close current modal and notify parent to open WordDetailModal
+      handleClose();
+      onOpenWordDetail(suggestedWord);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,6 +173,7 @@ export const WordFormModal: React.FC<WordFormModalProps> = ({
               id="word"
               value={wordValue}
               onChange={(e) => setWordValue(e.target.value)}
+              onBlur={handleWordBlur}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm
                          bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                          focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500
@@ -117,6 +182,64 @@ export const WordFormModal: React.FC<WordFormModalProps> = ({
               disabled={loading}
               autoFocus
             />
+            {/* Search suggestions */}
+            {showSuggestions && (
+              <div className="mt-2">
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-md p-3">
+                  <div className="flex items-start">
+                    <svg
+                      className="h-5 w-5 text-yellow-400 mr-2 mt-0.5 flex-shrink-0"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="2"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
+                      />
+                    </svg>
+                    <div className="flex-1">
+                      <p className="text-sm text-yellow-800 dark:text-yellow-200 font-medium mb-2">
+                        Similar words found
+                      </p>
+                      <div className="space-y-1">
+                        {suggestions.map((suggestedWord) => (
+                          mode === 'create' ? (
+                            <button
+                              key={suggestedWord.id}
+                              type="button"
+                              onClick={() => handleSuggestionClick(suggestedWord)}
+                              className="block w-full text-left px-2 py-1 text-sm text-blue-600 dark:text-blue-400
+                                       hover:bg-yellow-100 dark:hover:bg-yellow-800/30 rounded transition-colors
+                                       focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                              {suggestedWord.word}
+                            </button>
+                          ) : (
+                            <div
+                              key={suggestedWord.id}
+                              className="px-2 py-1 text-sm text-gray-700 dark:text-gray-300"
+                            >
+                              {suggestedWord.word}
+                            </div>
+                          )
+                        ))}
+                      </div>
+                      {suggestionsLoading && (
+                        <div className="flex items-center mt-2">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-yellow-600 mr-2"></div>
+                          <span className="text-sm text-yellow-700 dark:text-yellow-300">
+                            Searching for similar words...
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Familiarity Dropdown - Only show in edit mode */}

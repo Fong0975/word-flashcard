@@ -4,8 +4,9 @@ import { WordCard } from './WordCard';
 import { Pagination } from '../../components/ui/Pagination';
 import { ActionButton } from '../../components/ui/ActionButton';
 import { WordFormModal } from './WordFormModal';
+import { WordDetailModal } from './WordDetailModal';
 import { QuizSetupModal } from './QuizSetupModal';
-import { QuizConfig } from '../../types/api';
+import { QuizConfig, Word } from '../../types/api';
 import { QuizModal } from '../quiz/QuizModal';
 
 interface WordsReviewTabProps {
@@ -83,6 +84,10 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({ className = '' }
   const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
   const [quizConfig, setQuizConfig] = useState<QuizConfig | null>(null);
 
+  // WordDetailModal state
+  const [isWordDetailModalOpen, setIsWordDetailModalOpen] = useState(false);
+  const [selectedWord, setSelectedWord] = useState<Word | null>(null);
+
   const {
     words,
     loading,
@@ -92,11 +97,13 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({ className = '' }
     hasNext,
     hasPrevious,
     itemsPerPage,
+    searchTerm,
     nextPage,
     previousPage,
     goToPage,
     refresh,
     clearError,
+    setSearchTerm,
   } = useWords({
     itemsPerPage: 50, // As per requirements
     autoFetch: true,
@@ -144,6 +151,23 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({ className = '' }
   const handleCloseQuizModal = () => {
     setIsQuizModalOpen(false);
     setQuizConfig(null);
+  };
+
+  // Handle search input change
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+  };
+
+  // Handle opening WordDetailModal from WordFormModal suggestion
+  const handleOpenWordDetailFromSuggestion = (word: Word) => {
+    setSelectedWord(word);
+    setIsWordDetailModalOpen(true);
+  };
+
+  // Handle closing WordDetailModal
+  const handleCloseWordDetailModal = () => {
+    setIsWordDetailModalOpen(false);
+    setSelectedWord(null);
   };
 
   // Action menu items
@@ -252,11 +276,58 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({ className = '' }
         />
       )}
 
+      {/* Search Input - Always visible unless there's an error */}
+      {!error && (
+        <div className="mb-6">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg
+                className="h-5 w-5 text-gray-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="2"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+                />
+              </svg>
+            </div>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={handleSearchChange}
+              className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md
+                        text-gray-900 dark:text-white bg-white dark:bg-gray-800
+                        placeholder-gray-500 dark:placeholder-gray-400
+                        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                        sm:text-sm transition-colors"
+              placeholder="Search words..."
+            />
+          </div>
+        </div>
+      )}
+
       {/* Loading state */}
       {loading && words.length === 0 && <LoadingSpinner />}
 
-      {/* Empty state */}
-      {!loading && !error && words.length === 0 && (
+      {/* Search no results */}
+      {!loading && !error && words.length === 0 && searchTerm && (
+        <div className="text-center py-8">
+          <div className="text-4xl mb-3">🔍</div>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+            No words found
+          </h3>
+          <p className="text-gray-600 dark:text-gray-300">
+            No words match "{searchTerm}". Try a different search term.
+          </p>
+        </div>
+      )}
+
+      {/* Empty state - Only when no search term and no words */}
+      {!loading && !error && words.length === 0 && !searchTerm && (
         <EmptyState onRefresh={refresh} />
       )}
 
@@ -303,6 +374,7 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({ className = '' }
         isOpen={isAddModalOpen}
         onClose={handleCloseAddModal}
         onWordSaved={handleWordAdded}
+        onOpenWordDetail={handleOpenWordDetailFromSuggestion}
         mode="create"
       />
 
@@ -321,6 +393,14 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({ className = '' }
           quizConfig={quizConfig}
         />
       )}
+
+      {/* Word Detail Modal */}
+      <WordDetailModal
+        word={selectedWord}
+        isOpen={isWordDetailModalOpen}
+        onClose={handleCloseWordDetailModal}
+        onWordUpdated={refresh}
+      />
     </div>
   );
 };

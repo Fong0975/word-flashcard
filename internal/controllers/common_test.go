@@ -62,6 +62,24 @@ func (suite *CommonTestSuite) TestConvertFilterToSqlizer() {
 			},
 			expected: squirrel.NotEq{"familiarity": []interface{}{"low", "unknown"}},
 		},
+		{
+			name: "like operator",
+			filter: &models.SearchFilter{
+				Key:      "word",
+				Operator: "like",
+				Value:    "%test%",
+			},
+			expected: squirrel.Like{"word": "%test%"},
+		},
+		{
+			name: "not_like operator",
+			filter: &models.SearchFilter{
+				Key:      "word",
+				Operator: "not_like",
+				Value:    "%temp%",
+			},
+			expected: squirrel.NotLike{"word": "%temp%"},
+		},
 	}
 
 	for _, tc := range testCases {

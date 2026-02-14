@@ -32,6 +32,7 @@ export const API_CONFIG = {
 // API endpoints
 export const API_ENDPOINTS = {
   words: '/words',
+  wordsSearch: '/words/search',
   wordsRandom: '/words/random',
   wordDefinition: (wordId: number) => `/words/definition/${wordId}`,
   updateDefinition: (definitionId: number) => `/words/definition/${definitionId}`,

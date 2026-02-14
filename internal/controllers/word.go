@@ -148,10 +148,15 @@ func (wc *WordController) SearchWords(c *gin.Context) {
 	offsetPtr := uint64(offset)
 
 	// ================ 3. Fetch data from database ================
-	where, err := ConvertFilterToSqlizer(&searchReq)
-	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid filter", err, c)
-		return
+	var where squirrel.Sqlizer
+	if searchReq.IsEmpty() {
+		where = nil // No filter, fetch all records with pagination
+	} else {
+		where, err = ConvertFilterToSqlizer(&searchReq)
+		if err != nil {
+			ResponseError(http.StatusBadRequest, "Invalid filter", err, c)
+			return
+		}
 	}
 	orderBy := fmt.Sprintf("%s ASC", schema.WORD_ID)
 	wordEntities, err := wc.queryWord([]*string{}, where, []*string{&orderBy}, &limitPtr, &offsetPtr)

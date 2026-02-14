@@ -468,6 +468,7 @@ export const WordDetailModal: React.FC<WordDetailModalProps> = ({
         isOpen={isEditModalOpen}
         onClose={handleCloseEditModal}
         onWordSaved={handleWordUpdated}
+        onOpenWordDetail={undefined}
         mode="edit"
         word={word}
       />
@@ -518,6 +519,7 @@ export const WordDetailModal: React.FC<WordDetailModalProps> = ({
         </div>
       </div>
     )}
+
     </>
   );
 };

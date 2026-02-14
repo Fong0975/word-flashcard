@@ -62,10 +62,16 @@ export interface ApiRequestOptions {
   signal?: AbortSignal;
 }
 
-// Words API query parameters
-export interface WordsQueryParams extends PaginationParams {
-  limit?: number;
-  offset?: number;
+
+// Search Filter types
+export interface SearchFilter {
+  key: string;
+  operator: string;
+  value: string;
+}
+
+export interface WordsSearchParams extends PaginationParams {
+  searchFilter?: SearchFilter;
 }
 
 // Quiz/Random words API types
