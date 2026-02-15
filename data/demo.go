@@ -6,10 +6,179 @@ import (
 	"word-flashcard/data/peers"
 )
 
+// InsertDemoData add fake records to the database for testing
 func InsertDemoData() {
 	slog.Debug("Start inserting demo data")
 
-	// Initialize the database peer objects
+	// Try to insert Word & WordDefinition data
+	insertWordDemoData()
+
+	// Try to insert Question data
+	insertQuestionDemoData()
+
+	slog.Info("Successfully inserted demo data")
+}
+
+// insertQuestionDemoData insert fake Question Word records
+func insertQuestionDemoData() {
+	// Initialize database table peer
+	questionPeer, err := peers.NewQuestionPeer()
+	if err != nil {
+		slog.Error("Failed to insert demo data. QuestionPeer has error.", "error", err)
+		return
+	}
+
+	// Check if there is any data in the database
+	queryQuestions, err := questionPeer.Select(nil, nil, nil, nil, nil)
+	if err != nil {
+		slog.Error("Failed to insert demo data. Unable to query the questions table.", "error", err)
+		return
+	} else if len(queryQuestions) > 0 {
+		slog.Info("Skip inserting demo data. Data already exists in the table.", "length of questions", len(queryQuestions))
+		return
+	}
+
+	// Define demo data
+	demoQuestions := []struct {
+		question  string
+		optionA   string
+		optionB   string
+		optionC   string
+		optionD   string
+		answer    string
+		reference string
+		notes     string
+	}{
+		{
+			question:  "The marketing department has decided to ______ the new product launch until next month.",
+			optionA:   "postpone",
+			optionB:   "postpone",
+			optionC:   "postponing",
+			optionD:   "postponement",
+			answer:    "A",
+			reference: "Google Gemini Sample Q01",
+			notes:     "- 情態助動詞 `have (decided to)` 之後應接動詞原形。\\n- 句意為「行銷部已決定將新產品發布延至下個月」。",
+		},
+		{
+			question:  "Ms. Chen requested that the report ______ on her desk before 5:00 PM today.",
+			optionA:   "is placed",
+			optionB:   "be placed",
+			optionC:   "places",
+			optionD:   "placing",
+			answer:    "B",
+			reference: "Google Gemini Sample Q02",
+			notes:     "- 要求動詞 (request/suggest) 之後的子句，動詞需用「should + 原形動詞」，should可省略，故用 `be placed`。",
+		},
+		{
+			question:  "Employees are reminded to turn off their computers ______ leaving the office.",
+			optionA:   "after",
+			optionB:   "while",
+			optionC:   "before",
+			optionD:   "during",
+			answer:    "C",
+			reference: "Google Gemini Sample Q03",
+			notes:     "- 根據句意「員工被提醒在離開辦公室『前』關閉電腦」，應填入表示時間先後的 `before`。",
+		},
+		{
+			question:  "The company offers a comprehensive training program to all ______ staff members.",
+			optionA:   "new",
+			optionB:   "newly",
+			optionC:   "newest",
+			optionD:   "newness",
+			answer:    "A",
+			reference: "Google Gemini Sample Q04",
+			notes:     "- 空缺處修飾名詞 `staff members`，需用形容詞，new 表示「新的」。",
+		},
+		{
+			question:  "Due to the ______ weather conditions, the outdoor conference has been cancelled.",
+			optionA:   "adverse",
+			optionB:   "adversely",
+			optionC:   "adversary",
+			optionD:   "adverseness",
+			answer:    "A",
+			reference: "Google Gemini Sample Q05",
+			notes:     "- 形容詞修飾名詞 `conditions，adverse` 為形容詞，意為「*不利的、惡劣的*」。",
+		},
+		{
+			question:  "The research team is working hard to ______ a solution to the technical problem.",
+			optionA:   "find",
+			optionB:   "finding",
+			optionC:   "found",
+			optionD:   "finds",
+			answer:    "A",
+			reference: "Google Gemini Sample Q06",
+			notes:     "- 不定詞 to 之後接原形動詞。句意為「研究團隊正努力『尋找』技術問題的解決方案」。",
+		},
+		{
+			question:  "All invoice payments must be approved by the department manager ______ they are processed.",
+			optionA:   "although",
+			optionB:   "but",
+			optionC:   "before",
+			optionD:   "since",
+			answer:    "C",
+			reference: "Google Gemini Sample Q07",
+			notes:     "- 句意為「發票付款需在『處理前』經過部門經理核准」，before 銜接時間順序。",
+		},
+		{
+			question:  "The updated employee handbook provides detailed information ______ company benefits.",
+			optionA:   "to",
+			optionB:   "for",
+			optionC:   "on",
+			optionD:   "at",
+			answer:    "C",
+			reference: "Google Gemini Sample Q08",
+			notes:     "- `information on something` 表示「關於某事的資訊」。\\n- `handbook...on company benefits` (關於員工福利的指南)。",
+		},
+		{
+			question:  "The new printer is ______ than the old one, resulting in higher productivity.",
+			optionA:   "efficiency",
+			optionB:   "efficient",
+			optionC:   "more efficient",
+			optionD:   "efficiently",
+			answer:    "C",
+			reference: "Google Gemini Sample Q09",
+			notes:     "- 句中有 `than`，需使用形容詞的比較級。\\n- `efficient` 為三音節以上形容詞，比較級為 `more efficient`。",
+		},
+		{
+			question:  "Please ensure that all confidential documents are locked in the cabinet ______ the end of the day.",
+			optionA:   "by",
+			optionB:   "in",
+			optionC:   "at",
+			optionD:   "on",
+			answer:    "A",
+			reference: "Google Gemini Sample Q10",
+			notes:     "- by 表示「在...之前、不遲於」。\\n- 意為「不遲於當天下班前」。",
+		},
+	}
+
+	// Convert to model objects
+	questions := make([]*models.Question, 0, len(demoQuestions))
+	for _, data := range demoQuestions {
+		questions = append(questions, &models.Question{
+			Question:  &data.question,
+			OptionA:   &data.optionA,
+			OptionB:   &data.optionB,
+			OptionC:   &data.optionC,
+			OptionD:   &data.optionD,
+			Answer:    &data.answer,
+			Reference: &data.reference,
+			Notes:     &data.notes,
+		})
+	}
+
+	// Insert datas
+	for _, question := range questions {
+		_, err := questionPeer.Insert(question)
+		if err != nil {
+			slog.Error("Failed to insert demo Question data.", "error", err)
+			return
+		}
+	}
+}
+
+// insertWordDemoData insert fake Word and WordDefinition records
+func insertWordDemoData() {
+	// Initialize database table peer
 	wordPeer, err := peers.NewWordPeer()
 	if err != nil {
 		slog.Error("Failed to insert demo data. WordPeer has error.", "error", err)
@@ -346,6 +515,4 @@ func InsertDemoData() {
 			return
 		}
 	}
-
-	slog.Info("Successfully inserted demo data")
 }

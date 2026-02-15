@@ -19,44 +19,45 @@ func TestRegisterAllTables(t *testing.T) {
 	RegisterAllTables()
 
 	// Verify that both words and word_definitions tables are registered
-	exists := database.TableExists("words")
-	if !exists {
-		t.Error("Expected 'words' table to be registered after RegisterAllTables()")
+	tableSchema := map[string][]string{
+		"words": {
+			"id", "word", "familiarity", "created_at", "updated_at",
+		},
+		"word_definitions": {
+			"id", "word_id", "part_of_speech", "definition", "phonetics", "examples", "notes", "created_at", "updated_at",
+		},
+		"questions": {
+			"id", "question", "option_a", "option_b", "option_c", "option_d", "answer", "reference", "notes", "count_practise", "count_failure_practise", "created_at", "updated_at",
+		},
 	}
 
-	exists = database.TableExists("word_definitions")
-	if !exists {
-		t.Error("Expected 'word_definitions' table to be registered after RegisterAllTables()")
+	for name := range tableSchema {
+		exists := database.TableExists(name)
+		if !exists {
+			t.Error("Expected '" + name + "' table to be registered after RegisterAllTables()")
+		}
 	}
 
 	// Verify we have exactly the expected number of tables
 	tables := database.GetAllTables()
-	expectedTableCount := 2 // words + word_definitions
+	expectedTableCount := len(tableSchema)
 	if len(tables) != expectedTableCount {
 		t.Errorf("Expected %d tables after RegisterAllTables(), got %d", expectedTableCount, len(tables))
 	}
 
 	// Verify specific table structures
-	wordsTable, exists := database.GetTable("words")
-	if !exists {
-		t.Fatal("words table should exist after registration")
-	}
+	for name, columns := range tableSchema {
+		table, exists := database.GetTable(name)
 
-	// Check words table has expected columns
-	expectedWordsColumns := []string{"id", "word", "familiarity", "created_at", "updated_at"}
-	if len(wordsTable.Columns) != len(expectedWordsColumns) {
-		t.Errorf("Expected %d columns in words table, got %d", len(expectedWordsColumns), len(wordsTable.Columns))
-	}
+		// Check the table is exists
+		if !exists {
+			t.Fatal(name + " table should exist after registration")
+		}
 
-	// Verify word_definitions table structure
-	definitionsTable, exists := database.GetTable("word_definitions")
-	if !exists {
-		t.Fatal("word_definitions table should exist after registration")
-	}
-
-	expectedDefinitionsColumns := []string{"id", "word_id", "part_of_speech", "definition", "phonetics", "examples", "notes", "created_at", "updated_at"}
-	if len(definitionsTable.Columns) != len(expectedDefinitionsColumns) {
-		t.Errorf("Expected %d columns in word_definitions table, got %d", len(expectedDefinitionsColumns), len(definitionsTable.Columns))
+		// Check the columns in the table
+		if len(table.Columns) != len(columns) {
+			t.Errorf("Expected %d columns in "+name+" table, got %d", len(columns), len(table.Columns))
+		}
 	}
 }
 
@@ -113,7 +114,7 @@ func TestMultipleRegistrations(t *testing.T) {
 
 	// Should still have the same number of tables
 	tables := database.GetAllTables()
-	expectedTableCount := 2
+	expectedTableCount := 3
 	if len(tables) != expectedTableCount {
 		t.Errorf("Expected %d tables after multiple registrations, got %d", expectedTableCount, len(tables))
 	}
