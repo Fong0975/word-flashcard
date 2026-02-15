@@ -8,8 +8,8 @@ interface TabNavigationProps {
 
 export const TabNavigation: React.FC<TabNavigationProps> = ({ currentTab, onTabChange }) => {
   const tabs = [
-    { id: 'words' as TabName, label: '單字', icon: '📝' },
-    { id: 'questions' as TabName, label: '題目', icon: '❓' },
+    { id: 'words' as TabName, label: 'Words', icon: '📝' },
+    { id: 'questions' as TabName, label: 'Questions', icon: '❓' },
   ];
 
   const getTabClasses = (tabId: TabName) => {

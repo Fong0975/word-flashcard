@@ -4,7 +4,7 @@ import {
   WordDefinition,
   CreateWordRequest,
   UpdateWordRequest,
-  WordsQueryParams,
+  WordsSearchParams,
   WordsRandomRequest,
   ErrorResponse,
   ApiRequestOptions,
@@ -214,7 +214,8 @@ class ApiService {
   }
 
   // Words API methods
-  async getWords(params: WordsQueryParams = {}, options?: ApiRequestOptions): Promise<Word[]> {
+
+  async searchWords(params: WordsSearchParams = {}, options?: ApiRequestOptions): Promise<Word[]> {
     const searchParams = new URLSearchParams();
 
     if (params.limit !== undefined) {
@@ -225,8 +226,13 @@ class ApiService {
       searchParams.append('offset', params.offset.toString());
     }
 
-    const endpoint = `${API_ENDPOINTS.words}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
-    return this.get<Word[]>(endpoint, options);
+    const endpoint = `${API_ENDPOINTS.wordsSearch}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+
+    // If searchFilter is provided, send it in the request body
+    // If no searchFilter (empty search), send empty body to get all words
+    const requestBody = params.searchFilter ? params.searchFilter : {};
+
+    return this.post<Word[]>(endpoint, requestBody, options);
   }
 
   async getRandomWords(request: WordsRandomRequest, options?: ApiRequestOptions): Promise<Word[]> {

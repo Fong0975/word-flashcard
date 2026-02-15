@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { apiService, ApiError } from '../lib/api';
-import { Word, WordsQueryParams } from '../types/api';
+import { Word, SearchFilter } from '../types/api';
 
 export interface UseWordsState {
   words: Word[];
@@ -11,6 +11,7 @@ export interface UseWordsState {
   hasNext: boolean;
   hasPrevious: boolean;
   itemsPerPage: number;
+  searchTerm: string;
 }
 
 export interface UseWordsActions {
@@ -20,6 +21,7 @@ export interface UseWordsActions {
   goToPage: (page: number) => Promise<void>;
   refresh: () => Promise<void>;
   clearError: () => void;
+  setSearchTerm: (term: string) => void;
 }
 
 export interface UseWordsOptions {
@@ -46,6 +48,7 @@ export const useWords = (options: UseWordsOptions = {}): UseWordsReturn => {
     hasNext: false,
     hasPrevious: false,
     itemsPerPage,
+    searchTerm: '',
   });
 
   const fetchWords = useCallback(async (page?: number) => {
@@ -59,12 +62,22 @@ export const useWords = (options: UseWordsOptions = {}): UseWordsReturn => {
     }));
 
     try {
-      const params: WordsQueryParams = {
+      // Create search filter if there is a search term
+      const searchFilter: SearchFilter | undefined = state.searchTerm
+        ? {
+            key: 'word',
+            operator: 'like',
+            value: `%${state.searchTerm}%`,
+          }
+        : undefined;
+
+      const params = {
         limit: itemsPerPage,
         offset,
+        searchFilter,
       };
 
-      let words = await apiService.getWords(params);
+      let words = await apiService.searchWords(params);
       if (words == null || !Array.isArray(words)) {
         words = [];
       }
@@ -106,7 +119,7 @@ export const useWords = (options: UseWordsOptions = {}): UseWordsReturn => {
         words: [],
       }));
     }
-  }, [state.currentPage, state.totalPages, itemsPerPage]);
+  }, [state.currentPage, state.totalPages, state.searchTerm, itemsPerPage]);
 
   const nextPage = useCallback(async () => {
     if (state.hasNext && !state.loading) {
@@ -137,12 +150,28 @@ export const useWords = (options: UseWordsOptions = {}): UseWordsReturn => {
     }));
   }, []);
 
+  const setSearchTerm = useCallback((term: string) => {
+    setState(prev => ({
+      ...prev,
+      searchTerm: term,
+      currentPage: 1, // Reset to first page when searching
+      totalPages: 1,
+    }));
+  }, []);
+
   // Auto-fetch on mount
   useEffect(() => {
     if (autoFetch) {
       fetchWords(initialPage);
     }
   }, [autoFetch, initialPage, fetchWords]);
+
+  // Re-fetch when search term changes
+  useEffect(() => {
+    if (autoFetch && state.searchTerm !== undefined) {
+      fetchWords(1); // Reset to page 1 when searching
+    }
+  }, [state.searchTerm, autoFetch, fetchWords]);
 
   return {
     // State
@@ -154,5 +183,6 @@ export const useWords = (options: UseWordsOptions = {}): UseWordsReturn => {
     goToPage,
     refresh,
     clearError,
+    setSearchTerm,
   };
 };

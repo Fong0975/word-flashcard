@@ -80,7 +80,7 @@ func (wc *WordController) ListWords(c *gin.Context) {
 
 	// ================ 2. Fetch data from database ================
 	// Query 'words' table
-	orderBy := fmt.Sprintf("%s ASC", schema.WORD_ID)
+	orderBy := fmt.Sprintf("%s ASC", schema.WORD_WORD)
 	words, err := wc.wordPeer.Select([]*string{}, nil, []*string{&orderBy}, &limitPtr, &offsetPtr)
 	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", err, c)
@@ -148,12 +148,17 @@ func (wc *WordController) SearchWords(c *gin.Context) {
 	offsetPtr := uint64(offset)
 
 	// ================ 3. Fetch data from database ================
-	where, err := ConvertFilterToSqlizer(&searchReq)
-	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid filter", err, c)
-		return
+	var where squirrel.Sqlizer
+	if searchReq.IsEmpty() {
+		where = nil // No filter, fetch all records with pagination
+	} else {
+		where, err = ConvertFilterToSqlizer(&searchReq)
+		if err != nil {
+			ResponseError(http.StatusBadRequest, "Invalid filter", err, c)
+			return
+		}
 	}
-	orderBy := fmt.Sprintf("%s ASC", schema.WORD_ID)
+	orderBy := fmt.Sprintf("%s ASC", schema.WORD_WORD)
 	wordEntities, err := wc.queryWord([]*string{}, where, []*string{&orderBy}, &limitPtr, &offsetPtr)
 	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", err, c)

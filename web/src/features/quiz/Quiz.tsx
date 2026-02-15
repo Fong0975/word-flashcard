@@ -27,6 +27,19 @@ export const Quiz: React.FC<QuizProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [showAnswer, setShowAnswer] = useState(false);
 
+  const getFamiliarityBarColor = (familiarity: string) => {
+    switch (familiarity.toLowerCase()) {
+      case 'green':
+        return 'bg-green-500 dark:bg-green-400';
+      case 'yellow':
+        return 'bg-yellow-500 dark:bg-yellow-400';
+      case 'red':
+        return 'bg-red-500 dark:bg-red-400';
+      default:
+        return 'bg-gray-400 dark:bg-gray-500';
+    }
+  };
+
   // Fetch random words for quiz
   useEffect(() => {
     const fetchQuizWords = async () => {
@@ -34,22 +47,89 @@ export const Quiz: React.FC<QuizProps> = ({
         setState('loading');
         setError(null);
 
-        const operator = selectedFamiliarity.length === 1 ? 'eq' : 'in';
-        const value = operator === 'eq'
-          ? selectedFamiliarity[0]
-          : JSON.stringify(selectedFamiliarity);
+        // Count for 'red', 'yellow', 'green' shoud be 2:3:5
+        let countRed = 0, countYellow = 0, countGreen = 0;
 
-        const request: WordsRandomRequest = {
-          count: questionCount,
-          filter: {
-            key: 'familiarity',
-            operator,
-            value,
-          },
-        };
+        let remaining = questionCount;
+        const existGreen = selectedFamiliarity.includes('green');
+        const existYellow = selectedFamiliarity.includes('yellow');
+        const existRed = selectedFamiliarity.includes('red');
+        if (existGreen) {
+          const maxGreen = Math.floor(remaining * 0.2);
+          countGreen = Math.floor(Math.random() * (maxGreen + 1));
+          remaining -= countGreen;
+        }
 
-        const randomWords = await apiService.getRandomWords(request);
-        setWords(randomWords);
+        if (existYellow) {
+          const maxYellow = Math.floor(remaining * 0.3);
+          countYellow = Math.floor(Math.random() * (maxYellow + 1));
+          remaining -= countYellow;
+        }
+
+        if (existRed) {
+          countRed = remaining;
+          remaining = 0;
+        } else {
+          // If there is no red but there are remaining quantities, distribute them evenly among the existing colors
+          if (selectedFamiliarity.length > 0) {
+            if (existGreen && existYellow) {
+              // Distribute remaining between green and yellow
+              const maxGreen = Math.floor(remaining * 0.4);
+              countGreen += Math.floor(Math.random() * (maxGreen + 1));
+              countYellow += (remaining - countGreen);
+            } else if (existGreen) {
+              countGreen += remaining;
+            } else if (existYellow) {
+              countYellow += remaining;
+            }
+          }
+        }
+
+        console.log('Quiz word counts:', { countRed, countYellow, countGreen });
+
+        // Construct API request based on selected familiarities
+        const requests: WordsRandomRequest[] = [];
+        if (existRed) {
+          requests.push({
+            count: countRed,
+            filter: {
+              key: 'familiarity',
+              operator: 'eq',
+              value: 'red',
+            },
+          });
+        }
+        if (existYellow) {
+          requests.push({
+            count: countYellow,
+            filter: {
+              key: 'familiarity',
+              operator: 'eq',
+              value: 'yellow',
+            },
+          });
+        }
+        if (existGreen) {
+          requests.push({
+            count: countGreen,
+            filter: {
+              key: 'familiarity',
+              operator: 'eq',
+              value: 'green',
+            },
+          });
+        }
+
+        // Fetch words for each familiarity level and combine results
+        const allWords: Word[] = [];
+        for (const req of requests) {
+          if (req.count <= 0) continue; // Skip if count is zero or negative
+
+          const randomWords = await apiService.getRandomWords(req);
+          allWords.push(...randomWords);
+        }
+
+        setWords(allWords);
         setState('quiz');
       } catch (error) {
         console.error('Failed to fetch quiz words:', error);
@@ -168,6 +248,29 @@ export const Quiz: React.FC<QuizProps> = ({
                 {currentWord.word}
               </h1>
 
+              {/* Familiarity Bar */}
+              {currentWord.familiarity && (
+                <div className="text-center mb-4">
+                  <div className={`w-64 h-2 rounded-full transition-colors duration-300 mx-auto ${getFamiliarityBarColor(currentWord.familiarity)}`} />
+                </div>
+              )}
+
+              {/* Part of Speech */}
+              <div className='mt-3 mb-6'>
+                {Array.from(
+                  new Set(
+                    currentWord?.definitions
+                      ?.map((def) => def.part_of_speech)
+                      ?.filter(Boolean)
+                  )
+                ).map((pos, index) => (
+                  <span key={index}
+                    className="inline-block px-2 py-1 mx-1 text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full">
+                    {pos}
+                  </span>
+                ))}
+              </div>
+
               {/* Pronunciation buttons */}
               {(pronunciationUrls.uk || pronunciationUrls.us) && (
                 <div className="flex items-center justify-center space-x-4">
@@ -209,6 +312,13 @@ export const Quiz: React.FC<QuizProps> = ({
                 <h1 className="text-6xl font-bold text-gray-900 dark:text-white mb-4">
                   {currentWord.word}
                 </h1>
+
+                {/* Familiarity Bar */}
+                {currentWord.familiarity && (
+                  <div className="text-center mb-4">
+                    <div className={`w-40 h-2 rounded-full transition-colors duration-300 mx-auto ${getFamiliarityBarColor(currentWord.familiarity)}`} />
+                  </div>
+                )}
 
                 {/* Pronunciation buttons */}
                 {(pronunciationUrls.uk || pronunciationUrls.us) && (
@@ -311,39 +421,36 @@ export const Quiz: React.FC<QuizProps> = ({
               <div className="flex justify-center space-x-4 mb-8">
                 <button
                   onClick={() => handleFamiliaritySelect('red')}
-                  className="flex flex-col items-center p-6 bg-red-50 dark:bg-red-900/20
+                  className="flex flex-col items-center p-4 bg-red-50 dark:bg-red-900/20
                              border-2 border-red-200 dark:border-red-700 rounded-lg
                              hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors min-w-[150px]"
                 >
                   <div className="w-6 h-6 bg-red-500 rounded-full mb-2"></div>
                   <div className="text-center">
-                    <div className="font-medium text-red-800 dark:text-red-200 text-sm mb-1">Red</div>
                     <div className="text-xs text-red-600 dark:text-red-400">Unfamiliar</div>
                   </div>
                 </button>
 
                 <button
                   onClick={() => handleFamiliaritySelect('yellow')}
-                  className="flex flex-col items-center p-6 bg-yellow-50 dark:bg-yellow-900/20
+                  className="flex flex-col items-center p-4 bg-yellow-50 dark:bg-yellow-900/20
                              border-2 border-yellow-200 dark:border-yellow-700 rounded-lg
                              hover:bg-yellow-100 dark:hover:bg-yellow-900/30 transition-colors min-w-[150px]"
                 >
                   <div className="w-6 h-6 bg-yellow-500 rounded-full mb-2"></div>
                   <div className="text-center">
-                    <div className="font-medium text-yellow-800 dark:text-yellow-200 text-sm mb-1">Yellow</div>
                     <div className="text-xs text-yellow-600 dark:text-yellow-400">Somewhat Familiar</div>
                   </div>
                 </button>
 
                 <button
                   onClick={() => handleFamiliaritySelect('green')}
-                  className="flex flex-col items-center p-6 bg-green-50 dark:bg-green-900/20
+                  className="flex flex-col items-center p-4 bg-green-50 dark:bg-green-900/20
                              border-2 border-green-200 dark:border-green-700 rounded-lg
                              hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors min-w-[150px]"
                 >
                   <div className="w-6 h-6 bg-green-500 rounded-full mb-2"></div>
                   <div className="text-center">
-                    <div className="font-medium text-green-800 dark:text-green-200 text-sm mb-1">Green</div>
                     <div className="text-xs text-green-600 dark:text-green-400">Familiar</div>
                   </div>
                 </button>

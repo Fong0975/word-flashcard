@@ -10,3 +10,7 @@ type SearchFilter struct {
 	Operator string `json:"operator" binding:"required"`
 	Value    string `json:"value" binding:"required"`
 }
+
+func (s SearchFilter) IsEmpty() bool {
+	return s.Key == "" && s.Operator == "" && s.Value == ""
+}

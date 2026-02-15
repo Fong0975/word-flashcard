@@ -50,19 +50,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Dictionary definition found successfully",
                         "schema": {
-                            "$ref": "#/definitions/models.DictionaryResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.DictionaryResponse"
                         }
                     },
                     "400": {
                         "description": "Bad request - Invalid URL format or missing word parameter",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Word not found, API error, or JSON encoding failure",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -85,7 +85,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Server is healthy",
                         "schema": {
-                            "$ref": "#/definitions/models.HealthResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.HealthResponse"
                         }
                     }
                 }
@@ -130,13 +130,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid query parameters",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to fetch data from database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -173,13 +173,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid request body",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to insert data into database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -225,13 +225,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid definition ID or request body",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to update data in database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -275,13 +275,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid word ID or request body",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to insert data into database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -313,13 +313,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid definition ID",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to delete data from database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -344,7 +344,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.RandomFilter"
+                            "$ref": "#/definitions/word-flashcard_internal_models.RandomFilter"
                         }
                     }
                 ],
@@ -361,13 +361,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid request body or count parameter",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to fetch data from database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -392,7 +392,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.SearchFilter"
+                            "$ref": "#/definitions/word-flashcard_internal_models.SearchFilter"
                         }
                     },
                     {
@@ -421,13 +421,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid request body, filter, or query parameters",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to fetch data from database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -473,13 +473,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid word ID or request body",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to update data in database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -511,13 +511,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid word ID",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to delete data from database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -525,7 +525,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "models.DefinitionInfo": {
+        "word-flashcard_internal_models.DefinitionInfo": {
             "type": "object",
             "properties": {
                 "definition": {
@@ -539,24 +539,24 @@ const docTemplate = `{
                 }
             }
         },
-        "models.DictionaryResponse": {
+        "word-flashcard_internal_models.DictionaryResponse": {
             "type": "object",
             "properties": {
                 "meanings": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.MeaningInfo"
+                        "$ref": "#/definitions/word-flashcard_internal_models.MeaningInfo"
                     }
                 },
                 "phonetics": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.PhoneticInfo"
+                        "$ref": "#/definitions/word-flashcard_internal_models.PhoneticInfo"
                     }
                 }
             }
         },
-        "models.ErrorResponse": {
+        "word-flashcard_internal_models.ErrorResponse": {
             "type": "object",
             "properties": {
                 "error": {
@@ -564,7 +564,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.HealthResponse": {
+        "word-flashcard_internal_models.HealthResponse": {
             "type": "object",
             "properties": {
                 "status": {
@@ -572,13 +572,13 @@ const docTemplate = `{
                 }
             }
         },
-        "models.MeaningInfo": {
+        "word-flashcard_internal_models.MeaningInfo": {
             "type": "object",
             "properties": {
                 "definitions": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.DefinitionInfo"
+                        "$ref": "#/definitions/word-flashcard_internal_models.DefinitionInfo"
                     }
                 },
                 "partOfSpeech": {
@@ -586,7 +586,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.PhoneticInfo": {
+        "word-flashcard_internal_models.PhoneticInfo": {
             "type": "object",
             "properties": {
                 "audio": {
@@ -597,7 +597,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.RandomFilter": {
+        "word-flashcard_internal_models.RandomFilter": {
             "type": "object",
             "required": [
                 "count"
@@ -609,11 +609,11 @@ const docTemplate = `{
                     "minimum": 1
                 },
                 "filter": {
-                    "$ref": "#/definitions/models.SearchFilter"
+                    "$ref": "#/definitions/word-flashcard_internal_models.SearchFilter"
                 }
             }
         },
-        "models.SearchFilter": {
+        "word-flashcard_internal_models.SearchFilter": {
             "type": "object",
             "required": [
                 "key",

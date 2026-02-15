@@ -3,4 +3,4 @@ export { WordCard } from './WordCard';
 export { WordDetailModal } from './WordDetailModal';
 export { WordFormModal } from './WordFormModal';
 export { DefinitionFormModal } from './DefinitionFormModal';
-export { WordsReview } from './WordsReview';
+export { WordsReviewTab } from './WordsReviewTab';

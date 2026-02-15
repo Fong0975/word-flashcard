@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useWords } from '../../hooks/useWords';
 import { WordCard } from './WordCard';
 import { Pagination } from '../../components/ui/Pagination';
 import { ActionButton } from '../../components/ui/ActionButton';
 import { WordFormModal } from './WordFormModal';
+import { WordDetailModal } from './WordDetailModal';
 import { QuizSetupModal } from './QuizSetupModal';
-import { QuizConfig } from '../../types/api';
+import { DefinitionFormModal } from './DefinitionFormModal';
+import { QuizConfig, Word, WordDefinition } from '../../types/api';
 import { QuizModal } from '../quiz/QuizModal';
+import { apiService } from '../../lib/api';
 
-interface WordsReviewProps {
+interface WordsReviewTabProps {
   className?: string;
 }
 
@@ -74,20 +77,23 @@ const EmptyState: React.FC<{ onRefresh: () => void }> = ({ onRefresh }) => (
     <p className="text-gray-600 dark:text-gray-300 max-w-md mx-auto mb-6">
       It looks like there are no words in your collection yet. Try adding some words or check your connection.
     </p>
-    <button
-      onClick={onRefresh}
-      className="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-md font-medium transition-colors"
-    >
-      Refresh
-    </button>
   </div>
 );
 
-export const WordsReview: React.FC<WordsReviewProps> = ({ className = '' }) => {
+export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({ className = '' }) => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isQuizSetupModalOpen, setIsQuizSetupModalOpen] = useState(false);
   const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
   const [quizConfig, setQuizConfig] = useState<QuizConfig | null>(null);
+
+  // WordDetailModal state
+  const [isWordDetailModalOpen, setIsWordDetailModalOpen] = useState(false);
+  const [selectedWord, setSelectedWord] = useState<Word | null>(null);
+
+  // DefinitionFormModal state
+  const [isDefinitionFormModalOpen, setIsDefinitionFormModalOpen] = useState(false);
+  const [definitionFormMode, setDefinitionFormMode] = useState<'add' | 'edit'>('add');
+  const [selectedDefinition, setSelectedDefinition] = useState<WordDefinition | null>(null);
 
   const {
     words,
@@ -98,15 +104,58 @@ export const WordsReview: React.FC<WordsReviewProps> = ({ className = '' }) => {
     hasNext,
     hasPrevious,
     itemsPerPage,
+    searchTerm,
     nextPage,
     previousPage,
     goToPage,
     refresh,
     clearError,
+    setSearchTerm,
   } = useWords({
     itemsPerPage: 50, // As per requirements
     autoFetch: true,
   });
+
+  // Update selectedWord when words list changes (after refresh)
+  useEffect(() => {
+    if (selectedWord) {
+      // Find the updated word in the current words list
+      const updatedWord = words.find(w => w.id === selectedWord.id);
+      if (updatedWord) {
+        // Only update if the word content has actually changed
+        if (JSON.stringify(updatedWord) !== JSON.stringify(selectedWord)) {
+          setSelectedWord(updatedWord);
+        }
+      } else if (words.length > 0) {
+        // If word is not found in current list (possibly due to filtering or pagination),
+        // search for it explicitly using API
+        const searchForUpdatedWord = async () => {
+          try {
+            const searchFilter = {
+              key: 'word',
+              operator: 'like',
+              value: selectedWord.word,
+            };
+
+            const searchResults = await apiService.searchWords({
+              searchFilter,
+              limit: 1,
+            });
+
+            // Update the selected word if found and content has changed
+            if (searchResults.length > 0 && JSON.stringify(searchResults[0]) !== JSON.stringify(selectedWord)) {
+              setSelectedWord(searchResults[0]);
+            }
+          } catch (error) {
+            console.error('Failed to refresh selected word:', error);
+          }
+        };
+
+        searchForUpdatedWord();
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [words]);
 
   // Handle opening add word modal
   const handleNew = () => {
@@ -150,6 +199,59 @@ export const WordsReview: React.FC<WordsReviewProps> = ({ className = '' }) => {
   const handleCloseQuizModal = () => {
     setIsQuizModalOpen(false);
     setQuizConfig(null);
+  };
+
+  // Handle search input change
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+  };
+
+  // Handle opening WordDetailModal from WordFormModal suggestion
+  const handleOpenWordDetailFromSuggestion = (word: Word) => {
+    setSelectedWord(word);
+    setIsWordDetailModalOpen(true);
+  };
+
+  // Handle closing WordDetailModal
+  const handleCloseWordDetailModal = () => {
+    setIsWordDetailModalOpen(false);
+    setSelectedWord(null);
+  };
+
+  // Handle word updated (familiarity, word text, etc.)
+  const handleWordUpdated = () => {
+    refresh(); // Refresh the words list
+  };
+
+  // Handle opening DefinitionFormModal for adding new definition
+  const handleOpenDefinitionModal = () => {
+    setDefinitionFormMode('add');
+    setSelectedDefinition(null);
+    setIsDefinitionFormModalOpen(true);
+  };
+
+  // Handle opening DefinitionFormModal for editing definition
+  const handleOpenEditDefinitionModal = (definition: WordDefinition) => {
+    setDefinitionFormMode('edit');
+    setSelectedDefinition(definition);
+    setIsDefinitionFormModalOpen(true);
+  };
+
+  // Handle closing DefinitionFormModal
+  const handleCloseDefinitionFormModal = () => {
+    setIsDefinitionFormModalOpen(false);
+    setDefinitionFormMode('add');
+    setSelectedDefinition(null);
+  };
+
+  // Handle definition added successfully
+  const handleDefinitionAdded = () => {
+    refresh(); // Refresh the words list
+  };
+
+  // Handle definition updated successfully
+  const handleDefinitionUpdated = () => {
+    refresh(); // Refresh the words list
   };
 
   // Action menu items
@@ -201,7 +303,7 @@ export const WordsReview: React.FC<WordsReviewProps> = ({ className = '' }) => {
           Word Review
         </h2>
         <p className="text-gray-600 dark:text-gray-300 mt-1">
-          Practice with flashcards and test your vocabulary knowledge
+          Practice and test your vocabulary
         </p>
       </div>
 
@@ -258,11 +360,58 @@ export const WordsReview: React.FC<WordsReviewProps> = ({ className = '' }) => {
         />
       )}
 
+      {/* Search Input - Always visible unless there's an error */}
+      {!error && (
+        <div className="mb-6">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg
+                className="h-5 w-5 text-gray-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="2"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+                />
+              </svg>
+            </div>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={handleSearchChange}
+              className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md
+                        text-gray-900 dark:text-white bg-white dark:bg-gray-800
+                        placeholder-gray-500 dark:placeholder-gray-400
+                        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                        sm:text-sm transition-colors"
+              placeholder="Search words..."
+            />
+          </div>
+        </div>
+      )}
+
       {/* Loading state */}
       {loading && words.length === 0 && <LoadingSpinner />}
 
-      {/* Empty state */}
-      {!loading && !error && words.length === 0 && (
+      {/* Search no results */}
+      {!loading && !error && words.length === 0 && searchTerm && (
+        <div className="text-center py-8">
+          <div className="text-4xl mb-3">🔍</div>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+            No words found
+          </h3>
+          <p className="text-gray-600 dark:text-gray-300">
+            No words match "{searchTerm}". Try a different search term.
+          </p>
+        </div>
+      )}
+
+      {/* Empty state - Only when no search term and no words */}
+      {!loading && !error && words.length === 0 && !searchTerm && (
         <EmptyState onRefresh={refresh} />
       )}
 
@@ -309,7 +458,9 @@ export const WordsReview: React.FC<WordsReviewProps> = ({ className = '' }) => {
         isOpen={isAddModalOpen}
         onClose={handleCloseAddModal}
         onWordSaved={handleWordAdded}
+        onOpenWordDetail={handleOpenWordDetailFromSuggestion}
         mode="create"
+        currentWords={words}
       />
 
       {/* Quiz Setup Modal */}
@@ -327,6 +478,28 @@ export const WordsReview: React.FC<WordsReviewProps> = ({ className = '' }) => {
           quizConfig={quizConfig}
         />
       )}
+
+      {/* Word Detail Modal */}
+      <WordDetailModal
+        word={selectedWord}
+        isOpen={isWordDetailModalOpen}
+        onClose={handleCloseWordDetailModal}
+        onWordUpdated={handleWordUpdated}
+        onOpenDefinitionModal={handleOpenDefinitionModal}
+        onOpenEditDefinitionModal={handleOpenEditDefinitionModal}
+      />
+
+      {/* Definition Form Modal */}
+      <DefinitionFormModal
+        isOpen={isDefinitionFormModalOpen}
+        onClose={handleCloseDefinitionFormModal}
+        onDefinitionAdded={handleDefinitionAdded}
+        onDefinitionUpdated={handleDefinitionUpdated}
+        wordId={selectedWord?.id || null}
+        wordText={selectedWord?.word || null}
+        mode={definitionFormMode}
+        definition={selectedDefinition}
+      />
     </div>
   );
 };

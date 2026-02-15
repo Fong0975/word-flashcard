@@ -3,9 +3,12 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
+	"io"
 	"log/slog"
 	"strconv"
 	"word-flashcard/internal/models"
+
+	"github.com/gin-gonic/gin/binding"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/gin-gonic/gin"
@@ -42,8 +45,31 @@ func ParseIntQueryParam(c *gin.Context, paramName string, defaultValue int) (int
 
 // ParseRequestBody parses the JSON request body into the provided object and logs the details.
 func ParseRequestBody(obj any, c *gin.Context) error {
-	// Get the request object form the body
-	if err := c.ShouldBindJSON(obj); err != nil {
+	// Check if the request body is empty
+	if c.Request.ContentLength == 0 {
+		slog.Debug("Empty request body")
+		return nil
+	}
+
+	// Cache request body
+	var checkMap map[string]any
+	if err := c.ShouldBindBodyWith(&checkMap, binding.JSON); err != nil {
+		// If body is empty or blank only
+		if errors.Is(err, io.EOF) {
+			slog.Debug("Empty request body (EOF)")
+			return nil
+		}
+		return err
+	}
+
+	// If the body is empty (e.g., "{}"), return early without trying to bind to obj
+	if len(checkMap) == 0 {
+		slog.Debug("Received body parsing", "body", "{}")
+		return nil
+	}
+
+	// Bind the body to the provided object
+	if err := c.ShouldBindBodyWith(obj, binding.JSON); err != nil {
 		return err
 	}
 
@@ -99,6 +125,8 @@ func ResponseError(statusCode int, message string, err error, c *gin.Context) {
 //   - 'not_equal'/'ne'/'neq': Single value exclusion, e.g., value: "low"
 //   - 'in': Multiple value matching, e.g., value: "[\"yellow\", \"green\"]"
 //   - 'not_in'/'nin': Multiple value exclusion, e.g., value: "[\"yellow\", \"green\"]"
+//   - 'like': Pattern matching with SQL LIKE operator, e.g., value: "%pattern%"
+//   - 'not_like'/'nlike': Pattern exclusion with SQL NOT LIKE operator, e.g., value: "%pattern%"
 func ConvertFilterToSqlizer(filter *models.SearchFilter) (squirrel.Sqlizer, error) {
 	if filter == nil {
 		return nil, nil
@@ -137,8 +165,22 @@ func ConvertFilterToSqlizer(filter *models.SearchFilter) (squirrel.Sqlizer, erro
 		// Value should be a JSON array string
 		return parseArrayFilter(filter.Key, filter.Value, true)
 
+	case "like":
+		// Like operation: column LIKE pattern
+		if filter.Value == "" {
+			return nil, errors.New("filter value cannot be empty for like operation")
+		}
+		return squirrel.Like{filter.Key: filter.Value}, nil
+
+	case "not_like", "nlike":
+		// Not like operation: column NOT LIKE pattern
+		if filter.Value == "" {
+			return nil, errors.New("filter value cannot be empty for not_like operation")
+		}
+		return squirrel.NotLike{filter.Key: filter.Value}, nil
+
 	default:
-		return nil, errors.New("unsupported operator: " + filter.Operator + ". Supported operators: equal/eq, not_equal/ne/neq, in, not_in/nin")
+		return nil, errors.New("unsupported operator: " + filter.Operator + ". Supported operators: equal/eq, not_equal/ne/neq, in, not_in/nin, like, not_like/nlike")
 	}
 }
 
