@@ -27,6 +27,19 @@ export const Quiz: React.FC<QuizProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [showAnswer, setShowAnswer] = useState(false);
 
+  const getFamiliarityBarColor = (familiarity: string) => {
+    switch (familiarity.toLowerCase()) {
+      case 'green':
+        return 'bg-green-500 dark:bg-green-400';
+      case 'yellow':
+        return 'bg-yellow-500 dark:bg-yellow-400';
+      case 'red':
+        return 'bg-red-500 dark:bg-red-400';
+      default:
+        return 'bg-gray-400 dark:bg-gray-500';
+    }
+  };
+
   // Fetch random words for quiz
   useEffect(() => {
     const fetchQuizWords = async () => {
@@ -235,6 +248,29 @@ export const Quiz: React.FC<QuizProps> = ({
                 {currentWord.word}
               </h1>
 
+              {/* Familiarity Bar */}
+              {currentWord.familiarity && (
+                <div className="text-center mb-4">
+                  <div className={`w-64 h-2 rounded-full transition-colors duration-300 mx-auto ${getFamiliarityBarColor(currentWord.familiarity)}`} />
+                </div>
+              )}
+
+              {/* Part of Speech */}
+              <div className='mt-3 mb-6'>
+                {Array.from(
+                  new Set(
+                    currentWord?.definitions
+                      ?.map((def) => def.part_of_speech)
+                      ?.filter(Boolean)
+                  )
+                ).map((pos, index) => (
+                  <span key={index}
+                    className="inline-block px-2 py-1 mx-1 text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full">
+                    {pos}
+                  </span>
+                ))}
+              </div>
+
               {/* Pronunciation buttons */}
               {(pronunciationUrls.uk || pronunciationUrls.us) && (
                 <div className="flex items-center justify-center space-x-4">
@@ -276,6 +312,13 @@ export const Quiz: React.FC<QuizProps> = ({
                 <h1 className="text-6xl font-bold text-gray-900 dark:text-white mb-4">
                   {currentWord.word}
                 </h1>
+
+                {/* Familiarity Bar */}
+                {currentWord.familiarity && (
+                  <div className="text-center mb-4">
+                    <div className={`w-40 h-2 rounded-full transition-colors duration-300 mx-auto ${getFamiliarityBarColor(currentWord.familiarity)}`} />
+                  </div>
+                )}
 
                 {/* Pronunciation buttons */}
                 {(pronunciationUrls.uk || pronunciationUrls.us) && (
@@ -378,39 +421,36 @@ export const Quiz: React.FC<QuizProps> = ({
               <div className="flex justify-center space-x-4 mb-8">
                 <button
                   onClick={() => handleFamiliaritySelect('red')}
-                  className="flex flex-col items-center p-6 bg-red-50 dark:bg-red-900/20
+                  className="flex flex-col items-center p-4 bg-red-50 dark:bg-red-900/20
                              border-2 border-red-200 dark:border-red-700 rounded-lg
                              hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors min-w-[150px]"
                 >
                   <div className="w-6 h-6 bg-red-500 rounded-full mb-2"></div>
                   <div className="text-center">
-                    <div className="font-medium text-red-800 dark:text-red-200 text-sm mb-1">Red</div>
                     <div className="text-xs text-red-600 dark:text-red-400">Unfamiliar</div>
                   </div>
                 </button>
 
                 <button
                   onClick={() => handleFamiliaritySelect('yellow')}
-                  className="flex flex-col items-center p-6 bg-yellow-50 dark:bg-yellow-900/20
+                  className="flex flex-col items-center p-4 bg-yellow-50 dark:bg-yellow-900/20
                              border-2 border-yellow-200 dark:border-yellow-700 rounded-lg
                              hover:bg-yellow-100 dark:hover:bg-yellow-900/30 transition-colors min-w-[150px]"
                 >
                   <div className="w-6 h-6 bg-yellow-500 rounded-full mb-2"></div>
                   <div className="text-center">
-                    <div className="font-medium text-yellow-800 dark:text-yellow-200 text-sm mb-1">Yellow</div>
                     <div className="text-xs text-yellow-600 dark:text-yellow-400">Somewhat Familiar</div>
                   </div>
                 </button>
 
                 <button
                   onClick={() => handleFamiliaritySelect('green')}
-                  className="flex flex-col items-center p-6 bg-green-50 dark:bg-green-900/20
+                  className="flex flex-col items-center p-4 bg-green-50 dark:bg-green-900/20
                              border-2 border-green-200 dark:border-green-700 rounded-lg
                              hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors min-w-[150px]"
                 >
                   <div className="w-6 h-6 bg-green-500 rounded-full mb-2"></div>
                   <div className="text-center">
-                    <div className="font-medium text-green-800 dark:text-green-200 text-sm mb-1">Green</div>
                     <div className="text-xs text-green-600 dark:text-green-400">Familiar</div>
                   </div>
                 </button>

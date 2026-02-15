@@ -56,6 +56,7 @@ func ParseRequestBody(obj any, c *gin.Context) error {
 	if err := c.ShouldBindBodyWith(&checkMap, binding.JSON); err != nil {
 		// If body is empty or blank only
 		if errors.Is(err, io.EOF) {
+			slog.Debug("Empty request body (EOF)")
 			return nil
 		}
 		return err
@@ -165,18 +166,18 @@ func ConvertFilterToSqlizer(filter *models.SearchFilter) (squirrel.Sqlizer, erro
 		return parseArrayFilter(filter.Key, filter.Value, true)
 
 	case "like":
-		// Like operation: column ILIKE pattern (case-insensitive matching)
+		// Like operation: column LIKE pattern
 		if filter.Value == "" {
 			return nil, errors.New("filter value cannot be empty for like operation")
 		}
-		return squirrel.ILike{filter.Key: filter.Value}, nil
+		return squirrel.Like{filter.Key: filter.Value}, nil
 
 	case "not_like", "nlike":
-		// Not like operation: column NOT ILIKE pattern (case-insensitive exclusion)
+		// Not like operation: column NOT LIKE pattern
 		if filter.Value == "" {
 			return nil, errors.New("filter value cannot be empty for not_like operation")
 		}
-		return squirrel.NotILike{filter.Key: filter.Value}, nil
+		return squirrel.NotLike{filter.Key: filter.Value}, nil
 
 	default:
 		return nil, errors.New("unsupported operator: " + filter.Operator + ". Supported operators: equal/eq, not_equal/ne/neq, in, not_in/nin, like, not_like/nlike")

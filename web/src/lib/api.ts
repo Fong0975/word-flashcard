@@ -5,7 +5,6 @@ import {
   CreateWordRequest,
   UpdateWordRequest,
   WordsSearchParams,
-  SearchFilter,
   WordsRandomRequest,
   ErrorResponse,
   ApiRequestOptions,
