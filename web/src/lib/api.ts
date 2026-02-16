@@ -6,6 +6,11 @@ import {
   UpdateWordRequest,
   WordsSearchParams,
   WordsRandomRequest,
+  Question,
+  CreateQuestionRequest,
+  UpdateQuestionRequest,
+  QuestionsSearchParams,
+  QuestionsRandomRequest,
   ErrorResponse,
   ApiRequestOptions,
 } from '../types/api';
@@ -263,6 +268,44 @@ class ApiService {
     await this.delete<void>(API_ENDPOINTS.deleteDefinition(definitionId), options);
   }
 
+  // Questions API methods
+
+  async getAllQuestions(params: QuestionsSearchParams = {}, options?: ApiRequestOptions): Promise<Question[]> {
+    const searchParams = new URLSearchParams();
+
+    if (params.limit !== undefined) {
+      searchParams.append('limit', params.limit.toString());
+    }
+
+    if (params.offset !== undefined) {
+      searchParams.append('offset', params.offset.toString());
+    }
+
+    const endpoint = `${API_ENDPOINTS.questions}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+
+    return this.get<Question[]>(endpoint, options);
+  }
+
+  async getQuestion(id: number, options?: ApiRequestOptions): Promise<Question> {
+    return this.get<Question>(API_ENDPOINTS.questionById(id), options);
+  }
+
+  async createQuestion(questionData: CreateQuestionRequest, options?: ApiRequestOptions): Promise<Question> {
+    return this.post<Question>(API_ENDPOINTS.questions, questionData, options);
+  }
+
+  async updateQuestion(id: number, questionData: UpdateQuestionRequest, options?: ApiRequestOptions): Promise<Question> {
+    return this.put<Question>(API_ENDPOINTS.questionById(id), questionData, options);
+  }
+
+  async deleteQuestion(id: number, options?: ApiRequestOptions): Promise<void> {
+    await this.delete<void>(API_ENDPOINTS.questionById(id), options);
+  }
+
+  async getRandomQuestions(request: QuestionsRandomRequest, options?: ApiRequestOptions): Promise<Question[]> {
+    return this.post<Question[]>(API_ENDPOINTS.questionsRandom, request, options);
+  }
+
   // Dictionary API methods
   async lookupWord<T = any>(word: string, options?: ApiRequestOptions): Promise<T> {
     return this.dictionaryRequest<T>(DICTIONARY_ENDPOINTS.lookup(word), { method: 'GET', ...options });
@@ -274,4 +317,18 @@ class ApiService {
 export const apiService = new ApiService();
 
 // Export types for convenience
-export type { Word, WordDefinition, CreateWordRequest, UpdateWordRequest, WordsRandomRequest, QuizConfig, QuizResult } from '../types/api';
+export type {
+  Word,
+  WordDefinition,
+  CreateWordRequest,
+  UpdateWordRequest,
+  WordsRandomRequest,
+  Question,
+  CreateQuestionRequest,
+  UpdateQuestionRequest,
+  QuestionsRandomRequest,
+  QuizConfig,
+  QuizResult,
+  QuestionQuizConfig,
+  QuestionQuizResult
+} from '../types/api';

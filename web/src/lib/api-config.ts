@@ -37,6 +37,9 @@ export const API_ENDPOINTS = {
   wordDefinition: (wordId: number) => `/words/definition/${wordId}`,
   updateDefinition: (definitionId: number) => `/words/definition/${definitionId}`,
   deleteDefinition: (definitionId: number) => `/words/definition/${definitionId}`,
+  questions: '/questions',
+  questionById: (questionId: number) => `/questions/${questionId}`,
+  questionsRandom: '/questions/random',
 } as const;
 
 // Dictionary API endpoints
