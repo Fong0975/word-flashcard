@@ -11,4 +11,5 @@ type QuestionPeerInterface interface {
 	Insert(question *models.Question) (int64, error)
 	Update(question *models.Question, where squirrel.Sqlizer) (int64, error)
 	Delete(where squirrel.Sqlizer) (int64, error)
+	Count() (int64, error)
 }

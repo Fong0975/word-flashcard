@@ -322,6 +322,7 @@ func (u *UniversalDatabase) Update(table string, data interface{}, where squirre
 	return rowsAffected, nil
 }
 
+// Delete removes records from the database and returns the number of affected rows
 func (u *UniversalDatabase) Delete(table string, where squirrel.Sqlizer) (int64, error) {
 	if u.db == nil {
 		slog.Error("Database is not connected")
@@ -365,6 +366,46 @@ func (u *UniversalDatabase) Delete(table string, where squirrel.Sqlizer) (int64,
 
 	// --------------- 4. Return Result ---------------
 	return rowsAffected, nil
+}
+
+// Count retrieves the number of records matching the specified conditions
+func (u *UniversalDatabase) Count(table string, where squirrel.Sqlizer) (int64, error) {
+	if u.db == nil {
+		slog.Error("Database is not connected")
+		return 0, NewDatabaseError("count", fmt.Errorf("not connected"))
+	}
+
+	// --------------- 1. Build Query Object ---------------
+	query := squirrel.Select("COUNT(*)").
+		From(table).
+		PlaceholderFormat(u.placeholderFormat)
+
+	// Where
+	if where != nil {
+		query = query.Where(where)
+	}
+
+	// --------------- 2. Convert to SQL ---------------
+	sql, args, err := query.ToSql()
+	if err != nil {
+		slog.Error("Count had been done but failed to build COUNT query", "error", err)
+		return 0, NewDatabaseError("count", err)
+	}
+
+	// --------------- 3. Run the SQL ---------------
+	u.logQuery(sql, args)
+	row := u.db.QueryRow(sql, args...)
+
+	// --------------- 4. Scan Result ---------------
+	var count int64
+	err = row.Scan(&count)
+	if err != nil {
+		slog.Error("Count had been done but failed to scan result", "error", err)
+		return 0, NewDatabaseError("count", err)
+	}
+
+	// --------------- 5. Return Result ---------------
+	return count, nil
 }
 
 // ================================= Low-level Operations =================================

@@ -36,7 +36,7 @@ func GetReelQuestionPeer() (peers.QuestionPeerInterface, error) {
 
 // ListQuestions @Summary List all questions with pagination
 // @Description Get all questions, supports pagination through query parameters
-// @Tags Questions
+// @Tags questions
 // @Accept json
 // @Produce json
 // @Param limit query int false "Maximum number of records to return (default: 100, max: 1000)"
@@ -60,7 +60,7 @@ func (qc *QuestionController) ListQuestions(c *gin.Context) {
 	// ================ 2. Fetch data from database ================
 	// Query 'questions' table
 	orderBy := fmt.Sprintf("%s DESC", schema.COMMON_CREATED_AT)
-	orderBy2 := fmt.Sprintf("%s ASC", schema.QUESTION_ID)
+	orderBy2 := fmt.Sprintf("%s DESC", schema.QUESTION_ID)
 	questions, err := qc.questionPeer.Select([]*string{}, nil, []*string{&orderBy, &orderBy2}, &limitPtr, &offsetPtr)
 	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", err, c)
@@ -76,7 +76,7 @@ func (qc *QuestionController) ListQuestions(c *gin.Context) {
 
 // GetQuestions @Summary Get the question
 // @Description Get the question by its ID
-// @Tags Questions
+// @Tags questions
 // @Accept json
 // @Produce json
 // @Param id path int true "Question ID"
@@ -117,7 +117,7 @@ func (qc *QuestionController) GetQuestions(c *gin.Context) {
 
 // RandomQuestions @Summary Get random questions
 // @Description Randomly obtain the required number of questions
-// @Tags Questions
+// @Tags questions
 // @Accept json
 // @Produce json
 // @Param randomFilter body models.QuestionRandomRequest true "Random filter criteria including count and optional filter"
@@ -161,7 +161,7 @@ func (qc *QuestionController) RandomQuestions(c *gin.Context) {
 
 // CreateQuestions @Summary Create a new question
 // @Description Create a new question entry
-// @Tags Questions
+// @Tags questions
 // @Accept json
 // @Produce json
 // @Param question body models.Question true "Question data to create"
@@ -209,7 +209,7 @@ func (qc *QuestionController) CreateQuestions(c *gin.Context) {
 
 // UpdateQuestions @Summary Update a question
 // @Description Update an existing question's properties like familiarity level
-// @Tags Questions
+// @Tags questions
 // @Accept json
 // @Produce json
 // @Param id path int true "Question ID"
@@ -266,7 +266,7 @@ func (qc *QuestionController) UpdateQuestions(c *gin.Context) {
 
 // DeleteQuestions @Summary Delete a question
 // @Description Delete a specific question
-// @Tags Questions
+// @Tags questions
 // @Accept json
 // @Produce json
 // @Param id path int true "Question ID"
@@ -292,4 +292,24 @@ func (qc *QuestionController) DeleteQuestions(c *gin.Context) {
 
 	// ================ 3. Send response ================
 	ResponseSuccess(http.StatusNoContent, nil, c)
+}
+
+// CountQuestions @Summary Count total questions
+// @Description Get the total count of questions in the database
+// @Tags questions
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]int64 "Total count of questions"
+// @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to count questions in database"
+// @Router /api/questions/count [get]
+func (qc *QuestionController) CountQuestions(c *gin.Context) {
+	// ================ 1. Fetch data from database ================
+	count, err := qc.questionPeer.Count()
+	if err != nil {
+		ResponseError(http.StatusInternalServerError, "Failed to count questions in database", err, c)
+		return
+	}
+
+	// ================ 2. Send response ================
+	ResponseSuccess(http.StatusOK, gin.H{"count": count}, c)
 }

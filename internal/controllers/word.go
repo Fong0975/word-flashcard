@@ -464,3 +464,43 @@ func (wc *WordController) DeleteWordDefinition(c *gin.Context) {
 	// ================ 3. Send response ================
 	ResponseSuccess(http.StatusNoContent, nil, c)
 }
+
+// CountQuestions @Summary Count words matching filter criteria
+// @Description Count the number of words that match the specified filter criteria
+// @Tags words
+// @Accept json
+// @Produce json
+// @Param searchFilter body models.SearchFilter true "Search filter criteria"
+// @Success 200 {object} map[string]int64 "Count of words matching the filter criteria"
+// @Failure 400 {object} models.ErrorResponse "Bad request - Invalid request body or filter"
+// @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to fetch data from database"
+// @Router /api/words/count [post]
+func (wc *WordController) CountQuestions(c *gin.Context) {
+	// ============== 1. Get search filter from request ================
+	var searchReq models.SearchFilter
+	err := ParseRequestBody(&searchReq, c)
+	if err != nil {
+		ResponseError(http.StatusBadRequest, "Invalid request body", err, c)
+		return
+	}
+
+	// ================ 2. Build where condition ================
+	var where squirrel.Sqlizer
+	if !searchReq.IsEmpty() {
+		where, err = ConvertFilterToSqlizer(&searchReq)
+		if err != nil {
+			ResponseError(http.StatusBadRequest, "Invalid filter", err, c)
+			return
+		}
+	}
+
+	// ================ 3. Fetch data from database ================
+	count, err := wc.wordPeer.Count(where)
+	if err != nil {
+		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", err, c)
+		return
+	}
+
+	// ================ 4. Send response ================
+	ResponseSuccess(http.StatusOK, gin.H{"count": count}, c)
+}

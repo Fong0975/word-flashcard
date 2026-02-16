@@ -360,6 +360,41 @@ err = db.Select("words", nil, nil, orderBy, &limit, nil, &results)
 3. Consider database performance with large offsets
 4. Both MySQL and PostgreSQL are fully supported
 
+### Count Records
+
+```go
+import "github.com/Masterminds/squirrel"
+
+// Count all records in table
+count, err := db.Count("words", nil)
+if err != nil {
+    log.Printf("Count failed: %v", err)
+    return
+}
+log.Printf("Total records: %d", count)
+
+// Count with WHERE condition
+where := squirrel.Eq{"word": "hello"}
+count, err = db.Count("words", where)
+if err != nil {
+    log.Printf("Count with WHERE failed: %v", err)
+    return
+}
+log.Printf("Matching records: %d", count)
+
+// Count with complex conditions
+where = squirrel.And{
+    squirrel.Like{"word": "hel%"},
+    squirrel.Gt{"id": 10},
+}
+count, err = db.Count("words", where)
+if err != nil {
+    log.Printf("Count with complex WHERE failed: %v", err)
+    return
+}
+log.Printf("Complex query matches: %d", count)
+```
+
 ### Update Data
 
 ```go

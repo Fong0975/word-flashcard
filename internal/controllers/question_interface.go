@@ -12,4 +12,5 @@ type QuestionControllerInterface interface {
 	CreateQuestions(c *gin.Context)
 	UpdateQuestions(c *gin.Context)
 	DeleteQuestions(c *gin.Context)
+	CountQuestions(c *gin.Context)
 }

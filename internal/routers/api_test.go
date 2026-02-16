@@ -81,6 +81,7 @@ func (s *apiRoutesTestSuite) TestAPIRouteMappings() {
 		{"PUT", "/api/words/definition/1", "WordController.UpdateWordDefinition", "UpdateWordDefinition", "WordController"},
 		{"DELETE", "/api/words/1", "WordController.DeleteWord", "DeleteWord", "WordController"},
 		{"DELETE", "/api/words/definition/1", "WordController.DeleteWordDefinition", "DeleteWordDefinition", "WordController"},
+		{"POST", "/api/words/count", "WordController.CountQuestions", "CountQuestions", "WordController"},
 		// Questions
 		{"GET", "/api/questions", "QuestionController.ListQuestions", "ListQuestions", "QuestionController"},
 		{"GET", "/api/questions/1", "QuestionController.GetQuestions", "GetQuestions", "QuestionController"},
@@ -88,6 +89,7 @@ func (s *apiRoutesTestSuite) TestAPIRouteMappings() {
 		{"POST", "/api/questions", "QuestionController.CreateQuestions", "CreateQuestions", "QuestionController"},
 		{"PUT", "/api/questions/1", "QuestionController.UpdateQuestions", "UpdateQuestions", "QuestionController"},
 		{"DELETE", "/api/questions/1", "QuestionController.DeleteQuestions", "DeleteQuestions", "QuestionController"},
+		{"GET", "/api/questions/count", "QuestionController.CountQuestions", "CountQuestions", "QuestionController"},
 	}
 
 	// Test each route mapping calls the correct method

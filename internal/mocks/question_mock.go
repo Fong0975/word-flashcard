@@ -67,3 +67,12 @@ func (m *MockQuestionController) DeleteQuestions(c *gin.Context) {
 		"status":     "ok",
 	})
 }
+
+// CountQuestions mock implementation
+func (m *MockQuestionController) CountQuestions(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"method":     "CountQuestions",
+		"controller": "QuestionController",
+		"status":     "ok",
+	})
+}

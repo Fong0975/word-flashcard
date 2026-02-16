@@ -94,3 +94,12 @@ func (m *MockWordController) DeleteWordDefinition(c *gin.Context) {
 		"status":     "ok",
 	})
 }
+
+// CountQuestions mock implementation
+func (m *MockWordController) CountQuestions(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"method":     "CountQuestions",
+		"controller": "WordController",
+		"status":     "ok",
+	})
+}

@@ -54,6 +54,11 @@ func (_e *MockQuestionPeer_Expecter) Delete(where interface{}) *mock.Call {
 	return _e.mock.On("Delete", where)
 }
 
+// Count expecter method
+func (_e *MockQuestionPeer_Expecter) Count() *mock.Call {
+	return _e.mock.On("Count")
+}
+
 // Select mock implementation
 func (_m *MockQuestionPeer) Select(columns []*string, where squirrel.Sqlizer, orderBy []*string, limit *uint64, offset *uint64) ([]*models.Question, error) {
 	ret := _m.Called(columns, where, orderBy, limit, offset)
@@ -133,6 +138,27 @@ func (_m *MockQuestionPeer) Delete(where squirrel.Sqlizer) (int64, error) {
 	var r1 error
 	if rf, ok := ret.Get(1).(func(squirrel.Sqlizer) error); ok {
 		r1 = rf(where)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Count mock implementation
+func (_m *MockQuestionPeer) Count() (int64, error) {
+	ret := _m.Called()
+
+	var r0 int64
+	if rf, ok := ret.Get(0).(func() int64); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(int64)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
 	} else {
 		r1 = ret.Error(1)
 	}
