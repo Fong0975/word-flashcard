@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log/slog"
+	"sort"
 	"strings"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 
 // Database syntax pattern constants
 const (
+	FORMAT_TIMESTAMP         = "2006-01-02 15:04:05"
 	TERM_MAPPING_FUNC_RANDOM = "{FUNC_RANDOM}"
 )
 
@@ -180,13 +182,27 @@ func (u *UniversalDatabase) Insert(table string, data interface{}) (int64, error
 		slog.Error("Insert had been done but no data to insert", "data", data)
 		return 0, NewDatabaseError("insert", fmt.Errorf("no data to insert"))
 	}
+	// Add CreateAT and UpdatedAt timestamp if applicable
+	dataMap["created_at"] = time.Now().Format(FORMAT_TIMESTAMP)
+	dataMap["updated_at"] = time.Now().Format(FORMAT_TIMESTAMP)
 
 	// --------------- 2. Prepare Insert Parameters ---------------
+	// To ensure stable column order, we first collect all column names and sort them
+	columnNames := make([]string, 0, len(dataMap))
+	for column := range dataMap {
+		columnNames = append(columnNames, column)
+	}
+
+	// Sort column names to ensure consistent ordering
+	// This prevents test failures due to map iteration randomness
+	sort.Strings(columnNames)
+
+	// Build columns and values arrays in sorted order
 	columns := make([]string, 0, len(dataMap))
 	values := make([]interface{}, 0, len(dataMap))
-	for column, value := range dataMap {
+	for _, column := range columnNames {
 		columns = append(columns, column)
-		values = append(values, value)
+		values = append(values, dataMap[column])
 	}
 
 	// --------------- 3. Build Query Object ---------------
@@ -217,8 +233,9 @@ func (u *UniversalDatabase) Insert(table string, data interface{}) (int64, error
 		PlaceholderFormat(u.placeholderFormat)
 
 	// Add insert parameters as Where
-	for column, value := range dataMap {
-		querySelect = querySelect.Where(squirrel.Eq{column: value})
+	// Use the same sorted order for consistency
+	for _, column := range columnNames {
+		querySelect = querySelect.Where(squirrel.Eq{column: dataMap[column]})
 	}
 
 	// Convert to SQL
@@ -263,7 +280,7 @@ func (u *UniversalDatabase) Update(table string, data interface{}, where squirre
 		return 0, NewDatabaseError("update", fmt.Errorf("no data to update"))
 	}
 	// Add UpdatedAt timestamp if applicable
-	dataMap["updated_at"] = time.Now()
+	dataMap["updated_at"] = time.Now().Format(FORMAT_TIMESTAMP)
 
 	// --------------- 2. Build Query Object ---------------
 	query := squirrel.Update(table).

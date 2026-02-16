@@ -88,6 +88,281 @@
                 }
             }
         },
+        "/api/questions": {
+            "get": {
+                "description": "Get all questions, supports pagination through query parameters",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Questions"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Maximum number of records to return (default: 100, max: 1000)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of records to skip (default: 0)",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of Questions retrieved successfully",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/word-flashcard_internal_models.Question"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid query parameters",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to fetch data from database",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new question entry",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Questions"
+                ],
+                "parameters": [
+                    {
+                        "description": "Question data to create",
+                        "name": "question",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.Question"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Question created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.Question"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to insert data into database",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/questions/definition/{id}": {
+            "delete": {
+                "description": "Delete a specific question",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Questions"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Question ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Question deleted successfully"
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid definition ID",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to delete data from database",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/questions/random": {
+            "post": {
+                "description": "Randomly obtain the required number of questions",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Questions"
+                ],
+                "parameters": [
+                    {
+                        "description": "Random filter criteria including count and optional filter",
+                        "name": "randomFilter",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.QuestionRandomRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Random questions retrieved successfully",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/word-flashcard_internal_models.Question"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid request body or count parameter",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to fetch data from database",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/questions/{id}": {
+            "get": {
+                "description": "Get the question by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Questions"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Question ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A question retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.Question"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid query parameters",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to fetch data from database",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing question's properties like familiarity level",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Questions"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Question ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Question data to update",
+                        "name": "question",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.Question"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Question updated successfully",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.Question"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid question ID or request body",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to update data in database",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/words": {
             "get": {
                 "description": "Get all words with their definitions and pronunciation information, supports pagination through query parameters",
@@ -522,6 +797,19 @@
         }
     },
     "definitions": {
+        "models.QuestionRandomRequest": {
+            "type": "object",
+            "required": [
+                "count"
+            ],
+            "properties": {
+                "count": {
+                    "type": "integer",
+                    "maximum": 1000,
+                    "minimum": 1
+                }
+            }
+        },
         "word-flashcard_internal_models.DefinitionInfo": {
             "type": "object",
             "properties": {
@@ -590,6 +878,44 @@
                     "type": "string"
                 },
                 "language": {
+                    "type": "string"
+                }
+            }
+        },
+        "word-flashcard_internal_models.Question": {
+            "type": "object",
+            "properties": {
+                "answer": {
+                    "type": "string"
+                },
+                "count_failure_practise": {
+                    "type": "integer"
+                },
+                "count_practise": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "option_a": {
+                    "type": "string"
+                },
+                "option_b": {
+                    "type": "string"
+                },
+                "option_c": {
+                    "type": "string"
+                },
+                "option_d": {
+                    "type": "string"
+                },
+                "question": {
+                    "type": "string"
+                },
+                "reference": {
                     "type": "string"
                 }
             }

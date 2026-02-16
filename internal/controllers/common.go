@@ -29,6 +29,32 @@ func parseIDFromPath(c *gin.Context, paramName string) (int, error) {
 	return id, nil
 }
 
+// parseLimitAndOffsetFromPath extracts and validates limit and offset parameter from URL path
+func parseLimitAndOffsetFromPath(c *gin.Context) (int, int, error) {
+	// Get 'limit' parameter
+	limit, err := ParseIntQueryParam(c, "limit", 100)
+	if err != nil {
+		slog.Error("Invalid limit parameter", "error", err)
+		return 0, 0, errors.New("invalid limit parameter")
+	} else if limit < 0 || limit > 1000 {
+		slog.Error("Limit must be between 1 and 1000", "limit", limit)
+		return 0, 0, errors.New("invalid limit parameter")
+	}
+
+	// Get 'offset' parameter
+	offset, err := ParseIntQueryParam(c, "offset", 0)
+	if err != nil {
+		slog.Error("Invalid offset parameter", "error", err)
+		return 0, 0, errors.New("invalid offset parameter")
+	}
+	if offset < 0 {
+		slog.Error("Offset must be non-negative", "offset", offset)
+		return 0, 0, errors.New("invalid offset parameter")
+	}
+
+	return limit, offset, nil
+}
+
 // ParseIntQueryParam extracts and validates an integer query parameter, returning a default value if not present.
 func ParseIntQueryParam(c *gin.Context, paramName string, defaultValue int) (int, error) {
 	paramStr := c.Query(paramName)

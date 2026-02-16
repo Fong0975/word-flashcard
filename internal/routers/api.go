@@ -13,6 +13,7 @@ type ControllerDependencies struct {
 	HealthController     controllers.HealthControllerInterface
 	DictionaryController controllers.DictionaryControllerInterface
 	WordController       controllers.WordControllerInterface
+	QuestionController   controllers.QuestionControllerInterface
 }
 
 // SetupAPIRoutes configures all API routes with default controllers
@@ -25,11 +26,19 @@ func SetupAPIRoutes(router *gin.Engine) {
 	}
 	wordController := controllers.NewWordController(wordPeer, wordDefinitionsPeer)
 
+	questionPeer, err := controllers.GetReelQuestionPeer()
+	if err != nil {
+		slog.Error("Failed to initialize Question controller", "error", err)
+		return
+	}
+	questionController := controllers.NewQuestionController(questionPeer)
+
 	// Inject controllers into dependencies struct
 	deps := &ControllerDependencies{
 		HealthController:     controllers.NewHealthController(),
 		DictionaryController: controllers.NewDictionaryController(),
 		WordController:       wordController,
+		QuestionController:   questionController,
 	}
 
 	// Setup routes with dependencies
@@ -58,4 +67,12 @@ func SetupAPIRoutesWithDependencies(router *gin.Engine, deps *ControllerDependen
 	apiGroup.POST("/words/definition/:id", deps.WordController.CreateWordDefinition)
 	apiGroup.PUT("/words/definition/:id", deps.WordController.UpdateWordDefinition)
 	apiGroup.DELETE("/words/definition/:id", deps.WordController.DeleteWordDefinition)
+
+	// Question routes
+	apiGroup.GET("/questions", deps.QuestionController.ListQuestions)
+	apiGroup.GET("/questions/:id", deps.QuestionController.GetQuestions)
+	apiGroup.POST("/questions/random", deps.QuestionController.RandomQuestions)
+	apiGroup.POST("/questions", deps.QuestionController.CreateQuestions)
+	apiGroup.PUT("/questions/:id", deps.QuestionController.UpdateQuestions)
+	apiGroup.DELETE("/questions/:id", deps.QuestionController.DeleteQuestions)
 }

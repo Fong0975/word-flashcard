@@ -333,14 +333,15 @@ func (s *connectionTestSuite) TestInsert() {
 	}
 
 	// Mock expects an INSERT query
+	// Note: columns are now sorted alphabetically: created_at, name, updated_at
 	mock.ExpectExec("INSERT INTO users").
-		WithArgs("New User").
+		WithArgs(sqlmock.AnyArg(), "New User", sqlmock.AnyArg()).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// Mock expects a SELECT query to get the inserted ID
 	rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
 	mock.ExpectQuery("SELECT id FROM users").
-		WithArgs("New User").
+		WithArgs(sqlmock.AnyArg(), "New User", sqlmock.AnyArg()).
 		WillReturnRows(rows)
 
 	// Test Insert method

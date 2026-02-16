@@ -32,6 +32,7 @@ func (m *MockWordController) SearchWords(c *gin.Context) {
 	})
 }
 
+// RandomWords mock implementation
 func (m *MockWordController) RandomWords(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"method":     "RandomWords",

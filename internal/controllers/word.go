@@ -54,23 +54,9 @@ func GetReelPeers() (peers.WordPeerInterface, peers.WordDefinitionsPeerInterface
 // @Router /api/words [get]
 func (wc *WordController) ListWords(c *gin.Context) {
 	// ================ 1. Parse pagination parameters ================
-	limit, err := ParseIntQueryParam(c, "limit", 100)
+	limit, offset, err := parseLimitAndOffsetFromPath(c)
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid limit parameter", err, c)
-		return
-	}
-	if limit <= 0 || limit > 1000 {
-		ResponseError(http.StatusBadRequest, "Limit must be between 1 and 1000", nil, c)
-		return
-	}
-
-	offset, err := ParseIntQueryParam(c, "offset", 0)
-	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid offset parameter", err, c)
-		return
-	}
-	if offset < 0 {
-		ResponseError(http.StatusBadRequest, "Offset must be non-negative", nil, c)
+		ResponseError(http.StatusBadRequest, "Invalid limit/offset parameter", err, c)
 		return
 	}
 
@@ -123,23 +109,9 @@ func (wc *WordController) SearchWords(c *gin.Context) {
 	}
 
 	// ================ 2. Parse pagination parameters ================
-	limit, err := ParseIntQueryParam(c, "limit", 100)
+	limit, offset, err := parseLimitAndOffsetFromPath(c)
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid limit parameter", err, c)
-		return
-	}
-	if limit <= 0 || limit > 1000 {
-		ResponseError(http.StatusBadRequest, "Limit must be between 1 and 1000", nil, c)
-		return
-	}
-
-	offset, err := ParseIntQueryParam(c, "offset", 0)
-	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid offset parameter", err, c)
-		return
-	}
-	if offset < 0 {
-		ResponseError(http.StatusBadRequest, "Offset must be non-negative", nil, c)
+		ResponseError(http.StatusBadRequest, "Invalid limit/offset parameter", err, c)
 		return
 	}
 
