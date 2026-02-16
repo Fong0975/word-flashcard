@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { apiService, ApiError } from '../lib/api';
 import { Question } from '../types/api';
 
@@ -51,10 +51,10 @@ export const useQuestions = (options: UseQuestionsOptions = {}): UseQuestionsRet
     searchTerm: '',
   });
 
-  const fetchQuestions = useCallback(async (page?: number) => {
-    const targetPage = page ?? state.currentPage;
-    const offset = (targetPage - 1) * itemsPerPage;
+  const mounted = useRef(false);
+  const previousSearchTerm = useRef('');
 
+  const fetchQuestions = useCallback(async (page?: number) => {
     setState(prev => ({
       ...prev,
       loading: true,
@@ -62,17 +62,27 @@ export const useQuestions = (options: UseQuestionsOptions = {}): UseQuestionsRet
     }));
 
     try {
+      const targetPage = page ?? state.currentPage;
+      const offset = (targetPage - 1) * itemsPerPage;
+
       const params = {
         limit: itemsPerPage,
         offset,
       };
 
-      // For questions, we use the simple getAllQuestions endpoint
-      // Note: Questions API doesn't have search functionality yet, so we ignore searchTerm for now
-      let questions = await apiService.getAllQuestions(params);
+      // Get questions and total count in parallel for better performance
+      const [questionsResponse, countResponse] = await Promise.all([
+        apiService.getAllQuestions(params),
+        apiService.getQuestionsCount()
+      ]);
+
+      let questions = questionsResponse;
       if (questions == null || !Array.isArray(questions)) {
         questions = [];
       }
+
+      // Get the total count from the API response
+      const totalCount = countResponse.count || 0;
 
       // If there's a search term, filter the results client-side
       // This is a temporary solution until server-side search is implemented
@@ -87,21 +97,17 @@ export const useQuestions = (options: UseQuestionsOptions = {}): UseQuestionsRet
         );
       }
 
-      // Calculate pagination info
-      const hasNext = questions.length === itemsPerPage;
+      // Calculate pagination info based on real total count
+      const totalPages = Math.ceil(totalCount / itemsPerPage);
+      const hasNext = targetPage < totalPages;
       const hasPrevious = targetPage > 1;
-
-      // Estimate total pages
-      const estimatedTotalPages = hasNext
-        ? Math.max(targetPage + 1, state.totalPages)
-        : targetPage;
 
       setState(prev => ({
         ...prev,
         questions,
         loading: false,
         currentPage: targetPage,
-        totalPages: estimatedTotalPages,
+        totalPages,
         hasNext,
         hasPrevious,
       }));
@@ -122,7 +128,7 @@ export const useQuestions = (options: UseQuestionsOptions = {}): UseQuestionsRet
         questions: [],
       }));
     }
-  }, [state.currentPage, state.totalPages, state.searchTerm, itemsPerPage]);
+  }, [state.currentPage, state.searchTerm, itemsPerPage]);
 
   const nextPage = useCallback(async () => {
     if (state.hasNext && !state.loading) {
@@ -164,15 +170,19 @@ export const useQuestions = (options: UseQuestionsOptions = {}): UseQuestionsRet
 
   // Auto-fetch on mount
   useEffect(() => {
-    if (autoFetch) {
+    if (autoFetch && !mounted.current) {
+      mounted.current = true;
       fetchQuestions(initialPage);
     }
   }, [autoFetch, initialPage, fetchQuestions]);
 
   // Re-fetch when search term changes
   useEffect(() => {
-    if (autoFetch && state.searchTerm !== undefined) {
-      fetchQuestions(1); // Reset to page 1 when searching
+    if (autoFetch && state.searchTerm !== previousSearchTerm.current) {
+      previousSearchTerm.current = state.searchTerm;
+      if (mounted.current) {
+        fetchQuestions(1); // Reset to page 1 when searching
+      }
     }
   }, [state.searchTerm, autoFetch, fetchQuestions]);
 

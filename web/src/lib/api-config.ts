@@ -34,12 +34,14 @@ export const API_ENDPOINTS = {
   words: '/words',
   wordsSearch: '/words/search',
   wordsRandom: '/words/random',
+  wordsCount: '/words/count',
   wordDefinition: (wordId: number) => `/words/definition/${wordId}`,
   updateDefinition: (definitionId: number) => `/words/definition/${definitionId}`,
   deleteDefinition: (definitionId: number) => `/words/definition/${definitionId}`,
   questions: '/questions',
   questionById: (questionId: number) => `/questions/${questionId}`,
   questionsRandom: '/questions/random',
+  questionsCount: '/questions/count',
 } as const;
 
 // Dictionary API endpoints

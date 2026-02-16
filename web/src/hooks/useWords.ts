@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { apiService, ApiError } from '../lib/api';
 import { Word, SearchFilter } from '../types/api';
 
@@ -51,10 +51,10 @@ export const useWords = (options: UseWordsOptions = {}): UseWordsReturn => {
     searchTerm: '',
   });
 
-  const fetchWords = useCallback(async (page?: number) => {
-    const targetPage = page ?? state.currentPage;
-    const offset = (targetPage - 1) * itemsPerPage;
+  const mounted = useRef(false);
+  const previousSearchTerm = useRef('');
 
+  const fetchWords = useCallback(async (page?: number) => {
     setState(prev => ({
       ...prev,
       loading: true,
@@ -62,6 +62,9 @@ export const useWords = (options: UseWordsOptions = {}): UseWordsReturn => {
     }));
 
     try {
+      const targetPage = page ?? state.currentPage;
+      const offset = (targetPage - 1) * itemsPerPage;
+
       // Create search filter if there is a search term
       const searchFilter: SearchFilter | undefined = state.searchTerm
         ? {
@@ -77,28 +80,31 @@ export const useWords = (options: UseWordsOptions = {}): UseWordsReturn => {
         searchFilter,
       };
 
-      let words = await apiService.searchWords(params);
+      // Get words and total count in parallel for better performance
+      const [wordsResponse, countResponse] = await Promise.all([
+        apiService.searchWords(params),
+        apiService.getWordsCount(searchFilter)
+      ]);
+
+      let words = wordsResponse;
       if (words == null || !Array.isArray(words)) {
         words = [];
       }
 
-      // Calculate pagination info
-      // Note: Since API doesn't return total count, we estimate based on returned data
-      const hasNext = words.length === itemsPerPage;
-      const hasPrevious = targetPage > 1;
+      // Get the total count from the API response
+      const totalCount = countResponse.count || 0;
 
-      // Estimate total pages (this is a rough estimation)
-      // In a real scenario, the API should return total count
-      const estimatedTotalPages = hasNext
-        ? Math.max(targetPage + 1, state.totalPages)
-        : targetPage;
+      // Calculate pagination info based on real total count
+      const totalPages = Math.ceil(totalCount / itemsPerPage);
+      const hasNext = targetPage < totalPages;
+      const hasPrevious = targetPage > 1;
 
       setState(prev => ({
         ...prev,
         words,
         loading: false,
         currentPage: targetPage,
-        totalPages: estimatedTotalPages,
+        totalPages,
         hasNext,
         hasPrevious,
       }));
@@ -119,7 +125,7 @@ export const useWords = (options: UseWordsOptions = {}): UseWordsReturn => {
         words: [],
       }));
     }
-  }, [state.currentPage, state.totalPages, state.searchTerm, itemsPerPage]);
+  }, [state.currentPage, state.searchTerm, itemsPerPage]);
 
   const nextPage = useCallback(async () => {
     if (state.hasNext && !state.loading) {
@@ -161,15 +167,19 @@ export const useWords = (options: UseWordsOptions = {}): UseWordsReturn => {
 
   // Auto-fetch on mount
   useEffect(() => {
-    if (autoFetch) {
+    if (autoFetch && !mounted.current) {
+      mounted.current = true;
       fetchWords(initialPage);
     }
   }, [autoFetch, initialPage, fetchWords]);
 
   // Re-fetch when search term changes
   useEffect(() => {
-    if (autoFetch && state.searchTerm !== undefined) {
-      fetchWords(1); // Reset to page 1 when searching
+    if (autoFetch && state.searchTerm !== previousSearchTerm.current) {
+      previousSearchTerm.current = state.searchTerm;
+      if (mounted.current) {
+        fetchWords(1); // Reset to page 1 when searching
+      }
     }
   }, [state.searchTerm, autoFetch, fetchWords]);
 

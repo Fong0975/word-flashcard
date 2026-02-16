@@ -6,6 +6,7 @@ import {
   UpdateWordRequest,
   WordsSearchParams,
   WordsRandomRequest,
+  SearchFilter,
   Question,
   CreateQuestionRequest,
   UpdateQuestionRequest,
@@ -244,6 +245,10 @@ class ApiService {
     return this.post<Word[]>(API_ENDPOINTS.wordsRandom, request, options);
   }
 
+  async getWordsCount(searchFilter?: SearchFilter, options?: ApiRequestOptions): Promise<{ count: number }> {
+    return this.post<{ count: number }>(API_ENDPOINTS.wordsCount, searchFilter || {}, options);
+  }
+
   async createWord(wordData: CreateWordRequest, options?: ApiRequestOptions): Promise<Word> {
     return this.post<Word>(API_ENDPOINTS.words, wordData, options);
   }
@@ -304,6 +309,10 @@ class ApiService {
 
   async getRandomQuestions(request: QuestionsRandomRequest, options?: ApiRequestOptions): Promise<Question[]> {
     return this.post<Question[]>(API_ENDPOINTS.questionsRandom, request, options);
+  }
+
+  async getQuestionsCount(options?: ApiRequestOptions): Promise<{ count: number }> {
+    return this.get<{ count: number }>(API_ENDPOINTS.questionsCount, options);
   }
 
   // Dictionary API methods
