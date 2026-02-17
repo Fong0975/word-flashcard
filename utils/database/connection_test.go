@@ -333,14 +333,15 @@ func (s *connectionTestSuite) TestInsert() {
 	}
 
 	// Mock expects an INSERT query
+	// Note: columns are now sorted alphabetically: created_at, name, updated_at
 	mock.ExpectExec("INSERT INTO users").
-		WithArgs("New User").
+		WithArgs(sqlmock.AnyArg(), "New User", sqlmock.AnyArg()).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// Mock expects a SELECT query to get the inserted ID
 	rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
 	mock.ExpectQuery("SELECT id FROM users").
-		WithArgs("New User").
+		WithArgs(sqlmock.AnyArg(), "New User", sqlmock.AnyArg()).
 		WillReturnRows(rows)
 
 	// Test Insert method
@@ -402,6 +403,32 @@ func (s *connectionTestSuite) TestDelete() {
 
 	s.NoError(err, "Delete should succeed")
 	s.Equal(int64(1), rowsAffected, "Should return 1 affected row")
+
+	// Verify all expectations were met
+	s.NoError(mock.ExpectationsWereMet())
+}
+
+// ========== Count Tests ==========
+
+// TestCount tests counting records with WHERE condition
+func (s *connectionTestSuite) TestCount() {
+	db, mock, cleanup := createMockDatabase(s.t, "mysql")
+	defer cleanup()
+
+	// Create where condition
+	whereCondition := squirrel.Eq{"name": "Test User"}
+
+	// Mock expects a COUNT query with WHERE clause
+	rows := sqlmock.NewRows([]string{"COUNT(*)"}).AddRow(2)
+	mock.ExpectQuery("SELECT COUNT\\(\\*\\) FROM users WHERE name = \\?").
+		WithArgs("Test User").
+		WillReturnRows(rows)
+
+	// Test Count method
+	count, err := db.Count("users", whereCondition)
+
+	s.NoError(err, "Count should succeed")
+	s.Equal(int64(2), count, "Should return count of 2")
 
 	// Verify all expectations were met
 	s.NoError(mock.ExpectationsWereMet())

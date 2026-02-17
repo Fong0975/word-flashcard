@@ -17,6 +17,7 @@ Dockerfile
 .env.test.local
 .env.production.local
 .env.example
+definitionFormModalNoteButtonsConfig.json.example
 
 # Development files
 .vscode

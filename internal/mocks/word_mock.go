@@ -32,6 +32,7 @@ func (m *MockWordController) SearchWords(c *gin.Context) {
 	})
 }
 
+// RandomWords mock implementation
 func (m *MockWordController) RandomWords(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"method":     "RandomWords",
@@ -89,6 +90,15 @@ func (m *MockWordController) DeleteWord(c *gin.Context) {
 func (m *MockWordController) DeleteWordDefinition(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"method":     "DeleteWordDefinition",
+		"controller": "WordController",
+		"status":     "ok",
+	})
+}
+
+// CountQuestions mock implementation
+func (m *MockWordController) CountQuestions(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"method":     "CountQuestions",
 		"controller": "WordController",
 		"status":     "ok",
 	})

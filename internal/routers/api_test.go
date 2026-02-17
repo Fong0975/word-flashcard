@@ -35,12 +35,14 @@ func (s *apiRoutesTestSuite) SetupTest() {
 	mockHealthController := mocks.NewMockHealthController()
 	mockDictionaryController := mocks.NewMockDictionaryController()
 	mockWordController := mocks.NewMockWordController()
+	mockQuestionController := mocks.NewMockQuestionController()
 
 	// Create controller dependencies with mock controllers
 	deps := &ControllerDependencies{
 		HealthController:     mockHealthController,
 		DictionaryController: mockDictionaryController,
 		WordController:       mockWordController,
+		QuestionController:   mockQuestionController,
 	}
 
 	// Create a new gin router and setup API routes with mock controllers
@@ -61,14 +63,15 @@ func setupAPIRoutesTestLogging() {
 func (s *apiRoutesTestSuite) TestAPIRouteMappings() {
 	// Define all expected route mappings with expected method names
 	routeMappings := []struct {
-		method         string
-		path           string
-		desc           string
-		expectedMethod string
+		method             string
+		path               string
+		desc               string
+		expectedMethod     string
 		expectedController string
 	}{
 		{"GET", "/api/health", "HealthController.HealthCheck", "HealthCheck", "HealthController"},
 		{"GET", "/api/dictionary/test", "DictionaryController.SearchWord", "SearchWord", "DictionaryController"},
+		// Words
 		{"GET", "/api/words", "WordController.ListWords", "ListWords", "WordController"},
 		{"POST", "/api/words/search", "WordController.SearchWords", "SearchWords", "WordController"},
 		{"POST", "/api/words/random", "WordController.RandomWords", "RandomWords", "WordController"},
@@ -78,6 +81,15 @@ func (s *apiRoutesTestSuite) TestAPIRouteMappings() {
 		{"PUT", "/api/words/definition/1", "WordController.UpdateWordDefinition", "UpdateWordDefinition", "WordController"},
 		{"DELETE", "/api/words/1", "WordController.DeleteWord", "DeleteWord", "WordController"},
 		{"DELETE", "/api/words/definition/1", "WordController.DeleteWordDefinition", "DeleteWordDefinition", "WordController"},
+		{"POST", "/api/words/count", "WordController.CountQuestions", "CountQuestions", "WordController"},
+		// Questions
+		{"GET", "/api/questions", "QuestionController.ListQuestions", "ListQuestions", "QuestionController"},
+		{"GET", "/api/questions/1", "QuestionController.GetQuestions", "GetQuestions", "QuestionController"},
+		{"POST", "/api/questions/random", "QuestionController.RandomQuestions", "RandomQuestions", "QuestionController"},
+		{"POST", "/api/questions", "QuestionController.CreateQuestions", "CreateQuestions", "QuestionController"},
+		{"PUT", "/api/questions/1", "QuestionController.UpdateQuestions", "UpdateQuestions", "QuestionController"},
+		{"DELETE", "/api/questions/1", "QuestionController.DeleteQuestions", "DeleteQuestions", "QuestionController"},
+		{"GET", "/api/questions/count", "QuestionController.CountQuestions", "CountQuestions", "QuestionController"},
 	}
 
 	// Test each route mapping calls the correct method

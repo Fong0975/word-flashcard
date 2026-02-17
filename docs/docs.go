@@ -50,19 +50,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Dictionary definition found successfully",
                         "schema": {
-                            "$ref": "#/definitions/word-flashcard_internal_models.DictionaryResponse"
+                            "$ref": "#/definitions/models.DictionaryResponse"
                         }
                     },
                     "400": {
                         "description": "Bad request - Invalid URL format or missing word parameter",
                         "schema": {
-                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Word not found, API error, or JSON encoding failure",
                         "schema": {
-                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -85,7 +85,314 @@ const docTemplate = `{
                     "200": {
                         "description": "Server is healthy",
                         "schema": {
-                            "$ref": "#/definitions/word-flashcard_internal_models.HealthResponse"
+                            "$ref": "#/definitions/models.HealthResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/questions": {
+            "get": {
+                "description": "Get all questions, supports pagination through query parameters",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "questions"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Maximum number of records to return (default: 100, max: 1000)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of records to skip (default: 0)",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of Questions retrieved successfully",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/word-flashcard_internal_models.Question"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid query parameters",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to fetch data from database",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new question entry",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "questions"
+                ],
+                "parameters": [
+                    {
+                        "description": "Question data to create",
+                        "name": "question",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.Question"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Question created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.Question"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to insert data into database",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/questions/count": {
+            "get": {
+                "description": "Get the total count of questions in the database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "questions"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Total count of questions",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer",
+                                "format": "int64"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to count questions in database",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/questions/definition/{id}": {
+            "delete": {
+                "description": "Delete a specific question",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "questions"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Question ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Question deleted successfully"
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid definition ID",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to delete data from database",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/questions/random": {
+            "post": {
+                "description": "Randomly obtain the required number of questions",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "questions"
+                ],
+                "parameters": [
+                    {
+                        "description": "Random filter criteria including count and optional filter",
+                        "name": "randomFilter",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.QuestionRandomRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Random questions retrieved successfully",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/word-flashcard_internal_models.Question"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid request body or count parameter",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to fetch data from database",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/questions/{id}": {
+            "get": {
+                "description": "Get the question by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "questions"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Question ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A question retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.Question"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid query parameters",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to fetch data from database",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing question's properties like familiarity level",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "questions"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Question ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Question data to update",
+                        "name": "question",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.Question"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Question updated successfully",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.Question"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid question ID or request body",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to update data in database",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -130,13 +437,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid query parameters",
                         "schema": {
-                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to fetch data from database",
                         "schema": {
-                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -173,13 +480,62 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid request body",
                         "schema": {
-                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to insert data into database",
                         "schema": {
-                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/words/count": {
+            "post": {
+                "description": "Count the number of words that match the specified filter criteria",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "words"
+                ],
+                "parameters": [
+                    {
+                        "description": "Search filter criteria",
+                        "name": "searchFilter",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SearchFilter"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Count of words matching the filter criteria",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer",
+                                "format": "int64"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid request body or filter",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to fetch data from database",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -225,13 +581,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid definition ID or request body",
                         "schema": {
-                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to update data in database",
                         "schema": {
-                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -275,13 +631,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid word ID or request body",
                         "schema": {
-                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to insert data into database",
                         "schema": {
-                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -313,13 +669,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid definition ID",
                         "schema": {
-                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to delete data from database",
                         "schema": {
-                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -344,7 +700,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/word-flashcard_internal_models.RandomFilter"
+                            "$ref": "#/definitions/models.RandomFilter"
                         }
                     }
                 ],
@@ -361,13 +717,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid request body or count parameter",
                         "schema": {
-                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to fetch data from database",
                         "schema": {
-                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -392,7 +748,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/word-flashcard_internal_models.SearchFilter"
+                            "$ref": "#/definitions/models.SearchFilter"
                         }
                     },
                     {
@@ -421,13 +777,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid request body, filter, or query parameters",
                         "schema": {
-                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to fetch data from database",
                         "schema": {
-                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -473,13 +829,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid word ID or request body",
                         "schema": {
-                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to update data in database",
                         "schema": {
-                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -511,13 +867,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid word ID",
                         "schema": {
-                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to delete data from database",
                         "schema": {
-                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -525,7 +881,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "word-flashcard_internal_models.DefinitionInfo": {
+        "models.DefinitionInfo": {
             "type": "object",
             "properties": {
                 "definition": {
@@ -539,24 +895,24 @@ const docTemplate = `{
                 }
             }
         },
-        "word-flashcard_internal_models.DictionaryResponse": {
+        "models.DictionaryResponse": {
             "type": "object",
             "properties": {
                 "meanings": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/word-flashcard_internal_models.MeaningInfo"
+                        "$ref": "#/definitions/models.MeaningInfo"
                     }
                 },
                 "phonetics": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/word-flashcard_internal_models.PhoneticInfo"
+                        "$ref": "#/definitions/models.PhoneticInfo"
                     }
                 }
             }
         },
-        "word-flashcard_internal_models.ErrorResponse": {
+        "models.ErrorResponse": {
             "type": "object",
             "properties": {
                 "error": {
@@ -564,7 +920,7 @@ const docTemplate = `{
                 }
             }
         },
-        "word-flashcard_internal_models.HealthResponse": {
+        "models.HealthResponse": {
             "type": "object",
             "properties": {
                 "status": {
@@ -572,13 +928,13 @@ const docTemplate = `{
                 }
             }
         },
-        "word-flashcard_internal_models.MeaningInfo": {
+        "models.MeaningInfo": {
             "type": "object",
             "properties": {
                 "definitions": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/word-flashcard_internal_models.DefinitionInfo"
+                        "$ref": "#/definitions/models.DefinitionInfo"
                     }
                 },
                 "partOfSpeech": {
@@ -586,7 +942,7 @@ const docTemplate = `{
                 }
             }
         },
-        "word-flashcard_internal_models.PhoneticInfo": {
+        "models.PhoneticInfo": {
             "type": "object",
             "properties": {
                 "audio": {
@@ -597,7 +953,20 @@ const docTemplate = `{
                 }
             }
         },
-        "word-flashcard_internal_models.RandomFilter": {
+        "models.QuestionRandomRequest": {
+            "type": "object",
+            "required": [
+                "count"
+            ],
+            "properties": {
+                "count": {
+                    "type": "integer",
+                    "maximum": 1000,
+                    "minimum": 1
+                }
+            }
+        },
+        "models.RandomFilter": {
             "type": "object",
             "required": [
                 "count"
@@ -609,11 +978,11 @@ const docTemplate = `{
                     "minimum": 1
                 },
                 "filter": {
-                    "$ref": "#/definitions/word-flashcard_internal_models.SearchFilter"
+                    "$ref": "#/definitions/models.SearchFilter"
                 }
             }
         },
-        "word-flashcard_internal_models.SearchFilter": {
+        "models.SearchFilter": {
             "type": "object",
             "required": [
                 "key",
@@ -628,6 +997,44 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "word-flashcard_internal_models.Question": {
+            "type": "object",
+            "properties": {
+                "answer": {
+                    "type": "string"
+                },
+                "count_failure_practise": {
+                    "type": "integer"
+                },
+                "count_practise": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "option_a": {
+                    "type": "string"
+                },
+                "option_b": {
+                    "type": "string"
+                },
+                "option_c": {
+                    "type": "string"
+                },
+                "option_d": {
+                    "type": "string"
+                },
+                "question": {
+                    "type": "string"
+                },
+                "reference": {
                     "type": "string"
                 }
             }

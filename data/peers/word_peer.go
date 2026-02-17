@@ -71,3 +71,14 @@ func (wp *WordPeer) Delete(where squirrel.Sqlizer) (int64, error) {
 
 	return result, nil
 }
+
+// Count returns the number of Word records matching the specified criteria
+func (wp *WordPeer) Count(where squirrel.Sqlizer) (int64, error) {
+	// Perform the count operation
+	result, err := wp.db.Count(wp.tableName, where)
+	if err != nil {
+		return 0, err
+	}
+
+	return result, nil
+}

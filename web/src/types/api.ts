@@ -98,3 +98,66 @@ export interface QuizResult {
   newFamiliarity: string;
 }
 
+// Question related types based on Swagger documentation
+export interface Question {
+  id: number;
+  question: string;
+  answer: string;
+  option_a: string;
+  option_b?: string;
+  option_c?: string;
+  option_d?: string;
+  count_failure_practise: number;
+  count_practise: number;
+  notes: string;
+  reference: string;
+}
+
+// Request type for creating a new question
+export interface CreateQuestionRequest {
+  question: string;
+  answer: string;
+  option_a: string;
+  option_b?: string;
+  option_c?: string;
+  option_d?: string;
+  notes?: string;
+  reference?: string;
+}
+
+// Request type for updating a question
+export interface UpdateQuestionRequest {
+  question: string;
+  answer: string;
+  option_a: string;
+  option_b?: string;
+  option_c?: string;
+  option_d?: string;
+  notes: string;
+  reference: string;
+  count_practise?: number;
+  count_failure_practise?: number;
+}
+
+// Questions search params
+export interface QuestionsSearchParams extends PaginationParams {
+  searchFilter?: SearchFilter;
+}
+
+// Questions random request
+export interface QuestionsRandomRequest {
+  count: number;
+}
+
+// Question Quiz configuration
+export interface QuestionQuizConfig {
+  questionCount: number;
+}
+
+// Question Quiz result for a single question
+export interface QuestionQuizResult {
+  question: Question;
+  userAnswer: string | null; // The user's selected answer (A, B, C, D)
+  isCorrect: boolean;
+}
+

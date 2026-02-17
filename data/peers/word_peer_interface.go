@@ -12,4 +12,5 @@ type WordPeerInterface interface {
 	Insert(word *models.Word) (int64, error)
 	Update(word *models.Word, where squirrel.Sqlizer) (int64, error)
 	Delete(where squirrel.Sqlizer) (int64, error)
+	Count(where squirrel.Sqlizer) (int64, error)
 }

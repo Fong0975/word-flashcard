@@ -54,23 +54,9 @@ func GetReelPeers() (peers.WordPeerInterface, peers.WordDefinitionsPeerInterface
 // @Router /api/words [get]
 func (wc *WordController) ListWords(c *gin.Context) {
 	// ================ 1. Parse pagination parameters ================
-	limit, err := ParseIntQueryParam(c, "limit", 100)
+	limit, offset, err := parseLimitAndOffsetFromPath(c)
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid limit parameter", err, c)
-		return
-	}
-	if limit <= 0 || limit > 1000 {
-		ResponseError(http.StatusBadRequest, "Limit must be between 1 and 1000", nil, c)
-		return
-	}
-
-	offset, err := ParseIntQueryParam(c, "offset", 0)
-	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid offset parameter", err, c)
-		return
-	}
-	if offset < 0 {
-		ResponseError(http.StatusBadRequest, "Offset must be non-negative", nil, c)
+		ResponseError(http.StatusBadRequest, "Invalid limit/offset parameter", err, c)
 		return
 	}
 
@@ -123,23 +109,9 @@ func (wc *WordController) SearchWords(c *gin.Context) {
 	}
 
 	// ================ 2. Parse pagination parameters ================
-	limit, err := ParseIntQueryParam(c, "limit", 100)
+	limit, offset, err := parseLimitAndOffsetFromPath(c)
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid limit parameter", err, c)
-		return
-	}
-	if limit <= 0 || limit > 1000 {
-		ResponseError(http.StatusBadRequest, "Limit must be between 1 and 1000", nil, c)
-		return
-	}
-
-	offset, err := ParseIntQueryParam(c, "offset", 0)
-	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid offset parameter", err, c)
-		return
-	}
-	if offset < 0 {
-		ResponseError(http.StatusBadRequest, "Offset must be non-negative", nil, c)
+		ResponseError(http.StatusBadRequest, "Invalid limit/offset parameter", err, c)
 		return
 	}
 
@@ -491,4 +463,44 @@ func (wc *WordController) DeleteWordDefinition(c *gin.Context) {
 
 	// ================ 3. Send response ================
 	ResponseSuccess(http.StatusNoContent, nil, c)
+}
+
+// CountQuestions @Summary Count words matching filter criteria
+// @Description Count the number of words that match the specified filter criteria
+// @Tags words
+// @Accept json
+// @Produce json
+// @Param searchFilter body models.SearchFilter true "Search filter criteria"
+// @Success 200 {object} map[string]int64 "Count of words matching the filter criteria"
+// @Failure 400 {object} models.ErrorResponse "Bad request - Invalid request body or filter"
+// @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to fetch data from database"
+// @Router /api/words/count [post]
+func (wc *WordController) CountQuestions(c *gin.Context) {
+	// ============== 1. Get search filter from request ================
+	var searchReq models.SearchFilter
+	err := ParseRequestBody(&searchReq, c)
+	if err != nil {
+		ResponseError(http.StatusBadRequest, "Invalid request body", err, c)
+		return
+	}
+
+	// ================ 2. Build where condition ================
+	var where squirrel.Sqlizer
+	if !searchReq.IsEmpty() {
+		where, err = ConvertFilterToSqlizer(&searchReq)
+		if err != nil {
+			ResponseError(http.StatusBadRequest, "Invalid filter", err, c)
+			return
+		}
+	}
+
+	// ================ 3. Fetch data from database ================
+	count, err := wc.wordPeer.Count(where)
+	if err != nil {
+		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", err, c)
+		return
+	}
+
+	// ================ 4. Send response ================
+	ResponseSuccess(http.StatusOK, gin.H{"count": count}, c)
 }
