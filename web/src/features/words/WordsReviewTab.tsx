@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useWords } from '../../hooks/useWords';
 import { WordCard } from './WordCard';
 import { Pagination } from '../../components/ui/Pagination';
-import { ActionButton } from '../../components/ui/ActionButton';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { ErrorMessage } from '../../components/ui/ErrorMessage';
 import { EmptyState } from '../../components/ui/EmptyState';
@@ -193,47 +192,6 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({ className = '' }
     refresh(); // Refresh the words list
   };
 
-  // Action menu items
-  const actionItems = [
-    {
-      id: 'new',
-      label: 'New',
-      onClick: handleNew,
-      icon: (
-        <svg
-          className="h-4 w-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth="2"
-          stroke="currentColor"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-        </svg>
-      ),
-    },
-    {
-      id: 'refresh',
-      label: 'Refresh',
-      onClick: refresh,
-      disabled: loading,
-      icon: (
-        <svg
-          className="h-4 w-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth="2"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-          />
-        </svg>
-      ),
-    },
-  ];
-
   return (
     <div className={`space-y-6 ${className}`}>
       {/* Header */}
@@ -249,6 +207,48 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({ className = '' }
       {/* Action Buttons */}
       {!loading && !error && (
         <div className="flex justify-end items-center space-x-3">
+
+          <button
+            onClick={handleNew}
+            className="inline-flex items-center justify-center space-x-2 px-4 py-2 text-sm font-medium rounded-md
+                      border border-gray-300 dark:border-gray-600 shadow-sm
+                      transition-colors duration-200 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+            disabled={loading}
+          >
+            <svg
+              className="w-4 h-4 mr-2"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="2"
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            Add
+          </button>
+
+          <button
+            onClick={refresh}
+            className="inline-flex items-center justify-center space-x-2 px-4 py-2 text-sm font-medium rounded-md
+                      border border-gray-300 dark:border-gray-600 shadow-sm
+                      transition-colors duration-200 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+            disabled={loading}
+          >
+            <svg
+              className="w-4 h-4 mr-2"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="2"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
+            </svg>
+            Refresh
+          </button>
 
           {words.length > 0 && (
             <button
@@ -270,23 +270,6 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({ className = '' }
               Quiz
             </button>
           )}
-
-          <ActionButton
-            label=""
-            items={actionItems}
-            disabled={loading}
-            icon={
-              <svg
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="2"
-                stroke="currentColor"
-              >
-                <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M12 6h.01M12 12h.01M12 18h.01"/>
-              </svg>
-            }
-          />
         </div>
       )}
 
