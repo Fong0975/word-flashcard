@@ -65,11 +65,11 @@ export const QuestionQuizModal: React.FC<QuestionQuizModalProps> = ({
         maxWidth="2xl"
         disableBackdropClose={state === 'quiz'}
         disableEscapeClose={state === 'quiz'}
-        className="max-h-[90vh] overflow-hidden"
+        className="max-h-[95vh] overflow-hidden flex flex-col"
       >
         <div className="h-[80vh] overflow-hidden">
           {state === 'quiz' && (
-            <div className="h-full overflow-y-auto">
+            <div className="h-full overflow-x-hidden">
               <QuestionQuiz
                 questionCount={quizConfig.questionCount}
                 onQuizComplete={handleQuizComplete}
@@ -79,7 +79,7 @@ export const QuestionQuizModal: React.FC<QuestionQuizModalProps> = ({
           )}
 
           {state === 'results' && (
-            <div className="h-full overflow-y-auto">
+            <div className="h-full overflow-x-hidden">
               <QuestionQuizResults
                 results={results}
                 onRetakeQuiz={handleRetakeQuiz}

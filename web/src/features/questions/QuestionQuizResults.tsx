@@ -37,16 +37,16 @@ export const QuestionQuizResults: React.FC<QuestionQuizResultsProps> = ({
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-8">
+    <div className="max-w-4xl mx-auto pt-8">
       {/* Header */}
       <div className="text-center mb-8">
         <div className="text-6xl mb-4">
           {accuracyPercentage >= 80 ? '🎉' : accuracyPercentage >= 60 ? '👍' : '📚'}
         </div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+        <h1 className="text-xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-2">
           Quiz Complete!
         </h1>
-        <p className="text-gray-600 dark:text-gray-300">
+        <p className="lg:text-lg text-gray-600 dark:text-gray-300">
           {getPerformanceMessage(accuracyPercentage)}
         </p>
       </div>
@@ -57,7 +57,7 @@ export const QuestionQuizResults: React.FC<QuestionQuizResultsProps> = ({
           <div className={`text-6xl font-bold mb-4 ${getScoreColor(accuracyPercentage)}`}>
             {accuracyPercentage}%
           </div>
-          <div className={`inline-flex items-center px-4 py-2 rounded-full text-lg font-semibold border ${getScoreBadgeColor(accuracyPercentage)}`}>
+          <div className={`inline-flex items-center px-4 py-2 rounded-full md:text-lg font-semibold border ${getScoreBadgeColor(accuracyPercentage)}`}>
             {correctAnswers} out of {totalQuestions} correct
           </div>
         </div>
@@ -92,7 +92,7 @@ export const QuestionQuizResults: React.FC<QuestionQuizResultsProps> = ({
       </div>
 
       {/* Question by Question Results */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-2 md:p-4 lg:p-6 mb-8">
         <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
           Question Review
         </h2>
@@ -159,7 +159,7 @@ export const QuestionQuizResults: React.FC<QuestionQuizResultsProps> = ({
           onClick={onRetakeQuiz}
           className="px-6 py-3 text-sm font-medium text-white bg-blue-500 hover:bg-blue-600
                      rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                     flex items-center space-x-2"
+                     flex items-center justify-center space-x-2 w-full"
         >
           <svg
             className="w-4 h-4"
@@ -170,7 +170,7 @@ export const QuestionQuizResults: React.FC<QuestionQuizResultsProps> = ({
           >
             <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
           </svg>
-          <span>Retake Quiz</span>
+          <span>Again</span>
         </button>
 
         <button
@@ -178,7 +178,7 @@ export const QuestionQuizResults: React.FC<QuestionQuizResultsProps> = ({
           className="px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700
                      hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors
                      focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2
-                     flex items-center space-x-2"
+                     flex items-center justify-center space-x-2 w-full"
         >
           <svg
             className="w-4 h-4"
@@ -189,7 +189,7 @@ export const QuestionQuizResults: React.FC<QuestionQuizResultsProps> = ({
           >
             <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
           </svg>
-          <span>Back to Home</span>
+          <span>Home</span>
         </button>
       </div>
     </div>
