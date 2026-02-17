@@ -245,7 +245,7 @@ export const Quiz: React.FC<QuizProps> = ({
           <>
             {/* Centered Word Display */}
             <div className="flex-1 flex flex-col items-center justify-center">
-              <h1 className="text-8xl font-bold text-gray-900 dark:text-white mb-6">
+              <h1 className="text-4xl md:text-4xl lg:text-8xl font-bold text-gray-900 dark:text-white mb-6 break-all text-center">
                 {currentWord.word}
               </h1>
 
@@ -297,7 +297,7 @@ export const Quiz: React.FC<QuizProps> = ({
             <div className="flex-shrink-0 text-center">
               <button
                 onClick={handleShowAnswer}
-                className="px-8 py-3 text-lg font-medium text-white bg-blue-500 hover:bg-blue-600
+                className="px-8 py-3 font-medium w-full text-white bg-blue-500 hover:bg-blue-600
                            rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               >
                 Show Answer
@@ -310,7 +310,7 @@ export const Quiz: React.FC<QuizProps> = ({
             <div className="max-w-2xl mx-auto">
               {/* Word Display */}
               <div className="text-center mb-8">
-                <h1 className="text-6xl font-bold text-gray-900 dark:text-white mb-4">
+                <h1 className="text-4xl md:text-4xl lg:text-8xl font-bold text-gray-900 dark:text-white mb-4">
                   {currentWord.word}
                 </h1>
 
@@ -351,71 +351,76 @@ export const Quiz: React.FC<QuizProps> = ({
                   <div className="space-y-4">
                     {currentWord.definitions.map((definition, index) => (
                       <div key={definition.id} className="space-y-2">
-                        <div className="flex items-start space-x-3">
-                          {definition.part_of_speech && (
-                            <div className="flex-shrink-0">
-                              {definition.part_of_speech
-                                .split(',')
-                                .filter(pos => pos.trim())
-                                .map((pos, posIndex) => (
-                                  <span
-                                    key={posIndex}
-                                    className="inline-block px-2 py-1 text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full mr-1"
-                                  >
-                                    {pos.trim()}
-                                  </span>
-                                ))
-                              }
-                            </div>
-                          )}
+
+                        {definition.part_of_speech && (
+                          <div className="flex-shrink-0">
+                            {definition.part_of_speech
+                              .split(',')
+                              .filter(pos => pos.trim())
+                              .map((pos, posIndex) => (
+                                <span
+                                  key={posIndex}
+                                  className="inline-block px-2 py-1 text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full mr-1"
+                                >
+                                  {pos.trim()}
+                                </span>
+                              ))
+                            }
+                          </div>
+                        )}
+
+                        <div className='px-1'>
+                          {/* Definitions */}
                           <div className="flex-1">
                             <p className="text-gray-800 dark:text-gray-200">
                               {definition.definition}
                             </p>
                           </div>
-                        </div>
 
-                        {definition.examples && definition.examples.length > 0 && (
-                          <div className="ml-6">
-                            <h5 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-                              Examples:
-                            </h5>
-                            <ul className="space-y-1">
-                              {definition.examples.map((example, exampleIndex) => (
-                                <li key={exampleIndex} className="text-sm text-gray-600 dark:text-gray-400 italic pl-4 border-l-2 border-gray-300 dark:border-gray-600">
-                                  {example}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
+                          {/* Example */}
+                          {definition.examples && definition.examples.length > 0 && (
+                            <div className="mt-2">
+                              <h5 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+                                Examples:
+                              </h5>
+                              <ul className="space-y-1">
+                                {definition.examples.map((example, exampleIndex) => (
+                                  <li key={exampleIndex} className="text-sm text-gray-600 dark:text-gray-400 italic pl-4 border-l-2 border-gray-300 dark:border-gray-600">
+                                    {example}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
 
-                        {definition.notes && (
-                          <div className="ml-6">
-                            <h5 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
-                              Notes:
-                            </h5>
-                            <div className="bg-yellow-50 dark:bg-yellow-900/20 p-2 rounded prose prose-sm max-w-none prose-slate dark:prose-invert prose-p:text-gray-600 dark:prose-p:text-gray-400 prose-headings:text-gray-800 dark:prose-headings:text-gray-200 prose-ul:text-gray-600 dark:prose-ul:text-gray-400">
-                              <div className="
-                                prose prose-sm max-w-none prose-slate dark:prose-invert 
-                                prose-p:text-gray-600 dark:prose-p:text-gray-400
-                                /* 1. Remove the default backticks */
-                                prose-code:before:content-none 
-                                prose-code:after:content-none
-                                /* 2. Add special markup styles (e.g., gray background, pink text, rounded corners) */
-                                prose-code:bg-gray-100 dark:prose-code:bg-gray-800
-                                prose-code:text-pink-500 dark:prose-code:text-pink-400
-                                prose-code:px-1.5 prose-code:py-0.5
-                                prose-code:rounded-md
-                                prose-code:font-medium
-                              ">
-                                <ReactMarkdown remarkPlugins={[remarkBreaks]}>
-                                  {definition.notes.replace(/\\n/g, '\n')}
-                                </ReactMarkdown>
+                          {/* Notes */}
+                          {definition.notes && (
+                            <div className="mt-2">
+                              <h5 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
+                                Notes:
+                              </h5>
+                              <div className="bg-yellow-50 dark:bg-yellow-900/20 p-2 rounded prose prose-sm max-w-none prose-slate dark:prose-invert prose-p:text-gray-600 dark:prose-p:text-gray-400 prose-headings:text-gray-800 dark:prose-headings:text-gray-200 prose-ul:text-gray-600 dark:prose-ul:text-gray-400">
+                                <div className="
+                                  prose prose-sm max-w-none prose-slate dark:prose-invert 
+                                  prose-p:text-gray-600 dark:prose-p:text-gray-400
+                                  /* 1. Remove the default backticks */
+                                  prose-code:before:content-none 
+                                  prose-code:after:content-none
+                                  /* 2. Add special markup styles (e.g., gray background, pink text, rounded corners) */
+                                  prose-code:bg-gray-100 dark:prose-code:bg-gray-800
+                                  prose-code:text-pink-500 dark:prose-code:text-pink-400
+                                  prose-code:px-1.5 prose-code:py-0.5
+                                  prose-code:rounded-md
+                                  prose-code:font-medium
+                                ">
+                                  <ReactMarkdown remarkPlugins={[remarkBreaks]}>
+                                    {definition.notes.replace(/\\n/g, '\n')}
+                                  </ReactMarkdown>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -423,13 +428,13 @@ export const Quiz: React.FC<QuizProps> = ({
               )}
 
               <div className="text-center mb-6">
-                <p className="text-lg text-gray-600 dark:text-gray-300">
+                <p className="lg:text-lg text-gray-600 dark:text-gray-400">
                   How familiar are you with this word?
                 </p>
               </div>
 
-              {/* Horizontal Familiarity Buttons */}
-              <div className="flex justify-center space-x-4 mb-8">
+              {/* Familiarity Buttons */}
+              <div className="flex flex-col justify-center space-y-4 mb-8">
                 <button
                   onClick={() => handleFamiliaritySelect('red')}
                   className="flex flex-col items-center p-4 bg-red-50 dark:bg-red-900/20

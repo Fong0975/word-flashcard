@@ -207,7 +207,7 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
             {/* Question Display */}
             <div className="flex-1 flex flex-col">
               <div className="mb-8">
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 leading-relaxed">
+                <h1 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white mb-6 leading-relaxed">
                   {currentQuestion.question}
                 </h1>
 
@@ -217,7 +217,7 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
                     <label
                       key={option.key}
                       className={`
-                        flex items-start space-x-3 p-4 rounded-lg border cursor-pointer transition-colors
+                        flex items-start space-x-3 p-3 lg:p-4 rounded-lg border cursor-pointer transition-colors
                         ${selectedAnswer === option.key
                           ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500 ring-2 ring-blue-500'
                           : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600'
@@ -230,7 +230,7 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
                         value={option.key}
                         checked={selectedAnswer === option.key}
                         onChange={(e) => handleAnswerSelect(e.target.value)}
-                        className="w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 mt-1"
+                        className="w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 mt-1 focus:outline-none"
                       />
                       <div className="flex-1">
                         <div className="flex items-start space-x-2">
@@ -253,9 +253,10 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
               <button
                 onClick={handleSubmitAnswer}
                 disabled={!selectedAnswer}
-                className="px-8 py-3 text-lg font-medium text-white bg-blue-500 hover:bg-blue-600
+                className="px-8 py-3 md:text-lg font-medium text-white
+                           bg-blue-500 hover:bg-blue-600
                            rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                           disabled:opacity-50 disabled:cursor-not-allowed"
+                           disabled:opacity-50 disabled:cursor-not-allowed w-full"
               >
                 Submit Answer
               </button>
@@ -369,11 +370,12 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
               )}
 
               {/* Next Button */}
-              <div className="text-center pb-8">
+              <div className="text-center pb-2 md:pb-4 lg:pb-8">
                 <button
                   onClick={handleNextQuestion}
-                  className="px-8 py-3 text-lg font-medium text-white bg-green-500 hover:bg-green-600
-                             rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                  className="px-8 py-3 md:text-lg font-medium text-white
+                             bg-green-500 hover:bg-green-600
+                             rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 w-full"
                 >
                   {currentQuestionIndex < questions.length - 1 ? 'Next Question' : 'Finish Quiz'}
                 </button>

@@ -52,7 +52,7 @@ export const Modal: React.FC<ModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+    <div className="fixed inset-0 z-50 overflow-y-auto !mt-0">
       {/* Background overlay */}
       <div
         className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
@@ -96,7 +96,7 @@ export const Modal: React.FC<ModalProps> = ({
           )}
 
           {/* Content */}
-          <div className="px-6 py-4">
+          <div className="px-2 md:px-3 lg:px-4 py-4">
             {children}
           </div>
 
