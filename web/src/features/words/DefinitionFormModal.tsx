@@ -8,6 +8,7 @@ const PART_OF_SPEECH_OPTIONS = [
   'noun', 'verb', 'adjective', 'adverb', 'preposition', 'conjunction', 'phrase', 'other'
 ];
 
+
 // Interface for definition form data
 // Cambridge Dictionary API interfaces
 interface CambridgePronunciation {
@@ -81,6 +82,9 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
     phonetics: {}
   });
 
+  // Note buttons configuration state
+  const [noteButtonsConfig, setNoteButtonsConfig] = useState<Array<{label: string, value: string}>>([]);
+
   // Loading state for form submission
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -92,6 +96,22 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
 
   // Success notification states
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // Load note buttons configuration on component mount
+  useEffect(() => {
+    const loadNoteButtonsConfig = async () => {
+      try {
+        const configModule = await import('../../config/definitionFormModalNoteButtonsConfig.json');
+        setNoteButtonsConfig(configModule.default || []);
+      } catch (error) {
+        // Config file doesn't exist or failed to load, use empty array
+        console.warn('Note buttons config file not found, template buttons will be hidden');
+        setNoteButtonsConfig([]);
+      }
+    };
+
+    loadNoteButtonsConfig();
+  }, []);
 
   // Reset or populate form when modal opens/closes
   useEffect(() => {
@@ -142,6 +162,17 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
   // Handle notes change
   const handleNotesChange = (notes: string) => {
     setFormData(prev => ({ ...prev, notes }));
+  };
+
+  // Append text to notes
+  const appendToNotes = (textToAppend: string) => {
+    setFormData(prev => {
+      const currentNotes = prev.notes;
+      // If there's existing text and it doesn't end with a newline, add one before appending
+      const separator = currentNotes && !currentNotes.endsWith('\n') ? '\n' : '';
+      const newNotes = currentNotes + separator + textToAppend;
+      return { ...prev, notes: newNotes };
+    });
   };
 
   // Handle examples change
@@ -381,7 +412,7 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
             </h2>
             {wordText && (
               <p className="text-lg text-gray-600 dark:text-gray-400 mt-1">
-                for "<a className="font-semibold text-gray-800 dark:text-blue-500 hover:dark:text-blue-300" href={`https://dictionary.cambridge.org/zht/%E8%A9%9E%E5%85%B8/%E8%8B%B1%E8%AA%9E-%E6%BC%A2%E8%AA%9E-%E7%B9%81%E9%AB%94/${dictionaryData ? dictionaryData.word : ''}`} target="_blank" rel="noopener noreferrer">{wordText}</a>"
+                for "<a className="font-semibold text-gray-800 dark:text-blue-500 hover:dark:text-blue-300" href={`https://dictionary.cambridge.org/zht/%E8%A9%9E%E5%85%B8/%E8%8B%B1%E8%AA%9E-%E6%BC%A2%E8%AA%9E-%E7%B9%81%E9%AB%94/${wordText}`} target="_blank" rel="noopener noreferrer">{wordText}</a>"
               </p>
             )}
           </div>
@@ -696,6 +727,28 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Notes (Optional)
               </label>
+
+              {/* Quick note templates buttons - only show if config is available */}
+              {noteButtonsConfig.length > 0 && (
+                <div className="mb-3">
+                  <div className="flex flex-wrap gap-2">
+                    {noteButtonsConfig.map((button, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        onClick={() => appendToNotes(button.value)}
+                        className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 text-xs font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                      >
+                        {button.label}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                    Click buttons above to quickly add note templates
+                  </p>
+                </div>
+              )}
+
               <textarea
                 value={formData.notes}
                 onChange={(e) => handleNotesChange(e.target.value)}
