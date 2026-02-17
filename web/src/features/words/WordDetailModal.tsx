@@ -310,9 +310,9 @@ export const WordDetailModal: React.FC<WordDetailModalProps> = ({
         isOpen={isOpen}
         onClose={onClose}
         maxWidth="2xl"
-        className="max-h-[90vh] overflow-hidden"
+        className="max-h-[95vh] overflow-hidden"
       >
-      <div className="flex flex-col h-[95vh] -m-6 -mt-4">
+      <div className="flex flex-col h-[90vh] -m-6 -mt-4">
         {/* Fixed Header */}
         <div className="flex-shrink-0 px-6 pt-6 pb-0">
           {/* Header */}

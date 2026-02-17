@@ -206,13 +206,11 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
         payload.part_of_speech = formData.part_of_speech.join(',');
       }
 
-      // Add examples only if they exist and are not empty
+      // Add examples (optional field could be empty)
       const nonEmptyExamples = formData.examples.filter(ex => ex.trim());
-      if (nonEmptyExamples.length > 0) {
-        payload.examples = nonEmptyExamples;
-      }
+      payload.examples = nonEmptyExamples;
 
-      // Add phonetics only if they exist and are not empty
+      // Add phonetics (optional field could be empty)
       const phoneticsPayload: Record<string, string> = {};
       if (formData.phonetics.uk?.trim()) {
         phoneticsPayload.uk = formData.phonetics.uk.trim();
@@ -220,14 +218,10 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
       if (formData.phonetics.us?.trim()) {
         phoneticsPayload.us = formData.phonetics.us.trim();
       }
-      if (Object.keys(phoneticsPayload).length > 0) {
-        payload.phonetics = phoneticsPayload;
-      }
+      payload.phonetics = phoneticsPayload;
 
-      // Add notes if provided - convert actual newlines to literal \n for storage
-      if (formData.notes.trim()) {
-        payload.notes = formData.notes.trim().replace(/\n/g, '\\n');
-      }
+      // Add notes (optional field could be empty) - convert actual newlines to literal \n for storage
+      payload.notes = formData.notes.trim() ? formData.notes.trim().replace(/\n/g, '\\n') : '';
 
       if (mode === 'edit' && definition?.id) {
         // Update existing definition
@@ -375,9 +369,9 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       maxWidth="xl"
-      className="max-h-[90vh] overflow-hidden"
+      className="max-h-[95vh] overflow-hidden"
     >
-      <div className="flex flex-col h-[95vh] -m-6 -mt-4">
+      <div className="flex flex-col h-[90vh] -m-6 -mt-4">
         {/* Fixed Header */}
         <div className="flex-shrink-0 px-6 pt-4 pb-0 mb-2">
           {/* Header */}
