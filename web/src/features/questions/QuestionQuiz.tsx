@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkBreaks from 'remark-breaks';
 import { Question, QuestionQuizResult, QuestionsRandomRequest } from '../../types/api';
 import { apiService } from '../../lib/api';
 
@@ -345,11 +346,7 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
                   </h3>
                   <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
                     <div className="prose prose-sm max-w-none prose-slate dark:prose-invert prose-p:text-gray-600 dark:prose-p:text-gray-400">
-                      <ReactMarkdown
-                        components={{
-                          br: () => <br />
-                        }}
-                      >
+                      <ReactMarkdown remarkPlugins={[remarkBreaks]}>
                         {currentQuestion.notes.replace(/\\n/g, '\n')}
                       </ReactMarkdown>
                     </div>

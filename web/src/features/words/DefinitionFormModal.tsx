@@ -377,7 +377,7 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
       maxWidth="xl"
       className="max-h-[90vh] overflow-hidden"
     >
-      <div className="flex flex-col h-[80vh] -m-6 -mt-4">
+      <div className="flex flex-col h-[95vh] -m-6 -mt-4">
         {/* Fixed Header */}
         <div className="flex-shrink-0 px-6 pt-4 pb-0 mb-2">
           {/* Header */}

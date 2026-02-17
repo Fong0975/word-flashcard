@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkBreaks from 'remark-breaks';
 import { Question } from '../../types/api';
 import { Modal } from '../../components/ui/Modal';
 import { QuestionFormModal } from './QuestionFormModal';
@@ -180,7 +181,7 @@ export const QuestionDetailModal: React.FC<QuestionDetailModalProps> = ({
       maxWidth="2xl"
       className="max-h-[90vh] overflow-hidden"
     >
-      <div className="flex flex-col h-[80vh] -m-6 -mt-4">
+      <div className="flex flex-col h-[95vh] -m-6 -mt-4">
         {/* Fixed Header */}
         <div className="flex-shrink-0 px-6 pt-6 pb-0">
           {/* Header */}
@@ -369,11 +370,7 @@ export const QuestionDetailModal: React.FC<QuestionDetailModalProps> = ({
                         Explanation:
                       </h3>
                       <div className="prose prose-sm max-w-none prose-slate dark:prose-invert prose-p:text-gray-600 dark:prose-p:text-gray-400">
-                        <ReactMarkdown
-                          components={{
-                            br: () => <br />
-                          }}
-                        >
+                        <ReactMarkdown remarkPlugins={[remarkBreaks]}>
                           {question.notes.replace(/\\n/g, '\n')}
                         </ReactMarkdown>
                       </div>

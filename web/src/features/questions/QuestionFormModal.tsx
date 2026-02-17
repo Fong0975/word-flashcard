@@ -301,7 +301,7 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
             </label>
             <textarea
               id="notes"
-              value={notesValue}
+              value={notesValue ? notesValue.replace(/\\n/g, '\n') : ''}
               onChange={(e) => setNotesValue(e.target.value)}
               rows={4}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm
