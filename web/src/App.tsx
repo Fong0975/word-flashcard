@@ -6,7 +6,7 @@ function App() {
   const { currentTab, switchTab } = useTab();
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300 pt-[env(safe-area-inset-top)]">
       <Header />
 
       {/* Main Content Area */}
