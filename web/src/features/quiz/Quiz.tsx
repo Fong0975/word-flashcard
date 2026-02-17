@@ -396,9 +396,23 @@ export const Quiz: React.FC<QuizProps> = ({
                               Notes:
                             </h5>
                             <div className="bg-yellow-50 dark:bg-yellow-900/20 p-2 rounded prose prose-sm max-w-none prose-slate dark:prose-invert prose-p:text-gray-600 dark:prose-p:text-gray-400 prose-headings:text-gray-800 dark:prose-headings:text-gray-200 prose-ul:text-gray-600 dark:prose-ul:text-gray-400">
-                              <ReactMarkdown remarkPlugins={[remarkBreaks]}>
-                                {definition.notes.replace(/\\n/g, '\n')}
-                              </ReactMarkdown>
+                              <div className="
+                                prose prose-sm max-w-none prose-slate dark:prose-invert 
+                                prose-p:text-gray-600 dark:prose-p:text-gray-400
+                                /* 1. Remove the default backticks */
+                                prose-code:before:content-none 
+                                prose-code:after:content-none
+                                /* 2. Add special markup styles (e.g., gray background, pink text, rounded corners) */
+                                prose-code:bg-gray-100 dark:prose-code:bg-gray-800
+                                prose-code:text-pink-500 dark:prose-code:text-pink-400
+                                prose-code:px-1.5 prose-code:py-0.5
+                                prose-code:rounded-md
+                                prose-code:font-medium
+                              ">
+                                <ReactMarkdown remarkPlugins={[remarkBreaks]}>
+                                  {definition.notes.replace(/\\n/g, '\n')}
+                                </ReactMarkdown>
+                              </div>
                             </div>
                           </div>
                         )}
