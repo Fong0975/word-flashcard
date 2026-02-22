@@ -4,12 +4,13 @@ import { WordDetailModal } from './WordDetailModal';
 import { DefinitionFormModal } from './DefinitionFormModal';
 
 interface WordCardProps {
+  index: number;
   word: Word;
   className?: string;
   onWordUpdated?: () => void;
 }
 
-export const WordCard: React.FC<WordCardProps> = ({ word, className = '', onWordUpdated }) => {
+export const WordCard: React.FC<WordCardProps> = ({ index, word, className = '', onWordUpdated }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDefinitionModalOpen, setIsDefinitionModalOpen] = useState(false);
   const [isEditDefinitionModalOpen, setIsEditDefinitionModalOpen] = useState(false);
@@ -80,6 +81,13 @@ export const WordCard: React.FC<WordCardProps> = ({ word, className = '', onWord
           `}
           title={`Familiarity: ${word.familiarity || 'unknown'}`}
         />
+
+        {/* Sequence Number Section */}
+        <div className="flex-shrink-0 w-10 mr-3 flex justify-center items-center">
+          <span className="text-sm font-medium text-gray-400 dark:text-gray-500 group-hover:text-primary-500 transition-colors tabular-nums">
+            {index}
+          </span>
+        </div>
 
         {/* Content area */}
         <div className="flex-1 min-w-0">

@@ -97,6 +97,9 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
   // Success notification states
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+  // Copy to clipboard state
+  const [copySuccess, setCopySuccess] = useState(false);
+
   // Load note buttons configuration on component mount
   useEffect(() => {
     const loadNoteButtonsConfig = async () => {
@@ -310,6 +313,32 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
     setTimeout(() => setSuccessMessage(null), 3000); // Auto hide after 3 seconds
   };
 
+  // Helper function to copy word text to clipboard
+  const copyWordToClipboard = async () => {
+    if (!wordText) return;
+
+    try {
+      await navigator.clipboard.writeText(wordText);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000); // Hide after 2 seconds
+    } catch (error) {
+      console.error('Failed to copy to clipboard:', error);
+      // Fallback for older browsers
+      try {
+        const textArea = document.createElement('textarea');
+        textArea.value = wordText;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        setCopySuccess(true);
+        setTimeout(() => setCopySuccess(false), 2000);
+      } catch (fallbackError) {
+        console.error('Fallback copy also failed:', fallbackError);
+      }
+    }
+  };
+
   // Helper function to group pronunciations by position
   const groupPronunciationsByPos = (pronunciations: CambridgePronunciation[]) => {
     const groups = pronunciations.reduce((acc, pron) => {
@@ -411,9 +440,27 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
               {mode === 'edit' ? 'Edit Definition' : 'Add New Definition'}
             </h2>
             {wordText && (
-              <p className="text-lg text-gray-600 dark:text-gray-400 mt-1">
-                for "<a className="font-semibold text-gray-800 dark:text-blue-500 hover:dark:text-blue-300" href={`https://dictionary.cambridge.org/zht/%E8%A9%9E%E5%85%B8/%E8%8B%B1%E8%AA%9E-%E6%BC%A2%E8%AA%9E-%E7%B9%81%E9%AB%94/${wordText}`} target="_blank" rel="noopener noreferrer">{wordText}</a>"
-              </p>
+              <div className="flex items-center mt-1">
+                <p className="text-lg text-gray-600 dark:text-gray-400">
+                  for "<a className="font-semibold text-gray-800 dark:text-blue-500 hover:dark:text-blue-300" href={`https://dictionary.cambridge.org/zht/%E8%A9%9E%E5%85%B8/%E8%8B%B1%E8%AA%9E-%E6%BC%A2%E8%AA%9E-%E7%B9%81%E9%AB%94/${wordText}`} target="_blank" rel="noopener noreferrer">{wordText}</a>"
+                </p>
+                <button
+                  type="button"
+                  onClick={copyWordToClipboard}
+                  className="ml-2 p-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-md transition-colors"
+                  title="Copy word text to clipboard"
+                >
+                  {copySuccess ? (
+                    <svg className="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  ) : (
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                    </svg>
+                  )}
+                </button>
+              </div>
             )}
           </div>
 

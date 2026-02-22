@@ -349,8 +349,9 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({ className = '' }
       {words.length > 0 && (
         <>
           <div className="space-y-3">
-            {words.map((word) => (
+            {words.map((word, index) => (
               <WordCard
+                index={(currentPage - 1) * itemsPerPage + index + 1}
                 key={word.id}
                 word={word}
                 className="transition-transform duration-200 hover:scale-[1.02]"

@@ -2,6 +2,7 @@ import React from 'react';
 import { Question } from '../../types/api';
 
 interface QuestionCardProps {
+  index: number;
   question: Question;
   className?: string;
   onQuestionUpdated?: () => void;
@@ -9,6 +10,7 @@ interface QuestionCardProps {
 }
 
 export const QuestionCard: React.FC<QuestionCardProps> = ({
+  index,
   question,
   className = '',
   onQuestionUpdated,
@@ -59,6 +61,18 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
       `}
       onClick={handleCardClick}
     >
+      {/* Sequence Number Section */}
+      <div className="flex-shrink-0 w-12 pt-1 mr-2 border-r border-gray-100 dark:border-gray-700/50">
+        <div className="flex flex-col">
+          <span className="text-xs font-bold text-primary-500 dark:text-primary-400 uppercase tracking-tighter opacity-70">
+            No.
+          </span>
+          <span className="text-base font-mono font-bold text-gray-400 dark:text-gray-500 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors tabular-nums">
+            {index}
+          </span>
+        </div>
+      </div>
+
       {/* Content area */}
       <div className="flex-1 min-w-0">
         {/* Header with question */}

@@ -44,7 +44,7 @@ func (w *Word) FromDataModel(dm *models.Word, defs []*models.WordDefinition) *Wo
 			cleanPhonetics := utils.CleanJSONString(*def.Phonetics)
 			err := json.Unmarshal([]byte(cleanPhonetics), &phonetics)
 			if err != nil {
-				slog.Warn("Failed to unmarshal phonetics JSON", "error", err)
+				slog.Warn("Failed to unmarshal phonetics JSON", "phonetics", cleanPhonetics, "error", err)
 			}
 		} else {
 			phonetics = map[string]interface{}{}
@@ -53,10 +53,9 @@ func (w *Word) FromDataModel(dm *models.Word, defs []*models.WordDefinition) *Wo
 		// Convert examples from JSON string to []string
 		var examples []string
 		if def.Examples != nil {
-			cleanExamples := utils.CleanJSONString(*def.Examples)
-			err := json.Unmarshal([]byte(cleanExamples), &examples)
+			err := json.Unmarshal([]byte(*def.Examples), &examples)
 			if err != nil {
-				slog.Warn("Failed to unmarshal examples JSON", "error", err)
+				slog.Warn("Failed to unmarshal examples JSON", "examples", *def.Examples, "error", err)
 			}
 		} else {
 			examples = []string{}
