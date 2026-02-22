@@ -53,6 +53,14 @@ button:focus {
   }
 }
 
+/* Customization - Hide Focus Outline */
+@layer base {
+  *:focus {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+}
+
 /* Customization - Thin Scrollbar */
 * {
   scrollbar-width: thin; /* Firefox and modern browsers */
