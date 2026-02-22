@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Modal } from '../../components/ui/Modal';
 import { apiService } from '../../lib/api';
 import { Word } from '../../types/api';
@@ -38,6 +38,9 @@ export const WordFormModal: React.FC<WordFormModalProps> = ({
   const [suggestionsLoading, setSuggestionsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
+  // Debounce timer for search
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   // Initialize form values when modal opens or word changes
   useEffect(() => {
     if (mode === 'edit' && word) {
@@ -52,6 +55,15 @@ export const WordFormModal: React.FC<WordFormModalProps> = ({
     setSuggestions([]);
     setShowSuggestions(false);
   }, [mode, word, isOpen]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Search for similar words
   const searchSimilarWords = async (searchTerm: string) => {
@@ -74,10 +86,18 @@ export const WordFormModal: React.FC<WordFormModalProps> = ({
         limit: 5, // Limit suggestions to 5 items
       });
 
-      // Filter out exact matches (if editing) and show only similar words
-      const filteredResults = results.filter(w =>
-        w.word.toLowerCase() !== searchTerm.toLowerCase()
-      );
+      // Filter out exact matches and current editing word (if in edit mode)
+      const filteredResults = results.filter(w => {
+        // Exclude exact matches with search term
+        if (w.word.toLowerCase() === searchTerm.toLowerCase()) {
+          return false;
+        }
+        // Exclude current editing word in edit mode
+        if (mode === 'edit' && word && w.id === word.id) {
+          return false;
+        }
+        return true;
+      });
 
       setSuggestions(filteredResults);
       setShowSuggestions(filteredResults.length > 0);
@@ -90,11 +110,25 @@ export const WordFormModal: React.FC<WordFormModalProps> = ({
     }
   };
 
-  // Handle word input blur
-  const handleWordBlur = async () => {
-    if (wordValue.trim()) {
-      await searchSimilarWords(wordValue.trim());
+  // Handle word input change with debounced search
+  const handleWordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setWordValue(value);
+
+    // Clear existing timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
     }
+
+    // Set new timeout for search
+    searchTimeoutRef.current = setTimeout(() => {
+      if (value.trim()) {
+        searchSimilarWords(value.trim());
+      } else {
+        setSuggestions([]);
+        setShowSuggestions(false);
+      }
+    }, 300); // 300ms debounce
   };
 
   // Handle suggestion click
@@ -185,9 +219,17 @@ export const WordFormModal: React.FC<WordFormModalProps> = ({
 
   const handleClose = () => {
     if (!loading) {
+      // Clear any pending search timeout
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+        searchTimeoutRef.current = null;
+      }
+
       setWordValue('');
       setFamiliarityValue('green');
       setError(null);
+      setSuggestions([]);
+      setShowSuggestions(false);
       onClose();
     }
   };
@@ -209,8 +251,7 @@ export const WordFormModal: React.FC<WordFormModalProps> = ({
               type="text"
               id="word"
               value={wordValue}
-              onChange={(e) => setWordValue(e.target.value)}
-              onBlur={handleWordBlur}
+              onChange={handleWordChange}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm
                          bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                          focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500
