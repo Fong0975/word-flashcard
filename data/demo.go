@@ -251,7 +251,7 @@ func insertWordDemoData() {
 			1,
 			"noun",
 			"(CD或唱片上的) 音樂專輯 A collection of several pieces of music, made available as a single item on a CD, the internet, etc.",
-			"{\"uk\":\"https://dictionary.cambridge.org/zht/media/%E8%8B%B1%E8%AA%9E-%E6%BC%A2%E8%AA%9E-%E7%B9%81%E9%AB%94/uk_pron/u/uka/ukalb/ukalbin002.mp3\",\"us\":\"https://dictionary.cambridge.org/zht/media/%E8%8B%B1%E8%AA%9E-%E6%BC%A2%E8%AA%9E-%E7%B9%81%E9%AB%94/us_pron/a/alb/album/album.mp3\",}",
+			"{\"uk\":\"https://dictionary.cambridge.org/zht/media/%E8%8B%B1%E8%AA%9E-%E6%BC%A2%E8%AA%9E-%E7%B9%81%E9%AB%94/uk_pron/u/uka/ukalb/ukalbin002.mp3\",\"us\":\"https://dictionary.cambridge.org/zht/media/%E8%8B%B1%E8%AA%9E-%E6%BC%A2%E8%AA%9E-%E7%B9%81%E9%AB%94/us_pron/a/alb/album/album.mp3\"}",
 			"[\n\"Have you heard their new album? 你聽過他們的新專輯嗎？\"]",
 			"# Note \\n ## This is a note \\n- Details.",
 		}, {
@@ -413,7 +413,7 @@ func insertWordDemoData() {
 			"noun",
 			"太陽 The large ball of fire in the sky that gives us heat and light during the day",
 			"{\"uk\":\"https://dictionary.cambridge.org/zht/media/%E8%8B%B1%E8%AA%9E-%E6%BC%A2%E8%AA%9E-%E7%B9%81%E9%AB%94/uk_pron/u/uks/uksom/uksomet012.mp3\",\"us\":\"https://dictionary.cambridge.org/zht/media/%E8%8B%B1%E8%AA%9E-%E6%BC%A2%E8%AA%9E-%E7%B9%81%E9%AB%94/us_pron/s/son/son__/son.mp3\"}",
-			"[\"The sun is shining. 太陽在照耀着。\", The sun rises in the east and sets in the west. 太陽從東邊升起，從西邊落下。\"]",
+			"[\"The sun is shining. 太陽在照耀着。\", \"The sun rises in the east and sets in the west. 太陽從東邊升起，從西邊落下。\"]",
 			"",
 		}, {
 			20,
