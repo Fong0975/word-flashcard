@@ -232,8 +232,9 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({ classNam
       {questions.length > 0 && (
         <>
           <div className="space-y-3">
-            {questions.map((question) => (
+            {questions.map((question, index) => (
               <QuestionCard
+                index={(currentPage - 1) * itemsPerPage + index + 1}
                 key={question.id}
                 question={question}
                 className="transition-transform duration-200 hover:scale-[1.01]"
