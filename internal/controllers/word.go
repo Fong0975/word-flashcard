@@ -418,12 +418,22 @@ func (wc *WordController) DeleteWord(c *gin.Context) {
 	}
 
 	// ================ 2. Delete data from database ================
-	// Delete word definitions associated with the word
+	// Check if there are word definitions associated with the word
 	whereDefs := squirrel.Eq{schema.WORD_DEFINITIONS_WORD_ID: wordID}
-	if _, err := wc.wordDefinitionPeer.Delete(whereDefs); err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to delete associated data from database", err, c)
+	existingDefs, err := wc.wordDefinitionPeer.Select([]*string{}, whereDefs, nil, nil, nil)
+	if err != nil {
+		ResponseError(http.StatusInternalServerError, "Failed to check associated data in database", err, c)
 		return
 	}
+
+	// Delete word definitions only if they exist
+	if len(existingDefs) > 0 {
+		if _, err := wc.wordDefinitionPeer.Delete(whereDefs); err != nil {
+			ResponseError(http.StatusInternalServerError, "Failed to delete associated data from database", err, c)
+			return
+		}
+	}
+
 	// Delete the word
 	where := squirrel.Eq{schema.WORD_ID: wordID}
 	if effected, err := wc.wordPeer.Delete(where); err != nil || effected == 0 {
