@@ -3,8 +3,18 @@ name: Code Quality Check
 on:
   push:
     branches: [ main ]
+    paths:
+      - '**/*.go'
+      - 'go.mod'
+      - 'go.sum'
+      - '.golangci.yml'
   pull_request:
     branches: [ main ]
+    paths:
+      - '**/*.go'
+      - 'go.mod'
+      - 'go.sum'
+      - '.golangci.yml'
 
 jobs:
   lint:
