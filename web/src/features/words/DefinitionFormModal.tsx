@@ -236,8 +236,16 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
       };
 
       // Add part_of_speech if selected (for API compatibility, join with comma)
+      // Sort by UI order before joining
       if (formData.part_of_speech.length > 0) {
-        payload.part_of_speech = formData.part_of_speech.join(',');
+        const sortedPartOfSpeech = formData.part_of_speech
+          .slice() // Create a copy to avoid mutating original array
+          .sort((a, b) => {
+            const indexA = PART_OF_SPEECH_OPTIONS.indexOf(a);
+            const indexB = PART_OF_SPEECH_OPTIONS.indexOf(b);
+            return indexA - indexB;
+          });
+        payload.part_of_speech = sortedPartOfSpeech.join(',');
       }
 
       // Add examples (optional field could be empty)

@@ -264,6 +264,9 @@ func (suite *WordControllerTestSuite) TestDeleteWord() {
 		Delete(whereWord).
 		Return(int64(1), nil).Times(1)
 	suite.mockWordDefinitionPeer.EXPECT().
+		Select(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(getSampleWordDefinitions(), nil).Times(1)
+	suite.mockWordDefinitionPeer.EXPECT().
 		Delete(whereWordID).
 		Return(int64(2), nil).Times(1)
 
