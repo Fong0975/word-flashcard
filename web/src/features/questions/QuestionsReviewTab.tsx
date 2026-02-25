@@ -41,6 +41,8 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({ classNam
     nextPage,
     previousPage,
     goToPage,
+    goToFirst,
+    goToLast,
     refresh,
     clearError,
   } = useQuestions({
@@ -263,6 +265,8 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({ classNam
             onPageChange={goToPage}
             onNext={nextPage}
             onPrevious={previousPage}
+            onFirst={goToFirst}
+            onLast={goToLast}
             loading={loading}
             className="mt-8"
           />

@@ -10,6 +10,8 @@ interface PaginationProps {
   onPageChange: (page: number) => void;
   onNext: () => void;
   onPrevious: () => void;
+  onFirst: () => void;
+  onLast: () => void;
   loading?: boolean;
   className?: string;
 }
@@ -24,6 +26,8 @@ export const Pagination: React.FC<PaginationProps> = ({
   onPageChange,
   onNext,
   onPrevious,
+  onFirst,
+  onLast,
   loading = false,
   className = '',
 }) => {
@@ -65,6 +69,8 @@ export const Pagination: React.FC<PaginationProps> = ({
     focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
   `;
 
+  const buttonMobileClass = `w-full mx-1 relative inline-flex items-center justify-center`;
+
   const buttonEnabledClass = `
     bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200
     hover:bg-gray-50 dark:hover:bg-gray-700
@@ -83,18 +89,89 @@ export const Pagination: React.FC<PaginationProps> = ({
 
   return (
     <nav className={`flex items-center justify-between ${className}`} aria-label="Pagination">
-      {/* Info section */}
-      <div className="flex-1 flex justify-between sm:hidden">
-        <button
-          onClick={onPrevious}
-          disabled={!hasPrevious || loading}
-          className={`${buttonBaseClass} ${
-            hasPrevious && !loading ? buttonEnabledClass : buttonDisabledClass
-          }`}
-        >
-          Previous
-        </button>
-        <div className="text-sm text-gray-700 dark:text-gray-300 flex flex-col items-center justify-center">
+      {/* Mobile section */}
+      <div className="flex-1 sm:hidden">
+        {/* Mobile navigation buttons */}
+        <div className="flex justify-between items-center mb-2">
+          <button
+            onClick={onFirst}
+            disabled={currentPage === 1 || loading}
+            className={`${buttonBaseClass} ${buttonMobileClass} ${
+              currentPage > 1 && !loading ? buttonEnabledClass : buttonDisabledClass
+            }`}
+          >
+            <span className="sr-only">First page</span>
+            <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="2"
+                stroke="currentColor"
+                aria-hidden="true"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M18.75 19.5l-7.5-7.5 7.5-7.5m-6 15L5.25 12l7.5-7.5" />
+            </svg>
+          </button>
+          <button
+            onClick={onPrevious}
+            disabled={!hasPrevious || loading}
+            className={`${buttonBaseClass} ${buttonMobileClass} ${
+              hasPrevious && !loading ? buttonEnabledClass : buttonDisabledClass
+            }`}
+          >
+            <span className="sr-only">Previous</span>
+            <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="2"
+                stroke="currentColor"
+                aria-hidden="true"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button
+            onClick={onNext}
+            disabled={!hasNext || loading}
+            className={`${buttonBaseClass} ${buttonMobileClass} ${
+              hasNext && !loading ? buttonEnabledClass : buttonDisabledClass
+            }`}
+          >
+            <span className="sr-only">Next</span>
+            <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="2"
+                stroke="currentColor"
+                aria-hidden="true"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+          <button
+            onClick={onLast}
+            disabled={currentPage === totalPages || loading}
+            className={`${buttonBaseClass} ${buttonMobileClass} ${
+              currentPage < totalPages && !loading ? buttonEnabledClass : buttonDisabledClass
+            }`}
+          >
+            <span className="sr-only">Last page</span>
+            <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="2"
+                stroke="currentColor"
+                aria-hidden="true"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 4.5l7.5 7.5-7.5 7.5m6-15l7.5 7.5-7.5 7.5" />
+            </svg>
+          </button>
+        </div>
+        {/* Mobile page info */}
+        <div className="text-sm text-gray-700 dark:text-gray-300 flex flex-col items-center justify-center mt-3">
           <span>Page {currentPage} of {totalPages}</span>
           {totalItems && (
             <span className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -102,15 +179,6 @@ export const Pagination: React.FC<PaginationProps> = ({
             </span>
           )}
         </div>
-        <button
-          onClick={onNext}
-          disabled={!hasNext || loading}
-          className={`${buttonBaseClass} ${
-            hasNext && !loading ? buttonEnabledClass : buttonDisabledClass
-          }`}
-        >
-          Next
-        </button>
       </div>
 
       {/* Desktop pagination */}
@@ -133,12 +201,35 @@ export const Pagination: React.FC<PaginationProps> = ({
 
         <div>
           <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+            {/* First button */}
+            <button
+              onClick={onFirst}
+              disabled={currentPage === 1 || loading}
+              className={`
+                relative inline-flex items-center rounded-l-md px-3 py-2 text-sm font-medium
+                border border-gray-300 dark:border-gray-600
+                ${currentPage > 1 && !loading ? buttonEnabledClass : buttonDisabledClass}
+              `}
+            >
+              <span className="sr-only">First page</span>
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="2"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M18.75 19.5l-7.5-7.5 7.5-7.5m-6 15L5.25 12l7.5-7.5" />
+              </svg>
+            </button>
+
             {/* Previous button */}
             <button
               onClick={onPrevious}
               disabled={!hasPrevious || loading}
               className={`
-                relative inline-flex items-center rounded-l-md px-3 py-2 text-sm font-medium
+                relative inline-flex items-center px-3 py-2 text-sm font-medium
                 border border-gray-300 dark:border-gray-600
                 ${hasPrevious && !loading ? buttonEnabledClass : buttonDisabledClass}
               `}
@@ -190,7 +281,7 @@ export const Pagination: React.FC<PaginationProps> = ({
               onClick={onNext}
               disabled={!hasNext || loading}
               className={`
-                relative inline-flex items-center rounded-r-md px-3 py-2 text-sm font-medium
+                relative inline-flex items-center px-3 py-2 text-sm font-medium
                 border border-gray-300 dark:border-gray-600
                 ${hasNext && !loading ? buttonEnabledClass : buttonDisabledClass}
               `}
@@ -205,6 +296,29 @@ export const Pagination: React.FC<PaginationProps> = ({
                 aria-hidden="true"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+
+            {/* Last button */}
+            <button
+              onClick={onLast}
+              disabled={currentPage === totalPages || loading}
+              className={`
+                relative inline-flex items-center rounded-r-md px-3 py-2 text-sm font-medium
+                border border-gray-300 dark:border-gray-600
+                ${currentPage < totalPages && !loading ? buttonEnabledClass : buttonDisabledClass}
+              `}
+            >
+              <span className="sr-only">Last page</span>
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="2"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 4.5l7.5 7.5-7.5 7.5m6-15l7.5 7.5-7.5 7.5" />
               </svg>
             </button>
           </nav>

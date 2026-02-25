@@ -20,6 +20,8 @@ export interface UseWordsActions {
   nextPage: () => Promise<void>;
   previousPage: () => Promise<void>;
   goToPage: (page: number) => Promise<void>;
+  goToFirst: () => Promise<void>;
+  goToLast: () => Promise<void>;
   refresh: () => Promise<void>;
   clearError: () => void;
   setSearchTerm: (term: string) => void;
@@ -164,6 +166,18 @@ export const useWords = (options: UseWordsOptions = {}): UseWordsReturn => {
     }
   }, [state.totalPages, state.loading, fetchWords]);
 
+  const goToFirst = useCallback(async () => {
+    if (state.currentPage > 1 && !state.loading) {
+      await fetchWords(1);
+    }
+  }, [state.currentPage, state.loading, fetchWords]);
+
+  const goToLast = useCallback(async () => {
+    if (state.currentPage < state.totalPages && !state.loading) {
+      await fetchWords(state.totalPages);
+    }
+  }, [state.currentPage, state.totalPages, state.loading, fetchWords]);
+
   const refresh = useCallback(async () => {
     await fetchWords(state.currentPage);
   }, [state.currentPage, fetchWords]);
@@ -211,6 +225,8 @@ export const useWords = (options: UseWordsOptions = {}): UseWordsReturn => {
     nextPage,
     previousPage,
     goToPage,
+    goToFirst,
+    goToLast,
     refresh,
     clearError,
     setSearchTerm,
