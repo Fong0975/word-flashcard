@@ -94,9 +94,12 @@ export const Quiz: React.FC<QuizProps> = ({
           requests.push({
             count: countRed,
             filter: {
-              key: 'familiarity',
-              operator: 'eq',
-              value: 'red',
+              conditions: [{
+                key: 'familiarity',
+                operator: 'eq',
+                value: 'red',
+              }],
+              logic: 'OR',
             },
           });
         }
@@ -104,9 +107,12 @@ export const Quiz: React.FC<QuizProps> = ({
           requests.push({
             count: countYellow,
             filter: {
-              key: 'familiarity',
-              operator: 'eq',
-              value: 'yellow',
+              conditions: [{
+                key: 'familiarity',
+                operator: 'eq',
+                value: 'yellow',
+              }],
+              logic: 'OR',
             },
           });
         }
@@ -114,9 +120,12 @@ export const Quiz: React.FC<QuizProps> = ({
           requests.push({
             count: countGreen,
             filter: {
-              key: 'familiarity',
-              operator: 'eq',
-              value: 'green',
+              conditions: [{
+                key: 'familiarity',
+                operator: 'eq',
+                value: 'green',
+              }],
+              logic: 'OR',
             },
           });
         }

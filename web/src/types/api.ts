@@ -64,10 +64,15 @@ export interface ApiRequestOptions {
 
 
 // Search Filter types
-export interface SearchFilter {
+export interface SearchCondition {
   key: string;
   operator: string;
   value: string;
+}
+
+export interface SearchFilter {
+  conditions: SearchCondition[];
+  logic: 'AND' | 'OR';
 }
 
 export interface WordsSearchParams extends PaginationParams {
@@ -76,9 +81,8 @@ export interface WordsSearchParams extends PaginationParams {
 
 // Quiz/Random words API types
 export interface WordsRandomFilter {
-  key: 'familiarity';
-  operator: 'eq' | 'neq' | 'in' | 'nin';
-  value: string | string[];
+  conditions: SearchCondition[];
+  logic: 'AND' | 'OR';
 }
 
 export interface WordsRandomRequest {
