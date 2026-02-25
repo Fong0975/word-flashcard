@@ -15,5 +15,5 @@ type WordControllerInterface interface {
 	UpdateWordDefinition(c *gin.Context)
 	DeleteWord(c *gin.Context)
 	DeleteWordDefinition(c *gin.Context)
-	CountQuestions(c *gin.Context)
+	CountWords(c *gin.Context)
 }

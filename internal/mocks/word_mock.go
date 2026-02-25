@@ -95,10 +95,10 @@ func (m *MockWordController) DeleteWordDefinition(c *gin.Context) {
 	})
 }
 
-// CountQuestions mock implementation
-func (m *MockWordController) CountQuestions(c *gin.Context) {
+// CountWords mock implementation
+func (m *MockWordController) CountWords(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
-		"method":     "CountQuestions",
+		"method":     "CountWords",
 		"controller": "WordController",
 		"status":     "ok",
 	})

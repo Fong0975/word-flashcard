@@ -76,9 +76,12 @@ export const WordFormModal: React.FC<WordFormModalProps> = ({
     setSuggestionsLoading(true);
     try {
       const searchFilter = {
-        key: 'word',
-        operator: 'like',
-        value: `%${searchTerm}%`,
+        conditions: [{
+          key: 'word',
+          operator: 'like',
+          value: `%${searchTerm}%`,
+        }],
+        logic: 'OR' as const,
       };
 
       const results = await apiService.searchWords({
@@ -190,9 +193,12 @@ export const WordFormModal: React.FC<WordFormModalProps> = ({
           try {
             // Search for the newly created word
             const searchFilter = {
-              key: 'word',
-              operator: 'like', // Use like with exact value (no wildcards) for exact match
-              value: newWordText,
+              conditions: [{
+                key: 'word',
+                operator: 'like', // Use like with exact value (no wildcards) for exact match
+                value: newWordText,
+              }],
+              logic: 'OR' as const,
             };
 
             const searchResults = await apiService.searchWords({

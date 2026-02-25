@@ -66,7 +66,7 @@ definitions:
     required:
     - count
     type: object
-  models.SearchFilter:
+  models.SearchCondition:
     properties:
       key:
         type: string
@@ -78,6 +78,20 @@ definitions:
     - key
     - operator
     - value
+    type: object
+  models.SearchFilter:
+    properties:
+      conditions:
+        items:
+          $ref: '#/definitions/models.SearchCondition'
+        minItems: 1
+        type: array
+      logic:
+        description: '"AND" or "OR"'
+        type: string
+    required:
+    - conditions
+    - logic
     type: object
   word-flashcard_internal_models.Question:
     properties:
@@ -521,6 +535,7 @@ paths:
       consumes:
       - application/json
       description: Count the number of words that match the specified filter criteria
+        across both words and word_definitions tables
       parameters:
       - description: Search filter criteria
         in: body
@@ -675,9 +690,9 @@ paths:
     post:
       consumes:
       - application/json
-      description: Search for words using specified filter criteria with support for
-        equal, not equal, in, and not in operations. Supports pagination through query
-        parameters.
+      description: Search for words using specified filter criteria across both words
+        and word_definitions tables. Supports equal, not equal, in, and not in operations
+        with pagination.
       parameters:
       - description: Search filter criteria
         in: body

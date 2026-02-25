@@ -70,9 +70,12 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({ className = '' }
         const searchForUpdatedWord = async () => {
           try {
             const searchFilter = {
-              key: 'word',
-              operator: 'like',
-              value: selectedWord.word,
+              conditions: [{
+                key: 'word',
+                operator: 'like',
+                value: selectedWord.word,
+              }],
+              logic: 'OR' as const,
             };
 
             const searchResults = await apiService.searchWords({

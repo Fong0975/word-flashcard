@@ -68,9 +68,24 @@ export const useWords = (options: UseWordsOptions = {}): UseWordsReturn => {
       // Create search filter if there is a search term
       const searchFilter: SearchFilter | undefined = state.searchTerm
         ? {
-            key: 'word',
-            operator: 'like',
-            value: `%${state.searchTerm}%`,
+            conditions: [
+              {
+                key: 'word',
+                operator: 'like',
+                value: `%${state.searchTerm}%`,
+              },
+              {
+                key: 'definition',
+                operator: 'like',
+                value: `%${state.searchTerm}%`,
+              },
+              {
+                key: 'notes',
+                operator: 'like',
+                value: `%${state.searchTerm}%`,
+              },
+            ],
+            logic: 'OR',
           }
         : undefined;
 

@@ -74,21 +74,21 @@ func (wc *WordController) ListWords(c *gin.Context) {
 	}
 
 	// Query 'word_definitions' table
-	wordsDefs, err := wc.getWordDefinitionsByWords(words)
+	wordsDefs, err := wc.fetchWordDefinitionsForWords(words)
 	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", err, c)
 		return
 	}
 
 	// ================ 3. Transform data to API model ================
-	wordEntities := convertToEntities(words, wordsDefs)
+	wordEntities := wc.transformToWordEntities(words, wordsDefs)
 
 	// ================ 4. Send response ================
 	ResponseSuccess(http.StatusOK, wordEntities, c)
 }
 
 // SearchWords @Summary Search words with filters and pagination
-// @Description Search for words using specified filter criteria with support for equal, not equal, in, and not in operations. Supports pagination through query parameters.
+// @Description Search for words using specified filter criteria across both words and word_definitions tables. Supports equal, not equal, in, and not in operations with pagination.
 // @Tags words
 // @Accept json
 // @Produce json
@@ -119,28 +119,57 @@ func (wc *WordController) SearchWords(c *gin.Context) {
 	limitPtr := uint64(limit)
 	offsetPtr := uint64(offset)
 
-	// ================ 3. Fetch data from database ================
-	var where squirrel.Sqlizer
+	// ================ 3. Handle empty search filter ================
 	if searchReq.IsEmpty() {
-		where = nil // No filter, fetch all records with pagination
-	} else {
-		where, err = ConvertFilterToSqlizer(&searchReq)
+		// No filter, fetch all records with pagination
+		orderBy := fmt.Sprintf("%s ASC", schema.WORD_WORD)
+		wordEntities, err := wc.fetchWordsWithDefinitions([]*string{}, nil, []*string{&orderBy}, &limitPtr, &offsetPtr)
 		if err != nil {
-			ResponseError(http.StatusBadRequest, "Invalid filter", err, c)
+			ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", err, c)
 			return
 		}
+		if len(wordEntities) == 0 {
+			wordEntities = []*models.Word{}
+		}
+		ResponseSuccess(http.StatusOK, wordEntities, c)
+		return
 	}
-	orderBy := fmt.Sprintf("%s ASC", schema.WORD_WORD)
-	wordEntities, err := wc.queryWord([]*string{}, where, []*string{&orderBy}, &limitPtr, &offsetPtr)
+
+	// ================ 4. Separate conditions by table ================
+	wordsFilter, wordDefsFilter, err := parseSearchConditionsByTable(&searchReq)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", err, c)
+		ResponseError(http.StatusBadRequest, fmt.Sprintf("Invalid filter: %s", err.Error()), err, c)
+		return
+	}
+
+	// ================ 5. Query each table separately ================
+	wordsIDs, err := wc.queryWordIDsByTableFilter(wordsFilter, false)
+	if err != nil {
+		ResponseError(http.StatusInternalServerError, "Failed to query words table", err, c)
+		return
+	}
+
+	wordDefsIDs, err := wc.queryWordIDsByTableFilter(wordDefsFilter, true)
+	if err != nil {
+		ResponseError(http.StatusInternalServerError, "Failed to query word_definitions table", err, c)
+		return
+	}
+
+	// ================ 6. Combine results based on logic operator ================
+	finalWordIDs := wc.combineWordIDsWithLogic(wordsIDs, wordDefsIDs, searchReq.Logic)
+
+	// ================ 7. Query final words with pagination ================
+	orderBy := fmt.Sprintf("%s ASC", schema.WORD_WORD)
+	wordEntities, err := wc.queryWordsByIDsWithPagination(finalWordIDs, []*string{&orderBy}, &limitPtr, &offsetPtr)
+	if err != nil {
+		ResponseError(http.StatusInternalServerError, "Failed to fetch final word data from database", err, c)
 		return
 	}
 	if len(wordEntities) == 0 {
 		wordEntities = []*models.Word{}
 	}
 
-	// ================ 4. Send response ================
+	// ================ 8. Send response ================
 	ResponseSuccess(http.StatusOK, wordEntities, c)
 }
 
@@ -173,16 +202,20 @@ func (wc *WordController) RandomWords(c *gin.Context) {
 	limitPtr := uint64(randomReq.Count)
 
 	// ================ 2. Build where condition ================
-	where, err := ConvertFilterToSqlizer(randomReq.Filter)
-	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid filter", err, c)
-		return
+	var where squirrel.Sqlizer
+	if randomReq.Filter != nil {
+		var err error
+		where, err = randomReq.Filter.ToSqlizer()
+		if err != nil {
+			ResponseError(http.StatusBadRequest, "Invalid filter", err, c)
+			return
+		}
 	}
 
 	// ================ 3. Fetch data from database ================
 	// Use database-agnostic random function pattern
 	orderBy := database.TERM_MAPPING_FUNC_RANDOM
-	wordEntities, err := wc.queryWord([]*string{}, where, []*string{&orderBy}, &limitPtr, nil)
+	wordEntities, err := wc.fetchWordsWithDefinitions([]*string{}, where, []*string{&orderBy}, &limitPtr, nil)
 	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", err, c)
 		return
@@ -207,7 +240,7 @@ func (wc *WordController) RandomWords(c *gin.Context) {
 // @Router /api/words [post]
 func (wc *WordController) CreateWord(c *gin.Context) {
 	// ================ 1. Parse request body ================
-	wordData, err := wc.getAndValidateRequestedWord(c, false)
+	wordData, err := wc.parseAndValidateWordRequest(c, false)
 	if err != nil {
 		ResponseError(http.StatusBadRequest, "Invalid request body", err, c)
 		return
@@ -227,7 +260,7 @@ func (wc *WordController) CreateWord(c *gin.Context) {
 	// ================ 4. Query inserted data ================
 	where := squirrel.Eq{schema.WORD_ID: wordID}
 	orderBy := fmt.Sprintf("%s DESC", schema.WORD_ID)
-	wordEntities, err := wc.queryWord([]*string{}, where, []*string{&orderBy}, nil, nil)
+	wordEntities, err := wc.fetchWordsWithDefinitions([]*string{}, where, []*string{&orderBy}, nil, nil)
 	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Inserted but failed to fetch data from database", err, c)
 		return
@@ -258,7 +291,7 @@ func (wc *WordController) CreateWordDefinition(c *gin.Context) {
 	}
 
 	// Request body
-	wordDefinitionData, err := wc.getAndValidateRequestedWordDefinitions(c, false)
+	wordDefinitionData, err := wc.parseAndValidateWordDefinitionRequest(c, false)
 	if err != nil {
 		ResponseError(http.StatusBadRequest, "Invalid request body", err, c)
 		return
@@ -278,7 +311,7 @@ func (wc *WordController) CreateWordDefinition(c *gin.Context) {
 	// ================ 4. Query inserted data ================
 	where := squirrel.Eq{schema.WORD_ID: wordID}
 	orderBy := fmt.Sprintf("%s DESC", schema.WORD_ID)
-	wordEntities, err := wc.queryWord([]*string{}, where, []*string{&orderBy}, nil, nil)
+	wordEntities, err := wc.fetchWordsWithDefinitions([]*string{}, where, []*string{&orderBy}, nil, nil)
 	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Inserted but failed to fetch data from database", err, c)
 		return
@@ -308,7 +341,7 @@ func (wc *WordController) UpdateWord(c *gin.Context) {
 		return
 	}
 
-	wordData, err := wc.getAndValidateRequestedWord(c, true)
+	wordData, err := wc.parseAndValidateWordRequest(c, true)
 	if err != nil {
 		ResponseError(http.StatusBadRequest, "Invalid request body", err, c)
 		return
@@ -328,7 +361,7 @@ func (wc *WordController) UpdateWord(c *gin.Context) {
 	// ================ 4. Query inserted data ================
 	whereQuery := squirrel.Eq{schema.WORD_ID: wordID}
 	orderBy := fmt.Sprintf("%s DESC", schema.WORD_ID)
-	wordEntities, err := wc.queryWord([]*string{}, whereQuery, []*string{&orderBy}, nil, nil)
+	wordEntities, err := wc.fetchWordsWithDefinitions([]*string{}, whereQuery, []*string{&orderBy}, nil, nil)
 	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Updated but failed to fetch data from database", err, c)
 		return
@@ -359,7 +392,7 @@ func (wc *WordController) UpdateWordDefinition(c *gin.Context) {
 	}
 
 	// Request body
-	wordDefinitionData, err := wc.getAndValidateRequestedWordDefinitions(c, true)
+	wordDefinitionData, err := wc.parseAndValidateWordDefinitionRequest(c, true)
 	if err != nil {
 		ResponseError(http.StatusBadRequest, "Invalid request body", err, c)
 		return
@@ -388,7 +421,7 @@ func (wc *WordController) UpdateWordDefinition(c *gin.Context) {
 	// Query the associated word
 	wordID := *wordDefModels[0].WordId
 	whereQuery := squirrel.Eq{schema.WORD_ID: wordID}
-	wordEntities, err := wc.queryWord([]*string{}, whereQuery, []*string{&orderBy}, nil, nil)
+	wordEntities, err := wc.fetchWordsWithDefinitions([]*string{}, whereQuery, []*string{&orderBy}, nil, nil)
 	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Updated but failed to fetch data from database", err, c)
 		return
@@ -475,8 +508,8 @@ func (wc *WordController) DeleteWordDefinition(c *gin.Context) {
 	ResponseSuccess(http.StatusNoContent, nil, c)
 }
 
-// CountQuestions @Summary Count words matching filter criteria
-// @Description Count the number of words that match the specified filter criteria
+// CountWords @Summary Count words matching filter criteria
+// @Description Count the number of words that match the specified filter criteria across both words and word_definitions tables
 // @Tags words
 // @Accept json
 // @Produce json
@@ -485,7 +518,7 @@ func (wc *WordController) DeleteWordDefinition(c *gin.Context) {
 // @Failure 400 {object} models.ErrorResponse "Bad request - Invalid request body or filter"
 // @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to fetch data from database"
 // @Router /api/words/count [post]
-func (wc *WordController) CountQuestions(c *gin.Context) {
+func (wc *WordController) CountWords(c *gin.Context) {
 	// ============== 1. Get search filter from request ================
 	var searchReq models.SearchFilter
 	err := ParseRequestBody(&searchReq, c)
@@ -494,23 +527,13 @@ func (wc *WordController) CountQuestions(c *gin.Context) {
 		return
 	}
 
-	// ================ 2. Build where condition ================
-	var where squirrel.Sqlizer
-	if !searchReq.IsEmpty() {
-		where, err = ConvertFilterToSqlizer(&searchReq)
-		if err != nil {
-			ResponseError(http.StatusBadRequest, "Invalid filter", err, c)
-			return
-		}
-	}
-
-	// ================ 3. Fetch data from database ================
-	count, err := wc.wordPeer.Count(where)
+	// ================ 2. Count words using same logic as SearchWords ================
+	count, err := wc.countWordsMatchingFilter(&searchReq)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", err, c)
+		ResponseError(http.StatusInternalServerError, "Failed to count words", err, c)
 		return
 	}
 
-	// ================ 4. Send response ================
+	// ================ 3. Send response ================
 	ResponseSuccess(http.StatusOK, gin.H{"count": count}, c)
 }

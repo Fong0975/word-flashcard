@@ -494,7 +494,7 @@ const docTemplate = `{
         },
         "/api/words/count": {
             "post": {
-                "description": "Count the number of words that match the specified filter criteria",
+                "description": "Count the number of words that match the specified filter criteria across both words and word_definitions tables",
                 "consumes": [
                     "application/json"
                 ],
@@ -731,7 +731,7 @@ const docTemplate = `{
         },
         "/api/words/search": {
             "post": {
-                "description": "Search for words using specified filter criteria with support for equal, not equal, in, and not in operations. Supports pagination through query parameters.",
+                "description": "Search for words using specified filter criteria across both words and word_definitions tables. Supports equal, not equal, in, and not in operations with pagination.",
                 "consumes": [
                     "application/json"
                 ],
@@ -982,7 +982,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.SearchFilter": {
+        "models.SearchCondition": {
             "type": "object",
             "required": [
                 "key",
@@ -997,6 +997,26 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SearchFilter": {
+            "type": "object",
+            "required": [
+                "conditions",
+                "logic"
+            ],
+            "properties": {
+                "conditions": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/models.SearchCondition"
+                    }
+                },
+                "logic": {
+                    "description": "\"AND\" or \"OR\"",
                     "type": "string"
                 }
             }
