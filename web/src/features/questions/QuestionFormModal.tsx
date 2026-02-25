@@ -142,7 +142,7 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
   const submitButtonLoadingText = mode === 'create' ? 'Adding...' : 'Updating...';
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title={modalTitle} maxWidth="2xl">
+    <Modal isOpen={isOpen} onClose={handleClose} title={modalTitle} maxWidth="2xl" disableBackdropClose={true}>
       <form onSubmit={handleSubmit}>
         <div className="space-y-6">
           {/* Question Field */}

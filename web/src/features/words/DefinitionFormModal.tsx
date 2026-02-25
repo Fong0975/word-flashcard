@@ -438,6 +438,7 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
       onClose={onClose}
       maxWidth="xl"
       className="max-h-[95vh] overflow-hidden"
+      disableBackdropClose={true}
     >
       <div className="flex flex-col h-[90vh] -m-6 -mt-4">
         {/* Fixed Header */}

@@ -245,7 +245,7 @@ export const WordFormModal: React.FC<WordFormModalProps> = ({
   const submitButtonLoadingText = mode === 'create' ? 'Adding...' : 'Updating...';
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title={modalTitle} maxWidth="md">
+    <Modal isOpen={isOpen} onClose={handleClose} title={modalTitle} maxWidth="md" disableBackdropClose={true}>
       <form onSubmit={handleSubmit}>
         <div className="space-y-4">
           {/* Word Input Field */}
