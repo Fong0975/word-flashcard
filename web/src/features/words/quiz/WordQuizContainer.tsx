@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { WordQuiz } from './WordQuiz';
 import { WordQuizResults } from './WordQuizResults';
-import { QuizConfig, QuizResult } from '../../../types/api';
+import { WordQuizConfig, WordQuizResult } from '../../../types/api';
 
 interface WordQuizContainerProps {
   onBackToHome: () => void;
-  initialConfig?: QuizConfig | null;
+  initialConfig?: WordQuizConfig | null;
 }
 
 type WordQuizContainerState = 'setup' | 'quiz' | 'results';
@@ -15,10 +15,10 @@ export const WordQuizContainer: React.FC<WordQuizContainerProps> = ({
   initialConfig
 }) => {
   const [state, setState] = useState<WordQuizContainerState>(initialConfig ? 'quiz' : 'setup');
-  const [quizConfig, setQuizConfig] = useState<QuizConfig | null>(initialConfig || null);
-  const [results, setResults] = useState<QuizResult[]>([]);
+  const [quizConfig, setWordQuizConfig] = useState<WordQuizConfig | null>(initialConfig || null);
+  const [results, setResults] = useState<WordQuizResult[]>([]);
 
-  const handleQuizComplete = (quizResults: QuizResult[]) => {
+  const handleQuizComplete = (quizResults: WordQuizResult[]) => {
     setResults(quizResults);
     setState('results');
   };
@@ -32,7 +32,7 @@ export const WordQuizContainer: React.FC<WordQuizContainerProps> = ({
 
   const handleBackToHome = () => {
     setResults([]);
-    setQuizConfig(null);
+    setWordQuizConfig(null);
     setState('setup');
     onBackToHome();
   };

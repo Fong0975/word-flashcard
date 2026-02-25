@@ -6,15 +6,17 @@ import {
   UpdateWordRequest,
   WordsSearchParams,
   WordsRandomRequest,
-  SearchFilter,
   Question,
   CreateQuestionRequest,
   UpdateQuestionRequest,
   QuestionsSearchParams,
   QuestionsRandomRequest,
-  ErrorResponse,
-  ApiRequestOptions,
 } from '../types/api';
+import {
+  SearchFilter,
+  ApiErrorResponse,
+  ApiRequestOptions,
+} from '../types/base';
 
 // Custom error class for API errors
 export class ApiError extends Error {
@@ -77,7 +79,7 @@ class ApiService {
       if (!response.ok) {
         let errorMessage: string;
         try {
-          const errorData: ErrorResponse = await response.json();
+          const errorData: ApiErrorResponse = await response.json();
           errorMessage = errorData.error || response.statusText;
         } catch {
           errorMessage = response.statusText || 'Unknown error occurred';
@@ -148,7 +150,7 @@ class ApiService {
       if (!response.ok) {
         let errorMessage: string;
         try {
-          const errorData: ErrorResponse = await response.json();
+          const errorData: ApiErrorResponse = await response.json();
           errorMessage = errorData.error || response.statusText;
         } catch {
           errorMessage = response.statusText || 'Unknown error occurred';
@@ -336,8 +338,14 @@ export type {
   CreateQuestionRequest,
   UpdateQuestionRequest,
   QuestionsRandomRequest,
-  QuizConfig,
-  QuizResult,
+  WordQuizConfig,
+  WordQuizResult,
   QuestionQuizConfig,
   QuestionQuizResult
 } from '../types/api';
+
+export type {
+  SearchFilter,
+  ApiErrorResponse,
+  ApiRequestOptions,
+} from '../types/base';

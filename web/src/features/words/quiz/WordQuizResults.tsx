@@ -1,8 +1,8 @@
 import React from 'react';
-import { QuizResult } from '../../../types/api';
+import { WordQuizResult } from '../../../types/api';
 
 interface WordQuizResultsProps {
-  results: QuizResult[];
+  results: WordQuizResult[];
   onRetakeQuiz: () => void;
   onBackToHome: () => void;
 }

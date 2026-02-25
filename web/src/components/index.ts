@@ -14,6 +14,6 @@ export { ActionButton } from './ui/ActionButton';
 // Feature components (for backward compatibility - consider importing directly from features)
 export { WordCard } from '../features/words/WordCard';
 export { WordsReviewTab } from '../features/words/WordsReviewTab';
-export { WordDetailModal } from '../features/words/WordDetailModal';
-export { WordFormModal } from '../features/words/WordFormModal';
-export { DefinitionFormModal } from '../features/words/DefinitionFormModal';
+export { WordDetailModal } from '../features/words/word-detail/WordDetailModal';
+export { WordFormModal } from '../features/words/word-form';
+export { DefinitionFormModal } from '../features/words/definition-form';

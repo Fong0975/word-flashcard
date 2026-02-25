@@ -1,310 +1,190 @@
 import React, { useState } from 'react';
 import { useQuestions } from '../../hooks/useQuestions';
+import { useModalManager, MODAL_NAMES } from '../../hooks/shared/useModalManager';
 import { QuestionCard } from './QuestionCard';
-import { QuestionDetailModal } from './QuestionDetailModal';
-import { QuestionFormModal } from './QuestionFormModal';
-import { QuestionQuizSetupModal } from './quiz/QuestionQuizSetupModal';
-import { QuestionQuizModal } from './quiz/QuestionQuizModal';
-import { Pagination } from '../../components/ui/Pagination';
-import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
-import { ErrorMessage } from '../../components/ui/ErrorMessage';
-import { EmptyState } from '../../components/ui/EmptyState';
-import { Question, QuestionQuizConfig } from '../../types/api';
+import { EntityReviewTab } from '../shared/components/EntityReviewTab';
+import { QuizSetupModal } from '../shared/components/QuizSetupModal';
+import { QuestionDetailModal } from './question-detail/QuestionDetailModal';
+import { QuestionFormModal } from './question-form/QuestionFormModal';
+import { QuizModal } from '../../components/modals/QuizModal';
+import { QuestionQuiz } from './quiz/QuestionQuiz';
+import { QuestionQuizResults } from './quiz/QuestionQuizResults';
+import { Question, QuestionQuizConfig, QuestionQuizResult } from '../../types/api';
 
 interface QuestionsReviewTabProps {
   className?: string;
 }
 
 export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({ className = '' }) => {
-  // Modal state for question detail
-  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
-  const [isQuestionDetailModalOpen, setIsQuestionDetailModalOpen] = useState(false);
-
-  // Modal state for adding new question
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-
-  // Quiz modal states
-  const [isQuizSetupModalOpen, setIsQuizSetupModalOpen] = useState(false);
-  const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
+  const modalManager = useModalManager();
   const [quizConfig, setQuizConfig] = useState<QuestionQuizConfig | null>(null);
 
-  const {
-    questions,
-    loading,
-    error,
-    currentPage,
-    totalPages,
-    hasNext,
-    hasPrevious,
-    itemsPerPage,
-    totalCount,
-    nextPage,
-    previousPage,
-    goToPage,
-    goToFirst,
-    goToLast,
-    refresh,
-    clearError,
-  } = useQuestions({
+  const questionsHook = useQuestions({
     itemsPerPage: 20,
     autoFetch: true,
   });
 
   // Handle opening question detail modal
   const handleQuestionClick = (question: Question) => {
-    setSelectedQuestion(question);
-    setIsQuestionDetailModalOpen(true);
+    modalManager.openModal(MODAL_NAMES.QUESTION_DETAIL, question);
   };
 
   // Handle closing question detail modal
   const handleCloseQuestionDetailModal = () => {
-    setIsQuestionDetailModalOpen(false);
-    setSelectedQuestion(null);
+    modalManager.closeModal(MODAL_NAMES.QUESTION_DETAIL);
   };
 
   // Handle question updated
   const handleQuestionUpdated = () => {
     // Just refresh the questions list
     // The QuestionDetailModal will handle refreshing its own data
-    refresh();
+    questionsHook.refresh();
   };
 
   // Handle question refreshed from detail modal
   const handleQuestionRefreshed = (updatedQuestion: Question) => {
-    setSelectedQuestion(updatedQuestion);
+    modalManager.setModalData(MODAL_NAMES.QUESTION_DETAIL, updatedQuestion);
   };
 
   // Handle opening add question modal
   const handleNew = () => {
-    setIsAddModalOpen(true);
+    modalManager.openModal(MODAL_NAMES.ADD);
   };
 
   // Handle closing add question modal
   const handleCloseAddModal = () => {
-    setIsAddModalOpen(false);
+    modalManager.closeModal(MODAL_NAMES.ADD);
   };
 
   // Handle question added successfully - refresh the question list and open detail modal
   const handleQuestionAdded = (newQuestion?: Question) => {
-    refresh();
+    questionsHook.refresh();
 
     // If a new question was created, open the detail modal to show it
     if (newQuestion) {
-      setSelectedQuestion(newQuestion);
-      setIsQuestionDetailModalOpen(true);
+      modalManager.openModal(MODAL_NAMES.QUESTION_DETAIL, newQuestion);
     }
   };
 
   // Handle opening quiz setup modal
   const handleQuizSetup = () => {
-    setIsQuizSetupModalOpen(true);
+    modalManager.openModal(MODAL_NAMES.QUIZ_SETUP);
   };
 
   // Handle closing quiz setup modal
   const handleCloseQuizSetupModal = () => {
-    setIsQuizSetupModalOpen(false);
+    modalManager.closeModal(MODAL_NAMES.QUIZ_SETUP);
   };
 
   // Handle starting quiz
-  const handleStartQuiz = (questionCount: number) => {
-    // Close the setup modal
-    setIsQuizSetupModalOpen(false);
+  const handleStartQuiz = (config: { questionCount: number; selectedFamiliarity?: string[] }) => {
+    // Close the setup modal and open quiz modal
+    modalManager.closeModal(MODAL_NAMES.QUIZ_SETUP);
+    modalManager.openModal(MODAL_NAMES.QUIZ, config);
 
-    // Set quiz config and open quiz modal
+    // Set quiz config for QuestionQuizModal
     setQuizConfig({
-      questionCount
+      questionCount: config.questionCount
     });
-    setIsQuizModalOpen(true);
   };
 
   // Handle closing quiz modal
   const handleCloseQuizModal = () => {
-    setIsQuizModalOpen(false);
+    modalManager.closeModal(MODAL_NAMES.QUIZ);
     setQuizConfig(null);
   };
 
   return (
-    <div className={`space-y-6 ${className}`}>
-      {/* Header */}
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-          Question Review
-        </h2>
-        <p className="text-gray-600 dark:text-gray-300 mt-1">
-          Practice and test your knowledge with questions
-        </p>
-      </div>
-
-      {/* Action Buttons */}
-      {!loading && !error && (
-        <div className="flex justify-end items-center space-x-3">
-          {/* Quiz */}
-          {questions.length > 0 && (
-            <button
-              onClick={handleQuizSetup}
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-500 hover:bg-blue-600
-                        rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                        disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={loading}
-            >
-              <svg
-                className="w-4 h-4 mr-2"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="2"
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.847a4.5 4.5 0 003.09 3.09L15.75 12l-2.847.813a4.5 4.5 0 00-3.09 3.091zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
-              </svg>
-              Quiz
-            </button>
-          )}
-
-          {/* Refresh */}
-          <button
-            onClick={refresh}
-            className="inline-flex items-center justify-center space-x-2 px-4 py-2 text-sm font-medium rounded-md
-                      border border-gray-300 dark:border-gray-600 shadow-sm
-                      transition-colors duration-200 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
-            disabled={loading}
-          >
-            <svg
-              className="w-4 h-4 mr-2"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="2"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-              />
-            </svg>
-            Refresh
-          </button>
-
-          {/* Add */}
-          <button
-            onClick={handleNew}
-            className="inline-flex items-center justify-center space-x-2 px-4 py-2 text-sm font-medium rounded-md
-                      border border-gray-300 dark:border-gray-600 shadow-sm
-                      transition-colors duration-200 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
-            disabled={loading}
-          >
-            <svg
-              className="w-4 h-4 mr-2"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="2"
-              stroke="currentColor"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-            Add
-          </button>
-        </div>
-      )}
-
-      {/* Error message */}
-      {error && (
-        <ErrorMessage
-          error={error}
-          onRetry={refresh}
-          onDismiss={clearError}
-          title="Error loading questions"
+    <EntityReviewTab
+      config={{
+        title: "Question Review",
+        entityName: "Question",
+        entityNamePlural: "Questions",
+        enableSearch: false,
+        enableQuiz: true,
+        emptyStateConfig: {
+          icon: "🧠",
+          title: "No questions found",
+          description: "This section provides review materials and random quizzes. You can practice various question types, including multiple-choice and fill-in-the-blank questions, and receive instant learning feedback.",
+        },
+      }}
+      actions={{
+        onNew: handleNew,
+        onQuizSetup: handleQuizSetup,
+        onRefresh: () => questionsHook.refresh(),
+      }}
+      entityListHook={questionsHook}
+      renderCard={(question, index) => (
+        <QuestionCard
+          key={question.id}
+          index={index}
+          question={question}
+          className="transition-transform duration-200 hover:scale-[1.01]"
+          onClick={() => handleQuestionClick(question)}
         />
       )}
-
-
-      {/* Loading state */}
-      {loading && questions.length === 0 && <LoadingSpinner message="Loading questions..." />}
-
-
-      {/* Empty state - Only when no questions */}
-      {!loading && !error && questions.length === 0 && (
-        <EmptyState
-          onRefresh={refresh}
-          icon="🧠"
-          title="No questions found"
-          description="This section provides review materials and random quizzes. You can practice various question types, including multiple-choice and fill-in-the-blank questions, and receive instant learning feedback."
-        />
-      )}
-
-      {/* Questions list */}
-      {questions.length > 0 && (
+      additionalContent={
         <>
-          <div className="space-y-3">
-            {questions.map((question, index) => (
-              <QuestionCard
-                index={(currentPage - 1) * itemsPerPage + index + 1}
-                key={question.id}
-                question={question}
-                className="transition-transform duration-200 hover:scale-[1.01]"
-                onClick={() => handleQuestionClick(question)}
-              />
-            ))}
-          </div>
-
-          {/* Loading overlay for pagination */}
-          {loading && (
-            <div className="flex justify-center items-center py-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-lg">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500"></div>
-              <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">Loading...</span>
-            </div>
-          )}
-
-          {/* Pagination */}
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            hasNext={hasNext}
-            hasPrevious={hasPrevious}
-            itemsPerPage={itemsPerPage}
-            totalItems={totalCount}
-            onPageChange={goToPage}
-            onNext={nextPage}
-            onPrevious={previousPage}
-            onFirst={goToFirst}
-            onLast={goToLast}
-            loading={loading}
-            className="mt-8"
+          {/* Question Detail Modal */}
+          <QuestionDetailModal
+            question={modalManager.getModalData<Question>(MODAL_NAMES.QUESTION_DETAIL) ?? null}
+            isOpen={modalManager.isModalOpen(MODAL_NAMES.QUESTION_DETAIL)}
+            onClose={handleCloseQuestionDetailModal}
+            onQuestionUpdated={handleQuestionUpdated}
+            onQuestionRefreshed={handleQuestionRefreshed}
           />
+
+          {/* Add Question Modal */}
+          <QuestionFormModal
+            isOpen={modalManager.isModalOpen(MODAL_NAMES.ADD)}
+            onClose={handleCloseAddModal}
+            onQuestionSaved={handleQuestionAdded}
+            mode="create"
+          />
+
+          {/* Quiz Setup Modal */}
+          <QuizSetupModal
+            isOpen={modalManager.isModalOpen(MODAL_NAMES.QUIZ_SETUP)}
+            onClose={handleCloseQuizSetupModal}
+            onStartQuiz={handleStartQuiz}
+            title="Question Quiz Setup"
+            entityName="questions"
+            enableFamiliaritySelection={false}
+          />
+
+          {/* Quiz Modal */}
+          {quizConfig && (
+            <QuizModal<QuestionQuizResult, QuestionQuizConfig>
+              isOpen={modalManager.isModalOpen(MODAL_NAMES.QUIZ)}
+              onClose={handleCloseQuizModal}
+              quizConfig={quizConfig}
+              config={{
+                quizTitle: 'Question Quiz',
+                resultsTitle: 'Quiz Results',
+                exitConfirmTitle: 'Exit Quiz',
+                exitConfirmMessage: 'Are you sure you want to exit the quiz? Your progress will be lost and you\'ll need to start over.',
+                exitButtonText: 'Exit Quiz',
+                continueButtonText: 'Continue Quiz'
+              }}
+              renderQuiz={(config, onComplete, onBackToHome) => (
+                <QuestionQuiz
+                  questionCount={config.questionCount}
+                  onQuizComplete={onComplete}
+                  onBackToHome={onBackToHome}
+                />
+              )}
+              renderResults={(results, onRetake, onBackToHome) => (
+                <QuestionQuizResults
+                  results={results}
+                  onRetakeQuiz={onRetake}
+                  onBackToHome={onBackToHome}
+                />
+              )}
+            />
+          )}
         </>
-      )}
-
-      {/* Question Detail Modal */}
-      <QuestionDetailModal
-        question={selectedQuestion}
-        isOpen={isQuestionDetailModalOpen}
-        onClose={handleCloseQuestionDetailModal}
-        onQuestionUpdated={handleQuestionUpdated}
-        onQuestionRefreshed={handleQuestionRefreshed}
-      />
-
-      {/* Add Question Modal */}
-      <QuestionFormModal
-        isOpen={isAddModalOpen}
-        onClose={handleCloseAddModal}
-        onQuestionSaved={handleQuestionAdded}
-        mode="create"
-      />
-
-      {/* Quiz Setup Modal */}
-      <QuestionQuizSetupModal
-        isOpen={isQuizSetupModalOpen}
-        onClose={handleCloseQuizSetupModal}
-        onStartQuiz={handleStartQuiz}
-      />
-
-      {/* Quiz Modal */}
-      {quizConfig && (
-        <QuestionQuizModal
-          isOpen={isQuizModalOpen}
-          onClose={handleCloseQuizModal}
-          quizConfig={quizConfig}
-        />
-      )}
-    </div>
+      }
+      className={className}
+    />
   );
 };

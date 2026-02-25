@@ -1,30 +1,16 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { apiService, ApiError } from '../lib/api';
+import { useMemo } from 'react';
+import { apiService } from '../lib/api';
 import { Question } from '../types/api';
+import { EntityListHook } from '../types';
+import { useEntityList, UseEntityListOptions } from './useEntityList';
 
+// Keep the original interface for backward compatibility
 export interface UseQuestionsState {
   questions: Question[];
-  loading: boolean;
-  error: string | null;
-  currentPage: number;
-  totalPages: number;
-  hasNext: boolean;
-  hasPrevious: boolean;
-  itemsPerPage: number;
-  searchTerm: string;
-  totalCount: number;
 }
 
 export interface UseQuestionsActions {
   fetchQuestions: (page?: number) => Promise<void>;
-  nextPage: () => Promise<void>;
-  previousPage: () => Promise<void>;
-  goToPage: (page: number) => Promise<void>;
-  goToFirst: () => Promise<void>;
-  goToLast: () => Promise<void>;
-  refresh: () => Promise<void>;
-  clearError: () => void;
-  setSearchTerm: (term: string) => void;
 }
 
 export interface UseQuestionsOptions {
@@ -33,190 +19,64 @@ export interface UseQuestionsOptions {
   autoFetch?: boolean;
 }
 
-export interface UseQuestionsReturn extends UseQuestionsState, UseQuestionsActions {}
+export interface UseQuestionsReturn extends UseQuestionsState, UseQuestionsActions, EntityListHook<Question> {}
 
 export const useQuestions = (options: UseQuestionsOptions = {}): UseQuestionsReturn => {
-  const {
-    itemsPerPage = 50, // Same as words for consistency
-    initialPage = 1,
-    autoFetch = true,
-  } = options;
+  const { itemsPerPage = 20, initialPage = 1, autoFetch = true } = options;
 
-  const [state, setState] = useState<UseQuestionsState>({
-    questions: [],
-    loading: false,
-    error: null,
-    currentPage: initialPage,
-    totalPages: 1,
-    hasNext: false,
-    hasPrevious: false,
-    itemsPerPage,
-    searchTerm: '',
-    totalCount: 0,
-  });
-
-  const mounted = useRef(false);
-  const previousSearchTerm = useRef('');
-
-  const fetchQuestions = useCallback(async (page?: number) => {
-    setState(prev => ({
-      ...prev,
-      loading: true,
-      error: null,
-    }));
-
-    try {
-      const targetPage = page ?? state.currentPage;
-      const offset = (targetPage - 1) * itemsPerPage;
-
-      const params = {
-        limit: itemsPerPage,
-        offset,
-      };
-
-      // Get questions and total count in parallel for better performance
-      const [questionsResponse, countResponse] = await Promise.all([
-        apiService.getAllQuestions(params),
-        apiService.getQuestionsCount()
-      ]);
-
-      let questions = questionsResponse;
-      if (questions == null || !Array.isArray(questions)) {
-        questions = [];
-      }
-
-      // Get the total count from the API response
-      const totalCount = countResponse.count || 0;
-
-      // If there's a search term, filter the results client-side
-      // This is a temporary solution until server-side search is implemented
-      if (state.searchTerm) {
-        const searchTermLower = state.searchTerm.toLowerCase();
-        questions = questions.filter(question =>
+  // Create configuration for the generic hook
+  const entityListOptions = useMemo((): UseEntityListOptions<Question> => ({
+    entityName: 'questions',
+    apiService: {
+      fetchList: (params) => apiService.getAllQuestions(params),
+      getCount: () => apiService.getQuestionsCount(),
+    },
+    searchConfig: {
+      type: 'client',
+      filterPredicate: (question: Question, searchTerm: string): boolean => {
+        const searchTermLower = searchTerm.toLowerCase();
+        return (
           question.question.toLowerCase().includes(searchTermLower) ||
           question.option_a.toLowerCase().includes(searchTermLower) ||
-          (question.option_b && question.option_b.toLowerCase().includes(searchTermLower)) ||
-          (question.option_c && question.option_c.toLowerCase().includes(searchTermLower)) ||
-          (question.option_d && question.option_d.toLowerCase().includes(searchTermLower))
+          !!(question.option_b && question.option_b.toLowerCase().includes(searchTermLower)) ||
+          !!(question.option_c && question.option_c.toLowerCase().includes(searchTermLower)) ||
+          !!(question.option_d && question.option_d.toLowerCase().includes(searchTermLower))
         );
-      }
+      },
+    },
+    itemsPerPage,
+    initialPage,
+    autoFetch,
+  }), [itemsPerPage, initialPage, autoFetch]);
 
-      // Calculate pagination info based on real total count
-      const totalPages = Math.ceil(totalCount / itemsPerPage);
-      const hasNext = targetPage < totalPages;
-      const hasPrevious = targetPage > 1;
+  // Use the generic hook
+  const entityListResult = useEntityList<Question>(entityListOptions);
 
-      setState(prev => ({
-        ...prev,
-        questions,
-        loading: false,
-        currentPage: targetPage,
-        totalPages,
-        hasNext,
-        hasPrevious,
-        totalCount,
-      }));
+  // Map the generic result to the specific Question interface
+  return useMemo((): UseQuestionsReturn => ({
+    // State mapping: entities -> questions (keep both for compatibility)
+    entities: entityListResult.entities, // Standard EntityListHook interface
+    questions: entityListResult.entities, // Backward compatibility
+    loading: entityListResult.loading,
+    error: entityListResult.error,
+    currentPage: entityListResult.currentPage,
+    totalPages: entityListResult.totalPages,
+    hasNext: entityListResult.hasNext,
+    hasPrevious: entityListResult.hasPrevious,
+    itemsPerPage: entityListResult.itemsPerPage,
+    searchTerm: entityListResult.searchTerm,
+    totalCount: entityListResult.totalCount,
 
-    } catch (error) {
-      let errorMessage = 'Failed to fetch questions';
-
-      if (error instanceof ApiError) {
-        errorMessage = error.message;
-      } else if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        error: errorMessage,
-        questions: [],
-        totalCount: 0,
-      }));
-    }
-  }, [state.currentPage, state.searchTerm, itemsPerPage]);
-
-  const nextPage = useCallback(async () => {
-    if (state.hasNext && !state.loading) {
-      await fetchQuestions(state.currentPage + 1);
-    }
-  }, [state.hasNext, state.loading, state.currentPage, fetchQuestions]);
-
-  const previousPage = useCallback(async () => {
-    if (state.hasPrevious && !state.loading) {
-      await fetchQuestions(state.currentPage - 1);
-    }
-  }, [state.hasPrevious, state.loading, state.currentPage, fetchQuestions]);
-
-  const goToPage = useCallback(async (page: number) => {
-    if (page >= 1 && page <= state.totalPages && !state.loading) {
-      await fetchQuestions(page);
-    }
-  }, [state.totalPages, state.loading, fetchQuestions]);
-
-  const goToFirst = useCallback(async () => {
-    if (state.currentPage > 1 && !state.loading) {
-      await fetchQuestions(1);
-    }
-  }, [state.currentPage, state.loading, fetchQuestions]);
-
-  const goToLast = useCallback(async () => {
-    if (state.currentPage < state.totalPages && !state.loading) {
-      await fetchQuestions(state.totalPages);
-    }
-  }, [state.currentPage, state.totalPages, state.loading, fetchQuestions]);
-
-  const refresh = useCallback(async () => {
-    await fetchQuestions(state.currentPage);
-  }, [state.currentPage, fetchQuestions]);
-
-  const clearError = useCallback(() => {
-    setState(prev => ({
-      ...prev,
-      error: null,
-    }));
-  }, []);
-
-  const setSearchTerm = useCallback((term: string) => {
-    setState(prev => ({
-      ...prev,
-      searchTerm: term,
-      currentPage: 1, // Reset to first page when searching
-      totalPages: 1,
-      totalCount: 0,
-    }));
-  }, []);
-
-  // Auto-fetch on mount
-  useEffect(() => {
-    if (autoFetch && !mounted.current) {
-      mounted.current = true;
-      fetchQuestions(initialPage);
-    }
-  }, [autoFetch, initialPage, fetchQuestions]);
-
-  // Re-fetch when search term changes
-  useEffect(() => {
-    if (autoFetch && state.searchTerm !== previousSearchTerm.current) {
-      previousSearchTerm.current = state.searchTerm;
-      if (mounted.current) {
-        fetchQuestions(1); // Reset to page 1 when searching
-      }
-    }
-  }, [state.searchTerm, autoFetch, fetchQuestions]);
-
-  return {
-    // State
-    ...state,
-    // Actions
-    fetchQuestions,
-    nextPage,
-    previousPage,
-    goToPage,
-    goToFirst,
-    goToLast,
-    refresh,
-    clearError,
-    setSearchTerm,
-  };
+    // Actions mapping: fetchEntities -> fetchQuestions (keep both for compatibility)
+    fetchEntities: entityListResult.fetchEntities, // Standard EntityListHook interface
+    fetchQuestions: entityListResult.fetchEntities, // Backward compatibility
+    nextPage: entityListResult.nextPage,
+    previousPage: entityListResult.previousPage,
+    goToPage: entityListResult.goToPage,
+    goToFirst: entityListResult.goToFirst,
+    goToLast: entityListResult.goToLast,
+    refresh: entityListResult.refresh,
+    clearError: entityListResult.clearError,
+    setSearchTerm: entityListResult.setSearchTerm,
+  }), [entityListResult]);
 };

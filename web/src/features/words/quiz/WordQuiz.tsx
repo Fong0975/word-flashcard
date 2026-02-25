@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkBreaks from 'remark-breaks';
-import { Word, QuizResult, WordsRandomRequest } from '../../../types/api';
+import { Word, WordQuizResult, WordsRandomRequest } from '../../../types/api';
+import { FamiliarityLevel } from '../../../types/base';
 import { apiService } from '../../../lib/api';
 import { PronunciationButton } from '../../../components/ui/PronunciationButton';
 import { extractPronunciationUrls, isValidAudioUrl } from '../../shared/phonetics';
 
 interface WordQuizProps {
-  selectedFamiliarity: string[];
+  selectedFamiliarity: readonly FamiliarityLevel[];
   questionCount: number;
-  onQuizComplete: (results: QuizResult[]) => void;
+  onQuizComplete: (results: WordQuizResult[]) => void;
   onBackToHome: () => void;
 }
 
@@ -24,7 +25,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
   const [state, setState] = useState<WordQuizState>('loading');
   const [words, setWords] = useState<Word[]>([]);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
-  const [results, setResults] = useState<QuizResult[]>([]);
+  const [results, setResults] = useState<WordQuizResult[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [showAnswer, setShowAnswer] = useState(false);
 
@@ -52,9 +53,9 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
         let countRed = 0, countYellow = 0, countGreen = 0;
 
         let remaining = questionCount;
-        const existGreen = selectedFamiliarity.includes('green');
-        const existYellow = selectedFamiliarity.includes('yellow');
-        const existRed = selectedFamiliarity.includes('red');
+        const existGreen = selectedFamiliarity.includes(FamiliarityLevel.GREEN);
+        const existYellow = selectedFamiliarity.includes(FamiliarityLevel.YELLOW);
+        const existRed = selectedFamiliarity.includes(FamiliarityLevel.RED);
         if (existGreen) {
           const maxGreen = Math.floor(remaining * 0.2);
           countGreen = Math.floor(Math.random() * (maxGreen + 1));
@@ -94,12 +95,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
           requests.push({
             count: countRed,
             filter: {
-              conditions: [{
-                key: 'familiarity',
-                operator: 'eq',
-                value: 'red',
-              }],
-              logic: 'OR',
+              familiarity: [FamiliarityLevel.RED],
             },
           });
         }
@@ -107,12 +103,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
           requests.push({
             count: countYellow,
             filter: {
-              conditions: [{
-                key: 'familiarity',
-                operator: 'eq',
-                value: 'yellow',
-              }],
-              logic: 'OR',
+              familiarity: [FamiliarityLevel.YELLOW],
             },
           });
         }
@@ -120,12 +111,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
           requests.push({
             count: countGreen,
             filter: {
-              conditions: [{
-                key: 'familiarity',
-                operator: 'eq',
-                value: 'green',
-              }],
-              logic: 'OR',
+              familiarity: [FamiliarityLevel.GREEN],
             },
           });
         }
@@ -151,7 +137,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
   }, [selectedFamiliarity, questionCount]);
 
   // Handle familiarity selection
-  const handleFamiliaritySelect = async (newFamiliarity: string) => {
+  const handleFamiliaritySelect = async (newFamiliarity: FamiliarityLevel) => {
     const currentWord = words[currentWordIndex];
 
     try {
@@ -162,7 +148,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
       });
 
       // Add to results
-      const result: QuizResult = {
+      const result: WordQuizResult = {
         word: currentWord,
         oldFamiliarity: currentWord.familiarity,
         newFamiliarity,
@@ -452,7 +438,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
               {/* Familiarity Buttons */}
               <div className="flex flex-col justify-center space-y-4 mb-8">
                 <button
-                  onClick={() => handleFamiliaritySelect('red')}
+                  onClick={() => handleFamiliaritySelect(FamiliarityLevel.RED)}
                   className="flex flex-col items-center p-4 bg-red-50 dark:bg-red-900/20
                              border-2 border-red-200 dark:border-red-700 rounded-lg
                              hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors min-w-[150px]"
@@ -464,7 +450,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
                 </button>
 
                 <button
-                  onClick={() => handleFamiliaritySelect('yellow')}
+                  onClick={() => handleFamiliaritySelect(FamiliarityLevel.YELLOW)}
                   className="flex flex-col items-center p-4 bg-yellow-50 dark:bg-yellow-900/20
                              border-2 border-yellow-200 dark:border-yellow-700 rounded-lg
                              hover:bg-yellow-100 dark:hover:bg-yellow-900/30 transition-colors min-w-[150px]"
@@ -476,7 +462,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
                 </button>
 
                 <button
-                  onClick={() => handleFamiliaritySelect('green')}
+                  onClick={() => handleFamiliaritySelect(FamiliarityLevel.GREEN)}
                   className="flex flex-col items-center p-4 bg-green-50 dark:bg-green-900/20
                              border-2 border-green-200 dark:border-green-700 rounded-lg
                              hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors min-w-[150px]"

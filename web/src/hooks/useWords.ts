@@ -1,30 +1,17 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { apiService, ApiError } from '../lib/api';
-import { Word, SearchFilter } from '../types/api';
+import { useMemo } from 'react';
+import { apiService } from '../lib/api';
+import { Word } from '../types/api';
+import { SearchFilter, SearchOperation, SearchLogic } from '../types/base';
+import { useEntityList, UseEntityListOptions, UseEntityListReturn } from './useEntityList';
+import { EntityListHook } from '../types/hooks';
 
+// Keep the original interface for backward compatibility
 export interface UseWordsState {
   words: Word[];
-  loading: boolean;
-  error: string | null;
-  currentPage: number;
-  totalPages: number;
-  hasNext: boolean;
-  hasPrevious: boolean;
-  itemsPerPage: number;
-  searchTerm: string;
-  totalCount: number;
 }
 
 export interface UseWordsActions {
   fetchWords: (page?: number) => Promise<void>;
-  nextPage: () => Promise<void>;
-  previousPage: () => Promise<void>;
-  goToPage: (page: number) => Promise<void>;
-  goToFirst: () => Promise<void>;
-  goToLast: () => Promise<void>;
-  refresh: () => Promise<void>;
-  clearError: () => void;
-  setSearchTerm: (term: string) => void;
 }
 
 export interface UseWordsOptions {
@@ -33,202 +20,76 @@ export interface UseWordsOptions {
   autoFetch?: boolean;
 }
 
-export interface UseWordsReturn extends UseWordsState, UseWordsActions {}
+export interface UseWordsReturn extends UseWordsState, UseWordsActions, EntityListHook<Word> {}
 
 export const useWords = (options: UseWordsOptions = {}): UseWordsReturn => {
-  const {
-    itemsPerPage = 50,
-    initialPage = 1,
-    autoFetch = true,
-  } = options;
+  const { itemsPerPage = 50, initialPage = 1, autoFetch = true } = options;
 
-  const [state, setState] = useState<UseWordsState>({
-    words: [],
-    loading: false,
-    error: null,
-    currentPage: initialPage,
-    totalPages: 1,
-    hasNext: false,
-    hasPrevious: false,
+  // Create configuration for the generic hook
+  const entityListOptions = useMemo((): UseEntityListOptions<Word> => ({
+    entityName: 'words',
+    apiService: {
+      fetchList: (params) => apiService.searchWords(params),
+      getCount: (searchFilter) => apiService.getWordsCount(searchFilter),
+    },
+    searchConfig: {
+      type: 'server',
+      createSearchFilter: (searchTerm: string): SearchFilter | undefined => {
+        return searchTerm ? {
+          conditions: [
+            {
+              key: 'word',
+              operator: SearchOperation.LIKE,
+              value: `%${searchTerm}%`,
+            },
+            {
+              key: 'definition',
+              operator: SearchOperation.LIKE,
+              value: `%${searchTerm}%`,
+            },
+            {
+              key: 'notes',
+              operator: SearchOperation.LIKE,
+              value: `%${searchTerm}%`,
+            },
+          ],
+          logic: SearchLogic.OR,
+        } : undefined;
+      },
+    },
     itemsPerPage,
-    searchTerm: '',
-    totalCount: 0,
-  });
+    initialPage,
+    autoFetch,
+  }), [itemsPerPage, initialPage, autoFetch]);
 
-  const mounted = useRef(false);
-  const previousSearchTerm = useRef('');
+  // Use the generic hook
+  const entityListResult = useEntityList<Word>(entityListOptions);
 
-  const fetchWords = useCallback(async (page?: number) => {
-    setState(prev => ({
-      ...prev,
-      loading: true,
-      error: null,
-    }));
+  // Map the generic result to the specific Word interface
+  return useMemo((): UseWordsReturn => ({
+    // State mapping: entities -> words
+    words: entityListResult.entities,
+    entities: entityListResult.entities, // Add for EntityListHook compatibility
+    loading: entityListResult.loading,
+    error: entityListResult.error,
+    currentPage: entityListResult.currentPage,
+    totalPages: entityListResult.totalPages,
+    hasNext: entityListResult.hasNext,
+    hasPrevious: entityListResult.hasPrevious,
+    itemsPerPage: entityListResult.itemsPerPage,
+    searchTerm: entityListResult.searchTerm,
+    totalCount: entityListResult.totalCount,
 
-    try {
-      const targetPage = page ?? state.currentPage;
-      const offset = (targetPage - 1) * itemsPerPage;
-
-      // Create search filter if there is a search term
-      const searchFilter: SearchFilter | undefined = state.searchTerm
-        ? {
-            conditions: [
-              {
-                key: 'word',
-                operator: 'like',
-                value: `%${state.searchTerm}%`,
-              },
-              {
-                key: 'definition',
-                operator: 'like',
-                value: `%${state.searchTerm}%`,
-              },
-              {
-                key: 'notes',
-                operator: 'like',
-                value: `%${state.searchTerm}%`,
-              },
-            ],
-            logic: 'OR',
-          }
-        : undefined;
-
-      const params = {
-        limit: itemsPerPage,
-        offset,
-        searchFilter,
-      };
-
-      // Get words and total count in parallel for better performance
-      const [wordsResponse, countResponse] = await Promise.all([
-        apiService.searchWords(params),
-        apiService.getWordsCount(searchFilter)
-      ]);
-
-      let words = wordsResponse;
-      if (words == null || !Array.isArray(words)) {
-        words = [];
-      }
-
-      // Get the total count from the API response
-      const totalCount = countResponse.count || 0;
-
-      // Calculate pagination info based on real total count
-      const totalPages = Math.ceil(totalCount / itemsPerPage);
-      const hasNext = targetPage < totalPages;
-      const hasPrevious = targetPage > 1;
-
-      setState(prev => ({
-        ...prev,
-        words,
-        loading: false,
-        currentPage: targetPage,
-        totalPages,
-        hasNext,
-        hasPrevious,
-        totalCount,
-      }));
-
-    } catch (error) {
-      let errorMessage = 'Failed to fetch words';
-
-      if (error instanceof ApiError) {
-        errorMessage = error.message;
-      } else if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        error: errorMessage,
-        words: [],
-        totalCount: 0,
-      }));
-    }
-  }, [state.currentPage, state.searchTerm, itemsPerPage]);
-
-  const nextPage = useCallback(async () => {
-    if (state.hasNext && !state.loading) {
-      await fetchWords(state.currentPage + 1);
-    }
-  }, [state.hasNext, state.loading, state.currentPage, fetchWords]);
-
-  const previousPage = useCallback(async () => {
-    if (state.hasPrevious && !state.loading) {
-      await fetchWords(state.currentPage - 1);
-    }
-  }, [state.hasPrevious, state.loading, state.currentPage, fetchWords]);
-
-  const goToPage = useCallback(async (page: number) => {
-    if (page >= 1 && page <= state.totalPages && !state.loading) {
-      await fetchWords(page);
-    }
-  }, [state.totalPages, state.loading, fetchWords]);
-
-  const goToFirst = useCallback(async () => {
-    if (state.currentPage > 1 && !state.loading) {
-      await fetchWords(1);
-    }
-  }, [state.currentPage, state.loading, fetchWords]);
-
-  const goToLast = useCallback(async () => {
-    if (state.currentPage < state.totalPages && !state.loading) {
-      await fetchWords(state.totalPages);
-    }
-  }, [state.currentPage, state.totalPages, state.loading, fetchWords]);
-
-  const refresh = useCallback(async () => {
-    await fetchWords(state.currentPage);
-  }, [state.currentPage, fetchWords]);
-
-  const clearError = useCallback(() => {
-    setState(prev => ({
-      ...prev,
-      error: null,
-    }));
-  }, []);
-
-  const setSearchTerm = useCallback((term: string) => {
-    setState(prev => ({
-      ...prev,
-      searchTerm: term,
-      currentPage: 1, // Reset to first page when searching
-      totalPages: 1,
-      totalCount: 0,
-    }));
-  }, []);
-
-  // Auto-fetch on mount
-  useEffect(() => {
-    if (autoFetch && !mounted.current) {
-      mounted.current = true;
-      fetchWords(initialPage);
-    }
-  }, [autoFetch, initialPage, fetchWords]);
-
-  // Re-fetch when search term changes
-  useEffect(() => {
-    if (autoFetch && state.searchTerm !== previousSearchTerm.current) {
-      previousSearchTerm.current = state.searchTerm;
-      if (mounted.current) {
-        fetchWords(1); // Reset to page 1 when searching
-      }
-    }
-  }, [state.searchTerm, autoFetch, fetchWords]);
-
-  return {
-    // State
-    ...state,
-    // Actions
-    fetchWords,
-    nextPage,
-    previousPage,
-    goToPage,
-    goToFirst,
-    goToLast,
-    refresh,
-    clearError,
-    setSearchTerm,
-  };
+    // Actions mapping: fetchEntities -> fetchWords
+    fetchWords: entityListResult.fetchEntities,
+    fetchEntities: entityListResult.fetchEntities, // Add for EntityListHook compatibility
+    nextPage: entityListResult.nextPage,
+    previousPage: entityListResult.previousPage,
+    goToPage: entityListResult.goToPage,
+    goToFirst: entityListResult.goToFirst,
+    goToLast: entityListResult.goToLast,
+    refresh: entityListResult.refresh,
+    clearError: entityListResult.clearError,
+    setSearchTerm: entityListResult.setSearchTerm,
+  }), [entityListResult]);
 };

@@ -88,7 +88,7 @@ export const Pagination: React.FC<PaginationProps> = ({
   `;
 
   return (
-    <nav className={`flex items-center justify-between ${className}`} aria-label="Pagination">
+    <nav className={`flex items-center justify-between w-full ${className}`} aria-label="Pagination">
       {/* Mobile section */}
       <div className="flex-1 sm:hidden">
         {/* Mobile navigation buttons */}
@@ -183,7 +183,7 @@ export const Pagination: React.FC<PaginationProps> = ({
 
       {/* Desktop pagination */}
       <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-        <div>
+        <div className="flex-shrink-0">
           <p className="text-sm text-gray-700 dark:text-gray-300">
             Showing{' '}
             <span className="font-medium">{startItem}</span>
@@ -199,7 +199,7 @@ export const Pagination: React.FC<PaginationProps> = ({
           </p>
         </div>
 
-        <div>
+        <div className="flex-shrink-0 ml-auto">
           <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
             {/* First button */}
             <button
