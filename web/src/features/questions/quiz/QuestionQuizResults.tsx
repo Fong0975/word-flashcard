@@ -1,5 +1,5 @@
 import React from 'react';
-import { QuestionQuizResult } from '../../types/api';
+import { QuestionQuizResult } from '../../../types/api';
 
 interface QuestionQuizResultsProps {
   results: QuestionQuizResult[];

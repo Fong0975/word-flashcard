@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Modal } from '../../components/ui/Modal';
+import { Modal } from '../../../components/ui/Modal';
 import { QuestionQuiz } from './QuestionQuiz';
 import { QuestionQuizResults } from './QuestionQuizResults';
-import { QuestionQuizConfig, QuestionQuizResult } from '../../types/api';
+import { QuestionQuizConfig, QuestionQuizResult } from '../../../types/api';
 
 interface QuestionQuizModalProps {
   isOpen: boolean;

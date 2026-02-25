@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkBreaks from 'remark-breaks';
-import { Question, QuestionQuizResult, QuestionsRandomRequest } from '../../types/api';
-import { apiService } from '../../lib/api';
+import { Question, QuestionQuizResult, QuestionsRandomRequest } from '../../../types/api';
+import { apiService } from '../../../lib/api';
 
 interface QuestionQuizProps {
   questionCount: number;

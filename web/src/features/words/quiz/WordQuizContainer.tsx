@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
-import { Quiz } from './Quiz';
-import { QuizResults } from './QuizResults';
-import { QuizConfig, QuizResult } from '../../types/api';
+import { WordQuiz } from './WordQuiz';
+import { WordQuizResults } from './WordQuizResults';
+import { QuizConfig, QuizResult } from '../../../types/api';
 
-interface QuizContainerProps {
+interface WordQuizContainerProps {
   onBackToHome: () => void;
   initialConfig?: QuizConfig | null;
 }
 
-type QuizContainerState = 'setup' | 'quiz' | 'results';
+type WordQuizContainerState = 'setup' | 'quiz' | 'results';
 
-export const QuizContainer: React.FC<QuizContainerProps> = ({
+export const WordQuizContainer: React.FC<WordQuizContainerProps> = ({
   onBackToHome,
   initialConfig
 }) => {
-  const [state, setState] = useState<QuizContainerState>(initialConfig ? 'quiz' : 'setup');
+  const [state, setState] = useState<WordQuizContainerState>(initialConfig ? 'quiz' : 'setup');
   const [quizConfig, setQuizConfig] = useState<QuizConfig | null>(initialConfig || null);
   const [results, setResults] = useState<QuizResult[]>([]);
 
@@ -60,7 +60,7 @@ export const QuizContainer: React.FC<QuizContainerProps> = ({
 
   if (state === 'quiz') {
     return (
-      <Quiz
+      <WordQuiz
         selectedFamiliarity={quizConfig.selectedFamiliarity}
         questionCount={quizConfig.questionCount}
         onQuizComplete={handleQuizComplete}
@@ -71,7 +71,7 @@ export const QuizContainer: React.FC<QuizContainerProps> = ({
 
   if (state === 'results') {
     return (
-      <QuizResults
+      <WordQuizResults
         results={results}
         onRetakeQuiz={handleRetakeQuiz}
         onBackToHome={handleBackToHome}

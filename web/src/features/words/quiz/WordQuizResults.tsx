@@ -1,7 +1,7 @@
 import React from 'react';
-import { QuizResult } from '../../types/api';
+import { QuizResult } from '../../../types/api';
 
-interface QuizResultsProps {
+interface WordQuizResultsProps {
   results: QuizResult[];
   onRetakeQuiz: () => void;
   onBackToHome: () => void;
@@ -47,7 +47,7 @@ const FamiliarityBadge: React.FC<{ familiarity: string }> = ({ familiarity }) =>
   );
 };
 
-export const QuizResults: React.FC<QuizResultsProps> = ({
+export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
   results,
   onRetakeQuiz,
   onBackToHome

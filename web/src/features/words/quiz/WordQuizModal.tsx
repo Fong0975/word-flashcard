@@ -1,23 +1,23 @@
 import React, { useState } from 'react';
-import { Modal } from '../../components/ui/Modal';
-import { Quiz } from './Quiz';
-import { QuizResults } from './QuizResults';
-import { QuizConfig, QuizResult } from '../../types/api';
+import { Modal } from '../../../components/ui/Modal';
+import { WordQuiz } from './WordQuiz';
+import { WordQuizResults } from './WordQuizResults';
+import { QuizConfig, QuizResult } from '../../../types/api';
 
-interface QuizModalProps {
+interface WordQuizModalProps {
   isOpen: boolean;
   onClose: () => void;
   quizConfig: QuizConfig;
 }
 
-type QuizModalState = 'quiz' | 'results';
+type WordQuizModalState = 'quiz' | 'results';
 
-export const QuizModal: React.FC<QuizModalProps> = ({
+export const WordQuizModal: React.FC<WordQuizModalProps> = ({
   isOpen,
   onClose,
   quizConfig
 }) => {
-  const [state, setState] = useState<QuizModalState>('quiz');
+  const [state, setState] = useState<WordQuizModalState>('quiz');
   const [results, setResults] = useState<QuizResult[]>([]);
   const [showCloseConfirm, setShowCloseConfirm] = useState(false);
 
@@ -70,7 +70,7 @@ export const QuizModal: React.FC<QuizModalProps> = ({
         <div className="h-[80vh] overflow-hidden">
           {state === 'quiz' && (
             <div className="h-full overflow-x-hidden">
-              <Quiz
+              <WordQuiz
                 selectedFamiliarity={quizConfig.selectedFamiliarity}
                 questionCount={quizConfig.questionCount}
                 onQuizComplete={handleQuizComplete}
@@ -81,7 +81,7 @@ export const QuizModal: React.FC<QuizModalProps> = ({
 
           {state === 'results' && (
             <div className="h-full overflow-x-hidden">
-              <QuizResults
+              <WordQuizResults
                 results={results}
                 onRetakeQuiz={handleRetakeQuiz}
                 onBackToHome={handleBackToHome}

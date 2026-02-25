@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Modal } from '../../components/ui/Modal';
+import { Modal } from '../../../components/ui/Modal';
 
-interface QuizSetupModalProps {
+interface WordQuizSetupModalProps {
   isOpen: boolean;
   onClose: () => void;
   onStartQuiz?: (selectedFamiliarity: string[], questionCount: number) => void;
@@ -28,7 +28,7 @@ const FAMILIARITY_OPTIONS = [
   },
 ];
 
-export const QuizSetupModal: React.FC<QuizSetupModalProps> = ({
+export const WordQuizSetupModal: React.FC<WordQuizSetupModalProps> = ({
   isOpen,
   onClose,
   onStartQuiz,

@@ -7,10 +7,10 @@ import { ErrorMessage } from '../../components/ui/ErrorMessage';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { WordFormModal } from './WordFormModal';
 import { WordDetailModal } from './WordDetailModal';
-import { QuizSetupModal } from './QuizSetupModal';
+import { WordQuizSetupModal } from './quiz/WordQuizSetupModal';
 import { DefinitionFormModal } from './DefinitionFormModal';
 import { QuizConfig, Word, WordDefinition } from '../../types/api';
-import { QuizModal } from '../quiz/QuizModal';
+import { WordQuizModal } from './quiz/WordQuizModal';
 import { apiService } from '../../lib/api';
 
 interface WordsReviewTabProps {
@@ -404,7 +404,7 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({ className = '' }
       />
 
       {/* Quiz Setup Modal */}
-      <QuizSetupModal
+      <WordQuizSetupModal
         isOpen={isQuizSetupModalOpen}
         onClose={handleCloseQuizSetupModal}
         onStartQuiz={handleStartQuiz}
@@ -412,7 +412,7 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({ className = '' }
 
       {/* Quiz Modal */}
       {quizConfig && (
-        <QuizModal
+        <WordQuizModal
           isOpen={isQuizModalOpen}
           onClose={handleCloseQuizModal}
           quizConfig={quizConfig}

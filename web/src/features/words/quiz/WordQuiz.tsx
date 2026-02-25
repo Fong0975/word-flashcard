@@ -1,27 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkBreaks from 'remark-breaks';
-import { Word, QuizResult, WordsRandomRequest } from '../../types/api';
-import { apiService } from '../../lib/api';
-import { PronunciationButton } from '../../components/ui/PronunciationButton';
-import { extractPronunciationUrls, isValidAudioUrl } from '../shared/phonetics';
+import { Word, QuizResult, WordsRandomRequest } from '../../../types/api';
+import { apiService } from '../../../lib/api';
+import { PronunciationButton } from '../../../components/ui/PronunciationButton';
+import { extractPronunciationUrls, isValidAudioUrl } from '../../shared/phonetics';
 
-interface QuizProps {
+interface WordQuizProps {
   selectedFamiliarity: string[];
   questionCount: number;
   onQuizComplete: (results: QuizResult[]) => void;
   onBackToHome: () => void;
 }
 
-type QuizState = 'loading' | 'quiz' | 'completed';
+type WordQuizState = 'loading' | 'quiz' | 'completed';
 
-export const Quiz: React.FC<QuizProps> = ({
+export const WordQuiz: React.FC<WordQuizProps> = ({
   selectedFamiliarity,
   questionCount,
   onQuizComplete,
   onBackToHome
 }) => {
-  const [state, setState] = useState<QuizState>('loading');
+  const [state, setState] = useState<WordQuizState>('loading');
   const [words, setWords] = useState<Word[]>([]);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [results, setResults] = useState<QuizResult[]>([]);
