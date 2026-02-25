@@ -266,7 +266,7 @@ export const Quiz: React.FC<QuizProps> = ({
               )}
 
               {/* Part of Speech */}
-              <div className='mt-3 mb-6'>
+              <div className='my-3'>
                 {Array.from(
                   new Set(
                     currentWord?.definitions
@@ -280,6 +280,13 @@ export const Quiz: React.FC<QuizProps> = ({
                   </span>
                 ))}
               </div>
+
+              {/* Definition count */}
+              {currentWord.definitions && currentWord.definitions.length > 0 && (
+                  <div className="flex justify-between text-sm text-gray-700 dark:text-gray-300 mb-8">
+                    Total {currentWord.definitions.length} definition{currentWord.definitions.length > 1 ? 's' : ''}
+                  </div>
+              )}
 
               {/* Pronunciation buttons */}
               {(pronunciationUrls.uk || pronunciationUrls.us) && (

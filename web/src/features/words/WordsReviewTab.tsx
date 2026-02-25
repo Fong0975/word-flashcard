@@ -43,9 +43,12 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({ className = '' }
     hasPrevious,
     itemsPerPage,
     searchTerm,
+    totalCount,
     nextPage,
     previousPage,
     goToPage,
+    goToFirst,
+    goToLast,
     refresh,
     clearError,
     setSearchTerm,
@@ -378,9 +381,12 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({ className = '' }
             hasNext={hasNext}
             hasPrevious={hasPrevious}
             itemsPerPage={itemsPerPage}
+            totalItems={totalCount}
             onPageChange={goToPage}
             onNext={nextPage}
             onPrevious={previousPage}
+            onFirst={goToFirst}
+            onLast={goToLast}
             loading={loading}
             className="mt-8"
           />

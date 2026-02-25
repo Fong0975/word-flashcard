@@ -12,6 +12,7 @@ export interface UseQuestionsState {
   hasPrevious: boolean;
   itemsPerPage: number;
   searchTerm: string;
+  totalCount: number;
 }
 
 export interface UseQuestionsActions {
@@ -19,6 +20,8 @@ export interface UseQuestionsActions {
   nextPage: () => Promise<void>;
   previousPage: () => Promise<void>;
   goToPage: (page: number) => Promise<void>;
+  goToFirst: () => Promise<void>;
+  goToLast: () => Promise<void>;
   refresh: () => Promise<void>;
   clearError: () => void;
   setSearchTerm: (term: string) => void;
@@ -49,6 +52,7 @@ export const useQuestions = (options: UseQuestionsOptions = {}): UseQuestionsRet
     hasPrevious: false,
     itemsPerPage,
     searchTerm: '',
+    totalCount: 0,
   });
 
   const mounted = useRef(false);
@@ -110,6 +114,7 @@ export const useQuestions = (options: UseQuestionsOptions = {}): UseQuestionsRet
         totalPages,
         hasNext,
         hasPrevious,
+        totalCount,
       }));
 
     } catch (error) {
@@ -126,6 +131,7 @@ export const useQuestions = (options: UseQuestionsOptions = {}): UseQuestionsRet
         loading: false,
         error: errorMessage,
         questions: [],
+        totalCount: 0,
       }));
     }
   }, [state.currentPage, state.searchTerm, itemsPerPage]);
@@ -148,6 +154,18 @@ export const useQuestions = (options: UseQuestionsOptions = {}): UseQuestionsRet
     }
   }, [state.totalPages, state.loading, fetchQuestions]);
 
+  const goToFirst = useCallback(async () => {
+    if (state.currentPage > 1 && !state.loading) {
+      await fetchQuestions(1);
+    }
+  }, [state.currentPage, state.loading, fetchQuestions]);
+
+  const goToLast = useCallback(async () => {
+    if (state.currentPage < state.totalPages && !state.loading) {
+      await fetchQuestions(state.totalPages);
+    }
+  }, [state.currentPage, state.totalPages, state.loading, fetchQuestions]);
+
   const refresh = useCallback(async () => {
     await fetchQuestions(state.currentPage);
   }, [state.currentPage, fetchQuestions]);
@@ -165,6 +183,7 @@ export const useQuestions = (options: UseQuestionsOptions = {}): UseQuestionsRet
       searchTerm: term,
       currentPage: 1, // Reset to first page when searching
       totalPages: 1,
+      totalCount: 0,
     }));
   }, []);
 
@@ -194,6 +213,8 @@ export const useQuestions = (options: UseQuestionsOptions = {}): UseQuestionsRet
     nextPage,
     previousPage,
     goToPage,
+    goToFirst,
+    goToLast,
     refresh,
     clearError,
     setSearchTerm,

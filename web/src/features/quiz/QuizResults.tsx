@@ -82,7 +82,7 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
       </div>
 
       {/* Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 mt-4 mb-8">
+      <div className="grid grid-cols-1 gap-4 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 mt-4 mb-8">
         {/* Total Number */}
         <div className="text-center text-6xl font-bold text-gray-500 dark:text-gray-300">
           {totalQuestions}
