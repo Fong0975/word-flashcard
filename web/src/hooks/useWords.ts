@@ -12,6 +12,7 @@ export interface UseWordsState {
   hasPrevious: boolean;
   itemsPerPage: number;
   searchTerm: string;
+  totalCount: number;
 }
 
 export interface UseWordsActions {
@@ -49,6 +50,7 @@ export const useWords = (options: UseWordsOptions = {}): UseWordsReturn => {
     hasPrevious: false,
     itemsPerPage,
     searchTerm: '',
+    totalCount: 0,
   });
 
   const mounted = useRef(false);
@@ -122,6 +124,7 @@ export const useWords = (options: UseWordsOptions = {}): UseWordsReturn => {
         totalPages,
         hasNext,
         hasPrevious,
+        totalCount,
       }));
 
     } catch (error) {
@@ -138,6 +141,7 @@ export const useWords = (options: UseWordsOptions = {}): UseWordsReturn => {
         loading: false,
         error: errorMessage,
         words: [],
+        totalCount: 0,
       }));
     }
   }, [state.currentPage, state.searchTerm, itemsPerPage]);
@@ -177,6 +181,7 @@ export const useWords = (options: UseWordsOptions = {}): UseWordsReturn => {
       searchTerm: term,
       currentPage: 1, // Reset to first page when searching
       totalPages: 1,
+      totalCount: 0,
     }));
   }, []);
 

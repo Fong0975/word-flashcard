@@ -12,6 +12,7 @@ export interface UseQuestionsState {
   hasPrevious: boolean;
   itemsPerPage: number;
   searchTerm: string;
+  totalCount: number;
 }
 
 export interface UseQuestionsActions {
@@ -49,6 +50,7 @@ export const useQuestions = (options: UseQuestionsOptions = {}): UseQuestionsRet
     hasPrevious: false,
     itemsPerPage,
     searchTerm: '',
+    totalCount: 0,
   });
 
   const mounted = useRef(false);
@@ -110,6 +112,7 @@ export const useQuestions = (options: UseQuestionsOptions = {}): UseQuestionsRet
         totalPages,
         hasNext,
         hasPrevious,
+        totalCount,
       }));
 
     } catch (error) {
@@ -126,6 +129,7 @@ export const useQuestions = (options: UseQuestionsOptions = {}): UseQuestionsRet
         loading: false,
         error: errorMessage,
         questions: [],
+        totalCount: 0,
       }));
     }
   }, [state.currentPage, state.searchTerm, itemsPerPage]);
@@ -165,6 +169,7 @@ export const useQuestions = (options: UseQuestionsOptions = {}): UseQuestionsRet
       searchTerm: term,
       currentPage: 1, // Reset to first page when searching
       totalPages: 1,
+      totalCount: 0,
     }));
   }, []);
 

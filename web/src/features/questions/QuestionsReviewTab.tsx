@@ -37,6 +37,7 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({ classNam
     hasNext,
     hasPrevious,
     itemsPerPage,
+    totalCount,
     nextPage,
     previousPage,
     goToPage,
@@ -258,6 +259,7 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({ classNam
             hasNext={hasNext}
             hasPrevious={hasPrevious}
             itemsPerPage={itemsPerPage}
+            totalItems={totalCount}
             onPageChange={goToPage}
             onNext={nextPage}
             onPrevious={previousPage}

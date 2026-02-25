@@ -94,9 +94,14 @@ export const Pagination: React.FC<PaginationProps> = ({
         >
           Previous
         </button>
-        <span className="text-sm text-gray-700 dark:text-gray-300 flex items-center">
-          Page {currentPage} of {totalPages}
-        </span>
+        <div className="text-sm text-gray-700 dark:text-gray-300 flex flex-col items-center justify-center">
+          <span>Page {currentPage} of {totalPages}</span>
+          {totalItems && (
+            <span className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              ({totalItems} total)
+            </span>
+          )}
+        </div>
         <button
           onClick={onNext}
           disabled={!hasNext || loading}
