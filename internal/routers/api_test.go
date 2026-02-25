@@ -81,7 +81,7 @@ func (s *apiRoutesTestSuite) TestAPIRouteMappings() {
 		{"PUT", "/api/words/definition/1", "WordController.UpdateWordDefinition", "UpdateWordDefinition", "WordController"},
 		{"DELETE", "/api/words/1", "WordController.DeleteWord", "DeleteWord", "WordController"},
 		{"DELETE", "/api/words/definition/1", "WordController.DeleteWordDefinition", "DeleteWordDefinition", "WordController"},
-		{"POST", "/api/words/count", "WordController.CountQuestions", "CountQuestions", "WordController"},
+		{"POST", "/api/words/count", "WordController.CountWords", "CountWords", "WordController"},
 		// Questions
 		{"GET", "/api/questions", "QuestionController.ListQuestions", "ListQuestions", "QuestionController"},
 		{"GET", "/api/questions/1", "QuestionController.GetQuestions", "GetQuestions", "QuestionController"},

@@ -64,7 +64,7 @@ func SetupAPIRoutesWithDependencies(router *gin.Engine, deps *ControllerDependen
 	apiGroup.POST("/words", deps.WordController.CreateWord)
 	apiGroup.PUT("/words/:id", deps.WordController.UpdateWord)
 	apiGroup.DELETE("/words/:id", deps.WordController.DeleteWord)
-	apiGroup.POST("/words/count", deps.WordController.CountQuestions)
+	apiGroup.POST("/words/count", deps.WordController.CountWords)
 	apiGroup.POST("/words/definition/:id", deps.WordController.CreateWordDefinition)
 	apiGroup.PUT("/words/definition/:id", deps.WordController.UpdateWordDefinition)
 	apiGroup.DELETE("/words/definition/:id", deps.WordController.DeleteWordDefinition)
