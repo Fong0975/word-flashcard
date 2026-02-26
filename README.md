@@ -189,10 +189,29 @@ swag init
 
 This command will update the `docs/` directory with the latest API documentation based on your swagger annotations in the code.
 
-### Format Code
+### Code Quality
+
+#### Backend
+
 ```bash
 # Check formatting issues
 golangci-lint run
+```
+
+#### Frontend
+
+```bash
+# Navigate to the web directory
+cd web
+
+# Run ESLint to check for code quality issues
+npm run lint
+
+# Run ESLint with automatic fixes for fixable issues
+npm run lint:fix
+
+# Run ESLint in strict mode (fail if there are any warnings)
+npm run lint:check
 ```
 
 ### Testing
