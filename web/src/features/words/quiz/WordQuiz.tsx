@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkBreaks from 'remark-breaks';
 import { Word, WordQuizResult, WordsRandomRequest } from '../../../types/api';
-import { FamiliarityLevel } from '../../../types/base';
+import { FamiliarityLevel, SearchOperation, SearchLogic } from '../../../types/base';
 import { apiService } from '../../../lib/api';
 import { PronunciationButton } from '../../../components/ui/PronunciationButton';
 import { extractPronunciationUrls, isValidAudioUrl } from '../../shared/phonetics';
@@ -49,83 +49,38 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
         setState('loading');
         setError(null);
 
-        // Count for 'red', 'yellow', 'green' shoud be 2:3:5
-        let countRed = 0, countYellow = 0, countGreen = 0;
-
-        let remaining = questionCount;
-        const existGreen = selectedFamiliarity.includes(FamiliarityLevel.GREEN);
-        const existYellow = selectedFamiliarity.includes(FamiliarityLevel.YELLOW);
-        const existRed = selectedFamiliarity.includes(FamiliarityLevel.RED);
-        if (existGreen) {
-          const maxGreen = Math.floor(remaining * 0.2);
-          countGreen = Math.floor(Math.random() * (maxGreen + 1));
-          remaining -= countGreen;
-        }
-
-        if (existYellow) {
-          const maxYellow = Math.floor(remaining * 0.3);
-          countYellow = Math.floor(Math.random() * (maxYellow + 1));
-          remaining -= countYellow;
-        }
-
-        if (existRed) {
-          countRed = remaining;
-          remaining = 0;
-        } else {
-          // If there is no red but there are remaining quantities, distribute them evenly among the existing colors
-          if (selectedFamiliarity.length > 0) {
-            if (existGreen && existYellow) {
-              // Distribute remaining between green and yellow
-              const maxGreen = Math.floor(remaining * 0.4);
-              countGreen += Math.floor(Math.random() * (maxGreen + 1));
-              countYellow += (remaining - countGreen);
-            } else if (existGreen) {
-              countGreen += remaining;
-            } else if (existYellow) {
-              countYellow += remaining;
-            }
-          }
-        }
-
-        console.log('Quiz word counts:', { countRed, countYellow, countGreen });
+        console.log('Fetching quiz words with familiarity levels:', selectedFamiliarity);
 
         // Construct API request based on selected familiarities
-        const requests: WordsRandomRequest[] = [];
-        if (existRed) {
-          requests.push({
-            count: countRed,
-            filter: {
-              familiarity: [FamiliarityLevel.RED],
-            },
-          });
-        }
-        if (existYellow) {
-          requests.push({
-            count: countYellow,
-            filter: {
-              familiarity: [FamiliarityLevel.YELLOW],
-            },
-          });
-        }
-        if (existGreen) {
-          requests.push({
-            count: countGreen,
-            filter: {
-              familiarity: [FamiliarityLevel.GREEN],
-            },
-          });
+        const allSelectedFamiliarity = selectedFamiliarity.filter(f =>
+          [FamiliarityLevel.RED, FamiliarityLevel.YELLOW, FamiliarityLevel.GREEN].includes(f)
+        );
+
+        // Create a single request with all selected familiarity levels
+        const request: WordsRandomRequest = {
+          count: questionCount,
+          filter: {
+            conditions: [
+              {
+                key: 'familiarity',
+                operator: SearchOperation.IN,
+                value: JSON.stringify(allSelectedFamiliarity),
+              },
+            ],
+            logic: SearchLogic.OR,
+          },
+        };
+
+        // Fetch words for the quiz
+        if (request.count <= 0) {
+          setError('Invalid question count.');
+          return;
         }
 
-        // Fetch words for each familiarity level and combine results
-        const allWords: Word[] = [];
-        for (const req of requests) {
-          if (req.count <= 0) continue; // Skip if count is zero or negative
+        console.log('API Request:', JSON.stringify(request, null, 2));
 
-          const randomWords = await apiService.getRandomWords(req);
-          allWords.push(...randomWords);
-        }
-
-        setWords(allWords);
+        const randomWords = await apiService.getRandomWords(request);
+        setWords(randomWords);
         setState('quiz');
       } catch (error) {
         console.error('Failed to fetch quiz words:', error);

@@ -9,6 +9,9 @@ export interface EntityCardConfig {
   // Left indicator configuration
   showLeftIndicator: boolean;
   leftIndicatorType?: 'color-band' | 'custom'; // color-band for familiarity, custom for render prop
+
+  // Right arrow configuration
+  showRightArrow?: boolean; // default true for backward compatibility
 }
 
 export interface EntityCardActions {
@@ -106,11 +109,11 @@ export const EntityCard = <T extends BaseEntity>({
       // Question card style - with "No." label
       return (
         <div className="flex-shrink-0 w-12 pt-1 mr-2 border-r border-gray-100 dark:border-gray-700/50">
-          <div className="flex flex-col">
+          <div className="flex flex-col items-center justify-center">
             <span className="text-xs font-bold text-primary-500 dark:text-primary-400 uppercase tracking-tighter opacity-70">
               No.
             </span>
-            <span className="text-base font-mono font-bold text-gray-400 dark:text-gray-500 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors tabular-nums">
+            <span className="text-base font-mono font-bold text-gray-800 dark:text-gray-500 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors tabular-nums">
               {index}
             </span>
           </div>
@@ -174,17 +177,19 @@ export const EntityCard = <T extends BaseEntity>({
         </div>
 
         {/* Right chevron icon */}
-        <div className="flex-shrink-0 ml-4">
-          <svg
-            className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth="2"
-            stroke="currentColor"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-          </svg>
-        </div>
+        {(config.showRightArrow !== false) && (
+          <div className="flex-shrink-0 ml-4">
+            <svg
+              className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="2"
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        )}
       </div>
 
       {/* Entity-specific modals */}

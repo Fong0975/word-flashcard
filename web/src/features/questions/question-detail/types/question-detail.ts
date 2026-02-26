@@ -49,6 +49,7 @@ export interface AnswerSectionProps {
   onToggle: () => void;
   answer: string;
   explanation?: string;
+  question: Question;
 }
 
 export interface CorrectAnswerProps {

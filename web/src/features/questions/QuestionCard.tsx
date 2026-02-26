@@ -51,30 +51,57 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
       index={index}
       entity={question}
       config={{
-        showSequence: true,
+        showSequence: false, // We'll handle the sequence ourselves
         sequenceStyle: 'detailed',
         showLeftIndicator: false,
+        showRightArrow: false, // We'll handle the arrow ourselves
       }}
       actions={{
         onClick: handleCardClick,
         onEntityUpdated: onQuestionUpdated,
       }}
       renderContent={(question) => (
-        <div>
-          {/* Header with question */}
-          <div className="mb-3">
+        <div className="w-full">
+          {/* Header Row: Index on left, arrow on right */}
+          <div className="flex items-center justify-between mb-4 pb-2 border-b border-gray-100 dark:border-gray-700">
+            {/* Index Number */}
+            <div className="flex items-center">
+              <span className="text-xs font-bold text-primary-500 dark:text-primary-400 uppercase tracking-tighter opacity-70 mr-1">
+                No.
+              </span>
+              <span className="text-base font-mono font-bold text-gray-400 dark:text-gray-500 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors tabular-nums">
+                {index}
+              </span>
+            </div>
+
+            {/* Enter Detail Arrow */}
+            <div className="flex-shrink-0">
+              <svg
+                className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="2"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </div>
+
+          {/* Question Content - Full Width */}
+          <div className="mb-4">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white leading-relaxed">
               {question.question}
             </h3>
           </div>
 
-          {/* Options */}
+          {/* Options - Responsive Layout */}
           <div className="mb-4">
-            <div className="space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {availableOptions.map((option) => (
                 <div
                   key={option.key}
-                  className="flex items-start space-x-2 text-sm"
+                  className="flex items-start space-x-2 text-sm p-2 rounded-md bg-gray-50 dark:bg-gray-700/50"
                 >
                   <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium text-xs flex-shrink-0 mt-0.5">
                     {option.key}

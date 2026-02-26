@@ -4,8 +4,5 @@ export { OptionsDisplay } from './OptionsDisplay';
 export { OptionItem } from './OptionItem';
 export { PracticeStats } from './PracticeStats';
 export { AccuracyBadge } from './AccuracyBadge';
-export { ReferenceSection } from './ReferenceSection';
 export { AnswerSection } from './AnswerSection';
-export { CorrectAnswer } from './CorrectAnswer';
-export { ExplanationContent } from './ExplanationContent';
 export { QuestionFooter } from './QuestionFooter';

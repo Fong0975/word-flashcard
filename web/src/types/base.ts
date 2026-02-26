@@ -65,6 +65,7 @@ export enum SearchOperation {
   EQUALS = 'equals',
   STARTS_WITH = 'starts_with',
   ENDS_WITH = 'ends_with',
+  IN = 'in',
 }
 
 /**

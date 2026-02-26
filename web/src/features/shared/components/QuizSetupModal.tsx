@@ -57,10 +57,56 @@ export const QuizSetupModal: React.FC<QuizSetupModalProps> = ({
   defaultQuestionCount = DEFAULT_QUIZ_CONFIG.QUESTION_COUNT,
 }) => {
   const [questionCount, setQuestionCount] = useState<number>(defaultQuestionCount);
+  const [questionCountInput, setQuestionCountInput] = useState<string>(defaultQuestionCount.toString());
+  const [questionCountError, setQuestionCountError] = useState<string>('');
   const [selectedFamiliarity, setSelectedFamiliarity] = useState<FamiliarityLevel[]>(
     enableFamiliaritySelection ? [FamiliarityLevel.RED, FamiliarityLevel.YELLOW, FamiliarityLevel.GREEN] : []
   );
   const [showCloseConfirm, setShowCloseConfirm] = useState(false);
+
+  // 驗證題目數量的常數
+  const MIN_QUESTION_COUNT = 1;
+  const MAX_QUESTION_COUNT = 100;
+
+  // 處理輸入框變化和驗證
+  const handleQuestionCountChange = (value: string) => {
+    setQuestionCountInput(value);
+
+    // 清除之前的錯誤
+    setQuestionCountError('');
+
+    // 如果輸入為空，設置錯誤
+    if (!value.trim()) {
+      setQuestionCountError('Please enter a number of questions.');
+      setQuestionCount(0);
+      return;
+    }
+
+    const numValue = parseInt(value, 10);
+
+    // 檢查是否為有效數字
+    if (isNaN(numValue)) {
+      setQuestionCountError('Please enter a valid number.');
+      setQuestionCount(0);
+      return;
+    }
+
+    // 檢查範圍
+    if (numValue < MIN_QUESTION_COUNT) {
+      setQuestionCountError(`Number of questions must be at least ${MIN_QUESTION_COUNT}.`);
+      setQuestionCount(numValue);
+      return;
+    }
+
+    if (numValue > MAX_QUESTION_COUNT) {
+      setQuestionCountError(`Number of questions cannot exceed ${MAX_QUESTION_COUNT}.`);
+      setQuestionCount(numValue);
+      return;
+    }
+
+    // 有效的輸入
+    setQuestionCount(numValue);
+  };
 
   const handleFamiliarityToggle = (value: FamiliarityLevel) => {
     setSelectedFamiliarity(prev => {
@@ -73,7 +119,9 @@ export const QuizSetupModal: React.FC<QuizSetupModalProps> = ({
   };
 
   const handleStartQuiz = () => {
-    const isValidConfig = questionCount > 0 &&
+    const isValidConfig = questionCount >= MIN_QUESTION_COUNT &&
+      questionCount <= MAX_QUESTION_COUNT &&
+      questionCountError === '' &&
       (!enableFamiliaritySelection || selectedFamiliarity.length > 0);
 
     if (isValidConfig) {
@@ -92,6 +140,8 @@ export const QuizSetupModal: React.FC<QuizSetupModalProps> = ({
 
   const handleCloseConfirm = () => {
     setQuestionCount(defaultQuestionCount);
+    setQuestionCountInput(defaultQuestionCount.toString());
+    setQuestionCountError('');
     if (enableFamiliaritySelection) {
       setSelectedFamiliarity([FamiliarityLevel.RED, FamiliarityLevel.YELLOW, FamiliarityLevel.GREEN]);
     }
@@ -103,7 +153,9 @@ export const QuizSetupModal: React.FC<QuizSetupModalProps> = ({
     setShowCloseConfirm(false);
   };
 
-  const isStartDisabled = questionCount <= 0 ||
+  const isStartDisabled = questionCount < MIN_QUESTION_COUNT ||
+    questionCount > MAX_QUESTION_COUNT ||
+    questionCountError !== '' ||
     (enableFamiliaritySelection && selectedFamiliarity.length === 0);
 
   return (
@@ -171,23 +223,53 @@ export const QuizSetupModal: React.FC<QuizSetupModalProps> = ({
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
               Number of Questions
             </label>
-            <div className="grid grid-cols-3 gap-2">
-              {DEFAULT_QUIZ_CONFIG.QUESTION_COUNT_OPTIONS.map((count) => (
-                <button
-                  key={count}
-                  type="button"
-                  onClick={() => setQuestionCount(count)}
-                  className={`
-                    p-2 text-sm font-medium rounded-md border transition-colors
-                    ${questionCount === count
-                      ? 'bg-primary-500 text-white border-primary-500'
-                      : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600'
-                    }
-                  `}
-                >
-                  {count}
-                </button>
-              ))}
+            <div className="space-y-2">
+              <input
+                type="number"
+                value={questionCountInput}
+                onChange={(e) => handleQuestionCountChange(e.target.value)}
+                min={MIN_QUESTION_COUNT}
+                max={MAX_QUESTION_COUNT}
+                placeholder={`Enter number (${MIN_QUESTION_COUNT}-${MAX_QUESTION_COUNT})`}
+                className={`
+                  w-full px-3 py-2 border rounded-md text-sm transition-colors
+                  bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                  placeholder-gray-500 dark:placeholder-gray-400
+                  focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+                  ${questionCountError
+                    ? 'border-red-500 dark:border-red-400'
+                    : 'border-gray-300 dark:border-gray-600'
+                  }
+                `}
+              />
+              {questionCountError && (
+                <p className="text-red-500 text-sm">{questionCountError}</p>
+              )}
+              {!questionCountError && questionCount > 0 && (
+                <p className="text-gray-500 dark:text-gray-400 text-sm">
+                  Quiz will contain {questionCount} question{questionCount !== 1 ? 's' : ''}.
+                </p>
+              )}
+
+              {/* Quick selection buttons */}
+              <div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Quick select:</p>
+                <div className="flex flex-wrap gap-2">
+                  {DEFAULT_QUIZ_CONFIG.QUESTION_COUNT_OPTIONS.map((count) => (
+                    <button
+                      key={count}
+                      type="button"
+                      onClick={() => {
+                        setQuestionCountInput(count.toString());
+                        handleQuestionCountChange(count.toString());
+                      }}
+                      className="px-3 py-1 text-xs font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500 rounded-md transition-colors"
+                    >
+                      {count}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
 

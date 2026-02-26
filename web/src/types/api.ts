@@ -200,10 +200,8 @@ export interface QuestionsSearchParams extends PaginationParams {
 /**
  * Random words filter
  */
-export interface WordsRandomFilter {
-  readonly familiarity?: readonly FamiliarityLevel[];
-  readonly hasDefinitions?: boolean;
-  readonly searchFilter?: SearchFilter;
+export interface WordsRandomFilter extends SearchFilter {
+  // Inherits conditions and logic from SearchFilter
 }
 
 /**
