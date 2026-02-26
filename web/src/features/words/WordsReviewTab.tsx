@@ -1,73 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import { useWords } from '../../hooks/useWords';
+import { useModalManager, MODAL_NAMES } from '../../hooks/shared/useModalManager';
 import { WordCard } from './WordCard';
-import { Pagination } from '../../components/ui/Pagination';
-import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
-import { ErrorMessage } from '../../components/ui/ErrorMessage';
-import { EmptyState } from '../../components/ui/EmptyState';
-import { WordFormModal } from './WordFormModal';
-import { WordDetailModal } from './WordDetailModal';
-import { QuizSetupModal } from './QuizSetupModal';
-import { DefinitionFormModal } from './DefinitionFormModal';
-import { QuizConfig, Word, WordDefinition } from '../../types/api';
-import { QuizModal } from '../quiz/QuizModal';
+import { EntityReviewTab } from '../shared/components/EntityReviewTab';
+import { QuizSetupModal } from '../shared/components/QuizSetupModal';
+import { WordFormModal } from './word-form';
+import { WordDetailModal } from './word-detail/WordDetailModal';
+import { DefinitionFormModal } from './definition-form';
+import { WordQuizConfig as QuizConfig, Word, WordDefinition, BaseComponentProps } from '../../types';
+import { WordQuizResult } from '../../types/api';
+import { SearchOperation, SearchLogic, FamiliarityLevel } from '../../types/base';
+import { QuizModal } from '../../components/modals/QuizModal';
+import { WordQuiz } from './quiz/WordQuiz';
+import { WordQuizResults } from './quiz/WordQuizResults';
 import { apiService } from '../../lib/api';
 
-interface WordsReviewTabProps {
-  className?: string;
-}
+interface WordsReviewTabProps extends BaseComponentProps {}
 
 
 export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({ className = '' }) => {
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isQuizSetupModalOpen, setIsQuizSetupModalOpen] = useState(false);
-  const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
+  const modalManager = useModalManager();
   const [quizConfig, setQuizConfig] = useState<QuizConfig | null>(null);
 
-  // WordDetailModal state
-  const [isWordDetailModalOpen, setIsWordDetailModalOpen] = useState(false);
-  const [selectedWord, setSelectedWord] = useState<Word | null>(null);
-
-  // DefinitionFormModal state
-  const [isDefinitionFormModalOpen, setIsDefinitionFormModalOpen] = useState(false);
-  const [definitionFormMode, setDefinitionFormMode] = useState<'add' | 'edit'>('add');
-  const [selectedDefinition, setSelectedDefinition] = useState<WordDefinition | null>(null);
-
-  const {
-    words,
-    loading,
-    error,
-    currentPage,
-    totalPages,
-    hasNext,
-    hasPrevious,
-    itemsPerPage,
-    searchTerm,
-    totalCount,
-    nextPage,
-    previousPage,
-    goToPage,
-    goToFirst,
-    goToLast,
-    refresh,
-    clearError,
-    setSearchTerm,
-  } = useWords({
-    itemsPerPage: 50, // As per requirements
+  const wordsHook = useWords({
+    itemsPerPage: 50,
     autoFetch: true,
   });
 
-  // Update selectedWord when words list changes (after refresh)
+  // Update selected word when words list changes (after refresh)
   useEffect(() => {
+    const selectedWord = modalManager.getModalData<Word>(MODAL_NAMES.WORD_DETAIL);
+
     if (selectedWord) {
       // Find the updated word in the current words list
-      const updatedWord = words.find(w => w.id === selectedWord.id);
+      const updatedWord = wordsHook.words.find(w => w.id === selectedWord.id);
       if (updatedWord) {
         // Only update if the word content has actually changed
         if (JSON.stringify(updatedWord) !== JSON.stringify(selectedWord)) {
-          setSelectedWord(updatedWord);
+          modalManager.setModalData(MODAL_NAMES.WORD_DETAIL, updatedWord);
         }
-      } else if (words.length > 0) {
+      } else if (wordsHook.words.length > 0) {
         // If word is not found in current list (possibly due to filtering or pagination),
         // search for it explicitly using API
         const searchForUpdatedWord = async () => {
@@ -75,10 +47,10 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({ className = '' }
             const searchFilter = {
               conditions: [{
                 key: 'word',
-                operator: 'like',
+                operator: SearchOperation.LIKE,
                 value: selectedWord.word,
               }],
-              logic: 'OR' as const,
+              logic: SearchLogic.OR,
             };
 
             const searchResults = await apiService.searchWords({
@@ -88,7 +60,7 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({ className = '' }
 
             // Update the selected word if found and content has changed
             if (searchResults.length > 0 && JSON.stringify(searchResults[0]) !== JSON.stringify(selectedWord)) {
-              setSelectedWord(searchResults[0]);
+              modalManager.setModalData(MODAL_NAMES.WORD_DETAIL, searchResults[0]);
             }
           } catch (error) {
             console.error('Failed to refresh selected word:', error);
@@ -99,347 +71,215 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({ className = '' }
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [words]);
+  }, [wordsHook.words, modalManager]);
 
   // Handle opening add word modal
   const handleNew = () => {
-    setIsAddModalOpen(true);
+    modalManager.openModal(MODAL_NAMES.ADD);
   };
 
   // Handle closing add word modal
   const handleCloseAddModal = () => {
-    setIsAddModalOpen(false);
+    modalManager.closeModal(MODAL_NAMES.ADD);
   };
 
   // Handle word added successfully - refresh the word list
   const handleWordAdded = () => {
-    refresh();
+    wordsHook.refresh();
   };
 
   // Handle opening quiz setup modal
   const handleQuizSetup = () => {
-    setIsQuizSetupModalOpen(true);
+    modalManager.openModal(MODAL_NAMES.QUIZ_SETUP);
   };
 
   // Handle closing quiz setup modal
   const handleCloseQuizSetupModal = () => {
-    setIsQuizSetupModalOpen(false);
+    modalManager.closeModal(MODAL_NAMES.QUIZ_SETUP);
   };
 
   // Handle starting quiz
-  const handleStartQuiz = (selectedFamiliarity: string[], questionCount: number) => {
-    // Close the setup modal
-    setIsQuizSetupModalOpen(false);
+  const handleStartQuiz = (config: { questionCount: number; selectedFamiliarity?: FamiliarityLevel[] }) => {
+    // Close the setup modal and open quiz modal
+    modalManager.closeModal(MODAL_NAMES.QUIZ_SETUP);
+    modalManager.openModal(MODAL_NAMES.QUIZ, config);
 
-    // Set quiz config and open quiz modal
+    // Set quiz config for WordQuizModal
     setQuizConfig({
-      selectedFamiliarity,
-      questionCount
+      selectedFamiliarity: config.selectedFamiliarity || [],
+      questionCount: config.questionCount
     });
-    setIsQuizModalOpen(true);
   };
 
   // Handle closing quiz modal
   const handleCloseQuizModal = () => {
-    setIsQuizModalOpen(false);
+    modalManager.closeModal(MODAL_NAMES.QUIZ);
     setQuizConfig(null);
   };
 
-  // Handle search input change
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value);
-  };
 
   // Handle opening WordDetailModal from WordFormModal suggestion
   const handleOpenWordDetailFromSuggestion = (word: Word) => {
-    setSelectedWord(word);
-    setIsWordDetailModalOpen(true);
+    modalManager.openModal(MODAL_NAMES.WORD_DETAIL, word);
   };
 
   // Handle closing WordDetailModal
   const handleCloseWordDetailModal = () => {
-    setIsWordDetailModalOpen(false);
-    setSelectedWord(null);
+    modalManager.closeModal(MODAL_NAMES.WORD_DETAIL);
   };
 
   // Handle word updated (familiarity, word text, etc.)
   const handleWordUpdated = () => {
-    refresh(); // Refresh the words list
+    wordsHook.refresh(); // Refresh the words list
   };
 
   // Handle opening DefinitionFormModal for adding new definition
   const handleOpenDefinitionModal = () => {
-    setDefinitionFormMode('add');
-    setSelectedDefinition(null);
-    setIsDefinitionFormModalOpen(true);
+    modalManager.openModal(MODAL_NAMES.DEFINITION_ADD, { mode: 'add' });
   };
 
   // Handle opening DefinitionFormModal for editing definition
   const handleOpenEditDefinitionModal = (definition: WordDefinition) => {
-    setDefinitionFormMode('edit');
-    setSelectedDefinition(definition);
-    setIsDefinitionFormModalOpen(true);
+    modalManager.openModal(MODAL_NAMES.DEFINITION_EDIT, { mode: 'edit', definition });
   };
 
   // Handle closing DefinitionFormModal
   const handleCloseDefinitionFormModal = () => {
-    setIsDefinitionFormModalOpen(false);
-    setDefinitionFormMode('add');
-    setSelectedDefinition(null);
+    modalManager.closeModal(MODAL_NAMES.DEFINITION_ADD);
+    modalManager.closeModal(MODAL_NAMES.DEFINITION_EDIT);
   };
 
   // Handle definition added successfully
   const handleDefinitionAdded = () => {
-    refresh(); // Refresh the words list
+    wordsHook.refresh(); // Refresh the words list
   };
 
   // Handle definition updated successfully
   const handleDefinitionUpdated = () => {
-    refresh(); // Refresh the words list
+    wordsHook.refresh(); // Refresh the words list
   };
 
   return (
-    <div className={`space-y-6 ${className}`}>
-      {/* Header */}
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-          Word Review
-        </h2>
-        <p className="text-gray-600 dark:text-gray-300 mt-1">
-          Practice and test your vocabulary
-        </p>
-      </div>
-
-      {/* Action Buttons */}
-      {!loading && !error && (
-        <div className="flex justify-end items-center space-x-3">
-          {/* Quiz */}
-          {words.length > 0 && (
-            <button
-              onClick={handleQuizSetup}
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-500 hover:bg-blue-600
-                        rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                        disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={loading}
-            >
-              <svg
-                className="w-4 h-4 mr-2"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="2"
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.847a4.5 4.5 0 003.09 3.09L15.75 12l-2.847.813a4.5 4.5 0 00-3.09 3.091zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
-              </svg>
-              Quiz
-            </button>
-          )}
-
-          {/* Refresh */}
-          <button
-            onClick={refresh}
-            className="inline-flex items-center justify-center space-x-2 px-4 py-2 text-sm font-medium rounded-md
-                      border border-gray-300 dark:border-gray-600 shadow-sm
-                      transition-colors duration-200 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
-            disabled={loading}
-          >
-            <svg
-              className="w-4 h-4 mr-2"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="2"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-              />
-            </svg>
-            Refresh
-          </button>
-
-          {/* Add */}
-          <button
-            onClick={handleNew}
-            className="inline-flex items-center justify-center space-x-2 px-4 py-2 text-sm font-medium rounded-md
-                      border border-gray-300 dark:border-gray-600 shadow-sm
-                      transition-colors duration-200 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
-            disabled={loading}
-          >
-            <svg
-              className="w-4 h-4 mr-2"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="2"
-              stroke="currentColor"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-            Add
-          </button>
-        </div>
-      )}
-
-      {/* Error message */}
-      {error && (
-        <ErrorMessage
-          error={error}
-          onRetry={refresh}
-          onDismiss={clearError}
-          title="Error loading words"
+    <EntityReviewTab
+      config={{
+        title: "Word Review",
+        entityName: "Word",
+        entityNamePlural: "Words",
+        enableSearch: true,
+        enableQuiz: true,
+        searchPlaceholder: "Search words...",
+        emptyStateConfig: {
+          icon: "📚",
+          title: "No words found",
+          description: "It looks like there are no words in your collection yet. Get started by adding your first word.",
+        },
+      }}
+      actions={{
+        onNew: handleNew,
+        onQuizSetup: handleQuizSetup,
+        onSearch: wordsHook.setSearchTerm,
+        onRefresh: () => wordsHook.refresh(),
+      }}
+      entityListHook={wordsHook}
+      renderCard={(word, index) => (
+        <WordCard
+          key={word.id}
+          index={index}
+          word={word}
+          className="transition-transform duration-200 hover:scale-[1.02]"
+          onWordUpdated={wordsHook.refresh}
         />
       )}
-
-      {/* Search Input - Always visible unless there's an error */}
-      {!error && (
-        <div className="mb-6">
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg
-                className="h-5 w-5 text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="2"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
-                />
-              </svg>
-            </div>
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={handleSearchChange}
-              className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md
-                        text-gray-900 dark:text-white bg-white dark:bg-gray-800
-                        placeholder-gray-500 dark:placeholder-gray-400
-                        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                        sm:text-sm transition-colors"
-              placeholder="Search words..."
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Loading state */}
-      {loading && words.length === 0 && <LoadingSpinner message="Loading words..." />}
-
-      {/* Search no results */}
-      {!loading && !error && words.length === 0 && searchTerm && (
-        <div className="text-center py-8">
-          <div className="text-4xl mb-3">🔍</div>
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-            No words found
-          </h3>
-          <p className="text-gray-600 dark:text-gray-300">
-            No words match "{searchTerm}". Try a different search term.
-          </p>
-        </div>
-      )}
-
-      {/* Empty state - Only when no search term and no words */}
-      {!loading && !error && words.length === 0 && !searchTerm && (
-        <EmptyState
-          onRefresh={refresh}
-          icon="📚"
-          title="No words found"
-          description="It looks like there are no words in your collection yet. Try adding some words or check your connection."
-        />
-      )}
-
-      {/* Words list */}
-      {words.length > 0 && (
+      additionalContent={
         <>
-          <div className="space-y-3">
-            {words.map((word, index) => (
-              <WordCard
-                index={(currentPage - 1) * itemsPerPage + index + 1}
-                key={word.id}
-                word={word}
-                className="transition-transform duration-200 hover:scale-[1.02]"
-                onWordUpdated={refresh}
-              />
-            ))}
-          </div>
+          {/* Add Word Modal */}
+          <WordFormModal
+            isOpen={modalManager.isModalOpen(MODAL_NAMES.ADD)}
+            onClose={handleCloseAddModal}
+            onWordSaved={handleWordAdded}
+            onOpenWordDetail={handleOpenWordDetailFromSuggestion}
+            mode="create"
+            currentWords={wordsHook.words}
+          />
 
-          {/* Loading overlay for pagination */}
-          {loading && (
-            <div className="flex justify-center items-center py-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-lg">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500"></div>
-              <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">Loading...</span>
-            </div>
+          {/* Quiz Setup Modal */}
+          <QuizSetupModal
+            isOpen={modalManager.isModalOpen(MODAL_NAMES.QUIZ_SETUP)}
+            onClose={handleCloseQuizSetupModal}
+            onStartQuiz={handleStartQuiz}
+            title="Word Quiz Setup"
+            entityName="words"
+            enableFamiliaritySelection={true}
+          />
+
+          {/* Quiz Modal */}
+          {quizConfig && (
+            <QuizModal
+              isOpen={modalManager.isModalOpen(MODAL_NAMES.QUIZ)}
+              onClose={handleCloseQuizModal}
+              quizConfig={quizConfig}
+              config={{
+                quizTitle: 'Word Quiz',
+                resultsTitle: 'Quiz Results',
+                exitConfirmTitle: 'Exit Quiz',
+                exitConfirmMessage: 'Are you sure you want to exit the quiz? Your progress will be lost and you\'ll need to start over.',
+                exitButtonText: 'Exit Quiz',
+                continueButtonText: 'Continue Quiz'
+              }}
+              renderQuiz={(config, onComplete, onBackToHome) => (
+                <WordQuiz
+                  selectedFamiliarity={config.selectedFamiliarity}
+                  questionCount={config.questionCount}
+                  onQuizComplete={onComplete}
+                  onBackToHome={onBackToHome}
+                />
+              )}
+              renderResults={(results, onRetake, onBackToHome) => (
+                <WordQuizResults
+                  results={results as WordQuizResult[]}
+                  onRetakeQuiz={onRetake}
+                  onBackToHome={onBackToHome}
+                />
+              )}
+            />
           )}
 
-          {/* Pagination */}
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            hasNext={hasNext}
-            hasPrevious={hasPrevious}
-            itemsPerPage={itemsPerPage}
-            totalItems={totalCount}
-            onPageChange={goToPage}
-            onNext={nextPage}
-            onPrevious={previousPage}
-            onFirst={goToFirst}
-            onLast={goToLast}
-            loading={loading}
-            className="mt-8"
+          {/* Word Detail Modal */}
+          <WordDetailModal
+            word={modalManager.getModalData<Word>(MODAL_NAMES.WORD_DETAIL) ?? null}
+            isOpen={modalManager.isModalOpen(MODAL_NAMES.WORD_DETAIL)}
+            onClose={handleCloseWordDetailModal}
+            onWordUpdated={handleWordUpdated}
+            onOpenDefinitionModal={handleOpenDefinitionModal}
+            onOpenEditDefinitionModal={handleOpenEditDefinitionModal}
+          />
+
+          {/* Definition Form Modal for Adding */}
+          <DefinitionFormModal
+            isOpen={modalManager.isModalOpen(MODAL_NAMES.DEFINITION_ADD)}
+            onClose={handleCloseDefinitionFormModal}
+            onDefinitionAdded={handleDefinitionAdded}
+            onDefinitionUpdated={handleDefinitionUpdated}
+            wordId={modalManager.getModalData<Word>(MODAL_NAMES.WORD_DETAIL)?.id || null}
+            wordText={modalManager.getModalData<Word>(MODAL_NAMES.WORD_DETAIL)?.word || null}
+            mode="add"
+            definition={null}
+          />
+
+          {/* Definition Form Modal for Editing */}
+          <DefinitionFormModal
+            isOpen={modalManager.isModalOpen(MODAL_NAMES.DEFINITION_EDIT)}
+            onClose={handleCloseDefinitionFormModal}
+            onDefinitionAdded={handleDefinitionAdded}
+            onDefinitionUpdated={handleDefinitionUpdated}
+            wordId={modalManager.getModalData<Word>(MODAL_NAMES.WORD_DETAIL)?.id || null}
+            wordText={modalManager.getModalData<Word>(MODAL_NAMES.WORD_DETAIL)?.word || null}
+            mode="edit"
+            definition={modalManager.getModalData<{ mode: string; definition: WordDefinition }>(MODAL_NAMES.DEFINITION_EDIT)?.definition || null}
           />
         </>
-      )}
-
-      {/* Add Word Modal */}
-      <WordFormModal
-        isOpen={isAddModalOpen}
-        onClose={handleCloseAddModal}
-        onWordSaved={handleWordAdded}
-        onOpenWordDetail={handleOpenWordDetailFromSuggestion}
-        mode="create"
-        currentWords={words}
-      />
-
-      {/* Quiz Setup Modal */}
-      <QuizSetupModal
-        isOpen={isQuizSetupModalOpen}
-        onClose={handleCloseQuizSetupModal}
-        onStartQuiz={handleStartQuiz}
-      />
-
-      {/* Quiz Modal */}
-      {quizConfig && (
-        <QuizModal
-          isOpen={isQuizModalOpen}
-          onClose={handleCloseQuizModal}
-          quizConfig={quizConfig}
-        />
-      )}
-
-      {/* Word Detail Modal */}
-      <WordDetailModal
-        word={selectedWord}
-        isOpen={isWordDetailModalOpen}
-        onClose={handleCloseWordDetailModal}
-        onWordUpdated={handleWordUpdated}
-        onOpenDefinitionModal={handleOpenDefinitionModal}
-        onOpenEditDefinitionModal={handleOpenEditDefinitionModal}
-      />
-
-      {/* Definition Form Modal */}
-      <DefinitionFormModal
-        isOpen={isDefinitionFormModalOpen}
-        onClose={handleCloseDefinitionFormModal}
-        onDefinitionAdded={handleDefinitionAdded}
-        onDefinitionUpdated={handleDefinitionUpdated}
-        wordId={selectedWord?.id || null}
-        wordText={selectedWord?.word || null}
-        mode={definitionFormMode}
-        definition={selectedDefinition}
-      />
-    </div>
+      }
+      className={className}
+    />
   );
 };

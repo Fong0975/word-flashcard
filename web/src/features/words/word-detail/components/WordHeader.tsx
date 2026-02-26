@@ -1,0 +1,20 @@
+import React from 'react';
+import { WordHeaderProps } from '../types/word-detail';
+import { FamiliarityBar } from './FamiliarityBar';
+import { WordActions } from './WordActions';
+
+export const WordHeader: React.FC<WordHeaderProps> = ({ word, onEdit, onDelete }) => {
+  return (
+    <div className="mb-6 pb-2 border-b border-gray-200 dark:border-gray-700">
+      <div className="text-center mb-4">
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
+          {word.word}
+        </h1>
+      </div>
+
+      <FamiliarityBar familiarity={word.familiarity} />
+
+      <WordActions onEdit={onEdit} onDelete={onDelete} />
+    </div>
+  );
+};
