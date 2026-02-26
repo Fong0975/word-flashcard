@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkBreaks from 'remark-breaks';
+
 import { Word, WordQuizResult, WordsRandomRequest } from '../../../types/api';
 import { FamiliarityLevel, SearchOperation, SearchLogic } from '../../../types/base';
 import { apiService } from '../../../lib/api';
@@ -12,6 +13,7 @@ interface WordQuizProps {
   questionCount: number;
   onQuizComplete: (results: WordQuizResult[]) => void;
   onBackToHome: () => void;
+  onError?: (message: string) => void;
 }
 
 type WordQuizState = 'loading' | 'quiz' | 'completed';
@@ -20,7 +22,8 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
   selectedFamiliarity,
   questionCount,
   onQuizComplete,
-  onBackToHome
+  onBackToHome,
+  onError,
 }) => {
   const [state, setState] = useState<WordQuizState>('loading');
   const [words, setWords] = useState<Word[]>([]);
@@ -49,11 +52,9 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
         setState('loading');
         setError(null);
 
-        console.log('Fetching quiz words with familiarity levels:', selectedFamiliarity);
-
         // Construct API request based on selected familiarities
         const allSelectedFamiliarity = selectedFamiliarity.filter(f =>
-          [FamiliarityLevel.RED, FamiliarityLevel.YELLOW, FamiliarityLevel.GREEN].includes(f)
+          [FamiliarityLevel.RED, FamiliarityLevel.YELLOW, FamiliarityLevel.GREEN].includes(f),
         );
 
         // Create a single request with all selected familiarity levels
@@ -77,19 +78,21 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
           return;
         }
 
-        console.log('API Request:', JSON.stringify(request, null, 2));
-
         const randomWords = await apiService.getRandomWords(request);
         setWords(randomWords);
         setState('quiz');
       } catch (error) {
-        console.error('Failed to fetch quiz words:', error);
-        setError('Failed to load quiz words. Please try again.');
+        const errorMessage = 'Failed to load quiz words. Please try again.';
+        setError(errorMessage);
+        if (onError) {
+          const detailedMessage = error instanceof Error ? error.message : 'Unknown error';
+          onError('Failed to fetch quiz words: ' + detailedMessage);
+        }
       }
     };
 
     fetchQuizWords();
-  }, [selectedFamiliarity, questionCount]);
+  }, [selectedFamiliarity, questionCount, onError]);
 
   // Handle familiarity selection
   const handleFamiliaritySelect = async (newFamiliarity: FamiliarityLevel) => {
@@ -121,8 +124,12 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
         setShowAnswer(false); // Reset to word display for next question
       }
     } catch (error) {
-      console.error('Failed to update word familiarity:', error);
-      setError('Failed to update word. Please try again.');
+      const errorMessage = 'Failed to update word. Please try again.';
+      setError(errorMessage);
+      if (onError) {
+        const detailedMessage = error instanceof Error ? error.message : 'Unknown error';
+        onError('Failed to update word familiarity: ' + detailedMessage);
+      }
     }
   };
 
@@ -212,8 +219,8 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
                   new Set(
                     currentWord?.definitions
                       ?.map((def) => def.part_of_speech)
-                      ?.filter(Boolean)
-                  )
+                      ?.filter(Boolean),
+                  ),
                 ).map((pos, index) => (
                   <span key={index}
                     className="inline-block px-2 py-1 mx-1 text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full">

@@ -1,10 +1,11 @@
 import React from 'react';
+
 import { PronunciationButton } from '../../../../components/ui/PronunciationButton';
 import { extractPronunciationUrls, isValidAudioUrl } from '../../../shared/phonetics';
 import { PronunciationGroupProps } from '../types/word-detail';
 
 export const PronunciationGroup: React.FC<PronunciationGroupProps> = ({ phonetics }) => {
-  const pronunciationUrls = extractPronunciationUrls(phonetics as Record<string, any>);
+  const pronunciationUrls = extractPronunciationUrls(phonetics);
 
   if (!pronunciationUrls.uk && !pronunciationUrls.us) {
     return null;

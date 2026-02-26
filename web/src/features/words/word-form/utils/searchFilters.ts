@@ -27,7 +27,7 @@ export const filterSearchSuggestions = (
   results: Word[],
   searchTerm: string,
   mode: 'create' | 'edit',
-  editingWord?: Word
+  editingWord?: Word,
 ): Word[] => {
   return results.filter(w => {
     // Exclude exact matches with search term

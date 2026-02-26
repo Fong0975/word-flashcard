@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { TabName } from '../../hooks/useTab';
 
 interface TabNavigationProps {
@@ -13,7 +14,7 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({ currentTab, onTabC
   ];
 
   const getTabClasses = (tabId: TabName) => {
-    const baseClasses = "focus:outline-none focus:ring-0 flex-1 py-4 px-6 text-sm font-medium text-center border-b-2 transition-colors duration-200";
+    const baseClasses = 'focus:outline-none focus:ring-0 flex-1 py-4 px-6 text-sm font-medium text-center border-b-2 transition-colors duration-200';
 
     if (currentTab === tabId) {
       return `${baseClasses} border-blue-500 text-blue-600 dark:text-blue-400`;

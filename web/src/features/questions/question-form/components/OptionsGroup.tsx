@@ -1,6 +1,8 @@
 import React from 'react';
-import { OptionInput } from './OptionInput';
+
 import { AnswerOption, QuestionFormData } from '../types/question-form';
+
+import { OptionInput } from './OptionInput';
 
 interface OptionsGroupProps {
   options: QuestionFormData['options'];
@@ -11,7 +13,7 @@ interface OptionsGroupProps {
 export const OptionsGroup: React.FC<OptionsGroupProps> = ({
   options,
   onChange,
-  disabled = false
+  disabled = false,
 }) => {
   return (
     <div>

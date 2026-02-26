@@ -11,8 +11,6 @@ import {
   PaginationInfo,
   SearchFilter,
   FormFieldValue,
-  ValidationResult,
-  ApiResponse,
   AsyncCallback,
   Callback,
 } from './base';
@@ -85,6 +83,7 @@ export interface EntityListState<TEntity extends BaseEntity> {
 /**
  * Entity list hook actions
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface EntityListActions<TEntity extends BaseEntity> {
   readonly fetchEntities: (page?: number) => Promise<void>;
   readonly nextPage: () => Promise<void>;
@@ -366,16 +365,16 @@ export interface LocalStorageHook<TValue> {
  * Type guard to check if hook result has error
  */
 export const hasError = <THook extends { error: unknown }>(
-  hookResult: THook
+  hookResult: THook,
 ): hookResult is THook & { error: NonNullable<THook['error']> } => {
-  return hookResult.error != null;
+  return hookResult.error !== null;
 };
 
 /**
  * Type guard to check if hook result is loading
  */
 export const isLoading = <THook extends { loading: boolean }>(
-  hookResult: THook
+  hookResult: THook,
 ): hookResult is THook & { loading: true } => {
   return hookResult.loading === true;
 };
@@ -384,7 +383,7 @@ export const isLoading = <THook extends { loading: boolean }>(
  * Type guard to check if async operation has data
  */
 export const hasData = <TData>(
-  operation: AsyncOperationState<TData>
+  operation: AsyncOperationState<TData>,
 ): operation is AsyncOperationState<TData> & { data: NonNullable<TData> } => {
-  return operation.data != null;
+  return operation.data !== null;
 };

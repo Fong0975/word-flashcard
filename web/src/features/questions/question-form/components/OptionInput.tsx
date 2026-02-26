@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { AnswerOption } from '../types/question-form';
 
 interface OptionInputProps {
@@ -14,7 +15,7 @@ export const OptionInput: React.FC<OptionInputProps> = ({
   value,
   onChange,
   disabled = false,
-  required = false
+  required = false,
 }) => {
   const optionId = `option${option}`;
   const isRequired = option === 'A' || required;

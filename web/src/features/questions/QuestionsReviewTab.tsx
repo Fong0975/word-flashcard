@@ -1,15 +1,20 @@
 import React, { useState } from 'react';
+
 import { useQuestions } from '../../hooks/useQuestions';
 import { useModalManager, MODAL_NAMES } from '../../hooks/shared/useModalManager';
-import { QuestionCard } from './QuestionCard';
+import { useToast } from '../../hooks/ui/useToast';
 import { EntityReviewTab } from '../shared/components/EntityReviewTab';
 import { QuizSetupModal } from '../shared/components/QuizSetupModal';
+import { QuizModal } from '../../components/modals/QuizModal';
+import { ToastContainer } from '../../components/ui';
+import { Question, QuestionQuizConfig, QuestionQuizResult } from '../../types/api';
+
+import { QuestionCard } from './QuestionCard';
 import { QuestionDetailModal } from './question-detail/QuestionDetailModal';
 import { QuestionFormModal } from './question-form/QuestionFormModal';
-import { QuizModal } from '../../components/modals/QuizModal';
 import { QuestionQuiz } from './quiz/QuestionQuiz';
 import { QuestionQuizResults } from './quiz/QuestionQuizResults';
-import { Question, QuestionQuizConfig, QuestionQuizResult } from '../../types/api';
+
 
 interface QuestionsReviewTabProps {
   className?: string;
@@ -18,6 +23,7 @@ interface QuestionsReviewTabProps {
 export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({ className = '' }) => {
   const modalManager = useModalManager();
   const [quizConfig, setQuizConfig] = useState<QuestionQuizConfig | null>(null);
+  const { toasts, showError, removeToast } = useToast();
 
   const questionsHook = useQuestions({
     itemsPerPage: 20,
@@ -84,7 +90,7 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({ classNam
 
     // Set quiz config for QuestionQuizModal
     setQuizConfig({
-      questionCount: config.questionCount
+      questionCount: config.questionCount,
     });
   };
 
@@ -95,96 +101,103 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({ classNam
   };
 
   return (
-    <EntityReviewTab
-      config={{
-        title: "Question Review",
-        entityName: "Question",
-        entityNamePlural: "Questions",
-        enableSearch: false,
-        enableQuiz: true,
-        emptyStateConfig: {
-          icon: "🧠",
-          title: "No questions found",
-          description: "This section provides review materials and random quizzes. You can practice various question types, including multiple-choice and fill-in-the-blank questions, and receive instant learning feedback.",
-        },
-      }}
-      actions={{
-        onNew: handleNew,
-        onQuizSetup: handleQuizSetup,
-        onRefresh: () => questionsHook.refresh(),
-      }}
-      entityListHook={questionsHook}
-      renderCard={(question, index) => (
-        <QuestionCard
-          key={question.id}
-          index={index}
-          question={question}
-          className="transition-transform duration-200 hover:scale-[1.01]"
-          onClick={() => handleQuestionClick(question)}
-        />
-      )}
-      additionalContent={
-        <>
-          {/* Question Detail Modal */}
-          <QuestionDetailModal
-            question={modalManager.getModalData<Question>(MODAL_NAMES.QUESTION_DETAIL) ?? null}
-            isOpen={modalManager.isModalOpen(MODAL_NAMES.QUESTION_DETAIL)}
-            onClose={handleCloseQuestionDetailModal}
-            onQuestionUpdated={handleQuestionUpdated}
-            onQuestionRefreshed={handleQuestionRefreshed}
+    <>
+      <EntityReviewTab
+        config={{
+          title: 'Question Review',
+          entityName: 'Question',
+          entityNamePlural: 'Questions',
+          enableSearch: false,
+          enableQuiz: true,
+          emptyStateConfig: {
+            icon: '🧠',
+            title: 'No questions found',
+            description: 'This section provides review materials and random quizzes. You can practice various question types, including multiple-choice and fill-in-the-blank questions, and receive instant learning feedback.',
+          },
+        }}
+        actions={{
+          onNew: handleNew,
+          onQuizSetup: handleQuizSetup,
+          onRefresh: () => questionsHook.refresh(),
+        }}
+        entityListHook={questionsHook}
+        renderCard={(question, index) => (
+          <QuestionCard
+            key={question.id}
+            index={index}
+            question={question}
+            className="transition-transform duration-200 hover:scale-[1.01]"
+            onClick={() => handleQuestionClick(question)}
           />
-
-          {/* Add Question Modal */}
-          <QuestionFormModal
-            isOpen={modalManager.isModalOpen(MODAL_NAMES.ADD)}
-            onClose={handleCloseAddModal}
-            onQuestionSaved={handleQuestionAdded}
-            mode="create"
-          />
-
-          {/* Quiz Setup Modal */}
-          <QuizSetupModal
-            isOpen={modalManager.isModalOpen(MODAL_NAMES.QUIZ_SETUP)}
-            onClose={handleCloseQuizSetupModal}
-            onStartQuiz={handleStartQuiz}
-            title="Question Quiz Setup"
-            entityName="questions"
-            enableFamiliaritySelection={false}
-          />
-
-          {/* Quiz Modal */}
-          {quizConfig && (
-            <QuizModal<QuestionQuizResult, QuestionQuizConfig>
-              isOpen={modalManager.isModalOpen(MODAL_NAMES.QUIZ)}
-              onClose={handleCloseQuizModal}
-              quizConfig={quizConfig}
-              config={{
-                quizTitle: 'Question Quiz',
-                resultsTitle: 'Quiz Results',
-                exitConfirmTitle: 'Exit Quiz',
-                exitConfirmMessage: 'Are you sure you want to exit the quiz? Your progress will be lost and you\'ll need to start over.',
-                exitButtonText: 'Exit Quiz',
-                continueButtonText: 'Continue Quiz'
-              }}
-              renderQuiz={(config, onComplete, onBackToHome) => (
-                <QuestionQuiz
-                  questionCount={config.questionCount}
-                  onQuizComplete={onComplete}
-                  onBackToHome={onBackToHome}
-                />
-              )}
-              renderResults={(results, onRetake, onBackToHome) => (
-                <QuestionQuizResults
-                  results={results}
-                  onRetakeQuiz={onRetake}
-                  onBackToHome={onBackToHome}
-                />
-              )}
+        )}
+        additionalContent={
+          <>
+            {/* Question Detail Modal */}
+            <QuestionDetailModal
+              question={modalManager.getModalData<Question>(MODAL_NAMES.QUESTION_DETAIL) ?? null}
+              isOpen={modalManager.isModalOpen(MODAL_NAMES.QUESTION_DETAIL)}
+              onClose={handleCloseQuestionDetailModal}
+              onQuestionUpdated={handleQuestionUpdated}
+              onQuestionRefreshed={handleQuestionRefreshed}
+              onError={showError}
             />
-          )}
-        </>
-      }
-      className={className}
-    />
+
+            {/* Add Question Modal */}
+            <QuestionFormModal
+              isOpen={modalManager.isModalOpen(MODAL_NAMES.ADD)}
+              onClose={handleCloseAddModal}
+              onQuestionSaved={handleQuestionAdded}
+              mode="create"
+            />
+
+            {/* Quiz Setup Modal */}
+            <QuizSetupModal
+              isOpen={modalManager.isModalOpen(MODAL_NAMES.QUIZ_SETUP)}
+              onClose={handleCloseQuizSetupModal}
+              onStartQuiz={handleStartQuiz}
+              title="Question Quiz Setup"
+              entityName="questions"
+              enableFamiliaritySelection={false}
+            />
+
+            {/* Quiz Modal */}
+            {quizConfig && (
+              <QuizModal<QuestionQuizResult, QuestionQuizConfig>
+                isOpen={modalManager.isModalOpen(MODAL_NAMES.QUIZ)}
+                onClose={handleCloseQuizModal}
+                quizConfig={quizConfig}
+                config={{
+                  quizTitle: 'Question Quiz',
+                  resultsTitle: 'Quiz Results',
+                  exitConfirmTitle: 'Exit Quiz',
+                  exitConfirmMessage: 'Are you sure you want to exit the quiz? Your progress will be lost and you\'ll need to start over.',
+                  exitButtonText: 'Exit Quiz',
+                  continueButtonText: 'Continue Quiz',
+                }}
+                renderQuiz={(config, onComplete, onBackToHome) => (
+                  <QuestionQuiz
+                    questionCount={config.questionCount}
+                    onQuizComplete={onComplete}
+                    onBackToHome={onBackToHome}
+                    onError={showError}
+                  />
+                )}
+                renderResults={(results, onRetake, onBackToHome) => (
+                  <QuestionQuizResults
+                    results={results}
+                    onRetakeQuiz={onRetake}
+                    onBackToHome={onBackToHome}
+                  />
+                )}
+              />
+            )}
+          </>
+        }
+        className={className}
+      />
+
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
+    </>
   );
 };

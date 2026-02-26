@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { ConfirmationDialog } from '../../../../components/ui/ConfirmationDialog';
 import { Word } from '../../../../types/api';
 
@@ -13,7 +14,7 @@ export const WordDeleteConfirmation: React.FC<WordDeleteConfirmationProps> = ({
   word,
   isOpen,
   onConfirm,
-  onCancel
+  onCancel,
 }) => {
   return (
     <ConfirmationDialog

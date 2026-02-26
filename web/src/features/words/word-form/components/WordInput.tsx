@@ -13,7 +13,7 @@ export const WordInput: React.FC<WordInputProps> = ({
   onChange,
   onSearchChange,
   disabled,
-  autoFocus = false
+  autoFocus = false,
 }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;

@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+
 import { apiService } from '../../../../lib/api';
 import { Question } from '../../../../types/api';
 import { QuestionFormData, QuestionFormSubmitCallbacks } from '../types';
@@ -14,7 +15,7 @@ export const useQuestionSubmit = ({
   mode,
   question,
   callbacks,
-  resetForm
+  resetForm,
 }: UseQuestionSubmitProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -62,8 +63,9 @@ export const useQuestionSubmit = ({
       if (callbacks.onQuestionSaved) {
         callbacks.onQuestionSaved(savedQuestion);
       }
-    } catch (err: any) {
-      setError(err.message || `Failed to ${mode} question`);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : `Failed to ${mode} question`;
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -72,6 +74,6 @@ export const useQuestionSubmit = ({
   return {
     isSubmitting,
     error,
-    handleSubmit
+    handleSubmit,
   };
 };

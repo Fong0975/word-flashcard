@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+
+import { WordQuizConfig, WordQuizResult } from '../../../types/api';
+
 import { WordQuiz } from './WordQuiz';
 import { WordQuizResults } from './WordQuizResults';
-import { WordQuizConfig, WordQuizResult } from '../../../types/api';
 
 interface WordQuizContainerProps {
   onBackToHome: () => void;
@@ -12,7 +14,7 @@ type WordQuizContainerState = 'setup' | 'quiz' | 'results';
 
 export const WordQuizContainer: React.FC<WordQuizContainerProps> = ({
   onBackToHome,
-  initialConfig
+  initialConfig,
 }) => {
   const [state, setState] = useState<WordQuizContainerState>(initialConfig ? 'quiz' : 'setup');
   const [quizConfig, setWordQuizConfig] = useState<WordQuizConfig | null>(initialConfig || null);

@@ -18,7 +18,7 @@ export enum ErrorType {
 export interface ErrorInfo {
   type: ErrorType;
   message: string;
-  details?: any;
+  details?: Error;
   timestamp: Date;
   retryable: boolean;
 }
@@ -134,7 +134,7 @@ export const useErrorHandler = (config: ErrorHandlerConfig = {}): UseErrorHandle
 
   const setError = useCallback((
     error: Error | string | null,
-    type?: ErrorType
+    type?: ErrorType,
   ) => {
     if (error === null) {
       setErrorState(null);
@@ -158,6 +158,7 @@ export const useErrorHandler = (config: ErrorHandlerConfig = {}): UseErrorHandle
 
     // Log error if configured
     if (logErrors) {
+      // eslint-disable-next-line no-console
       console.error(`[${errorType.toUpperCase()}]`, errorObj);
     }
 
@@ -186,7 +187,7 @@ export const useErrorHandler = (config: ErrorHandlerConfig = {}): UseErrorHandle
 
   const handleAsync = useCallback(async <T>(
     asyncFn: () => Promise<T>,
-    errorType?: ErrorType
+    errorType?: ErrorType,
   ): Promise<T | null> => {
     try {
       clearError();

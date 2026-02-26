@@ -69,7 +69,7 @@ export const Pagination: React.FC<PaginationProps> = ({
     focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
   `;
 
-  const buttonMobileClass = `w-full mx-1 relative inline-flex items-center justify-center`;
+  const buttonMobileClass = 'w-full mx-1 relative inline-flex items-center justify-center';
 
   const buttonEnabledClass = `
     bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200

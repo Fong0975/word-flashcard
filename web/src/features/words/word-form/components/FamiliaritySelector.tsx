@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { FamiliarityLevel } from '../../../../types/base';
 import { FAMILIARITY_OPTIONS } from '../utils/constants';
 
@@ -13,7 +14,7 @@ export const FamiliaritySelector: React.FC<FamiliaritySelectorProps> = ({
   value,
   onChange,
   disabled,
-  mode
+  mode,
 }) => {
   // Only show in edit mode
   if (mode !== 'edit') {

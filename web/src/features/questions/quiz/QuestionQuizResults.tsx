@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { QuestionQuizResult } from '../../../types/api';
 
 interface QuestionQuizResultsProps {
@@ -10,29 +11,29 @@ interface QuestionQuizResultsProps {
 export const QuestionQuizResults: React.FC<QuestionQuizResultsProps> = ({
   results,
   onRetakeQuiz,
-  onBackToHome
+  onBackToHome,
 }) => {
   const totalQuestions = results.length;
   const correctAnswers = results.filter(result => result.isCorrect).length;
   const accuracyPercentage = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
 
   const getScoreColor = (percentage: number) => {
-    if (percentage >= 80) return 'text-green-600 dark:text-green-400';
-    if (percentage >= 60) return 'text-yellow-600 dark:text-yellow-400';
+    if (percentage >= 80) {return 'text-green-600 dark:text-green-400';}
+    if (percentage >= 60) {return 'text-yellow-600 dark:text-yellow-400';}
     return 'text-red-600 dark:text-red-400';
   };
 
   const getScoreBadgeColor = (percentage: number) => {
-    if (percentage >= 80) return 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200 border-green-200 dark:border-green-700';
-    if (percentage >= 60) return 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 border-yellow-200 dark:border-yellow-700';
+    if (percentage >= 80) {return 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200 border-green-200 dark:border-green-700';}
+    if (percentage >= 60) {return 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 border-yellow-200 dark:border-yellow-700';}
     return 'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200 border-red-200 dark:border-red-700';
   };
 
   const getPerformanceMessage = (percentage: number) => {
-    if (percentage >= 90) return 'Excellent! You have a great understanding of the material.';
-    if (percentage >= 80) return 'Great job! Your performance is very good.';
-    if (percentage >= 70) return 'Good work! You have a solid grasp of the concepts.';
-    if (percentage >= 60) return 'Nice effort! Consider reviewing the questions you missed.';
+    if (percentage >= 90) {return 'Excellent! You have a great understanding of the material.';}
+    if (percentage >= 80) {return 'Great job! Your performance is very good.';}
+    if (percentage >= 70) {return 'Good work! You have a solid grasp of the concepts.';}
+    if (percentage >= 60) {return 'Nice effort! Consider reviewing the questions you missed.';}
     return 'Keep studying! Review the explanations and try again.';
   };
 

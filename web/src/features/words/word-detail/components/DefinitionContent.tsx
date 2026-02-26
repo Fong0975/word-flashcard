@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkBreaks from 'remark-breaks';
+
 import { WordDefinition } from '../../../../types/api';
 
 interface DefinitionContentProps {

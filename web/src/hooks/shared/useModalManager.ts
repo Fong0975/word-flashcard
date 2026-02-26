@@ -3,7 +3,7 @@ import { useState, useCallback } from 'react';
 /**
  * Modal configuration interface
  */
-export interface ModalConfig<T = any> {
+export interface ModalConfig<T = unknown> {
   isOpen: boolean;
   data?: T;
 }
@@ -11,7 +11,7 @@ export interface ModalConfig<T = any> {
 /**
  * Modal manager return type
  */
-export interface UseModalManagerReturn<T = any> {
+export interface UseModalManagerReturn<T = unknown> {
   modalState: Record<string, ModalConfig<T>>;
   openModal: (modalName: string, data?: T) => void;
   closeModal: (modalName: string) => void;
@@ -46,7 +46,7 @@ export interface UseModalManagerReturn<T = any> {
  * modalManager.closeModal('editWord');
  * ```
  */
-export const useModalManager = <T = any>(): UseModalManagerReturn<T> => {
+export const useModalManager = <T = unknown>(): UseModalManagerReturn<T> => {
   const [modalState, setModalState] = useState<Record<string, ModalConfig<T>>>({});
 
   const openModal = useCallback((modalName: string, data?: T) => {

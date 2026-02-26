@@ -1,6 +1,6 @@
 import React from 'react';
-import { CambridgeApiResponse, GroupedPronunciation, CambridgeDefinition, DefinitionForm } from '../types';
-import { SuccessNotification } from './SuccessNotification';
+
+import { CambridgeApiResponse, GroupedPronunciation, CambridgeDefinition, CambridgePronunciation } from '../types';
 
 interface DictionaryLookupProps {
   wordText: string | null;
@@ -8,13 +8,11 @@ interface DictionaryLookupProps {
   isLoadingDictionary: boolean;
   dictionaryError: string | null;
   isCollapsed: boolean;
-  successMessage: string | null;
   onFetchDictionary: () => void;
   onToggleCollapsed: () => void;
   onApplyPronunciation: (ukUrl: string, usUrl: string, pos?: string) => void;
   onApplyDefinition: (definition: CambridgeDefinition) => void;
-  onClearSuccessMessage: () => void;
-  groupPronunciationsByPos: (pronunciations: any[]) => GroupedPronunciation[];
+  groupPronunciationsByPos: (pronunciations: CambridgePronunciation[]) => GroupedPronunciation[];
 }
 
 export const DictionaryLookup: React.FC<DictionaryLookupProps> = ({
@@ -23,15 +21,13 @@ export const DictionaryLookup: React.FC<DictionaryLookupProps> = ({
   isLoadingDictionary,
   dictionaryError,
   isCollapsed,
-  successMessage,
   onFetchDictionary,
   onToggleCollapsed,
   onApplyPronunciation,
   onApplyDefinition,
-  onClearSuccessMessage,
-  groupPronunciationsByPos
+  groupPronunciationsByPos,
 }) => {
-  if (!wordText) return null;
+  if (!wordText) {return null;}
 
   return (
     <div className="mb-4 p-2 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
@@ -79,14 +75,6 @@ export const DictionaryLookup: React.FC<DictionaryLookupProps> = ({
       {/* Dictionary Content */}
       {!isCollapsed && (
         <div className="space-y-4 border-gray-200 dark:border-gray-700 pt-4">
-          {/* Success Notification */}
-          {successMessage && (
-            <SuccessNotification
-              message={successMessage}
-              onClose={onClearSuccessMessage}
-            />
-          )}
-
           {/* Error Display */}
           {dictionaryError && (
             <div className="p-3 text-sm text-red-700 bg-red-100 dark:bg-red-900 dark:text-red-300 rounded-md">
@@ -125,7 +113,7 @@ export const DictionaryLookup: React.FC<DictionaryLookupProps> = ({
                                 onApplyPronunciation(
                                   group.uk?.url || '',
                                   group.us?.url || '',
-                                  group.pos
+                                  group.pos,
                                 );
                               }}
                               disabled={!group.uk?.url && !group.us?.url}

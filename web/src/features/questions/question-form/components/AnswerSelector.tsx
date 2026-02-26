@@ -9,7 +9,7 @@ interface AnswerSelectorProps {
 export const AnswerSelector: React.FC<AnswerSelectorProps> = ({
   value,
   onChange,
-  disabled = false
+  disabled = false,
 }) => {
   return (
     <div>

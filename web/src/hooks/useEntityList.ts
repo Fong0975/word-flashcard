@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+
 import { ApiError } from '../lib/api';
-import { SearchFilter } from '../types/base';
+import { SearchFilter, BaseEntity } from '../types/base';
 
 /**
  * Generic hook for managing paginated entity lists (words, questions, etc.)
@@ -41,11 +42,6 @@ import { SearchFilter } from '../types/base';
  * ```
  */
 
-// Generic entity type constraint
-export interface BaseEntity {
-  id: number;
-  [key: string]: any;
-}
 
 // Generic state interface
 export interface UseEntityListState<T> {
@@ -62,6 +58,7 @@ export interface UseEntityListState<T> {
 }
 
 // Generic actions interface
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface UseEntityListActions<T> {
   fetchEntities: (page?: number) => Promise<void>;
   nextPage: () => Promise<void>;
@@ -103,7 +100,7 @@ export interface UseEntityListOptions<T> {
 }
 
 export const useEntityList = <T extends BaseEntity>(
-  options: UseEntityListOptions<T>
+  options: UseEntityListOptions<T>,
 ): UseEntityListReturn<T> => {
   const {
     entityName,
@@ -155,11 +152,11 @@ export const useEntityList = <T extends BaseEntity>(
       // Get entities and total count in parallel for better performance
       const [entitiesResponse, countResponse] = await Promise.all([
         apiService.fetchList(params),
-        apiService.getCount(searchFilter)
+        apiService.getCount(searchFilter),
       ]);
 
       let entities = entitiesResponse;
-      if (entities == null || !Array.isArray(entities)) {
+      if (entities === null || !Array.isArray(entities)) {
         entities = [];
       }
 

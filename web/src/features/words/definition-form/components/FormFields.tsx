@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { DefinitionForm, NoteButton } from '../types';
 
 interface FormFieldsProps {
@@ -23,7 +24,7 @@ export const FormFields: React.FC<FormFieldsProps> = ({
   isFormValid,
   partOfSpeechOptions,
   noteButtonsConfig,
-  handlers
+  handlers,
 }) => {
   return (
     <div className="space-y-6">

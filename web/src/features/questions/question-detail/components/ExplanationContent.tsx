@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkBreaks from 'remark-breaks';
+
 import { ExplanationContentProps } from '../types/question-detail';
 
 export const ExplanationContent: React.FC<ExplanationContentProps> = ({ explanation }) => {

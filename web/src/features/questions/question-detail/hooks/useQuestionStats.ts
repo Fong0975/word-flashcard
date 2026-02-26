@@ -1,11 +1,12 @@
 import { useMemo } from 'react';
+
 import { Question } from '../../../../types/api';
 import { UseQuestionStatsReturn } from '../types/question-detail';
 import {
   calculateAccuracyRate,
   getAccuracyRateColor,
   getAvailableOptions,
-  formatQuestionForCopy
+  formatQuestionForCopy,
 } from '../utils';
 
 interface UseQuestionStatsProps {
@@ -19,7 +20,7 @@ export const useQuestionStats = ({ question }: UseQuestionStatsProps): UseQuesti
         accuracyRate: 0,
         accuracyRateColor: '',
         availableOptions: [],
-        formattedQuestionText: ''
+        formattedQuestionText: '',
       };
     }
 
@@ -32,7 +33,7 @@ export const useQuestionStats = ({ question }: UseQuestionStatsProps): UseQuesti
       accuracyRate,
       accuracyRateColor,
       availableOptions,
-      formattedQuestionText
+      formattedQuestionText,
     };
   }, [question]);
 

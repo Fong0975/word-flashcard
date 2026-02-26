@@ -51,7 +51,9 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
   variant = 'danger',
   isConfirming = false,
 }) => {
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   const getVariantStyles = () => {
     switch (variant) {
@@ -63,7 +65,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
             </svg>
           ),
           iconBg: 'bg-red-100 dark:bg-red-900',
-          confirmButton: 'text-white bg-red-600 hover:bg-red-700 focus:ring-red-500'
+          confirmButton: 'text-white bg-red-600 hover:bg-red-700 focus:ring-red-500',
         };
       case 'warning':
         return {
@@ -73,7 +75,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
             </svg>
           ),
           iconBg: 'bg-yellow-100 dark:bg-yellow-900',
-          confirmButton: 'text-white bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-500'
+          confirmButton: 'text-white bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-500',
         };
       case 'info':
         return {
@@ -83,13 +85,13 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
             </svg>
           ),
           iconBg: 'bg-blue-100 dark:bg-blue-900',
-          confirmButton: 'text-white bg-blue-600 hover:bg-blue-700 focus:ring-blue-500'
+          confirmButton: 'text-white bg-blue-600 hover:bg-blue-700 focus:ring-blue-500',
         };
       default:
         return {
           icon: null,
           iconBg: 'bg-gray-100 dark:bg-gray-900',
-          confirmButton: 'text-white bg-gray-600 hover:bg-gray-700 focus:ring-gray-500'
+          confirmButton: 'text-white bg-gray-600 hover:bg-gray-700 focus:ring-gray-500',
         };
     }
   };

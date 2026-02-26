@@ -11,7 +11,7 @@ export const QuestionInput: React.FC<QuestionInputProps> = ({
   value,
   onChange,
   disabled = false,
-  autoFocus = false
+  autoFocus = false,
 }) => {
   return (
     <div>

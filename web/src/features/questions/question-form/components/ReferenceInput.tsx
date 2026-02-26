@@ -9,7 +9,7 @@ interface ReferenceInputProps {
 export const ReferenceInput: React.FC<ReferenceInputProps> = ({
   value,
   onChange,
-  disabled = false
+  disabled = false,
 }) => {
   return (
     <div>

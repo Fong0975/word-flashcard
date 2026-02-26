@@ -1,5 +1,7 @@
 import React from 'react';
+
 import { WordHeaderProps } from '../types/word-detail';
+
 import { FamiliarityBar } from './FamiliarityBar';
 import { WordActions } from './WordActions';
 

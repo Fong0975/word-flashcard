@@ -13,7 +13,7 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
   onRetry,
   onDismiss,
   title = 'Error loading data',
-  className = ''
+  className = '',
 }) => (
   <div className={`bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-4 mb-6 ${className}`}>
     <div className="flex items-start">

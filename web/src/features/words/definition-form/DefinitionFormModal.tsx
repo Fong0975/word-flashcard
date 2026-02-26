@@ -1,8 +1,13 @@
 import React, { useEffect } from 'react';
-import { Modal } from '../../../components/ui/Modal';
+
+import { Modal, ToastContainer } from '../../../components/ui';
+import { useToast } from '../../../hooks/ui/useToast';
+import { useCopyToClipboard } from '../../../hooks/ui/useCopyToClipboard';
+
 import { DictionaryLookup, FormFields } from './components';
-import { useDefinitionForm, useDictionaryData, useClipboard, useNoteButtons } from './hooks';
+import { useDefinitionForm, useDictionaryData, useNoteButtons } from './hooks';
 import { DefinitionFormModalProps } from './types';
+import { CambridgeDefinition } from './types/cambridge';
 
 export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
   isOpen,
@@ -15,6 +20,7 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
   definition = null,
 }) => {
   // Hooks
+  const { toasts, showSuccess, showError, showWarning, removeToast } = useToast();
   const formLogic = useDefinitionForm({
     isOpen,
     mode,
@@ -22,26 +28,31 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
     definition,
     onDefinitionAdded,
     onDefinitionUpdated,
-    onClose
+    onClose,
+    onError: showError,
   });
 
-  const dictionaryLogic = useDictionaryData(wordText);
-  const { copySuccess, copyToClipboard } = useClipboard();
-  const { noteButtonsConfig } = useNoteButtons();
+  const dictionaryLogic = useDictionaryData(wordText, showSuccess, showError);
+  const { copySuccess, copyToClipboard } = useCopyToClipboard({
+    onError: (error, message) => showError(message),
+  });
+  const { noteButtonsConfig } = useNoteButtons({
+    onWarning: showWarning,
+  });
 
   // Reset dictionary data when modal closes
   useEffect(() => {
     if (!isOpen) {
       dictionaryLogic.resetDictionaryData();
     }
-  }, [isOpen, dictionaryLogic.resetDictionaryData]);
+  }, [isOpen, dictionaryLogic]);
 
   // Enhanced dictionary handlers that update form data
   const handleApplyPronunciation = (ukUrl: string, usUrl: string, pos?: string) => {
     dictionaryLogic.applyPronunciation(ukUrl, usUrl, pos, formLogic.updateFormData);
   };
 
-  const handleApplyDefinition = (definition: any) => {
+  const handleApplyDefinition = (definition: CambridgeDefinition) => {
     dictionaryLogic.applyDefinition(definition, formLogic.updateFormData);
   };
 
@@ -110,12 +121,10 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
             isLoadingDictionary={dictionaryLogic.isLoadingDictionary}
             dictionaryError={dictionaryLogic.dictionaryError}
             isCollapsed={dictionaryLogic.isCollapsed}
-            successMessage={dictionaryLogic.successMessage}
             onFetchDictionary={dictionaryLogic.fetchDictionaryData}
             onToggleCollapsed={dictionaryLogic.toggleCollapsed}
             onApplyPronunciation={handleApplyPronunciation}
             onApplyDefinition={handleApplyDefinition}
-            onClearSuccessMessage={dictionaryLogic.clearSuccessMessage}
             groupPronunciationsByPos={dictionaryLogic.groupPronunciationsByPos}
           />
 
@@ -161,6 +170,9 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
     </Modal>
   );
 };

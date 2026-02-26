@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+
 import { Word, WordDefinition } from '../../types/api';
 import { EntityCard } from '../shared/components/EntityCard';
 import { getFamiliarityColor } from '../shared/constants/familiarity';
+
 import { WordDetailModal } from './word-detail/WordDetailModal';
 import { DefinitionFormModal } from './definition-form';
 

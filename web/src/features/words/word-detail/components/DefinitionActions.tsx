@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+
 import { WordDefinition } from '../../../../types/api';
 import { ConfirmationDialog } from '../../../../components/ui/ConfirmationDialog';
 
@@ -11,7 +12,7 @@ interface DefinitionActionsProps {
 export const DefinitionActions: React.FC<DefinitionActionsProps> = ({
   definition,
   onEdit,
-  onDelete
+  onDelete,
 }) => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 

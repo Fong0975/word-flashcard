@@ -1,5 +1,7 @@
 import React from 'react';
+
 import { OptionsDisplayProps } from '../types/question-detail';
+
 import { OptionItem } from './OptionItem';
 
 export const OptionsDisplay: React.FC<OptionsDisplayProps> = ({ options }) => {

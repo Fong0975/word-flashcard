@@ -1,5 +1,7 @@
 import React from 'react';
+
 import { DefinitionsListProps } from '../types/word-detail';
+
 import { DefinitionCard } from './DefinitionCard';
 import { AddDefinitionButton } from './AddDefinitionButton';
 import { EmptyState } from './EmptyState';
@@ -8,7 +10,7 @@ export const DefinitionsList: React.FC<DefinitionsListProps> = ({
   definitions,
   onEdit,
   onDelete,
-  onAddNew
+  onAddNew,
 }) => {
   return (
     <div className="space-y-4">

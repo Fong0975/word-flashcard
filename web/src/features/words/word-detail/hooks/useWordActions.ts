@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+
 import { apiService } from '../../../../lib/api';
 import { Word } from '../../../../types/api';
 import { WordActionsCallbacks } from '../types/word-detail';
@@ -7,9 +8,10 @@ interface UseWordActionsProps {
   word: Word | null;
   callbacks: WordActionsCallbacks;
   onClose: () => void;
+  onError?: (message: string) => void;
 }
 
-export const useWordActions = ({ word, callbacks, onClose }: UseWordActionsProps) => {
+export const useWordActions = ({ word, callbacks, onClose, onError }: UseWordActionsProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -34,7 +36,7 @@ export const useWordActions = ({ word, callbacks, onClose }: UseWordActionsProps
   }, [callbacks]);
 
   const handleDeleteWordConfirm = useCallback(async () => {
-    if (!word) return;
+    if (!word) {return;}
 
     try {
       await apiService.deleteWord(word.id);
@@ -43,11 +45,14 @@ export const useWordActions = ({ word, callbacks, onClose }: UseWordActionsProps
         callbacks.onWordUpdated();
       }
     } catch (error) {
-      console.error('Failed to delete word:', error);
+      if (onError) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        onError('Failed to delete word: ' + errorMessage);
+      }
     } finally {
       setShowDeleteConfirm(false);
     }
-  }, [word, onClose, callbacks]);
+  }, [word, onClose, callbacks, onError]);
 
   const handleDeleteWordCancel = useCallback(() => {
     setShowDeleteConfirm(false);
@@ -61,6 +66,6 @@ export const useWordActions = ({ word, callbacks, onClose }: UseWordActionsProps
     handleWordUpdated,
     handleDeleteWord,
     handleDeleteWordConfirm,
-    handleDeleteWordCancel
+    handleDeleteWordCancel,
   };
 };

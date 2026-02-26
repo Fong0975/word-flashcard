@@ -1,13 +1,15 @@
 import React from 'react';
+
 import { QuestionHeaderProps } from '../types/question-detail';
-import { QuestionActions } from './QuestionActions';
 import { formatQuestionForCopy } from '../utils/questionFormat';
+
+import { QuestionActions } from './QuestionActions';
 
 export const QuestionHeader: React.FC<QuestionHeaderProps> = ({
   question,
   onEdit,
   onCopy,
-  onDelete
+  onDelete,
 }) => {
   const copyText = formatQuestionForCopy(question);
 

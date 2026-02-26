@@ -1,4 +1,3 @@
-import { API_CONFIG, API_ENDPOINTS, DICTIONARY_ENDPOINTS } from './api-config';
 import {
   Word,
   WordDefinition,
@@ -18,13 +17,15 @@ import {
   ApiRequestOptions,
 } from '../types/base';
 
+import { API_CONFIG, API_ENDPOINTS, DICTIONARY_ENDPOINTS } from './api-config';
+
 // Custom error class for API errors
 export class ApiError extends Error {
   constructor(
     public status: number,
     public statusText: string,
     message: string,
-    public response?: any
+    public response?: unknown,
   ) {
     super(message);
     this.name = 'ApiError';
@@ -46,7 +47,7 @@ class ApiService {
   // Generic request method
   private async request<T>(
     endpoint: string,
-    options: RequestInit & ApiRequestOptions = {}
+    options: RequestInit & ApiRequestOptions = {},
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
 
@@ -89,7 +90,7 @@ class ApiService {
           response.status,
           response.statusText,
           errorMessage,
-          response
+          response,
         );
       }
 
@@ -117,7 +118,7 @@ class ApiService {
   // Dictionary API request method (uses different base URL)
   private async dictionaryRequest<T>(
     endpoint: string,
-    options: RequestInit & ApiRequestOptions = {}
+    options: RequestInit & ApiRequestOptions = {},
   ): Promise<T> {
     const url = `${API_CONFIG.dictionaryBaseURL}${endpoint}`;
 
@@ -160,7 +161,7 @@ class ApiService {
           response.status,
           response.statusText,
           errorMessage,
-          response
+          response,
         );
       }
 
@@ -193,8 +194,8 @@ class ApiService {
   // POST request
   private async post<T>(
     endpoint: string,
-    data?: any,
-    options?: ApiRequestOptions
+    data?: unknown,
+    options?: ApiRequestOptions,
   ): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'POST',
@@ -206,8 +207,8 @@ class ApiService {
   // PUT request
   private async put<T>(
     endpoint: string,
-    data?: any,
-    options?: ApiRequestOptions
+    data?: unknown,
+    options?: ApiRequestOptions,
   ): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'PUT',
@@ -318,7 +319,7 @@ class ApiService {
   }
 
   // Dictionary API methods
-  async lookupWord<T = any>(word: string, options?: ApiRequestOptions): Promise<T> {
+  async lookupWord<T = unknown>(word: string, options?: ApiRequestOptions): Promise<T> {
     return this.dictionaryRequest<T>(DICTIONARY_ENDPOINTS.lookup(word), { method: 'GET', ...options });
   }
 
@@ -341,7 +342,7 @@ export type {
   WordQuizConfig,
   WordQuizResult,
   QuestionQuizConfig,
-  QuestionQuizResult
+  QuestionQuizResult,
 } from '../types/api';
 
 export type {

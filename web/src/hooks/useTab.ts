@@ -11,7 +11,7 @@ export const useTab = () => {
   });
 
   const switchTab = useCallback((tabName: TabName) => {
-    if (currentTab === tabName) return;
+    if (currentTab === tabName) {return;}
 
     setCurrentTab(tabName);
 
@@ -26,7 +26,7 @@ export const useTab = () => {
 
     // Trigger custom event for analytics or other components
     const event = new CustomEvent('tabChange', {
-      detail: { tabName, previousTab: currentTab }
+      detail: { tabName, previousTab: currentTab },
     });
     document.dispatchEvent(event);
   }, [currentTab]);

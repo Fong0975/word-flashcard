@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { ReferenceSectionProps } from '../types/question-detail';
 
 export const ReferenceSection: React.FC<ReferenceSectionProps> = ({ reference }) => {

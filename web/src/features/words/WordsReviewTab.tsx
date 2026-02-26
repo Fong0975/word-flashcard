@@ -1,19 +1,23 @@
 import React, { useState, useEffect } from 'react';
+
 import { useWords } from '../../hooks/useWords';
 import { useModalManager, MODAL_NAMES } from '../../hooks/shared/useModalManager';
-import { WordCard } from './WordCard';
+import { useToast } from '../../hooks/ui/useToast';
 import { EntityReviewTab } from '../shared/components/EntityReviewTab';
+import { ToastContainer } from '../../components/ui';
 import { QuizSetupModal } from '../shared/components/QuizSetupModal';
-import { WordFormModal } from './word-form';
-import { WordDetailModal } from './word-detail/WordDetailModal';
-import { DefinitionFormModal } from './definition-form';
 import { WordQuizConfig as QuizConfig, Word, WordDefinition, BaseComponentProps } from '../../types';
 import { WordQuizResult } from '../../types/api';
 import { SearchOperation, SearchLogic, FamiliarityLevel } from '../../types/base';
 import { QuizModal } from '../../components/modals/QuizModal';
+import { apiService } from '../../lib/api';
+
+import { WordFormModal } from './word-form';
+import { WordDetailModal } from './word-detail/WordDetailModal';
+import { DefinitionFormModal } from './definition-form';
 import { WordQuiz } from './quiz/WordQuiz';
 import { WordQuizResults } from './quiz/WordQuizResults';
-import { apiService } from '../../lib/api';
+import { WordCard } from './WordCard';
 
 interface WordsReviewTabProps extends BaseComponentProps {}
 
@@ -21,9 +25,10 @@ interface WordsReviewTabProps extends BaseComponentProps {}
 export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({ className = '' }) => {
   const modalManager = useModalManager();
   const [quizConfig, setQuizConfig] = useState<QuizConfig | null>(null);
+  const { toasts, showError, showWarning, removeToast } = useToast();
 
   const wordsHook = useWords({
-    itemsPerPage: 50,
+    itemsPerPage: 30,
     autoFetch: true,
   });
 
@@ -63,7 +68,7 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({ className = '' }
               modalManager.setModalData(MODAL_NAMES.WORD_DETAIL, searchResults[0]);
             }
           } catch (error) {
-            console.error('Failed to refresh selected word:', error);
+            showError('Failed to refresh selected word. Please try again.');
           }
         };
 
@@ -107,7 +112,7 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({ className = '' }
     // Set quiz config for WordQuizModal
     setQuizConfig({
       selectedFamiliarity: config.selectedFamiliarity || [],
-      questionCount: config.questionCount
+      questionCount: config.questionCount,
     });
   };
 
@@ -160,126 +165,134 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({ className = '' }
   };
 
   return (
-    <EntityReviewTab
-      config={{
-        title: "Word Review",
-        entityName: "Word",
-        entityNamePlural: "Words",
-        enableSearch: true,
-        enableQuiz: true,
-        searchPlaceholder: "Search words...",
-        emptyStateConfig: {
-          icon: "📚",
-          title: "No words found",
-          description: "It looks like there are no words in your collection yet. Get started by adding your first word.",
-        },
-      }}
-      actions={{
-        onNew: handleNew,
-        onQuizSetup: handleQuizSetup,
-        onSearch: wordsHook.setSearchTerm,
-        onRefresh: () => wordsHook.refresh(),
-      }}
-      entityListHook={wordsHook}
-      renderCard={(word, index) => (
-        <WordCard
-          key={word.id}
-          index={index}
-          word={word}
-          className="transition-transform duration-200 hover:scale-[1.02]"
-          onWordUpdated={wordsHook.refresh}
-        />
-      )}
-      additionalContent={
-        <>
-          {/* Add Word Modal */}
-          <WordFormModal
-            isOpen={modalManager.isModalOpen(MODAL_NAMES.ADD)}
-            onClose={handleCloseAddModal}
-            onWordSaved={handleWordAdded}
-            onOpenWordDetail={handleOpenWordDetailFromSuggestion}
-            mode="create"
-            currentWords={wordsHook.words}
+    <>
+      <EntityReviewTab
+        config={{
+          title: 'Word Review',
+          entityName: 'Word',
+          entityNamePlural: 'Words',
+          enableSearch: true,
+          enableQuiz: true,
+          searchPlaceholder: 'Search words...',
+          emptyStateConfig: {
+            icon: '📚',
+            title: 'No words found',
+            description: 'It looks like there are no words in your collection yet. Get started by adding your first word.',
+          },
+        }}
+        actions={{
+          onNew: handleNew,
+          onQuizSetup: handleQuizSetup,
+          onSearch: wordsHook.setSearchTerm,
+          onRefresh: () => wordsHook.refresh(),
+        }}
+        entityListHook={wordsHook}
+        renderCard={(word, index) => (
+          <WordCard
+            key={word.id}
+            index={index}
+            word={word}
+            className="transition-transform duration-200 hover:scale-[1.02]"
+            onWordUpdated={wordsHook.refresh}
           />
-
-          {/* Quiz Setup Modal */}
-          <QuizSetupModal
-            isOpen={modalManager.isModalOpen(MODAL_NAMES.QUIZ_SETUP)}
-            onClose={handleCloseQuizSetupModal}
-            onStartQuiz={handleStartQuiz}
-            title="Word Quiz Setup"
-            entityName="words"
-            enableFamiliaritySelection={true}
-          />
-
-          {/* Quiz Modal */}
-          {quizConfig && (
-            <QuizModal
-              isOpen={modalManager.isModalOpen(MODAL_NAMES.QUIZ)}
-              onClose={handleCloseQuizModal}
-              quizConfig={quizConfig}
-              config={{
-                quizTitle: 'Word Quiz',
-                resultsTitle: 'Quiz Results',
-                exitConfirmTitle: 'Exit Quiz',
-                exitConfirmMessage: 'Are you sure you want to exit the quiz? Your progress will be lost and you\'ll need to start over.',
-                exitButtonText: 'Exit Quiz',
-                continueButtonText: 'Continue Quiz'
-              }}
-              renderQuiz={(config, onComplete, onBackToHome) => (
-                <WordQuiz
-                  selectedFamiliarity={config.selectedFamiliarity}
-                  questionCount={config.questionCount}
-                  onQuizComplete={onComplete}
-                  onBackToHome={onBackToHome}
-                />
-              )}
-              renderResults={(results, onRetake, onBackToHome) => (
-                <WordQuizResults
-                  results={results as WordQuizResult[]}
-                  onRetakeQuiz={onRetake}
-                  onBackToHome={onBackToHome}
-                />
-              )}
+        )}
+        additionalContent={
+          <>
+            {/* Add Word Modal */}
+            <WordFormModal
+              isOpen={modalManager.isModalOpen(MODAL_NAMES.ADD)}
+              onClose={handleCloseAddModal}
+              onWordSaved={handleWordAdded}
+              onOpenWordDetail={handleOpenWordDetailFromSuggestion}
+              mode="create"
+              currentWords={wordsHook.words}
+              onError={showError}
+              onWarning={showWarning}
             />
-          )}
 
-          {/* Word Detail Modal */}
-          <WordDetailModal
-            word={modalManager.getModalData<Word>(MODAL_NAMES.WORD_DETAIL) ?? null}
-            isOpen={modalManager.isModalOpen(MODAL_NAMES.WORD_DETAIL)}
-            onClose={handleCloseWordDetailModal}
-            onWordUpdated={handleWordUpdated}
-            onOpenDefinitionModal={handleOpenDefinitionModal}
-            onOpenEditDefinitionModal={handleOpenEditDefinitionModal}
-          />
+            {/* Quiz Setup Modal */}
+            <QuizSetupModal
+              isOpen={modalManager.isModalOpen(MODAL_NAMES.QUIZ_SETUP)}
+              onClose={handleCloseQuizSetupModal}
+              onStartQuiz={handleStartQuiz}
+              title="Word Quiz Setup"
+              entityName="words"
+              enableFamiliaritySelection={true}
+            />
 
-          {/* Definition Form Modal for Adding */}
-          <DefinitionFormModal
-            isOpen={modalManager.isModalOpen(MODAL_NAMES.DEFINITION_ADD)}
-            onClose={handleCloseDefinitionFormModal}
-            onDefinitionAdded={handleDefinitionAdded}
-            onDefinitionUpdated={handleDefinitionUpdated}
-            wordId={modalManager.getModalData<Word>(MODAL_NAMES.WORD_DETAIL)?.id || null}
-            wordText={modalManager.getModalData<Word>(MODAL_NAMES.WORD_DETAIL)?.word || null}
-            mode="add"
-            definition={null}
-          />
+            {/* Quiz Modal */}
+            {quizConfig && (
+              <QuizModal
+                isOpen={modalManager.isModalOpen(MODAL_NAMES.QUIZ)}
+                onClose={handleCloseQuizModal}
+                quizConfig={quizConfig}
+                config={{
+                  quizTitle: 'Word Quiz',
+                  resultsTitle: 'Quiz Results',
+                  exitConfirmTitle: 'Exit Quiz',
+                  exitConfirmMessage: 'Are you sure you want to exit the quiz? Your progress will be lost and you\'ll need to start over.',
+                  exitButtonText: 'Exit Quiz',
+                  continueButtonText: 'Continue Quiz',
+                }}
+                renderQuiz={(config, onComplete, onBackToHome) => (
+                  <WordQuiz
+                    selectedFamiliarity={config.selectedFamiliarity}
+                    questionCount={config.questionCount}
+                    onQuizComplete={onComplete}
+                    onBackToHome={onBackToHome}
+                    onError={showError}
+                  />
+                )}
+                renderResults={(results, onRetake, onBackToHome) => (
+                  <WordQuizResults
+                    results={results as WordQuizResult[]}
+                    onRetakeQuiz={onRetake}
+                    onBackToHome={onBackToHome}
+                  />
+                )}
+              />
+            )}
 
-          {/* Definition Form Modal for Editing */}
-          <DefinitionFormModal
-            isOpen={modalManager.isModalOpen(MODAL_NAMES.DEFINITION_EDIT)}
-            onClose={handleCloseDefinitionFormModal}
-            onDefinitionAdded={handleDefinitionAdded}
-            onDefinitionUpdated={handleDefinitionUpdated}
-            wordId={modalManager.getModalData<Word>(MODAL_NAMES.WORD_DETAIL)?.id || null}
-            wordText={modalManager.getModalData<Word>(MODAL_NAMES.WORD_DETAIL)?.word || null}
-            mode="edit"
-            definition={modalManager.getModalData<{ mode: string; definition: WordDefinition }>(MODAL_NAMES.DEFINITION_EDIT)?.definition || null}
-          />
-        </>
-      }
-      className={className}
-    />
+            {/* Word Detail Modal */}
+            <WordDetailModal
+              word={modalManager.getModalData<Word>(MODAL_NAMES.WORD_DETAIL) ?? null}
+              isOpen={modalManager.isModalOpen(MODAL_NAMES.WORD_DETAIL)}
+              onClose={handleCloseWordDetailModal}
+              onWordUpdated={handleWordUpdated}
+              onOpenDefinitionModal={handleOpenDefinitionModal}
+              onOpenEditDefinitionModal={handleOpenEditDefinitionModal}
+            />
+
+            {/* Definition Form Modal for Adding */}
+            <DefinitionFormModal
+              isOpen={modalManager.isModalOpen(MODAL_NAMES.DEFINITION_ADD)}
+              onClose={handleCloseDefinitionFormModal}
+              onDefinitionAdded={handleDefinitionAdded}
+              onDefinitionUpdated={handleDefinitionUpdated}
+              wordId={modalManager.getModalData<Word>(MODAL_NAMES.WORD_DETAIL)?.id || null}
+              wordText={modalManager.getModalData<Word>(MODAL_NAMES.WORD_DETAIL)?.word || null}
+              mode="add"
+              definition={null}
+            />
+
+            {/* Definition Form Modal for Editing */}
+            <DefinitionFormModal
+              isOpen={modalManager.isModalOpen(MODAL_NAMES.DEFINITION_EDIT)}
+              onClose={handleCloseDefinitionFormModal}
+              onDefinitionAdded={handleDefinitionAdded}
+              onDefinitionUpdated={handleDefinitionUpdated}
+              wordId={modalManager.getModalData<Word>(MODAL_NAMES.WORD_DETAIL)?.id || null}
+              wordText={modalManager.getModalData<Word>(MODAL_NAMES.WORD_DETAIL)?.word || null}
+              mode="edit"
+              definition={modalManager.getModalData<{ mode: string; definition: WordDefinition }>(MODAL_NAMES.DEFINITION_EDIT)?.definition || null}
+            />
+          </>
+        }
+        className={className}
+      />
+
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
+    </>
   );
 };

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 
 /**
  * Form field value type
@@ -153,7 +153,7 @@ export const useFormManager = <T extends FormData>({
     const value = formData[fieldName];
     const rule = validationRules[fieldNameStr];
 
-    if (!rule) return null;
+    if (!rule) {return null;}
 
     // Required validation
     if (rule.required && (value === null || value === undefined || value === '')) {
@@ -161,7 +161,7 @@ export const useFormManager = <T extends FormData>({
     }
 
     // Skip other validations if value is empty and not required
-    if (!value && !rule.required) return null;
+    if (!value && !rule.required) {return null;}
 
     const stringValue = String(value);
 
@@ -214,7 +214,7 @@ export const useFormManager = <T extends FormData>({
   // Handle form submission
   const handleSubmit = useCallback(async (
     submitFn: (data: T) => Promise<void>,
-    options: SubmitOptions = {}
+    options: SubmitOptions = {},
   ): Promise<boolean> => {
     const { skipValidation = false } = options;
 

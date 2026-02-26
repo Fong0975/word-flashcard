@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkBreaks from 'remark-breaks';
+
 import { AnswerSectionProps } from '../types/question-detail';
 
 export const AnswerSection: React.FC<AnswerSectionProps> = ({
@@ -8,7 +9,7 @@ export const AnswerSection: React.FC<AnswerSectionProps> = ({
   onToggle,
   answer,
   explanation,
-  question
+  question,
 }) => {
   // Get the content of the correct answer option
   const getCorrectAnswerContent = () => {

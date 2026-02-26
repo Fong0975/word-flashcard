@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { WordFooterProps } from '../types/word-detail';
 
 export const WordFooter: React.FC<WordFooterProps> = ({ word }) => {

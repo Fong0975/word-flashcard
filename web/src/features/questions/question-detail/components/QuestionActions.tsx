@@ -1,11 +1,12 @@
 import React from 'react';
+
 import { CopyButton } from '../../../../components/ui/CopyButton';
 import { QuestionActionsProps } from '../types/question-detail';
 
 export const QuestionActions: React.FC<QuestionActionsProps> = ({
   onEdit,
   onDelete,
-  copyText
+  copyText,
 }) => {
   return (
     <div className="flex justify-end me-2 space-x-2">

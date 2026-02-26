@@ -1,13 +1,15 @@
 import React from 'react';
+
 import { Modal } from '../../../components/ui/Modal';
 import { WordFormModal } from '../word-form';
+
 import { WordDetailModalProps } from './types/word-detail';
 import { useWordDetail } from './hooks/useWordDetail';
 import {
   WordHeader,
   DefinitionsList,
   WordFooter,
-  WordDeleteConfirmation
+  WordDeleteConfirmation,
 } from './components';
 
 export const WordDetailModal: React.FC<WordDetailModalProps> = ({
@@ -23,10 +25,10 @@ export const WordDetailModal: React.FC<WordDetailModalProps> = ({
     onClose,
     onWordUpdated,
     onOpenDefinitionModal,
-    onOpenEditDefinitionModal
+    onOpenEditDefinitionModal,
   });
 
-  if (!word) return null;
+  if (!word) {return null;}
 
   return (
     <>

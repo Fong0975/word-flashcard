@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { OptionItemProps } from '../types/question-detail';
 
 export const OptionItem: React.FC<OptionItemProps> = ({ option }) => {

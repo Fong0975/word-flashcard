@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkBreaks from 'remark-breaks';
+
 import { Question, QuestionQuizResult, QuestionsRandomRequest } from '../../../types/api';
 import { apiService } from '../../../lib/api';
 
@@ -8,6 +9,7 @@ interface QuestionQuizProps {
   questionCount: number;
   onQuizComplete: (results: QuestionQuizResult[]) => void;
   onBackToHome: () => void;
+  onError?: (message: string) => void;
 }
 
 type QuizState = 'loading' | 'quiz' | 'completed';
@@ -15,7 +17,8 @@ type QuizState = 'loading' | 'quiz' | 'completed';
 export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
   questionCount,
   onQuizComplete,
-  onBackToHome
+  onBackToHome,
+  onError,
 }) => {
   const [state, setState] = useState<QuizState>('loading');
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -35,10 +38,8 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
         setState('loading');
         setError(null);
 
-        console.log('Fetching random questions:', { count: questionCount });
-
         const request: QuestionsRandomRequest = {
-          count: questionCount
+          count: questionCount,
         };
 
         const fetchedQuestions = await apiService.getRandomQuestions(request);
@@ -51,20 +52,23 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
         setQuestions(fetchedQuestions);
         setState('quiz');
       } catch (error) {
-        console.error('Failed to fetch quiz questions:', error);
-        setError(error instanceof Error ? error.message : 'Failed to load quiz questions');
+        const errorMessage = error instanceof Error ? error.message : 'Failed to load quiz questions';
+        setError(errorMessage);
+        if (onError) {
+          onError('Failed to fetch quiz questions: ' + errorMessage);
+        }
       }
     };
 
     fetchQuizQuestions();
-  }, [questionCount]);
+  }, [questionCount, onError]);
 
   const handleAnswerSelect = (answer: string) => {
     setSelectedAnswer(answer);
   };
 
   const handleSubmitAnswer = () => {
-    if (!currentQuestion || selectedAnswer === null) return;
+    if (!currentQuestion || selectedAnswer === null) {return;}
 
     const isCorrect = selectedAnswer === currentQuestion.answer;
 
@@ -72,7 +76,7 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
     const newResult: QuestionQuizResult = {
       question: currentQuestion,
       userAnswer: selectedAnswer,
-      isCorrect
+      isCorrect,
     };
 
     const newResults = [...results, newResult];
@@ -83,8 +87,6 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
   // Update question statistics after quiz completion
   const updateQuestionStatistics = async (results: QuestionQuizResult[]) => {
     try {
-      console.log('Updating question statistics...');
-
       // Update each question's statistics
       for (const result of results) {
         const question = result.question;
@@ -108,11 +110,12 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
           count_practise: newCountPractise,
           count_failure_practise: newCountFailurePractise,
         });
-
-        console.log(`Updated question ${question.id}: practise ${question.count_practise} -> ${newCountPractise}, failures ${question.count_failure_practise} -> ${newCountFailurePractise}`);
       }
     } catch (error) {
-      console.error('Failed to update question statistics:', error);
+      if (onError) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        onError('Failed to update question statistics: ' + errorMessage);
+      }
       // Don't block the quiz completion on statistics update failure
     }
   };
@@ -139,10 +142,10 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
   // Get available options (filter out empty options)
   const getAvailableOptions = (question: Question) => {
     const options = [];
-    if (question.option_a) options.push({ key: 'A', value: question.option_a });
-    if (question.option_b) options.push({ key: 'B', value: question.option_b });
-    if (question.option_c) options.push({ key: 'C', value: question.option_c });
-    if (question.option_d) options.push({ key: 'D', value: question.option_d });
+    if (question.option_a) {options.push({ key: 'A', value: question.option_a });}
+    if (question.option_b) {options.push({ key: 'B', value: question.option_b });}
+    if (question.option_c) {options.push({ key: 'C', value: question.option_c });}
+    if (question.option_d) {options.push({ key: 'D', value: question.option_d });}
     return options;
   };
 

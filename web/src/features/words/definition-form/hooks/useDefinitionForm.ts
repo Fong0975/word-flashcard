@@ -1,11 +1,21 @@
 import { useState, useEffect } from 'react';
+
 import { apiService } from '../../../../lib/api';
 import { WordDefinition } from '../../../../types/api';
 import { DefinitionForm } from '../types';
 
+// Mutable version of the request types for building payload
+type MutableDefinitionRequest = {
+  definition: string;
+  examples: string[];
+  notes: string;
+  part_of_speech?: string;
+  phonetics: Record<string, unknown>;
+};
+
 // Part of speech options for definition form
 const PART_OF_SPEECH_OPTIONS = [
-  'noun', 'verb', 'adjective', 'adverb', 'preposition', 'conjunction', 'phrase', 'other'
+  'noun', 'verb', 'adjective', 'adverb', 'preposition', 'conjunction', 'phrase', 'other',
 ];
 
 interface UseDefinitionFormProps {
@@ -16,6 +26,7 @@ interface UseDefinitionFormProps {
   onDefinitionAdded?: () => void;
   onDefinitionUpdated?: () => void;
   onClose: () => void;
+  onError?: (message: string) => void;
 }
 
 export const useDefinitionForm = ({
@@ -25,7 +36,8 @@ export const useDefinitionForm = ({
   definition,
   onDefinitionAdded,
   onDefinitionUpdated,
-  onClose
+  onClose,
+  onError,
 }: UseDefinitionFormProps) => {
   // Form state
   const [formData, setFormData] = useState<DefinitionForm>({
@@ -33,7 +45,7 @@ export const useDefinitionForm = ({
     definition: '',
     examples: [''],
     notes: '',
-    phonetics: {}
+    phonetics: {},
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,7 +58,7 @@ export const useDefinitionForm = ({
         definition: '',
         examples: [''],
         notes: '',
-        phonetics: {}
+        phonetics: {},
       });
     } else if (isOpen && mode === 'edit' && definition) {
       // Pre-populate form data for edit mode
@@ -55,7 +67,7 @@ export const useDefinitionForm = ({
         definition: definition.definition || '',
         examples: definition.examples && definition.examples.length > 0 ? [...definition.examples] : [''],
         notes: definition.notes ? definition.notes.replace(/\\n/g, '\n') : '',
-        phonetics: definition.phonetics || {}
+        phonetics: definition.phonetics || {},
       });
     } else if (isOpen && mode === 'add') {
       // Reset form for add mode
@@ -64,7 +76,7 @@ export const useDefinitionForm = ({
         definition: '',
         examples: [''],
         notes: '',
-        phonetics: {}
+        phonetics: {},
       });
     }
   }, [isOpen, mode, definition]);
@@ -75,7 +87,7 @@ export const useDefinitionForm = ({
       ...prev,
       part_of_speech: checked
         ? [...prev.part_of_speech, pos]
-        : prev.part_of_speech.filter(p => p !== pos)
+        : prev.part_of_speech.filter(p => p !== pos),
     }));
   };
 
@@ -105,7 +117,7 @@ export const useDefinitionForm = ({
   const addExampleInput = () => {
     setFormData(prev => ({
       ...prev,
-      examples: [...prev.examples, '']
+      examples: [...prev.examples, ''],
     }));
   };
 
@@ -121,8 +133,8 @@ export const useDefinitionForm = ({
       ...prev,
       phonetics: {
         ...prev.phonetics,
-        [type]: value
-      }
+        [type]: value,
+      },
     }));
   };
 
@@ -147,8 +159,11 @@ export const useDefinitionForm = ({
 
     setIsSubmitting(true);
     try {
-      const payload: any = {
-        definition: formData.definition.trim()
+      const payload: MutableDefinitionRequest = {
+        definition: formData.definition.trim(),
+        examples: [],
+        notes: '',
+        phonetics: {},
       };
 
       // Sort part of speech by UI order before joining
@@ -166,7 +181,7 @@ export const useDefinitionForm = ({
       const nonEmptyExamples = formData.examples.filter(ex => ex.trim());
       payload.examples = nonEmptyExamples;
 
-      const phoneticsPayload: Record<string, string> = {};
+      const phoneticsPayload: Record<string, unknown> = {};
       if (formData.phonetics.uk?.trim()) {
         phoneticsPayload.uk = formData.phonetics.uk.trim();
       }
@@ -191,7 +206,10 @@ export const useDefinitionForm = ({
         }
       }
     } catch (error) {
-      console.error(`Failed to ${mode} definition:`, error);
+      if (onError) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        onError(`Failed to ${mode} definition: ${errorMessage}`);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -213,11 +231,11 @@ export const useDefinitionForm = ({
       addExampleInput,
       removeExampleInput,
       handlePhoneticsChange,
-      handleSubmit
+      handleSubmit,
     },
     updateFormData,
     constants: {
-      PART_OF_SPEECH_OPTIONS
-    }
+      PART_OF_SPEECH_OPTIONS,
+    },
   };
 };

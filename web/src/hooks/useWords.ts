@@ -1,9 +1,11 @@
 import { useMemo } from 'react';
+
 import { apiService } from '../lib/api';
 import { Word } from '../types/api';
 import { SearchFilter, SearchOperation, SearchLogic } from '../types/base';
-import { useEntityList, UseEntityListOptions, UseEntityListReturn } from './useEntityList';
 import { EntityListHook } from '../types/hooks';
+
+import { useEntityList, UseEntityListOptions } from './useEntityList';
 
 // Keep the original interface for backward compatibility
 export interface UseWordsState {

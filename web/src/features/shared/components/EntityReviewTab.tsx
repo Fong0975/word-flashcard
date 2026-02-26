@@ -1,14 +1,17 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useState } from 'react';
+
 import { Pagination } from '../../../components/ui/Pagination';
 import { LoadingSpinner } from '../../../components/ui/LoadingSpinner';
 import { ErrorMessage } from '../../../components/ui/ErrorMessage';
 import { EmptyState } from '../../../components/ui/EmptyState';
+import { ToastContainer } from '../../../components/ui';
+import { useToast } from '../../../hooks/ui/useToast';
 import {
   EntityListHook,
   BaseEntity,
   EntityReviewConfig,
   EntityReviewActions,
-  BaseComponentProps
+  BaseComponentProps,
 } from '../../../types';
 
 interface EntityReviewTabProps<T extends BaseEntity> extends BaseComponentProps {
@@ -57,6 +60,9 @@ export const EntityReviewTab = <T extends BaseEntity>({
   additionalContent,
   className = '',
 }: EntityReviewTabProps<T>) => {
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const { toasts, showSuccess, showError, removeToast } = useToast();
+
   const {
     entities,
     loading,
@@ -91,6 +97,26 @@ export const EntityReviewTab = <T extends BaseEntity>({
     setSearchTerm(term);
     if (actions.onSearch) {
       actions.onSearch(term);
+    }
+  };
+
+  const handleRefresh = async () => {
+    if (isRefreshing) {
+      return;
+    }
+
+    try {
+      setIsRefreshing(true);
+
+      if (actions.onRefresh) {
+        await actions.onRefresh();
+      }
+
+      showSuccess('Refresh successful!');
+    } catch (error) {
+      showError('Refresh failed, please try again later.');
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
@@ -139,16 +165,21 @@ export const EntityReviewTab = <T extends BaseEntity>({
           {/* Refresh Button */}
           {actions.onRefresh && (
             <button
-              onClick={() => actions.onRefresh?.()}
+              onClick={handleRefresh}
+              disabled={isRefreshing}
               className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800
                          hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm transition-colors
-                         focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                         focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
               title="Refresh to get latest data"
             >
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              Refresh
+              {isRefreshing ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
+              ) : (
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              )}
+              {isRefreshing ? 'Refreshing...' : 'Refresh'}
             </button>
           )}
 
@@ -272,6 +303,9 @@ export const EntityReviewTab = <T extends BaseEntity>({
 
       {/* Additional Content (Modals, etc.) */}
       {additionalContent}
+
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
     </div>
   );
 };

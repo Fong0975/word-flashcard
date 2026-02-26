@@ -11,7 +11,6 @@ import {
   FamiliarityLevel,
   SearchFilter,
   PaginationParams,
-  PaginationInfo,
   ApiResponse,
   ApiErrorResponse,
   ApiRequestOptions,
@@ -372,7 +371,7 @@ export const isValidationError = (error: unknown): error is ValidationError => {
     typeof error === 'object' &&
     error !== null &&
     'code' in error &&
-    (error as any).code === 'VALIDATION_ERROR'
+    (error as Record<string, unknown>).code === 'VALIDATION_ERROR'
   );
 };
 
@@ -384,7 +383,7 @@ export const isNotFoundError = (error: unknown): error is NotFoundError => {
     typeof error === 'object' &&
     error !== null &&
     'code' in error &&
-    (error as any).code === 'NOT_FOUND'
+    (error as Record<string, unknown>).code === 'NOT_FOUND'
   );
 };
 
@@ -396,7 +395,7 @@ export const isConflictError = (error: unknown): error is ConflictError => {
     typeof error === 'object' &&
     error !== null &&
     'code' in error &&
-    (error as any).code === 'CONFLICT'
+    (error as Record<string, unknown>).code === 'CONFLICT'
   );
 };
 
@@ -408,6 +407,6 @@ export const isRateLimitError = (error: unknown): error is RateLimitError => {
     typeof error === 'object' &&
     error !== null &&
     'code' in error &&
-    (error as any).code === 'RATE_LIMIT_EXCEEDED'
+    (error as Record<string, unknown>).code === 'RATE_LIMIT_EXCEEDED'
   );
 };

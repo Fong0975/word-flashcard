@@ -1,6 +1,8 @@
 import React from 'react';
+
 import { Modal } from '../../../components/ui/Modal';
 import { Question } from '../../../types/api';
+
 import { useQuestionForm } from './hooks/useQuestionForm';
 import { useQuestionSubmit } from './hooks/useQuestionSubmit';
 import {
@@ -10,7 +12,7 @@ import {
   ReferenceInput,
   NotesInput,
   ErrorMessage,
-  FormActions
+  FormActions,
 } from './components';
 import { QuestionFormSubmitCallbacks } from './types/question-form';
 
@@ -31,28 +33,27 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
 }) => {
   const callbacks: QuestionFormSubmitCallbacks = {
     onClose,
-    onQuestionSaved
+    onQuestionSaved,
   };
 
   const {
     formData,
     isValid,
-    validationError,
     handlers: {
       handleQuestionChange,
       handleAnswerChange,
       handleOptionChange,
       handleNotesChange,
-      handleReferenceChange
+      handleReferenceChange,
     },
-    resetForm
+    resetForm,
   } = useQuestionForm({ mode, question, isOpen });
 
   const { isSubmitting, error, handleSubmit } = useQuestionSubmit({
     mode,
     question,
     callbacks,
-    resetForm
+    resetForm,
   });
 
   const handleClose = () => {
@@ -73,45 +74,62 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title={modalTitle}
       maxWidth="2xl"
       disableBackdropClose={true}
+      className="max-h-[95vh] overflow-hidden"
     >
-      <form onSubmit={handleFormSubmit}>
-        <div className="space-y-6">
-          <QuestionInput
-            value={formData.question}
-            onChange={handleQuestionChange}
-            disabled={isSubmitting}
-            autoFocus
-          />
+      <div className="flex flex-col h-[90vh] -m-6 -mt-4">
+        {/* Fixed Header */}
+        <div className="flex-shrink-0 px-6 pt-4 pb-0 mb-2">
+          <div className="px-2 pt-2 pb-4 border-b border-gray-200 dark:border-gray-700">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              {modalTitle}
+            </h2>
+          </div>
+        </div>
 
-          <OptionsGroup
-            options={formData.options}
-            onChange={handleOptionChange}
-            disabled={isSubmitting}
-          />
+        {/* Scrollable Content */}
+        <div className="flex-1 min-h-0 overflow-y-auto px-6 py-4 space-y-6">
+          <form onSubmit={handleFormSubmit}>
+            <div className="space-y-6">
+              <QuestionInput
+                value={formData.question}
+                onChange={handleQuestionChange}
+                disabled={isSubmitting}
+                autoFocus
+              />
 
-          <AnswerSelector
-            value={formData.answer}
-            onChange={handleAnswerChange}
-            disabled={isSubmitting}
-          />
+              <OptionsGroup
+                options={formData.options}
+                onChange={handleOptionChange}
+                disabled={isSubmitting}
+              />
 
-          <ReferenceInput
-            value={formData.reference}
-            onChange={handleReferenceChange}
-            disabled={isSubmitting}
-          />
+              <AnswerSelector
+                value={formData.answer}
+                onChange={handleAnswerChange}
+                disabled={isSubmitting}
+              />
 
-          <NotesInput
-            value={formData.notes}
-            onChange={handleNotesChange}
-            disabled={isSubmitting}
-          />
+              <ReferenceInput
+                value={formData.reference}
+                onChange={handleReferenceChange}
+                disabled={isSubmitting}
+              />
 
-          <ErrorMessage error={error} />
+              <NotesInput
+                value={formData.notes}
+                onChange={handleNotesChange}
+                disabled={isSubmitting}
+              />
 
+              <ErrorMessage error={error} />
+            </div>
+          </form>
+        </div>
+
+        {/* Fixed Footer */}
+        <div className="flex-shrink-0 px-6 pt-0 pb-4">
           <FormActions
             mode={mode}
             isSubmitting={isSubmitting}
@@ -120,7 +138,7 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
             onSubmit={() => handleSubmit(formData)}
           />
         </div>
-      </form>
+      </div>
     </Modal>
   );
 };

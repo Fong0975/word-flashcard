@@ -13,13 +13,13 @@ export const FormActions: React.FC<FormActionsProps> = ({
   isSubmitting,
   isFormValid,
   onCancel,
-  onSubmit
+  onSubmit,
 }) => {
   const submitButtonText = mode === 'create' ? 'Add Question' : 'Update Question';
   const submitButtonLoadingText = mode === 'create' ? 'Adding...' : 'Updating...';
 
   return (
-    <div className="flex justify-end space-x-3 pt-4">
+    <div className="flex justify-end space-x-3 pt-4 pb-2">
       <button
         type="button"
         onClick={onCancel}

@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { FamiliarityBarProps } from '../types/word-detail';
 import { getFamiliarityBarColor } from '../utils/familiarity';
 

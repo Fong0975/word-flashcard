@@ -12,6 +12,11 @@
  */
 
 // ===== BASE TYPES =====
+// Import types needed for type utilities (not re-exported)
+import type { EntityListHook, FormManagerHook } from './hooks';
+import type { Word, Question, ApiError } from './api';
+import { FamiliarityLevel, type BaseEntity, type ApiResponse } from './base';
+
 export * from './base';
 
 // ===== COMPONENT TYPES =====
@@ -52,8 +57,6 @@ export type {
   ApiResponse,
 } from './base';
 
-// Export as both type and value
-export { FamiliarityLevel } from './base';
 
 export type {
   EntityListHook as UseEntityListReturn, // Legacy alias
@@ -61,14 +64,6 @@ export type {
   ModalManagerHook as UseModalManagerReturn, // Legacy alias
   ErrorHandlerHook as UseErrorHandlerReturn, // Legacy alias
 } from './hooks';
-
-// Import types needed for type utilities (not re-exported)
-import type { EntityListHook, FormManagerHook } from './hooks';
-import type { BaseEntity, ApiResponse } from './base';
-import type { Word, Question, ApiError } from './api';
-
-// Import values needed for runtime validation
-import { FamiliarityLevel } from './base';
 
 // ===== TYPE UTILITIES =====
 
@@ -144,7 +139,7 @@ export const TypeValidation = {
       typeof value === 'object' &&
       value !== null &&
       'id' in value &&
-      typeof (value as any).id === 'number'
+      typeof (value as Record<string, unknown>).id === 'number'
     );
   },
 
@@ -155,10 +150,10 @@ export const TypeValidation = {
     return (
       TypeValidation.isEntity(value) &&
       'word' in value &&
-      typeof (value as any).word === 'string' &&
+      typeof (value as Record<string, unknown>).word === 'string' &&
       'familiarity' in value &&
       'definitions' in value &&
-      Array.isArray((value as any).definitions)
+      Array.isArray((value as Record<string, unknown>).definitions)
     );
   },
 
@@ -169,11 +164,11 @@ export const TypeValidation = {
     return (
       TypeValidation.isEntity(value) &&
       'question' in value &&
-      typeof (value as any).question === 'string' &&
+      typeof (value as Record<string, unknown>).question === 'string' &&
       'answer' in value &&
-      typeof (value as any).answer === 'string' &&
+      typeof (value as Record<string, unknown>).answer === 'string' &&
       'option_a' in value &&
-      typeof (value as any).option_a === 'string'
+      typeof (value as Record<string, unknown>).option_a === 'string'
     );
   },
 
@@ -206,7 +201,7 @@ export const TypeValidation = {
       typeof value === 'object' &&
       value !== null &&
       'error' in value &&
-      typeof (value as any).error === 'string'
+      typeof (value as Record<string, unknown>).error === 'string'
     );
   },
 } as const;

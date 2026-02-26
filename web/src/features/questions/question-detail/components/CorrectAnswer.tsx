@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { CorrectAnswerProps } from '../types/question-detail';
 
 export const CorrectAnswer: React.FC<CorrectAnswerProps> = ({ answer }) => {

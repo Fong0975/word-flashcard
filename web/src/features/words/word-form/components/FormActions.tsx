@@ -13,7 +13,7 @@ export const FormActions: React.FC<FormActionsProps> = ({
   isSubmitting,
   isFormValid,
   onCancel,
-  onSubmit
+  onSubmit,
 }) => {
   const submitButtonText = mode === 'create' ? 'Add Word' : 'Update Word';
   const submitButtonLoadingText = mode === 'create' ? 'Adding...' : 'Updating...';

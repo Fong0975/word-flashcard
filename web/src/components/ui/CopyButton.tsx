@@ -6,6 +6,7 @@
  */
 
 import React from 'react';
+
 import { useCopyToClipboard } from '../../hooks/ui/useCopyToClipboard';
 
 export interface CopyButtonProps {
@@ -56,7 +57,7 @@ export const CopyButton: React.FC<CopyButtonProps> = ({
   const { copySuccess, copyError, copyToClipboard } = useCopyToClipboard();
 
   const handleCopy = async () => {
-    if (disabled || !text) return;
+    if (disabled || !text) {return;}
 
     await copyToClipboard(text);
 

@@ -6,10 +6,11 @@
  */
 
 import React, { ReactNode } from 'react';
-import { Modal } from '../ui/Modal';
-import { BaseEntity, BaseModalProps, FormMode } from '../../types';
 
-export interface FormModalConfig<TEntity extends BaseEntity> {
+import { Modal } from '../ui/Modal';
+import { BaseEntity, BaseModalProps } from '../../types';
+
+export interface FormModalConfig {
   readonly title: {
     create: string;
     edit: string;
@@ -27,7 +28,7 @@ export interface FormModalConfig<TEntity extends BaseEntity> {
 interface FormModalProps<TEntity extends BaseEntity> extends BaseModalProps {
   readonly entity?: TEntity | null; // The entity being edited (required for edit mode)
   readonly mode: 'create' | 'edit';
-  readonly config: FormModalConfig<TEntity>;
+  readonly config: FormModalConfig;
   readonly loading: boolean;
   readonly error: string | null;
   readonly renderForm: () => ReactNode;

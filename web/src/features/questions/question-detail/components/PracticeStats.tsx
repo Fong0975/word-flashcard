@@ -1,11 +1,13 @@
 import React from 'react';
+
 import { PracticeStatsProps } from '../types/question-detail';
+
 import { AccuracyBadge } from './AccuracyBadge';
 
 export const PracticeStats: React.FC<PracticeStatsProps> = ({
   practiceCount,
   failureCount,
-  accuracyRate
+  accuracyRate,
 }) => {
   return (
     <div>

@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { Word } from '../../../../types/api';
 import { WordSearchState } from '../types';
 
@@ -11,7 +12,7 @@ interface SearchSuggestionsProps {
 export const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({
   searchState,
   mode,
-  onSuggestionClick
+  onSuggestionClick,
 }) => {
   if (!searchState.showSuggestions) {
     return null;

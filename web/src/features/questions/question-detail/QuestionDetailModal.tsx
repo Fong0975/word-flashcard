@@ -1,7 +1,9 @@
 import React from 'react';
+
 import { Modal } from '../../../components/ui/Modal';
 import { QuestionFormModal } from '../question-form/QuestionFormModal';
 import { ConfirmationDialog } from '../../../components/ui/ConfirmationDialog';
+
 // import { useModalLayout, ModalLayoutPresets } from '../../../hooks/ui/useModalLayout'; // Using direct layout like WordDetailModal
 import { QuestionDetailModalProps } from './types/question-detail';
 import { useQuestionDetail } from './hooks/useQuestionDetail';
@@ -10,7 +12,7 @@ import {
   OptionsDisplay,
   PracticeStats,
   AnswerSection,
-  QuestionFooter
+  QuestionFooter,
 } from './components';
 
 export const QuestionDetailModal: React.FC<QuestionDetailModalProps> = ({
@@ -19,6 +21,7 @@ export const QuestionDetailModal: React.FC<QuestionDetailModalProps> = ({
   onClose,
   onQuestionUpdated,
   onQuestionRefreshed,
+  onError,
 }) => {
   // Direct layout configuration (same as WordDetailModal for consistent behavior)
 
@@ -26,10 +29,11 @@ export const QuestionDetailModal: React.FC<QuestionDetailModalProps> = ({
     question,
     onClose,
     onQuestionUpdated,
-    onQuestionRefreshed
+    onQuestionRefreshed,
+    onError,
   });
 
-  if (!question) return null;
+  if (!question) {return null;}
 
   return (
     <>

@@ -1,5 +1,6 @@
 import React, { ReactNode } from 'react';
-import { BaseEntity } from '../../../hooks/useEntityList';
+
+import { BaseEntity } from '../../../types/base';
 
 export interface EntityCardConfig {
   // Index display configuration
@@ -103,7 +104,7 @@ export const EntityCard = <T extends BaseEntity>({
   };
 
   const renderSequenceSection = () => {
-    if (!config.showSequence) return null;
+    if (!config.showSequence) {return null;}
 
     if (config.sequenceStyle === 'detailed') {
       // Question card style - with "No." label
@@ -132,7 +133,7 @@ export const EntityCard = <T extends BaseEntity>({
   };
 
   const renderLeftIndicatorSection = () => {
-    if (!config.showLeftIndicator) return null;
+    if (!config.showLeftIndicator) {return null;}
 
     if (config.leftIndicatorType === 'color-band' && getLeftIndicatorColor) {
       return (

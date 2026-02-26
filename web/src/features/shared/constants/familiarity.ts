@@ -71,25 +71,25 @@ export const getFamiliarityDisplayColors = (familiarity: FamiliarityLevel | stri
       return {
         bg: 'bg-green-100 dark:bg-green-900/20',
         text: 'text-green-800 dark:text-green-200',
-        dot: 'bg-green-500'
+        dot: 'bg-green-500',
       } as const;
     case FamiliarityLevel.YELLOW:
       return {
         bg: 'bg-yellow-100 dark:bg-yellow-900/20',
         text: 'text-yellow-800 dark:text-yellow-200',
-        dot: 'bg-yellow-500'
+        dot: 'bg-yellow-500',
       } as const;
     case FamiliarityLevel.RED:
       return {
         bg: 'bg-red-100 dark:bg-red-900/20',
         text: 'text-red-800 dark:text-red-200',
-        dot: 'bg-red-500'
+        dot: 'bg-red-500',
       } as const;
     default:
       return {
         bg: 'bg-gray-100 dark:bg-gray-900/20',
         text: 'text-gray-800 dark:text-gray-200',
-        dot: 'bg-gray-500'
+        dot: 'bg-gray-500',
       } as const;
   }
 };

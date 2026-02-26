@@ -11,7 +11,7 @@ export interface PronunciationUrls {
  * @param phonetics - The phonetics object from the word definition
  * @returns Object containing UK and US URLs if they exist
  */
-export const extractPronunciationUrls = (phonetics?: Record<string, any>): PronunciationUrls => {
+export const extractPronunciationUrls = (phonetics?: Record<string, unknown>): PronunciationUrls => {
   if (!phonetics || typeof phonetics !== 'object') {
     return {};
   }
@@ -24,7 +24,7 @@ export const extractPronunciationUrls = (phonetics?: Record<string, any>): Pronu
   const usKeys = ['us', 'US', 'american', 'American', 'usa', 'USA', 'en-US', 'en_US'];
 
   // Helper function to extract URL from various data structures
-  const extractUrl = (value: any): string | undefined => {
+  const extractUrl = (value: unknown): string | undefined => {
     if (typeof value === 'string') {
       // Direct URL string
       if (value.startsWith('http') || value.startsWith('//') || value.endsWith('.mp3') || value.endsWith('.wav')) {
@@ -33,9 +33,10 @@ export const extractPronunciationUrls = (phonetics?: Record<string, any>): Pronu
     } else if (typeof value === 'object' && value !== null) {
       // Object with possible audio/url properties
       const possibleKeys = ['audio', 'url', 'audioUrl', 'audioFile', 'sound', 'src', 'href'];
+      const valueAsRecord = value as Record<string, unknown>;
       for (const key of possibleKeys) {
-        if (value[key] && typeof value[key] === 'string') {
-          return value[key];
+        if (valueAsRecord[key] && typeof valueAsRecord[key] === 'string') {
+          return valueAsRecord[key] as string;
         }
       }
     }

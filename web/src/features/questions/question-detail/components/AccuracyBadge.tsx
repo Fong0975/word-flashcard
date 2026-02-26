@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { AccuracyBadgeProps } from '../types/question-detail';
 import { getAccuracyRateColor } from '../utils/accuracyCalculation';
 

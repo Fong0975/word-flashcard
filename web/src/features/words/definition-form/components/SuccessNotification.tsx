@@ -7,7 +7,7 @@ interface SuccessNotificationProps {
 
 export const SuccessNotification: React.FC<SuccessNotificationProps> = ({
   message,
-  onClose
+  onClose,
 }) => {
   return (
     <div className="p-3 text-sm text-green-700 bg-green-100 dark:bg-green-900 dark:text-green-300 rounded-md flex items-center justify-between">

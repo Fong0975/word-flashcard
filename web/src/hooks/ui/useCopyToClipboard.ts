@@ -7,6 +7,11 @@
 
 import { useState, useCallback } from 'react';
 
+export interface UseCopyToClipboardOptions {
+  readonly autoResetDelay?: number;
+  readonly onError?: (error: Error, errorMessage: string) => void;
+}
+
 export interface UseCopyToClipboardReturn {
   readonly copySuccess: boolean;
   readonly copyError: string | null;
@@ -37,8 +42,9 @@ export interface UseCopyToClipboardReturn {
  * ```
  */
 export const useCopyToClipboard = (
-  autoResetDelay: number = 2000
+  options: UseCopyToClipboardOptions = {},
 ): UseCopyToClipboardReturn => {
+  const { autoResetDelay = 2000, onError } = options;
   const [copySuccess, setCopySuccess] = useState(false);
   const [copyError, setCopyError] = useState<string | null>(null);
 
@@ -93,8 +99,14 @@ export const useCopyToClipboard = (
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to copy to clipboard';
+      const errorObj = error instanceof Error ? error : new Error(errorMessage);
+
       setCopyError(errorMessage);
-      console.error('Copy to clipboard failed:', error);
+
+      // Call error handler if provided
+      if (onError) {
+        onError(errorObj, errorMessage);
+      }
 
       // Auto-reset error state after delay
       if (autoResetDelay > 0) {
@@ -103,7 +115,7 @@ export const useCopyToClipboard = (
         }, autoResetDelay);
       }
     }
-  }, [isSupported, autoResetDelay, resetState]);
+  }, [isSupported, autoResetDelay, resetState, onError]);
 
   return {
     copySuccess,

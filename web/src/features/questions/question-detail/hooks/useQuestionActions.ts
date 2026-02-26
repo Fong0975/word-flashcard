@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+
 import { Question } from '../../../../types/api';
 import { apiService } from '../../../../lib/api';
 import { useDeleteConfirmation } from '../../../../hooks/ui/useDeleteConfirmation';
@@ -7,11 +8,13 @@ import { UseQuestionActionsReturn, QuestionActionsCallbacks } from '../types/que
 interface UseQuestionActionsProps {
   question: Question | null;
   callbacks: QuestionActionsCallbacks;
+  onError?: (message: string) => void;
 }
 
 export const useQuestionActions = ({
   question,
-  callbacks
+  callbacks,
+  onError,
 }: UseQuestionActionsProps): UseQuestionActionsReturn => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
@@ -26,6 +29,7 @@ export const useQuestionActions = ({
       callbacks.onClose();
       callbacks.onQuestionUpdated?.();
     },
+    onError: onError ? (error) => onError(`Delete failed: ${error.message}`) : undefined,
   });
 
   const handleEdit = useCallback(() => {
@@ -38,7 +42,7 @@ export const useQuestionActions = ({
 
   // Refresh current question data
   const refreshQuestion = useCallback(async () => {
-    if (!question) return;
+    if (!question) {return;}
 
     try {
       const updatedQuestion = await apiService.getQuestion(question.id);
@@ -46,9 +50,12 @@ export const useQuestionActions = ({
         callbacks.onQuestionRefreshed(updatedQuestion);
       }
     } catch (error) {
-      console.error('Failed to refresh question:', error);
+      if (onError) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        onError('Failed to refresh question: ' + errorMessage);
+      }
     }
-  }, [question, callbacks]);
+  }, [question, callbacks, onError]);
 
   const handleQuestionUpdated = useCallback(async () => {
     // First refresh the current question data
@@ -75,6 +82,6 @@ export const useQuestionActions = ({
     handleCloseEditModal,
     handleQuestionUpdated,
     handleDeleteQuestion,
-    handleCopyQuestion
+    handleCopyQuestion,
   };
 };

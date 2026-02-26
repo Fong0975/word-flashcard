@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+
 import { apiService } from '../../../../lib/api';
 import { Word } from '../../../../types/api';
 import { WordFormData, WordFormSubmitCallbacks } from '../types';
@@ -10,6 +11,7 @@ interface UseWordSubmitProps {
   currentWords?: Word[];
   callbacks: WordFormSubmitCallbacks;
   resetForm: () => void;
+  onWarning?: (message: string) => void;
 }
 
 export const useWordSubmit = ({
@@ -17,7 +19,8 @@ export const useWordSubmit = ({
   word,
   currentWords = [],
   callbacks,
-  resetForm
+  resetForm,
+  onWarning,
 }: UseWordSubmitProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -30,7 +33,7 @@ export const useWordSubmit = ({
 
     // Check if the newly created word is already in the current word list
     const isWordInCurrentList = currentWords.some(
-      (w) => w.word.toLowerCase() === newWordText.toLowerCase()
+      (w) => w.word.toLowerCase() === newWordText.toLowerCase(),
     );
 
     if (!isWordInCurrentList) {
@@ -48,10 +51,13 @@ export const useWordSubmit = ({
         }
       } catch (searchErr) {
         // If search fails, we don't want to show an error as the word was created successfully
-        console.warn('Failed to search for newly created word:', searchErr);
+        if (onWarning) {
+          const errorMessage = searchErr instanceof Error ? searchErr.message : 'Unknown error';
+          onWarning('Failed to search for newly created word: ' + errorMessage);
+        }
       }
     }
-  }, [mode, currentWords, callbacks.onOpenWordDetail]);
+  }, [mode, currentWords, callbacks, onWarning]);
 
   // Handle form submission
   const handleSubmit = useCallback(async (formData: WordFormData) => {
@@ -92,8 +98,9 @@ export const useWordSubmit = ({
       // Handle newly created word logic
       await handleNewlyCreatedWord(newWordText);
 
-    } catch (err: any) {
-      setError(err.message || `Failed to ${mode} word`);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : `Failed to ${mode} word`;
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -102,6 +109,6 @@ export const useWordSubmit = ({
   return {
     isSubmitting,
     error,
-    handleSubmit
+    handleSubmit,
   };
 };

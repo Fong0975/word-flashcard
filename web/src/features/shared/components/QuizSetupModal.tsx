@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+
 import { Modal } from '../../../components/ui/Modal';
 import { FAMILIARITY_OPTIONS, DEFAULT_QUIZ_CONFIG, FamiliarityLevel } from '../constants';
 
@@ -60,7 +61,7 @@ export const QuizSetupModal: React.FC<QuizSetupModalProps> = ({
   const [questionCountInput, setQuestionCountInput] = useState<string>(defaultQuestionCount.toString());
   const [questionCountError, setQuestionCountError] = useState<string>('');
   const [selectedFamiliarity, setSelectedFamiliarity] = useState<FamiliarityLevel[]>(
-    enableFamiliaritySelection ? [FamiliarityLevel.RED, FamiliarityLevel.YELLOW, FamiliarityLevel.GREEN] : []
+    enableFamiliaritySelection ? [FamiliarityLevel.RED, FamiliarityLevel.YELLOW, FamiliarityLevel.GREEN] : [],
   );
   const [showCloseConfirm, setShowCloseConfirm] = useState(false);
 

@@ -6,6 +6,7 @@
  */
 
 import React, { ReactNode, useState } from 'react';
+
 import { Modal } from '../ui/Modal';
 import { BaseModalProps } from '../../types';
 

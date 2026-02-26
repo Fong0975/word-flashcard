@@ -1,13 +1,15 @@
 import { useCallback } from 'react';
+
 import { apiService } from '../../../../lib/api';
 import { WordDefinition } from '../../../../types/api';
 import { DefinitionActionsCallbacks } from '../types/word-detail';
 
 interface UseDefinitionActionsProps {
   callbacks: DefinitionActionsCallbacks;
+  onError?: (message: string) => void;
 }
 
-export const useDefinitionActions = ({ callbacks }: UseDefinitionActionsProps) => {
+export const useDefinitionActions = ({ callbacks, onError }: UseDefinitionActionsProps) => {
   const handleNew = useCallback(() => {
     // This will be handled by parent component through onOpenDefinitionModal
   }, []);
@@ -23,13 +25,16 @@ export const useDefinitionActions = ({ callbacks }: UseDefinitionActionsProps) =
         callbacks.onWordUpdated();
       }
     } catch (error) {
-      console.error('Failed to delete definition:', error);
+      if (onError) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        onError('Failed to delete definition: ' + errorMessage);
+      }
     }
-  }, [callbacks]);
+  }, [callbacks, onError]);
 
   return {
     handleNew,
     handleEditDefinition,
-    handleDeleteDefinition
+    handleDeleteDefinition,
   };
 };

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+
 import { Question } from '../../../../types/api';
 import { QuestionFormData, AnswerOption } from '../types';
 import { validateQuestionForm } from '../utils';
@@ -17,10 +18,10 @@ export const useQuestionForm = ({ mode, question, isOpen }: UseQuestionFormProps
       A: '',
       B: '',
       C: '',
-      D: ''
+      D: '',
     },
     notes: '',
-    reference: ''
+    reference: '',
   });
 
   // Initialize form values when modal opens or question changes
@@ -33,10 +34,10 @@ export const useQuestionForm = ({ mode, question, isOpen }: UseQuestionFormProps
           A: question.option_a,
           B: question.option_b || '',
           C: question.option_c || '',
-          D: question.option_d || ''
+          D: question.option_d || '',
         },
         notes: question.notes,
-        reference: question.reference
+        reference: question.reference,
       });
     } else if (mode === 'create') {
       setFormData({
@@ -46,10 +47,10 @@ export const useQuestionForm = ({ mode, question, isOpen }: UseQuestionFormProps
           A: '',
           B: '',
           C: '',
-          D: ''
+          D: '',
         },
         notes: '',
-        reference: ''
+        reference: '',
       });
     }
   }, [mode, question, isOpen]);
@@ -68,8 +69,8 @@ export const useQuestionForm = ({ mode, question, isOpen }: UseQuestionFormProps
       ...prev,
       options: {
         ...prev.options,
-        [option]: value
-      }
+        [option]: value,
+      },
     }));
   }, []);
 
@@ -90,10 +91,10 @@ export const useQuestionForm = ({ mode, question, isOpen }: UseQuestionFormProps
         A: '',
         B: '',
         C: '',
-        D: ''
+        D: '',
       },
       notes: '',
-      reference: ''
+      reference: '',
     });
   }, []);
 
@@ -110,8 +111,8 @@ export const useQuestionForm = ({ mode, question, isOpen }: UseQuestionFormProps
       handleAnswerChange,
       handleOptionChange,
       handleNotesChange,
-      handleReferenceChange
+      handleReferenceChange,
     },
-    resetForm
+    resetForm,
   };
 };

@@ -1,4 +1,5 @@
 import { Question } from '../../../../types/api';
+import { UseDeleteConfirmationReturn } from '../../../../hooks/ui/useDeleteConfirmation';
 
 export interface QuestionDetailModalProps {
   question: Question | null;
@@ -6,6 +7,7 @@ export interface QuestionDetailModalProps {
   onClose: () => void;
   onQuestionUpdated?: () => void;
   onQuestionRefreshed?: (updatedQuestion: Question) => void;
+  onError?: (message: string) => void;
 }
 
 export interface QuestionHeaderProps {
@@ -80,7 +82,7 @@ export interface UseQuestionStatsReturn {
 
 export interface UseQuestionActionsReturn {
   isEditModalOpen: boolean;
-  deleteConfirmation: any; // Type from useDeleteConfirmation hook
+  deleteConfirmation: UseDeleteConfirmationReturn;
   handleEdit: () => void;
   handleCloseEditModal: () => void;
   handleQuestionUpdated: () => void;

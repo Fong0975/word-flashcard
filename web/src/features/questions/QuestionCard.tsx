@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { Question } from '../../types/api';
 import { EntityCard } from '../shared/components/EntityCard';
 import { getAccuracyRateColor } from '../shared/constants/quiz';
@@ -16,7 +17,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
   question,
   className = '',
   onQuestionUpdated,
-  onClick
+  onClick,
 }) => {
 
   // Handle card click
@@ -28,16 +29,16 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
   // Get available options (filter out empty options)
   const getAvailableOptions = () => {
     const options = [];
-    if (question.option_a) options.push({ key: 'A', value: question.option_a });
-    if (question.option_b) options.push({ key: 'B', value: question.option_b });
-    if (question.option_c) options.push({ key: 'C', value: question.option_c });
-    if (question.option_d) options.push({ key: 'D', value: question.option_d });
+    if (question.option_a) {options.push({ key: 'A', value: question.option_a });}
+    if (question.option_b) {options.push({ key: 'B', value: question.option_b });}
+    if (question.option_c) {options.push({ key: 'C', value: question.option_c });}
+    if (question.option_d) {options.push({ key: 'D', value: question.option_d });}
     return options;
   };
 
   // Calculate accuracy rate
   const getAccuracyRate = () => {
-    if (question.count_practise === 0) return 0;
+    if (question.count_practise === 0) {return 0;}
     const successCount = question.count_practise - question.count_failure_practise;
     return Math.round((successCount / question.count_practise) * 100);
   };

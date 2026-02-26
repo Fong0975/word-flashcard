@@ -6,10 +6,10 @@
  */
 
 import React, { ReactNode, useState } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkBreaks from 'remark-breaks';
-import { Modal } from '../ui/Modal';
+
+import { Modal, ToastContainer } from '../ui';
 import { BaseEntity, BaseModalProps, CardAction } from '../../types';
+import { useToast } from '../../hooks/ui/useToast';
 
 export interface DetailModalConfig<TEntity extends BaseEntity> {
   readonly title: (entity: TEntity) => string;
@@ -75,7 +75,11 @@ export const DetailModal = <TEntity extends BaseEntity>({
   const [isDeleting, setIsDeleting] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
 
-  if (!entity) return null;
+  const { toasts, showError, removeToast } = useToast();
+
+  if (!entity) {
+    return null;
+  }
 
   const handleEdit = () => {
     if (onEdit) {
@@ -88,7 +92,9 @@ export const DetailModal = <TEntity extends BaseEntity>({
   };
 
   const handleDeleteConfirm = async () => {
-    if (!onDelete) return;
+    if (!onDelete) {
+      return;
+    }
 
     try {
       setIsDeleting(true);
@@ -99,7 +105,7 @@ export const DetailModal = <TEntity extends BaseEntity>({
         onEntityUpdated();
       }
     } catch (error) {
-      console.error('Failed to delete entity:', error);
+      showError('Failed to delete item. Please try again.');
     } finally {
       setIsDeleting(false);
     }
@@ -116,7 +122,7 @@ export const DetailModal = <TEntity extends BaseEntity>({
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
     } catch (error) {
-      console.error('Failed to copy text:', error);
+      showError('Failed to copy text. Please try again.');
     }
   };
 
@@ -259,6 +265,9 @@ export const DetailModal = <TEntity extends BaseEntity>({
           </div>
         </Modal>
       )}
+
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
     </>
   );
 };

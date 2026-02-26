@@ -6,7 +6,8 @@
  */
 
 import { ReactNode, CSSProperties } from 'react';
-import { BaseEntity, FormMode, ModalSize, ButtonVariant, EventHandler, AsyncCallback } from './base';
+
+import { BaseEntity, FormMode, ModalSize, ButtonVariant, EventHandler, AsyncEventHandler, AsyncCallback } from './base';
 
 // ===== BASE COMPONENT PROPS =====
 
@@ -250,7 +251,7 @@ export interface EntityReviewActions {
   readonly onNew?: EventHandler;
   readonly onQuizSetup?: EventHandler;
   readonly onSearch?: (term: string) => void;
-  readonly onRefresh?: EventHandler;
+  readonly onRefresh?: AsyncEventHandler;
 }
 
 // ===== QUIZ COMPONENT PROPS =====
@@ -312,7 +313,7 @@ export type ComponentRef<TComponent> = TComponent extends React.ComponentType<in
  */
 export const hasProps = <TProps extends Record<string, unknown>>(
   component: unknown,
-  propNames: readonly (keyof TProps)[]
+  propNames: readonly (keyof TProps)[],
 ): component is TProps => {
   return (
     component !== null &&

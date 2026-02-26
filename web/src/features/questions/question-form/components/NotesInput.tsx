@@ -9,7 +9,7 @@ interface NotesInputProps {
 export const NotesInput: React.FC<NotesInputProps> = ({
   value,
   onChange,
-  disabled = false
+  disabled = false,
 }) => {
   return (
     <div>
