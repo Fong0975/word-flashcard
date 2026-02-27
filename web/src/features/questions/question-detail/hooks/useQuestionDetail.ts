@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { Question } from '../../../../types/api';
 import {
@@ -11,6 +11,7 @@ import { useQuestionActions } from './useQuestionActions';
 
 interface UseQuestionDetailProps {
   question: QuestionDetailModalProps['question'];
+  isOpen: boolean;
   onClose: () => void;
   onQuestionUpdated?: () => void;
   onQuestionRefreshed?: (question: Question) => void;
@@ -19,12 +20,20 @@ interface UseQuestionDetailProps {
 
 export const useQuestionDetail = ({
   question,
+  isOpen,
   onClose,
   onQuestionUpdated,
   onQuestionRefreshed,
   onError,
 }: UseQuestionDetailProps) => {
   const [isAnswerExpanded, setIsAnswerExpanded] = useState(false);
+
+  // Reset answer expanded state when modal is opened
+  useEffect(() => {
+    if (isOpen) {
+      setIsAnswerExpanded(false);
+    }
+  }, [isOpen]);
 
   const stats = useQuestionStats({ question });
 
