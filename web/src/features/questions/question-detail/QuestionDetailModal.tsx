@@ -28,6 +28,7 @@ export const QuestionDetailModal: React.FC<QuestionDetailModalProps> = ({
   const { isAnswerExpanded, toggleAnswerSection, stats, actions } =
     useQuestionDetail({
       question,
+      isOpen,
       onClose,
       onQuestionUpdated,
       onQuestionRefreshed,

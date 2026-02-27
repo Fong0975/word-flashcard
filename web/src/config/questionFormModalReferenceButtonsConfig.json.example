@@ -1,0 +1,34 @@
+[
+  {
+    "label": "Book",
+    "value": "Book: "
+  },
+  {
+    "label": "Article",
+    "value": "Article: "
+  },
+  {
+    "label": "Website",
+    "value": "Website: "
+  },
+  {
+    "label": "Course",
+    "value": "Course: "
+  },
+  {
+    "label": "Exam",
+    "value": "Exam: "
+  },
+  {
+    "label": "Practice",
+    "value": "Practice: "
+  },
+  {
+    "label": "Chapter",
+    "value": "Chapter "
+  },
+  {
+    "label": "Page",
+    "value": "Page "
+  }
+]

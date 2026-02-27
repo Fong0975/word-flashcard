@@ -1,10 +1,13 @@
 import React from 'react';
 
 import { Modal } from '../../../components/ui/Modal';
+import { CopyButton } from '../../../components/ui/CopyButton';
 import { Question } from '../../../types/api';
+import { formatFormDataForCopy } from '../question-detail/utils/questionFormat';
 
 import { useQuestionForm } from './hooks/useQuestionForm';
 import { useQuestionSubmit } from './hooks/useQuestionSubmit';
+import { useTemplateButtons } from './hooks/useTemplateButtons';
 import {
   QuestionInput,
   OptionsGroup,
@@ -45,6 +48,8 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
       handleOptionChange,
       handleNotesChange,
       handleReferenceChange,
+      appendToNotes,
+      setReferenceFromTemplate,
     },
     resetForm,
   } = useQuestionForm({ mode, question, isOpen });
@@ -56,6 +61,16 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
     resetForm,
   });
 
+  // Template buttons configurations
+  const { templateButtonsConfig: referenceTemplateButtons } =
+    useTemplateButtons({
+      configFileName: 'questionFormModalReferenceButtonsConfig.json',
+    });
+
+  const { templateButtonsConfig: notesTemplateButtons } = useTemplateButtons({
+    configFileName: 'questionFormModalNotesButtonsConfig.json',
+  });
+
   const handleClose = () => {
     if (!isSubmitting) {
       resetForm();
@@ -64,6 +79,7 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
   };
 
   const modalTitle = mode === 'create' ? 'Add New Question' : 'Edit Question';
+  const copyText = formatFormDataForCopy(formData);
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,6 +101,13 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
             <h2 className='text-2xl font-bold text-gray-900 dark:text-white'>
               {modalTitle}
             </h2>
+            <div className='mt-3 flex justify-end'>
+              <CopyButton
+                text={copyText}
+                title='Copy current form content to clipboard'
+                successText='Form content copied!'
+              />
+            </div>
           </div>
         </div>
 
@@ -115,12 +138,16 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
                 value={formData.reference}
                 onChange={handleReferenceChange}
                 disabled={isSubmitting}
+                templateButtons={referenceTemplateButtons}
+                onSelectTemplate={setReferenceFromTemplate}
               />
 
               <NotesInput
                 value={formData.notes}
                 onChange={handleNotesChange}
                 disabled={isSubmitting}
+                templateButtons={notesTemplateButtons}
+                onAppendTemplate={appendToNotes}
               />
 
               <ErrorMessage error={error} />

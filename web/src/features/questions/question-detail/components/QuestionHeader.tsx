@@ -14,7 +14,7 @@ export const QuestionHeader: React.FC<QuestionHeaderProps> = ({
   const copyText = formatQuestionForCopy(question);
 
   return (
-    <div className='mb-2 border-b border-gray-200 pb-4 dark:border-gray-700'>
+    <div className='mb-2 border-b border-gray-200 pb-4 pt-6 dark:border-gray-700 lg:pt-4'>
       <div>
         <h1 className='text-xl font-bold leading-relaxed text-gray-900 dark:text-white'>
           {question.question}

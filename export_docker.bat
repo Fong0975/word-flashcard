@@ -25,7 +25,8 @@ robocopy "./" "%DEST_DIR%" /E ^
     /XD .git .github dist node_modules .vscode .idea .claude coverage .cache "%DEST_DIR%" ^
     /XF .gitignore README.md *.bat *.log *_test.go .env ^
     .eslintrc.json .prettierrc.json .prettierignore .eslintcache ^
-    *.tsbuildinfo *.code-workspace npm-debug.log* yarn-debug.log* yarn-error.log*
+    *.tsbuildinfo *.code-workspace npm-debug.log* yarn-debug.log* yarn-error.log* ^
+    *.json.example
 
 :: Note: Robocopy returns exit codes. 1 means files were copied successfully.
 if %ERRORLEVEL% LEQ 1 (

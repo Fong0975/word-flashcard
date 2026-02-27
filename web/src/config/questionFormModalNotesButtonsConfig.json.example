@@ -1,0 +1,34 @@
+[
+  {
+    "label": "Key Point",
+    "value": "## Key Point\n- "
+  },
+  {
+    "label": "Remember",
+    "value": "## Remember\n- "
+  },
+  {
+    "label": "Common Mistake",
+    "value": "## Common Mistake\n- "
+  },
+  {
+    "label": "Tips",
+    "value": "## Tips\n- "
+  },
+  {
+    "label": "Related",
+    "value": "## Related Topics\n- "
+  },
+  {
+    "label": "Formula",
+    "value": "## Formula\n```\n\n```\n"
+  },
+  {
+    "label": "Example",
+    "value": "## Example\n- "
+  },
+  {
+    "label": "Context",
+    "value": "## Context\n- "
+  }
+]
