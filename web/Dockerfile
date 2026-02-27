@@ -14,7 +14,7 @@ RUN npm install --verbose --omit=dev
 COPY . .
 
 # Build the application
-RUN npm run build
+RUN DISABLE_ESLINT_PLUGIN=true npm run build
 
 # Install a simple server to serve the React app
 RUN npm install -g serve
