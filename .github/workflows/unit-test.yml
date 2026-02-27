@@ -15,13 +15,7 @@ on:
       - 'go.mod'
       - 'go.sum'
       - '.github/workflows/unit-test.yml'
-  workflow_dispatch:
-    inputs:
-      branch:
-        description: 'Branch to run the workflow on'
-        required: true
-        default: 'main'
-        type: string
+  workflow_dispatch: # Allow manual trigger
 
 jobs:
   test:
