@@ -35,13 +35,7 @@ on:
       - 'web/tailwind.config.js'
       - 'web/postcss.config.js'
       - 'web/tsconfig.json'
-  workflow_dispatch:
-    inputs:
-      branch:
-        description: 'Branch to run the workflow on'
-        required: true
-        default: 'main'
-        type: string
+  workflow_dispatch: # Allow manual trigger
 
 jobs:
   frontend-lint:
