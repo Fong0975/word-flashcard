@@ -1,4 +1,5 @@
 import { Question } from '../../../../types/api';
+import { QuestionFormData } from '../../question-form/types/question-form';
 
 export const formatQuestionForCopy = (question: Question): string => {
   if (!question) {
@@ -15,6 +16,26 @@ export const formatQuestionForCopy = (question: Question): string => {
   }
   if (question.option_d) {
     content += `D. ${question.option_d}\n`;
+  }
+
+  return content.trim();
+};
+
+export const formatFormDataForCopy = (formData: QuestionFormData): string => {
+  if (!formData) {
+    return '';
+  }
+
+  let content = `${formData.question || ''}\n`;
+  content += `A. ${formData.options.A || ''}\n`;
+  if (formData.options.B) {
+    content += `B. ${formData.options.B}\n`;
+  }
+  if (formData.options.C) {
+    content += `C. ${formData.options.C}\n`;
+  }
+  if (formData.options.D) {
+    content += `D. ${formData.options.D}\n`;
   }
 
   return content.trim();

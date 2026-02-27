@@ -1,7 +1,9 @@
 import React from 'react';
 
 import { Modal } from '../../../components/ui/Modal';
+import { CopyButton } from '../../../components/ui/CopyButton';
 import { Question } from '../../../types/api';
+import { formatFormDataForCopy } from '../question-detail/utils/questionFormat';
 
 import { useQuestionForm } from './hooks/useQuestionForm';
 import { useQuestionSubmit } from './hooks/useQuestionSubmit';
@@ -64,6 +66,7 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
   };
 
   const modalTitle = mode === 'create' ? 'Add New Question' : 'Edit Question';
+  const copyText = formatFormDataForCopy(formData);
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,6 +88,13 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
             <h2 className='text-2xl font-bold text-gray-900 dark:text-white'>
               {modalTitle}
             </h2>
+            <div className='mt-3 flex justify-end'>
+              <CopyButton
+                text={copyText}
+                title='Copy current form content to clipboard'
+                successText='Form content copied!'
+              />
+            </div>
           </div>
         </div>
 
