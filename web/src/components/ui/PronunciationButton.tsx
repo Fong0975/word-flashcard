@@ -59,68 +59,66 @@ export const PronunciationButton: React.FC<PronunciationButtonProps> = ({
       onClick={handleClick}
       disabled={disabled || !audioUrl || isLoading}
       title={accentInfo.title}
-      className={`
-        inline-flex items-center space-x-1 rounded-md font-medium transition-colors duration-200
-        ${sizeClasses[size]}
-        ${
-          disabled || !audioUrl
-            ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
-            : 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/50 active:bg-blue-200 dark:active:bg-blue-900/70'
-        }
-        ${error ? 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300' : ''}
-        ${className}
-      `}
+      className={`inline-flex items-center space-x-1 rounded-md font-medium transition-colors duration-200 ${sizeClasses[size]} ${
+        disabled || !audioUrl
+          ? 'cursor-not-allowed bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500'
+          : 'bg-blue-50 text-blue-700 hover:bg-blue-100 active:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 dark:active:bg-blue-900/70'
+      } ${error ? 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300' : ''} ${className} `}
     >
       {/* Accent flag */}
-      <span className="text-xs" role="img" aria-label={`${accent.toUpperCase()} accent`}>
+      <span
+        className='text-xs'
+        role='img'
+        aria-label={`${accent.toUpperCase()} accent`}
+      >
         {accentInfo.flag}
       </span>
 
       {/* Play/Loading icon */}
-      <span className="flex items-center">
+      <span className='flex items-center'>
         {isLoading ? (
           <svg
             className={`animate-spin ${iconSizeClasses[size]}`}
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
+            fill='none'
+            viewBox='0 0 24 24'
+            stroke='currentColor'
             strokeWidth={2}
           >
             <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              strokeLinecap='round'
+              strokeLinejoin='round'
+              d='M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15'
             />
           </svg>
         ) : isPlaying ? (
           <svg
             className={iconSizeClasses[size]}
-            fill="currentColor"
-            viewBox="0 0 24 24"
+            fill='currentColor'
+            viewBox='0 0 24 24'
           >
-            <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+            <path d='M6 4h4v16H6V4zm8 0h4v16h-4V4z' />
           </svg>
         ) : error ? (
           <svg
             className={iconSizeClasses[size]}
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
+            fill='none'
+            viewBox='0 0 24 24'
+            stroke='currentColor'
             strokeWidth={2}
           >
             <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
+              strokeLinecap='round'
+              strokeLinejoin='round'
+              d='M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z'
             />
           </svg>
         ) : (
           <svg
             className={iconSizeClasses[size]}
-            fill="currentColor"
-            viewBox="0 0 24 24"
+            fill='currentColor'
+            viewBox='0 0 24 24'
           >
-            <path d="M8 5v14l11-7z" />
+            <path d='M8 5v14l11-7z' />
           </svg>
         )}
       </span>

@@ -21,11 +21,22 @@ export interface QuizModalConfig {
 
 type QuizModalState = 'quiz' | 'results';
 
-interface QuizModalProps<TQuizResult, TQuizConfig = unknown> extends BaseModalProps {
+interface QuizModalProps<
+  TQuizResult,
+  TQuizConfig = unknown,
+> extends BaseModalProps {
   readonly quizConfig: TQuizConfig; // Generic quiz configuration
   readonly config: QuizModalConfig;
-  readonly renderQuiz: (config: TQuizConfig, onComplete: (results: TQuizResult[]) => void, onBackToHome: () => void) => ReactNode;
-  readonly renderResults: (results: TQuizResult[], onRetake: () => void, onBackToHome: () => void) => ReactNode;
+  readonly renderQuiz: (
+    config: TQuizConfig,
+    onComplete: (results: TQuizResult[]) => void,
+    onBackToHome: () => void,
+  ) => ReactNode;
+  readonly renderResults: (
+    results: TQuizResult[],
+    onRetake: () => void,
+    onBackToHome: () => void,
+  ) => ReactNode;
 }
 
 /**
@@ -112,7 +123,8 @@ export const QuizModal = <TQuizResult extends unknown, TQuizConfig = unknown>({
     handleCloseConfirm();
   };
 
-  const title = modalTitle || (state === 'quiz' ? config.quizTitle : config.resultsTitle);
+  const title =
+    modalTitle || (state === 'quiz' ? config.quizTitle : config.resultsTitle);
 
   return (
     <>
@@ -120,21 +132,21 @@ export const QuizModal = <TQuizResult extends unknown, TQuizConfig = unknown>({
         isOpen={isOpen}
         onClose={handleCloseRequest}
         title={title}
-        maxWidth="2xl"
+        maxWidth='2xl'
         disableBackdropClose={state === 'quiz'}
         disableEscapeClose={state === 'quiz'}
-        className="max-h-[95vh] overflow-hidden flex flex-col"
+        className='flex max-h-[95vh] flex-col overflow-hidden'
         {...modalProps}
       >
-        <div className="h-[80vh] overflow-hidden">
+        <div className='h-[80vh] overflow-hidden'>
           {state === 'quiz' && (
-            <div className="h-full overflow-x-hidden">
+            <div className='h-full overflow-x-hidden'>
               {renderQuiz(quizConfig, handleQuizComplete, handleBackToHome)}
             </div>
           )}
 
           {state === 'results' && (
-            <div className="h-full overflow-x-hidden">
+            <div className='h-full overflow-x-hidden'>
               {renderResults(results, handleRetakeQuiz, handleBackToHome)}
             </div>
           )}
@@ -143,43 +155,47 @@ export const QuizModal = <TQuizResult extends unknown, TQuizConfig = unknown>({
 
       {/* Exit Confirmation Dialog */}
       {showCloseConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm w-full mx-4 shadow-xl">
-            <div className="flex items-center mb-4">
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 dark:bg-red-900 flex items-center justify-center">
+        <div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50'>
+          <div className='mx-4 w-full max-w-sm rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800'>
+            <div className='mb-4 flex items-center'>
+              <div className='flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-red-100 dark:bg-red-900'>
                 <svg
-                  className="w-6 h-6 text-red-600 dark:text-red-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth="2"
-                  stroke="currentColor"
+                  className='h-6 w-6 text-red-600 dark:text-red-400'
+                  fill='none'
+                  viewBox='0 0 24 24'
+                  strokeWidth='2'
+                  stroke='currentColor'
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    d='M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z'
+                  />
                 </svg>
               </div>
-              <div className="ml-4">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+              <div className='ml-4'>
+                <h3 className='text-lg font-medium text-gray-900 dark:text-white'>
                   {config.exitConfirmTitle}
                 </h3>
               </div>
             </div>
-            <div className="mb-6">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+            <div className='mb-6'>
+              <p className='text-sm text-gray-600 dark:text-gray-400'>
                 {config.exitConfirmMessage}
               </p>
             </div>
-            <div className="flex justify-end space-x-3">
+            <div className='flex justify-end space-x-3'>
               <button
-                type="button"
+                type='button'
                 onClick={handleCloseCancel}
-                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                className='rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
               >
                 {config.continueButtonText}
               </button>
               <button
-                type="button"
+                type='button'
                 onClick={handleCloseConfirm}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 border border-transparent rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+                className='rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'
               >
                 {config.exitButtonText}
               </button>

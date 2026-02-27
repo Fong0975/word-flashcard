@@ -74,24 +74,24 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      maxWidth="2xl"
+      maxWidth='2xl'
       disableBackdropClose={true}
-      className="max-h-[95vh] overflow-hidden"
+      className='max-h-[95vh] overflow-hidden'
     >
-      <div className="flex flex-col h-[90vh] -m-6 -mt-4">
+      <div className='-m-6 -mt-4 flex h-[90vh] flex-col'>
         {/* Fixed Header */}
-        <div className="flex-shrink-0 px-6 pt-4 pb-0 mb-2">
-          <div className="px-2 pt-2 pb-4 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+        <div className='mb-2 flex-shrink-0 px-6 pb-0 pt-4'>
+          <div className='border-b border-gray-200 px-2 pb-4 pt-2 dark:border-gray-700'>
+            <h2 className='text-2xl font-bold text-gray-900 dark:text-white'>
               {modalTitle}
             </h2>
           </div>
         </div>
 
         {/* Scrollable Content */}
-        <div className="flex-1 min-h-0 overflow-y-auto px-6 py-4 space-y-6">
+        <div className='min-h-0 flex-1 space-y-6 overflow-y-auto px-6 py-4'>
           <form onSubmit={handleFormSubmit}>
-            <div className="space-y-6">
+            <div className='space-y-6'>
               <QuestionInput
                 value={formData.question}
                 onChange={handleQuestionChange}
@@ -129,7 +129,7 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
         </div>
 
         {/* Fixed Footer */}
-        <div className="flex-shrink-0 px-6 pt-0 pb-4">
+        <div className='flex-shrink-0 px-6 pb-4 pt-0'>
           <FormActions
             mode={mode}
             isSubmitting={isSubmitting}

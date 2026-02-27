@@ -1,7 +1,10 @@
 import { useState } from 'react';
 
 import { Question } from '../../../../types/api';
-import { QuestionDetailModalProps, QuestionActionsCallbacks } from '../types/question-detail';
+import {
+  QuestionDetailModalProps,
+  QuestionActionsCallbacks,
+} from '../types/question-detail';
 
 import { useQuestionStats } from './useQuestionStats';
 import { useQuestionActions } from './useQuestionActions';

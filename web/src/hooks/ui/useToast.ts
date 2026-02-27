@@ -11,7 +11,11 @@ import type { ToastMessage } from '../../components/ui';
 
 export interface UseToastReturn {
   readonly toasts: readonly ToastMessage[];
-  readonly showToast: (message: string, type: ToastMessage['type'], duration?: number) => void;
+  readonly showToast: (
+    message: string,
+    type: ToastMessage['type'],
+    duration?: number,
+  ) => void;
   readonly showSuccess: (message: string, duration?: number) => void;
   readonly showError: (message: string, duration?: number) => void;
   readonly showWarning: (message: string, duration?: number) => void;
@@ -39,7 +43,7 @@ export const useToast = (): UseToastReturn => {
         duration,
       };
 
-      setToasts((prevToasts) => [...prevToasts, newToast]);
+      setToasts(prevToasts => [...prevToasts, newToast]);
     },
     [generateId],
   );
@@ -73,7 +77,7 @@ export const useToast = (): UseToastReturn => {
   );
 
   const removeToast = useCallback((id: string) => {
-    setToasts((prevToasts) => prevToasts.filter((toast) => toast.id !== id));
+    setToasts(prevToasts => prevToasts.filter(toast => toast.id !== id));
   }, []);
 
   const clearAllToasts = useCallback(() => {

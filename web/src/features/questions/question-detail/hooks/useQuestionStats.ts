@@ -13,7 +13,9 @@ interface UseQuestionStatsProps {
   question: Question | null;
 }
 
-export const useQuestionStats = ({ question }: UseQuestionStatsProps): UseQuestionStatsReturn => {
+export const useQuestionStats = ({
+  question,
+}: UseQuestionStatsProps): UseQuestionStatsReturn => {
   const stats = useMemo(() => {
     if (!question) {
       return {
@@ -24,7 +26,10 @@ export const useQuestionStats = ({ question }: UseQuestionStatsProps): UseQuesti
       };
     }
 
-    const accuracyRate = calculateAccuracyRate(question.count_practise, question.count_failure_practise);
+    const accuracyRate = calculateAccuracyRate(
+      question.count_practise,
+      question.count_failure_practise,
+    );
     const accuracyRateColor = getAccuracyRateColor(accuracyRate);
     const availableOptions = getAvailableOptions(question);
     const formattedQuestionText = formatQuestionForCopy(question);

@@ -2,10 +2,11 @@ import React from 'react';
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <p className="text-center text-sm text-gray-500 dark:text-gray-400">
-          © {(new Date()).getFullYear()} Flashcard. Designed for efficient learning.
+    <footer className='mt-12 border-t border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800'>
+      <div className='mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8'>
+        <p className='text-center text-sm text-gray-500 dark:text-gray-400'>
+          © {new Date().getFullYear()} Flashcard. Designed for efficient
+          learning.
         </p>
       </div>
     </footer>

@@ -13,11 +13,11 @@ export const DefinitionsList: React.FC<DefinitionsListProps> = ({
   onAddNew,
 }) => {
   return (
-    <div className="space-y-4">
+    <div className='space-y-4'>
       {definitions && definitions.length > 0 ? (
         <>
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-0">
+            <h2 className='mb-0 text-xl font-semibold text-gray-900 dark:text-white'>
               Definitions ({definitions.length})
             </h2>
             <AddDefinitionButton onClick={onAddNew} />
@@ -35,7 +35,7 @@ export const DefinitionsList: React.FC<DefinitionsListProps> = ({
         </>
       ) : (
         <>
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+          <h2 className='mb-4 text-xl font-semibold text-gray-900 dark:text-white'>
             Definitions (0)
           </h2>
           <AddDefinitionButton onClick={onAddNew} />

@@ -3,22 +3,26 @@ import { SearchOperation, SearchLogic } from '../../../../types/base';
 
 export const createWordSearchFilter = (searchTerm: string) => {
   return {
-    conditions: [{
-      key: 'word',
-      operator: SearchOperation.LIKE,
-      value: `%${searchTerm}%`,
-    }],
+    conditions: [
+      {
+        key: 'word',
+        operator: SearchOperation.LIKE,
+        value: `%${searchTerm}%`,
+      },
+    ],
     logic: SearchLogic.OR,
   };
 };
 
 export const createExactWordSearchFilter = (word: string) => {
   return {
-    conditions: [{
-      key: 'word',
-      operator: SearchOperation.LIKE,
-      value: word,
-    }],
+    conditions: [
+      {
+        key: 'word',
+        operator: SearchOperation.LIKE,
+        value: word,
+      },
+    ],
     logic: SearchLogic.OR,
   };
 };

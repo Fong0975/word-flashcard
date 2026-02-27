@@ -15,7 +15,14 @@ type MutableDefinitionRequest = {
 
 // Part of speech options for definition form
 const PART_OF_SPEECH_OPTIONS = [
-  'noun', 'verb', 'adjective', 'adverb', 'preposition', 'conjunction', 'phrase', 'other',
+  'noun',
+  'verb',
+  'adjective',
+  'adverb',
+  'preposition',
+  'conjunction',
+  'phrase',
+  'other',
 ];
 
 interface UseDefinitionFormProps {
@@ -63,9 +70,14 @@ export const useDefinitionForm = ({
     } else if (isOpen && mode === 'edit' && definition) {
       // Pre-populate form data for edit mode
       setFormData({
-        part_of_speech: definition.part_of_speech ? definition.part_of_speech.split(',') : [],
+        part_of_speech: definition.part_of_speech
+          ? definition.part_of_speech.split(',')
+          : [],
         definition: definition.definition || '',
-        examples: definition.examples && definition.examples.length > 0 ? [...definition.examples] : [''],
+        examples:
+          definition.examples && definition.examples.length > 0
+            ? [...definition.examples]
+            : [''],
         notes: definition.notes ? definition.notes.replace(/\\n/g, '\n') : '',
         phonetics: definition.phonetics || {},
       });
@@ -102,7 +114,8 @@ export const useDefinitionForm = ({
   const appendToNotes = (textToAppend: string) => {
     setFormData(prev => {
       const currentNotes = prev.notes;
-      const separator = currentNotes && !currentNotes.endsWith('\n') ? '\n' : '';
+      const separator =
+        currentNotes && !currentNotes.endsWith('\n') ? '\n' : '';
       const newNotes = currentNotes + separator + textToAppend;
       return { ...prev, notes: newNotes };
     });
@@ -190,7 +203,9 @@ export const useDefinitionForm = ({
       }
       payload.phonetics = phoneticsPayload;
 
-      payload.notes = formData.notes.trim() ? formData.notes.trim().replace(/\n/g, '\\n') : '';
+      payload.notes = formData.notes.trim()
+        ? formData.notes.trim().replace(/\n/g, '\\n')
+        : '';
 
       if (mode === 'edit' && definition?.id) {
         await apiService.updateDefinition(definition.id, payload);
@@ -207,7 +222,8 @@ export const useDefinitionForm = ({
       }
     } catch (error) {
       if (onError) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        const errorMessage =
+          error instanceof Error ? error.message : 'Unknown error';
         onError(`Failed to ${mode} definition: ${errorMessage}`);
       }
     } finally {
@@ -216,7 +232,9 @@ export const useDefinitionForm = ({
   };
 
   // Form validation
-  const isFormValid = Boolean(formData.definition.trim() && formData.part_of_speech.length > 0);
+  const isFormValid = Boolean(
+    formData.definition.trim() && formData.part_of_speech.length > 0,
+  );
 
   return {
     formData,

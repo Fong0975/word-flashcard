@@ -11,7 +11,12 @@ interface UseWordActionsProps {
   onError?: (message: string) => void;
 }
 
-export const useWordActions = ({ word, callbacks, onClose, onError }: UseWordActionsProps) => {
+export const useWordActions = ({
+  word,
+  callbacks,
+  onClose,
+  onError,
+}: UseWordActionsProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -36,7 +41,9 @@ export const useWordActions = ({ word, callbacks, onClose, onError }: UseWordAct
   }, [callbacks]);
 
   const handleDeleteWordConfirm = useCallback(async () => {
-    if (!word) {return;}
+    if (!word) {
+      return;
+    }
 
     try {
       await apiService.deleteWord(word.id);
@@ -46,7 +53,8 @@ export const useWordActions = ({ word, callbacks, onClose, onError }: UseWordAct
       }
     } catch (error) {
       if (onError) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        const errorMessage =
+          error instanceof Error ? error.message : 'Unknown error';
         onError('Failed to delete word: ' + errorMessage);
       }
     } finally {

@@ -10,7 +10,11 @@ interface UseQuestionFormProps {
   isOpen: boolean;
 }
 
-export const useQuestionForm = ({ mode, question, isOpen }: UseQuestionFormProps) => {
+export const useQuestionForm = ({
+  mode,
+  question,
+  isOpen,
+}: UseQuestionFormProps) => {
   const [formData, setFormData] = useState<QuestionFormData>({
     question: '',
     answer: '',
@@ -64,15 +68,18 @@ export const useQuestionForm = ({ mode, question, isOpen }: UseQuestionFormProps
     setFormData(prev => ({ ...prev, answer: value }));
   }, []);
 
-  const handleOptionChange = useCallback((option: AnswerOption, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      options: {
-        ...prev.options,
-        [option]: value,
-      },
-    }));
-  }, []);
+  const handleOptionChange = useCallback(
+    (option: AnswerOption, value: string) => {
+      setFormData(prev => ({
+        ...prev,
+        options: {
+          ...prev.options,
+          [option]: value,
+        },
+      }));
+    },
+    [],
+  );
 
   const handleNotesChange = useCallback((value: string) => {
     setFormData(prev => ({ ...prev, notes: value }));

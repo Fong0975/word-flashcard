@@ -15,12 +15,12 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   description = 'It looks like there are no items in your collection yet. Try adding some items or check your connection.',
   className = '',
 }) => (
-  <div className={`text-center py-12 ${className}`}>
-    <div className="text-6xl mb-4">{icon}</div>
-    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+  <div className={`py-12 text-center ${className}`}>
+    <div className='mb-4 text-6xl'>{icon}</div>
+    <h3 className='mb-2 text-xl font-semibold text-gray-900 dark:text-white'>
       {title}
     </h3>
-    <p className="text-gray-600 dark:text-gray-300 max-w-md mx-auto mb-6">
+    <p className='mx-auto mb-6 max-w-md text-gray-600 dark:text-gray-300'>
       {description}
     </p>
   </div>

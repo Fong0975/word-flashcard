@@ -111,7 +111,8 @@ export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 /**
  * Make specified properties required
  */
-export type RequiredBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
+export type RequiredBy<T, K extends keyof T> = Omit<T, K> &
+  Required<Pick<T, K>>;
 
 /**
  * Extract keys of type T that have value type V
@@ -213,12 +214,16 @@ export type AsyncEventHandler<T = void> = (event?: Event) => Promise<T>;
 /**
  * Generic callback function type
  */
-export type Callback<TArgs extends unknown[] = [], TReturn = void> = (...args: TArgs) => TReturn;
+export type Callback<TArgs extends unknown[] = [], TReturn = void> = (
+  ...args: TArgs
+) => TReturn;
 
 /**
  * Async callback function type
  */
-export type AsyncCallback<TArgs extends unknown[] = [], TReturn = void> = (...args: TArgs) => Promise<TReturn>;
+export type AsyncCallback<TArgs extends unknown[] = [], TReturn = void> = (
+  ...args: TArgs
+) => Promise<TReturn>;
 
 // ===== SEARCH TYPES =====
 
@@ -253,7 +258,13 @@ export interface SearchParams extends PaginationParams {
 /**
  * Generic form field value
  */
-export type FormFieldValue = string | number | boolean | string[] | null | undefined;
+export type FormFieldValue =
+  | string
+  | number
+  | boolean
+  | string[]
+  | null
+  | undefined;
 
 /**
  * Form validation result

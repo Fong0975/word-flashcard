@@ -111,7 +111,11 @@ class ApiService {
         throw new ApiError(0, 'Request Timeout', 'Request timed out');
       }
 
-      throw new ApiError(0, 'Network Error', error instanceof Error ? error.message : 'Unknown error');
+      throw new ApiError(
+        0,
+        'Network Error',
+        error instanceof Error ? error.message : 'Unknown error',
+      );
     }
   }
 
@@ -182,12 +186,19 @@ class ApiService {
         throw new ApiError(0, 'Request Timeout', 'Request timed out');
       }
 
-      throw new ApiError(0, 'Network Error', error instanceof Error ? error.message : 'Unknown error');
+      throw new ApiError(
+        0,
+        'Network Error',
+        error instanceof Error ? error.message : 'Unknown error',
+      );
     }
   }
 
   // GET request
-  private async get<T>(endpoint: string, options?: ApiRequestOptions): Promise<T> {
+  private async get<T>(
+    endpoint: string,
+    options?: ApiRequestOptions,
+  ): Promise<T> {
     return this.request<T>(endpoint, { method: 'GET', ...options });
   }
 
@@ -218,13 +229,19 @@ class ApiService {
   }
 
   // DELETE request
-  private async delete<T>(endpoint: string, options?: ApiRequestOptions): Promise<T> {
+  private async delete<T>(
+    endpoint: string,
+    options?: ApiRequestOptions,
+  ): Promise<T> {
     return this.request<T>(endpoint, { method: 'DELETE', ...options });
   }
 
   // Words API methods
 
-  async searchWords(params: WordsSearchParams = {}, options?: ApiRequestOptions): Promise<Word[]> {
+  async searchWords(
+    params: WordsSearchParams = {},
+    options?: ApiRequestOptions,
+  ): Promise<Word[]> {
     const searchParams = new URLSearchParams();
 
     if (params.limit !== undefined) {
@@ -244,19 +261,36 @@ class ApiService {
     return this.post<Word[]>(endpoint, requestBody, options);
   }
 
-  async getRandomWords(request: WordsRandomRequest, options?: ApiRequestOptions): Promise<Word[]> {
+  async getRandomWords(
+    request: WordsRandomRequest,
+    options?: ApiRequestOptions,
+  ): Promise<Word[]> {
     return this.post<Word[]>(API_ENDPOINTS.wordsRandom, request, options);
   }
 
-  async getWordsCount(searchFilter?: SearchFilter, options?: ApiRequestOptions): Promise<{ count: number }> {
-    return this.post<{ count: number }>(API_ENDPOINTS.wordsCount, searchFilter || {}, options);
+  async getWordsCount(
+    searchFilter?: SearchFilter,
+    options?: ApiRequestOptions,
+  ): Promise<{ count: number }> {
+    return this.post<{ count: number }>(
+      API_ENDPOINTS.wordsCount,
+      searchFilter || {},
+      options,
+    );
   }
 
-  async createWord(wordData: CreateWordRequest, options?: ApiRequestOptions): Promise<Word> {
+  async createWord(
+    wordData: CreateWordRequest,
+    options?: ApiRequestOptions,
+  ): Promise<Word> {
     return this.post<Word>(API_ENDPOINTS.words, wordData, options);
   }
 
-  async updateWordFields(id: number, wordData: UpdateWordRequest, options?: ApiRequestOptions): Promise<Word> {
+  async updateWordFields(
+    id: number,
+    wordData: UpdateWordRequest,
+    options?: ApiRequestOptions,
+  ): Promise<Word> {
     return this.put<Word>(`${API_ENDPOINTS.words}/${id}`, wordData, options);
   }
 
@@ -264,21 +298,46 @@ class ApiService {
     await this.delete<void>(`${API_ENDPOINTS.words}/${id}`, options);
   }
 
-  async addDefinition(wordId: number, definition: Partial<WordDefinition>, options?: ApiRequestOptions): Promise<WordDefinition> {
-    return this.post<WordDefinition>(API_ENDPOINTS.wordDefinition(wordId), definition, options);
+  async addDefinition(
+    wordId: number,
+    definition: Partial<WordDefinition>,
+    options?: ApiRequestOptions,
+  ): Promise<WordDefinition> {
+    return this.post<WordDefinition>(
+      API_ENDPOINTS.wordDefinition(wordId),
+      definition,
+      options,
+    );
   }
 
-  async updateDefinition(definitionId: number, definition: Partial<WordDefinition>, options?: ApiRequestOptions): Promise<WordDefinition> {
-    return this.put<WordDefinition>(API_ENDPOINTS.updateDefinition(definitionId), definition, options);
+  async updateDefinition(
+    definitionId: number,
+    definition: Partial<WordDefinition>,
+    options?: ApiRequestOptions,
+  ): Promise<WordDefinition> {
+    return this.put<WordDefinition>(
+      API_ENDPOINTS.updateDefinition(definitionId),
+      definition,
+      options,
+    );
   }
 
-  async deleteDefinition(definitionId: number, options?: ApiRequestOptions): Promise<void> {
-    await this.delete<void>(API_ENDPOINTS.deleteDefinition(definitionId), options);
+  async deleteDefinition(
+    definitionId: number,
+    options?: ApiRequestOptions,
+  ): Promise<void> {
+    await this.delete<void>(
+      API_ENDPOINTS.deleteDefinition(definitionId),
+      options,
+    );
   }
 
   // Questions API methods
 
-  async getAllQuestions(params: QuestionsSearchParams = {}, options?: ApiRequestOptions): Promise<Question[]> {
+  async getAllQuestions(
+    params: QuestionsSearchParams = {},
+    options?: ApiRequestOptions,
+  ): Promise<Question[]> {
     const searchParams = new URLSearchParams();
 
     if (params.limit !== undefined) {
@@ -294,35 +353,63 @@ class ApiService {
     return this.get<Question[]>(endpoint, options);
   }
 
-  async getQuestion(id: number, options?: ApiRequestOptions): Promise<Question> {
+  async getQuestion(
+    id: number,
+    options?: ApiRequestOptions,
+  ): Promise<Question> {
     return this.get<Question>(API_ENDPOINTS.questionById(id), options);
   }
 
-  async createQuestion(questionData: CreateQuestionRequest, options?: ApiRequestOptions): Promise<Question> {
+  async createQuestion(
+    questionData: CreateQuestionRequest,
+    options?: ApiRequestOptions,
+  ): Promise<Question> {
     return this.post<Question>(API_ENDPOINTS.questions, questionData, options);
   }
 
-  async updateQuestion(id: number, questionData: UpdateQuestionRequest, options?: ApiRequestOptions): Promise<Question> {
-    return this.put<Question>(API_ENDPOINTS.questionById(id), questionData, options);
+  async updateQuestion(
+    id: number,
+    questionData: UpdateQuestionRequest,
+    options?: ApiRequestOptions,
+  ): Promise<Question> {
+    return this.put<Question>(
+      API_ENDPOINTS.questionById(id),
+      questionData,
+      options,
+    );
   }
 
   async deleteQuestion(id: number, options?: ApiRequestOptions): Promise<void> {
     await this.delete<void>(API_ENDPOINTS.questionById(id), options);
   }
 
-  async getRandomQuestions(request: QuestionsRandomRequest, options?: ApiRequestOptions): Promise<Question[]> {
-    return this.post<Question[]>(API_ENDPOINTS.questionsRandom, request, options);
+  async getRandomQuestions(
+    request: QuestionsRandomRequest,
+    options?: ApiRequestOptions,
+  ): Promise<Question[]> {
+    return this.post<Question[]>(
+      API_ENDPOINTS.questionsRandom,
+      request,
+      options,
+    );
   }
 
-  async getQuestionsCount(options?: ApiRequestOptions): Promise<{ count: number }> {
+  async getQuestionsCount(
+    options?: ApiRequestOptions,
+  ): Promise<{ count: number }> {
     return this.get<{ count: number }>(API_ENDPOINTS.questionsCount, options);
   }
 
   // Dictionary API methods
-  async lookupWord<T = unknown>(word: string, options?: ApiRequestOptions): Promise<T> {
-    return this.dictionaryRequest<T>(DICTIONARY_ENDPOINTS.lookup(word), { method: 'GET', ...options });
+  async lookupWord<T = unknown>(
+    word: string,
+    options?: ApiRequestOptions,
+  ): Promise<T> {
+    return this.dictionaryRequest<T>(DICTIONARY_ENDPOINTS.lookup(word), {
+      method: 'GET',
+      ...options,
+    });
   }
-
 }
 
 // Export singleton instance

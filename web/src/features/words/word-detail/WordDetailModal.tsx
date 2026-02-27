@@ -28,19 +28,21 @@ export const WordDetailModal: React.FC<WordDetailModalProps> = ({
     onOpenEditDefinitionModal,
   });
 
-  if (!word) {return null;}
+  if (!word) {
+    return null;
+  }
 
   return (
     <>
       <Modal
         isOpen={isOpen}
         onClose={onClose}
-        maxWidth="2xl"
-        className="max-h-[95vh] overflow-hidden"
+        maxWidth='2xl'
+        className='max-h-[95vh] overflow-hidden'
       >
-        <div className="flex flex-col h-[90vh] -m-6 -mt-4">
+        <div className='-m-6 -mt-4 flex h-[90vh] flex-col'>
           {/* Fixed Header */}
-          <div className="flex-shrink-0 px-6 pt-6 pb-0">
+          <div className='flex-shrink-0 px-6 pb-0 pt-6'>
             <WordHeader
               word={word}
               onEdit={wordActions.handleEdit}
@@ -49,7 +51,7 @@ export const WordDetailModal: React.FC<WordDetailModalProps> = ({
           </div>
 
           {/* Scrollable Content */}
-          <div className="flex-1 min-h-0 overflow-y-auto px-6 py-2">
+          <div className='min-h-0 flex-1 overflow-y-auto px-6 py-2'>
             <DefinitionsList
               definitions={word.definitions || []}
               onEdit={definitionActions.handleEditDefinition}
@@ -59,7 +61,7 @@ export const WordDetailModal: React.FC<WordDetailModalProps> = ({
           </div>
 
           {/* Fixed Footer */}
-          <div className="flex-shrink-0 px-6 pt-0 pb-6">
+          <div className='flex-shrink-0 px-6 pb-6 pt-0'>
             <WordFooter word={word} />
           </div>
         </div>
@@ -71,7 +73,7 @@ export const WordDetailModal: React.FC<WordDetailModalProps> = ({
         onClose={wordActions.handleCloseEditModal}
         onWordSaved={wordActions.handleWordUpdated}
         onOpenWordDetail={undefined}
-        mode="edit"
+        mode='edit'
         word={word}
       />
 

@@ -7,23 +7,24 @@ function App() {
   const { currentTab, switchTab } = useTab();
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300 pt-[env(safe-area-inset-top)]">
+    <div className='flex min-h-screen flex-col bg-gray-50 pt-[env(safe-area-inset-top)] transition-colors duration-300 dark:bg-gray-900'>
       <Header />
 
       {/* Main Content Area */}
-      <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className='mx-auto max-w-7xl flex-grow px-4 py-8 sm:px-6 lg:px-8'>
         {/* Welcome Section */}
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+        <div className='mb-8'>
+          <h2 className='mb-4 text-3xl font-bold text-gray-900 dark:text-white'>
             Welcome to use Flashcard
           </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-300">
-            Begin your learning journey and enhance your learning effectiveness with flashcards.
+          <p className='text-lg text-gray-600 dark:text-gray-300'>
+            Begin your learning journey and enhance your learning effectiveness
+            with flashcards.
           </p>
         </div>
 
         {/* Tab Navigation and Content */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className='overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800'>
           <TabNavigation currentTab={currentTab} onTabChange={switchTab} />
           <TabContent currentTab={currentTab} />
         </div>

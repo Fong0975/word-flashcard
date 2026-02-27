@@ -57,7 +57,6 @@ export type {
   ApiResponse,
 } from './base';
 
-
 export type {
   EntityListHook as UseEntityListReturn, // Legacy alias
   FormManagerHook as UseFormManagerReturn, // Legacy alias
@@ -70,12 +69,14 @@ export type {
 /**
  * Extract the entity type from a list hook
  */
-export type EntityFromListHook<T> = T extends EntityListHook<infer U> ? U : never;
+export type EntityFromListHook<T> =
+  T extends EntityListHook<infer U> ? U : never;
 
 /**
  * Extract the form data type from a form manager hook
  */
-export type FormDataFromHook<T> = T extends FormManagerHook<infer U> ? U : never;
+export type FormDataFromHook<T> =
+  T extends FormManagerHook<infer U> ? U : never;
 
 /**
  * Extract the data type from an API response
@@ -86,7 +87,9 @@ export type DataFromResponse<T> = T extends ApiResponse<infer U> ? U : never;
  * Make API request type from entity type
  */
 export type CreateRequestFromEntity<T extends BaseEntity> = Omit<T, 'id'>;
-export type UpdateRequestFromEntity<T extends BaseEntity> = Partial<Omit<T, 'id'>>;
+export type UpdateRequestFromEntity<T extends BaseEntity> = Partial<
+  Omit<T, 'id'>
+>;
 
 /**
  * Extract keys that can be used for search
@@ -101,7 +104,8 @@ export type SearchableKeys<T> = {
 export type ID = number;
 export type Timestamp = string;
 export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
-export type RequiredBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
+export type RequiredBy<T, K extends keyof T> = Omit<T, K> &
+  Required<Pick<T, K>>;
 
 // ===== GLOBAL TYPE AUGMENTATIONS =====
 
@@ -186,11 +190,7 @@ export const TypeValidation = {
    * Check if value is a valid API response
    */
   isApiResponse: <T>(value: unknown): value is ApiResponse<T> => {
-    return (
-      typeof value === 'object' &&
-      value !== null &&
-      'data' in value
-    );
+    return typeof value === 'object' && value !== null && 'data' in value;
   },
 
   /**

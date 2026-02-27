@@ -48,27 +48,36 @@ export const WordFormModal: React.FC<WordFormModalProps> = ({
   }, [submitLogic.isSubmitting, searchLogic, formLogic, onClose]);
 
   // Handle word input change (both form and search)
-  const handleWordChange = useCallback((value: string) => {
-    formLogic.handlers.handleWordChange(value);
-    searchLogic.handleWordChange(value);
-  }, [formLogic.handlers, searchLogic]);
+  const handleWordChange = useCallback(
+    (value: string) => {
+      formLogic.handlers.handleWordChange(value);
+      searchLogic.handleWordChange(value);
+    },
+    [formLogic.handlers, searchLogic],
+  );
 
   // Handle suggestion click
-  const handleSuggestionClick = useCallback((suggestedWord: Word) => {
-    if (onOpenWordDetail) {
-      // Close current modal and notify parent to open WordDetailModal
-      handleClose();
-      onOpenWordDetail(suggestedWord);
-    }
-  }, [onOpenWordDetail, handleClose]);
+  const handleSuggestionClick = useCallback(
+    (suggestedWord: Word) => {
+      if (onOpenWordDetail) {
+        // Close current modal and notify parent to open WordDetailModal
+        handleClose();
+        onOpenWordDetail(suggestedWord);
+      }
+    },
+    [onOpenWordDetail, handleClose],
+  );
 
   // Handle form submission
-  const handleSubmit = useCallback((e?: React.FormEvent) => {
-    if (e) {
-      e.preventDefault();
-    }
-    submitLogic.handleSubmit(formLogic.formData);
-  }, [submitLogic, formLogic.formData]);
+  const handleSubmit = useCallback(
+    (e?: React.FormEvent) => {
+      if (e) {
+        e.preventDefault();
+      }
+      submitLogic.handleSubmit(formLogic.formData);
+    },
+    [submitLogic, formLogic.formData],
+  );
 
   // Reset search when modal opens/closes
   useEffect(() => {
@@ -84,11 +93,11 @@ export const WordFormModal: React.FC<WordFormModalProps> = ({
       isOpen={isOpen}
       onClose={handleClose}
       title={modalTitle}
-      maxWidth="md"
+      maxWidth='md'
       disableBackdropClose={true}
     >
       <form onSubmit={handleSubmit}>
-        <div className="space-y-4">
+        <div className='space-y-4'>
           {/* Word Input Field */}
           <WordInput
             value={formLogic.formData.word}

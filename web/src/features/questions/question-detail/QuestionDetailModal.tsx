@@ -25,27 +25,30 @@ export const QuestionDetailModal: React.FC<QuestionDetailModalProps> = ({
 }) => {
   // Direct layout configuration (same as WordDetailModal for consistent behavior)
 
-  const { isAnswerExpanded, toggleAnswerSection, stats, actions } = useQuestionDetail({
-    question,
-    onClose,
-    onQuestionUpdated,
-    onQuestionRefreshed,
-    onError,
-  });
+  const { isAnswerExpanded, toggleAnswerSection, stats, actions } =
+    useQuestionDetail({
+      question,
+      onClose,
+      onQuestionUpdated,
+      onQuestionRefreshed,
+      onError,
+    });
 
-  if (!question) {return null;}
+  if (!question) {
+    return null;
+  }
 
   return (
     <>
       <Modal
         isOpen={isOpen}
         onClose={onClose}
-        maxWidth="2xl"
-        className="max-h-[95vh] overflow-hidden"
+        maxWidth='2xl'
+        className='max-h-[95vh] overflow-hidden'
       >
-        <div className="flex flex-col h-[90vh] -m-6 -mt-4">
+        <div className='-m-6 -mt-4 flex h-[90vh] flex-col'>
           {/* Fixed Header */}
-          <div className="flex-shrink-0 px-6 pt-6 pb-0">
+          <div className='flex-shrink-0 px-6 pb-0 pt-6'>
             <QuestionHeader
               question={question}
               onEdit={actions.handleEdit}
@@ -55,8 +58,8 @@ export const QuestionDetailModal: React.FC<QuestionDetailModalProps> = ({
           </div>
 
           {/* Scrollable Content */}
-          <div className="flex-1 min-h-0 overflow-y-auto px-6 py-2">
-            <div className="space-y-6">
+          <div className='min-h-0 flex-1 overflow-y-auto px-6 py-2'>
+            <div className='space-y-6'>
               <OptionsDisplay options={stats.availableOptions} />
 
               <PracticeStats
@@ -76,7 +79,7 @@ export const QuestionDetailModal: React.FC<QuestionDetailModalProps> = ({
           </div>
 
           {/* Fixed Footer */}
-          <div className="flex-shrink-0 px-6 pt-0 pb-6">
+          <div className='flex-shrink-0 px-6 pb-6 pt-0'>
             <QuestionFooter question={question} />
           </div>
         </div>
@@ -87,17 +90,17 @@ export const QuestionDetailModal: React.FC<QuestionDetailModalProps> = ({
         isOpen={actions.isEditModalOpen}
         onClose={actions.handleCloseEditModal}
         onQuestionSaved={actions.handleQuestionUpdated}
-        mode="edit"
+        mode='edit'
         question={question}
       />
 
       {/* Delete Confirmation Dialog */}
       <ConfirmationDialog
         isOpen={actions.deleteConfirmation.showConfirm}
-        title="Delete Question"
+        title='Delete Question'
         message={actions.deleteConfirmation.confirmMessage}
-        confirmText="Delete Question"
-        variant="danger"
+        confirmText='Delete Question'
+        variant='danger'
         isConfirming={actions.deleteConfirmation.isDeleting}
         onConfirm={actions.deleteConfirmation.confirmDelete}
         onCancel={actions.deleteConfirmation.cancelDelete}

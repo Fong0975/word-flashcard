@@ -20,12 +20,15 @@ export const useNoteButtons = (props: UseNoteButtonsProps = {}) => {
     const loadNoteButtonsConfig = async () => {
       try {
         // Try to dynamically import the config file
-        const configModule = await import('../../../../config/definitionFormModalNoteButtonsConfig.json');
+        const configModule =
+          await import('../../../../config/definitionFormModalNoteButtonsConfig.json');
         setNoteButtonsConfig((configModule as ConfigModule).default || []);
       } catch (error) {
         // Config file doesn't exist or failed to load, use empty array
         if (onWarning) {
-          onWarning('Note buttons config file not found, template buttons will be hidden');
+          onWarning(
+            'Note buttons config file not found, template buttons will be hidden',
+          );
         }
         setNoteButtonsConfig([]);
       }

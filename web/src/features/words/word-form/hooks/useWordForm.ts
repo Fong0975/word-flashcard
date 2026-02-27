@@ -36,9 +36,12 @@ export const useWordForm = ({ mode, word, isOpen }: UseWordFormProps) => {
     setFormData(prev => ({ ...prev, word: value }));
   }, []);
 
-  const handleFamiliarityChange = useCallback((familiarity: FamiliarityLevel) => {
-    setFormData(prev => ({ ...prev, familiarity }));
-  }, []);
+  const handleFamiliarityChange = useCallback(
+    (familiarity: FamiliarityLevel) => {
+      setFormData(prev => ({ ...prev, familiarity }));
+    },
+    [],
+  );
 
   // Reset form
   const resetForm = useCallback(() => {

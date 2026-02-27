@@ -14,8 +14,8 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
   onDelete,
 }) => {
   return (
-    <div className="space-y-3 pt-4 pb-2 px-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-      <div className="flex items-center justify-between">
+    <div className='space-y-3 rounded-lg bg-gray-50 px-4 pb-2 pt-4 dark:bg-gray-700'>
+      <div className='flex items-center justify-between'>
         <PartOfSpeechTags partOfSpeech={definition.part_of_speech} />
         <PronunciationGroup phonetics={definition.phonetics} />
       </div>

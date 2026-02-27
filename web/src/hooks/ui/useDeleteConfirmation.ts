@@ -78,7 +78,9 @@ export const useDeleteConfirmation = <T>({
   };
 
   const confirmDelete = async (): Promise<void> => {
-    if (!entity) {return;}
+    if (!entity) {
+      return;
+    }
 
     try {
       setIsDeleting(true);

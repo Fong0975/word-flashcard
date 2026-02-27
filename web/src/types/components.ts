@@ -7,7 +7,15 @@
 
 import { ReactNode, CSSProperties } from 'react';
 
-import { BaseEntity, FormMode, ModalSize, ButtonVariant, EventHandler, AsyncEventHandler, AsyncCallback } from './base';
+import {
+  BaseEntity,
+  FormMode,
+  ModalSize,
+  ButtonVariant,
+  EventHandler,
+  AsyncEventHandler,
+  AsyncCallback,
+} from './base';
 
 // ===== BASE COMPONENT PROPS =====
 
@@ -47,10 +55,7 @@ export interface ErrorableProps {
  * Standard component props combining common patterns
  */
 export interface StandardComponentProps
-  extends BaseComponentProps,
-    DisableableProps,
-    LoadableProps,
-    ErrorableProps {}
+  extends BaseComponentProps, DisableableProps, LoadableProps, ErrorableProps {}
 
 // ===== MODAL COMPONENT PROPS =====
 
@@ -69,8 +74,9 @@ export interface BaseModalProps extends BaseComponentProps {
 /**
  * Form modal props extending base modal props
  */
-export interface FormModalProps<TEntity extends BaseEntity = BaseEntity>
-  extends BaseModalProps {
+export interface FormModalProps<
+  TEntity extends BaseEntity = BaseEntity,
+> extends BaseModalProps {
   readonly mode: FormMode;
   readonly entity?: TEntity;
   readonly onSave?: AsyncCallback<[TEntity], void>;
@@ -127,7 +133,8 @@ export interface SelectOption<TValue = string> {
 /**
  * Button component props
  */
-export interface ButtonProps extends BaseComponentProps, DisableableProps, LoadableProps {
+export interface ButtonProps
+  extends BaseComponentProps, DisableableProps, LoadableProps {
   readonly children: ReactNode;
   readonly variant?: ButtonVariant;
   readonly size?: 'sm' | 'md' | 'lg';
@@ -143,7 +150,9 @@ export interface ButtonProps extends BaseComponentProps, DisableableProps, Loada
 /**
  * Generic list component props
  */
-export interface ListComponentProps<TItem extends BaseEntity> extends BaseComponentProps {
+export interface ListComponentProps<
+  TItem extends BaseEntity,
+> extends BaseComponentProps {
   readonly items: readonly TItem[];
   readonly renderItem: (item: TItem, index: number) => ReactNode;
   readonly onItemClick?: (item: TItem, index: number) => void;
@@ -155,8 +164,9 @@ export interface ListComponentProps<TItem extends BaseEntity> extends BaseCompon
 /**
  * Entity card component props
  */
-export interface EntityCardProps<TEntity extends BaseEntity>
-  extends BaseComponentProps {
+export interface EntityCardProps<
+  TEntity extends BaseEntity,
+> extends BaseComponentProps {
   readonly entity: TEntity;
   readonly index?: number;
   readonly onClick?: (entity: TEntity) => void;
@@ -289,7 +299,7 @@ export interface QuizSetupModalProps extends BaseModalProps {
  * HOC props injection pattern
  */
 export type WithProps<TInjectedProps, TOwnProps = {}> = (
-  WrappedComponent: React.ComponentType<TInjectedProps & TOwnProps>
+  WrappedComponent: React.ComponentType<TInjectedProps & TOwnProps>,
 ) => React.ComponentType<TOwnProps>;
 
 /**
@@ -302,9 +312,8 @@ export interface ComponentWithChildren {
 /**
  * Generic component ref type
  */
-export type ComponentRef<TComponent> = TComponent extends React.ComponentType<infer P>
-  ? React.Ref<P>
-  : never;
+export type ComponentRef<TComponent> =
+  TComponent extends React.ComponentType<infer P> ? React.Ref<P> : never;
 
 // ===== TYPE GUARDS =====
 

@@ -65,33 +65,33 @@ export const Toast: React.FC<ToastProps> = ({
       case 'success':
         return (
           <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+            strokeLinecap='round'
+            strokeLinejoin='round'
+            d='M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'
           />
         );
       case 'error':
         return (
           <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+            strokeLinecap='round'
+            strokeLinejoin='round'
+            d='M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z'
           />
         );
       case 'warning':
         return (
           <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+            strokeLinecap='round'
+            strokeLinejoin='round'
+            d='M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z'
           />
         );
       case 'info':
         return (
           <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+            strokeLinecap='round'
+            strokeLinejoin='round'
+            d='M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z'
           />
         );
       default:
@@ -116,14 +116,10 @@ export const Toast: React.FC<ToastProps> = ({
 
   return (
     <div
-      className={`
-        max-w-sm w-full border rounded-lg shadow-lg mb-4 p-2 md:p-4 transition-all duration-300
-        transform animate-slide-in-right cursor-pointer hover:shadow-xl
-        ${getTypeStyles()}
-      `}
-      role="alert"
+      className={`animate-slide-in-right mb-4 w-full max-w-sm transform cursor-pointer rounded-lg border p-2 shadow-lg transition-all duration-300 hover:shadow-xl md:p-4 ${getTypeStyles()} `}
+      role='alert'
       onClick={() => onClose(id)}
-      onKeyDown={(e) => {
+      onKeyDown={e => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           onClose(id);
@@ -132,14 +128,14 @@ export const Toast: React.FC<ToastProps> = ({
       tabIndex={0}
       aria-label={`${type} notification: ${message}. Click to dismiss.`}
     >
-      <div className="flex items-start">
+      <div className='flex items-start'>
         <div className={`flex-shrink-0 ${getIconColor()}`}>
           <svg
-            className="w-5 h-5"
-            fill="none"
-            strokeWidth="2"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+            className='h-5 w-5'
+            fill='none'
+            strokeWidth='2'
+            stroke='currentColor'
+            viewBox='0 0 24 24'
           >
             {getIcon()}
           </svg>
@@ -180,11 +176,11 @@ export const ToastContainer: React.FC<ToastContainerProps> = ({
 
   return (
     <div
-      className="fixed bottom-4 right-4 z-50 space-y-4"
-      aria-live="polite"
-      aria-label="Notifications"
+      className='fixed bottom-4 right-4 z-50 space-y-4'
+      aria-live='polite'
+      aria-label='Notifications'
     >
-      {toasts.map((toast) => (
+      {toasts.map(toast => (
         <Toast
           key={toast.id}
           id={toast.id}

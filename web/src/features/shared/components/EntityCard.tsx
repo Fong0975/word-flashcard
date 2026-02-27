@@ -104,17 +104,19 @@ export const EntityCard = <T extends BaseEntity>({
   };
 
   const renderSequenceSection = () => {
-    if (!config.showSequence) {return null;}
+    if (!config.showSequence) {
+      return null;
+    }
 
     if (config.sequenceStyle === 'detailed') {
       // Question card style - with "No." label
       return (
-        <div className="flex-shrink-0 w-12 pt-1 mr-2 border-r border-gray-100 dark:border-gray-700/50">
-          <div className="flex flex-col items-center justify-center">
-            <span className="text-xs font-bold text-primary-500 dark:text-primary-400 uppercase tracking-tighter opacity-70">
+        <div className='mr-2 w-12 flex-shrink-0 border-r border-gray-100 pt-1 dark:border-gray-700/50'>
+          <div className='flex flex-col items-center justify-center'>
+            <span className='dark:text-primary-400 text-xs font-bold uppercase tracking-tighter text-primary-500 opacity-70'>
               No.
             </span>
-            <span className="text-base font-mono font-bold text-gray-800 dark:text-gray-500 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors tabular-nums">
+            <span className='dark:group-hover:text-primary-400 font-mono text-base font-bold tabular-nums text-gray-800 transition-colors group-hover:text-primary-600 dark:text-gray-500'>
               {index}
             </span>
           </div>
@@ -124,8 +126,8 @@ export const EntityCard = <T extends BaseEntity>({
 
     // Simple style - just number
     return (
-      <div className="flex-shrink-0 w-10 mr-3 flex justify-center items-center">
-        <span className="text-sm font-medium text-gray-400 dark:text-gray-500 group-hover:text-primary-500 transition-colors tabular-nums">
+      <div className='mr-3 flex w-10 flex-shrink-0 items-center justify-center'>
+        <span className='text-sm font-medium tabular-nums text-gray-400 transition-colors group-hover:text-primary-500 dark:text-gray-500'>
           {index}
         </span>
       </div>
@@ -133,15 +135,14 @@ export const EntityCard = <T extends BaseEntity>({
   };
 
   const renderLeftIndicatorSection = () => {
-    if (!config.showLeftIndicator) {return null;}
+    if (!config.showLeftIndicator) {
+      return null;
+    }
 
     if (config.leftIndicatorType === 'color-band' && getLeftIndicatorColor) {
       return (
         <div
-          className={`
-            w-1 h-12 rounded-full mr-4 flex-shrink-0
-            ${getLeftIndicatorColor(entity)}
-          `}
+          className={`mr-4 h-12 w-1 flex-shrink-0 rounded-full ${getLeftIndicatorColor(entity)} `}
         />
       );
     }
@@ -156,14 +157,7 @@ export const EntityCard = <T extends BaseEntity>({
   return (
     <>
       <div
-        className={`
-          group cursor-pointer bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700
-          hover:shadow-md hover:border-primary-300 dark:hover:border-primary-600
-          transition-all duration-200 ease-in-out
-          flex items-center p-4
-          ${config.sequenceStyle === 'detailed' ? 'items-start' : 'items-center'}
-          ${className}
-        `}
+        className={`hover:border-primary-300 group flex cursor-pointer items-center rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-all duration-200 ease-in-out hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-primary-600 ${config.sequenceStyle === 'detailed' ? 'items-start' : 'items-center'} ${className} `}
         onClick={handleCardClick}
       >
         {/* Left color indicator */}
@@ -173,21 +167,23 @@ export const EntityCard = <T extends BaseEntity>({
         {renderSequenceSection()}
 
         {/* Content area */}
-        <div className="flex-1 min-w-0">
-          {renderContent(entity)}
-        </div>
+        <div className='min-w-0 flex-1'>{renderContent(entity)}</div>
 
         {/* Right chevron icon */}
-        {(config.showRightArrow !== false) && (
-          <div className="flex-shrink-0 ml-4">
+        {config.showRightArrow !== false && (
+          <div className='ml-4 flex-shrink-0'>
             <svg
-              className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="2"
-              stroke="currentColor"
+              className='h-5 w-5 text-gray-400 transition-colors group-hover:text-gray-600 dark:text-gray-500 dark:group-hover:text-gray-300'
+              fill='none'
+              viewBox='0 0 24 24'
+              strokeWidth='2'
+              stroke='currentColor'
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                d='M9 5l7 7-7 7'
+              />
             </svg>
           </div>
         )}

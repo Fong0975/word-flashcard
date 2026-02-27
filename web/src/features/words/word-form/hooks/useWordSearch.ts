@@ -14,7 +14,11 @@ interface UseWordSearchProps {
   onError?: (message: string) => void;
 }
 
-export const useWordSearch = ({ mode, editingWord, onError }: UseWordSearchProps) => {
+export const useWordSearch = ({
+  mode,
+  editingWord,
+  onError,
+}: UseWordSearchProps) => {
   const [searchState, setSearchState] = useState<WordSearchState>({
     suggestions: [],
     isLoading: false,
@@ -22,50 +26,54 @@ export const useWordSearch = ({ mode, editingWord, onError }: UseWordSearchProps
   });
 
   // Search for similar words
-  const performSearch = useCallback(async (searchTerm: string) => {
-    if (!searchTerm.trim()) {
-      setSearchState({
-        suggestions: [],
-        isLoading: false,
-        showSuggestions: false,
-      });
-      return;
-    }
-
-    setSearchState(prev => ({ ...prev, isLoading: true }));
-
-    try {
-      const searchFilter = createWordSearchFilter(searchTerm);
-      const results = await apiService.searchWords({
-        searchFilter,
-        limit: MAX_SUGGESTIONS,
-      });
-
-      // Filter out exact matches and current editing word
-      const filteredResults = filterSearchSuggestions(
-        results,
-        searchTerm,
-        mode,
-        editingWord,
-      );
-
-      setSearchState({
-        suggestions: filteredResults,
-        isLoading: false,
-        showSuggestions: filteredResults.length > 0,
-      });
-    } catch (err) {
-      if (onError) {
-        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-        onError('Failed to search similar words: ' + errorMessage);
+  const performSearch = useCallback(
+    async (searchTerm: string) => {
+      if (!searchTerm.trim()) {
+        setSearchState({
+          suggestions: [],
+          isLoading: false,
+          showSuggestions: false,
+        });
+        return;
       }
-      setSearchState({
-        suggestions: [],
-        isLoading: false,
-        showSuggestions: false,
-      });
-    }
-  }, [mode, editingWord, onError]);
+
+      setSearchState(prev => ({ ...prev, isLoading: true }));
+
+      try {
+        const searchFilter = createWordSearchFilter(searchTerm);
+        const results = await apiService.searchWords({
+          searchFilter,
+          limit: MAX_SUGGESTIONS,
+        });
+
+        // Filter out exact matches and current editing word
+        const filteredResults = filterSearchSuggestions(
+          results,
+          searchTerm,
+          mode,
+          editingWord,
+        );
+
+        setSearchState({
+          suggestions: filteredResults,
+          isLoading: false,
+          showSuggestions: filteredResults.length > 0,
+        });
+      } catch (err) {
+        if (onError) {
+          const errorMessage =
+            err instanceof Error ? err.message : 'Unknown error';
+          onError('Failed to search similar words: ' + errorMessage);
+        }
+        setSearchState({
+          suggestions: [],
+          isLoading: false,
+          showSuggestions: false,
+        });
+      }
+    },
+    [mode, editingWord, onError],
+  );
 
   // Debounced search function
   const { debouncedCallback: debouncedSearch, cleanup } = useDebounce(
@@ -74,17 +82,20 @@ export const useWordSearch = ({ mode, editingWord, onError }: UseWordSearchProps
   );
 
   // Handle word input change
-  const handleWordChange = useCallback((value: string) => {
-    if (value.trim()) {
-      debouncedSearch(value.trim());
-    } else {
-      setSearchState({
-        suggestions: [],
-        isLoading: false,
-        showSuggestions: false,
-      });
-    }
-  }, [debouncedSearch]);
+  const handleWordChange = useCallback(
+    (value: string) => {
+      if (value.trim()) {
+        debouncedSearch(value.trim());
+      } else {
+        setSearchState({
+          suggestions: [],
+          isLoading: false,
+          showSuggestions: false,
+        });
+      }
+    },
+    [debouncedSearch],
+  );
 
   // Reset search state
   const resetSearch = useCallback(() => {

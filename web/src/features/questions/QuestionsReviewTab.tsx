@@ -1,13 +1,20 @@
 import React, { useState } from 'react';
 
 import { useQuestions } from '../../hooks/useQuestions';
-import { useModalManager, MODAL_NAMES } from '../../hooks/shared/useModalManager';
+import {
+  useModalManager,
+  MODAL_NAMES,
+} from '../../hooks/shared/useModalManager';
 import { useToast } from '../../hooks/ui/useToast';
 import { EntityReviewTab } from '../shared/components/EntityReviewTab';
 import { QuizSetupModal } from '../shared/components/QuizSetupModal';
 import { QuizModal } from '../../components/modals/QuizModal';
 import { ToastContainer } from '../../components/ui';
-import { Question, QuestionQuizConfig, QuestionQuizResult } from '../../types/api';
+import {
+  Question,
+  QuestionQuizConfig,
+  QuestionQuizResult,
+} from '../../types/api';
 
 import { QuestionCard } from './QuestionCard';
 import { QuestionDetailModal } from './question-detail/QuestionDetailModal';
@@ -15,12 +22,13 @@ import { QuestionFormModal } from './question-form/QuestionFormModal';
 import { QuestionQuiz } from './quiz/QuestionQuiz';
 import { QuestionQuizResults } from './quiz/QuestionQuizResults';
 
-
 interface QuestionsReviewTabProps {
   className?: string;
 }
 
-export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({ className = '' }) => {
+export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({
+  className = '',
+}) => {
   const modalManager = useModalManager();
   const [quizConfig, setQuizConfig] = useState<QuestionQuizConfig | null>(null);
   const { toasts, showError, removeToast } = useToast();
@@ -83,7 +91,10 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({ classNam
   };
 
   // Handle starting quiz
-  const handleStartQuiz = (config: { questionCount: number; selectedFamiliarity?: string[] }) => {
+  const handleStartQuiz = (config: {
+    questionCount: number;
+    selectedFamiliarity?: string[];
+  }) => {
     // Close the setup modal and open quiz modal
     modalManager.closeModal(MODAL_NAMES.QUIZ_SETUP);
     modalManager.openModal(MODAL_NAMES.QUIZ, config);
@@ -112,7 +123,8 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({ classNam
           emptyStateConfig: {
             icon: '🧠',
             title: 'No questions found',
-            description: 'This section provides review materials and random quizzes. You can practice various question types, including multiple-choice and fill-in-the-blank questions, and receive instant learning feedback.',
+            description:
+              'This section provides review materials and random quizzes. You can practice various question types, including multiple-choice and fill-in-the-blank questions, and receive instant learning feedback.',
           },
         }}
         actions={{
@@ -126,7 +138,7 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({ classNam
             key={question.id}
             index={index}
             question={question}
-            className="transition-transform duration-200 hover:scale-[1.01]"
+            className='transition-transform duration-200 hover:scale-[1.01]'
             onClick={() => handleQuestionClick(question)}
           />
         )}
@@ -134,7 +146,11 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({ classNam
           <>
             {/* Question Detail Modal */}
             <QuestionDetailModal
-              question={modalManager.getModalData<Question>(MODAL_NAMES.QUESTION_DETAIL) ?? null}
+              question={
+                modalManager.getModalData<Question>(
+                  MODAL_NAMES.QUESTION_DETAIL,
+                ) ?? null
+              }
               isOpen={modalManager.isModalOpen(MODAL_NAMES.QUESTION_DETAIL)}
               onClose={handleCloseQuestionDetailModal}
               onQuestionUpdated={handleQuestionUpdated}
@@ -147,7 +163,7 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({ classNam
               isOpen={modalManager.isModalOpen(MODAL_NAMES.ADD)}
               onClose={handleCloseAddModal}
               onQuestionSaved={handleQuestionAdded}
-              mode="create"
+              mode='create'
             />
 
             {/* Quiz Setup Modal */}
@@ -155,8 +171,8 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({ classNam
               isOpen={modalManager.isModalOpen(MODAL_NAMES.QUIZ_SETUP)}
               onClose={handleCloseQuizSetupModal}
               onStartQuiz={handleStartQuiz}
-              title="Question Quiz Setup"
-              entityName="questions"
+              title='Question Quiz Setup'
+              entityName='questions'
               enableFamiliaritySelection={false}
             />
 
@@ -170,7 +186,8 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({ classNam
                   quizTitle: 'Question Quiz',
                   resultsTitle: 'Quiz Results',
                   exitConfirmTitle: 'Exit Quiz',
-                  exitConfirmMessage: 'Are you sure you want to exit the quiz? Your progress will be lost and you\'ll need to start over.',
+                  exitConfirmMessage:
+                    "Are you sure you want to exit the quiz? Your progress will be lost and you'll need to start over.",
                   exitButtonText: 'Exit Quiz',
                   continueButtonText: 'Continue Quiz',
                 }}

@@ -56,66 +56,73 @@ export const useCopyToClipboard = (
     setCopyError(null);
   }, []);
 
-  const copyToClipboard = useCallback(async (text: string): Promise<void> => {
-    if (!text) {
-      setCopyError('No text provided to copy');
-      return;
-    }
+  const copyToClipboard = useCallback(
+    async (text: string): Promise<void> => {
+      if (!text) {
+        setCopyError('No text provided to copy');
+        return;
+      }
 
-    // Reset previous state
-    resetState();
+      // Reset previous state
+      resetState();
 
-    try {
-      if (isSupported) {
-        // Use modern Clipboard API
-        await navigator.clipboard.writeText(text);
-        setCopySuccess(true);
-      } else {
-        // Fallback for older browsers
-        const textArea = document.createElement('textarea');
-        textArea.value = text;
-        textArea.style.position = 'fixed';
-        textArea.style.left = '-999999px';
-        textArea.style.top = '-999999px';
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-
-        const successful = document.execCommand('copy');
-        document.body.removeChild(textArea);
-
-        if (successful) {
+      try {
+        if (isSupported) {
+          // Use modern Clipboard API
+          await navigator.clipboard.writeText(text);
           setCopySuccess(true);
         } else {
-          throw new Error('Copy command failed');
+          // Fallback for older browsers
+          const textArea = document.createElement('textarea');
+          textArea.value = text;
+          textArea.style.position = 'fixed';
+          textArea.style.left = '-999999px';
+          textArea.style.top = '-999999px';
+          document.body.appendChild(textArea);
+          textArea.focus();
+          textArea.select();
+
+          const successful = document.execCommand('copy');
+          document.body.removeChild(textArea);
+
+          if (successful) {
+            setCopySuccess(true);
+          } else {
+            throw new Error('Copy command failed');
+          }
+        }
+
+        // Auto-reset success state after delay
+        if (autoResetDelay > 0) {
+          setTimeout(() => {
+            setCopySuccess(false);
+          }, autoResetDelay);
+        }
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : 'Failed to copy to clipboard';
+        const errorObj =
+          error instanceof Error ? error : new Error(errorMessage);
+
+        setCopyError(errorMessage);
+
+        // Call error handler if provided
+        if (onError) {
+          onError(errorObj, errorMessage);
+        }
+
+        // Auto-reset error state after delay
+        if (autoResetDelay > 0) {
+          setTimeout(() => {
+            setCopyError(null);
+          }, autoResetDelay);
         }
       }
-
-      // Auto-reset success state after delay
-      if (autoResetDelay > 0) {
-        setTimeout(() => {
-          setCopySuccess(false);
-        }, autoResetDelay);
-      }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to copy to clipboard';
-      const errorObj = error instanceof Error ? error : new Error(errorMessage);
-
-      setCopyError(errorMessage);
-
-      // Call error handler if provided
-      if (onError) {
-        onError(errorObj, errorMessage);
-      }
-
-      // Auto-reset error state after delay
-      if (autoResetDelay > 0) {
-        setTimeout(() => {
-          setCopyError(null);
-        }, autoResetDelay);
-      }
-    }
-  }, [isSupported, autoResetDelay, resetState, onError]);
+    },
+    [isSupported, autoResetDelay, resetState, onError],
+  );
 
   return {
     copySuccess,

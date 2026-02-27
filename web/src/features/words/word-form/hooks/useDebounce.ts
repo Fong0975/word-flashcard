@@ -6,17 +6,20 @@ export const useDebounce = <TArgs extends unknown[]>(
 ) => {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const debouncedCallback = useCallback((...args: TArgs) => {
-    // Clear existing timeout
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
+  const debouncedCallback = useCallback(
+    (...args: TArgs) => {
+      // Clear existing timeout
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
 
-    // Set new timeout
-    timeoutRef.current = setTimeout(() => {
-      callback(...args);
-    }, delay);
-  }, [callback, delay]);
+      // Set new timeout
+      timeoutRef.current = setTimeout(() => {
+        callback(...args);
+      }, delay);
+    },
+    [callback, delay],
+  );
 
   const cancel = useCallback(() => {
     if (timeoutRef.current) {
