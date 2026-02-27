@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 
 interface ModalProps {
   isOpen: boolean;
@@ -21,13 +21,7 @@ export const Modal: React.FC<ModalProps> = ({
   disableBackdropClose = false,
   disableEscapeClose = false,
 }) => {
-  // Store scroll position using ref for type safety
-  const scrollPositionRef = useRef<{ top: number; left: number }>({
-    top: 0,
-    left: 0,
-  });
-
-  // Handle escape key and complete scroll prevention
+  // Handle escape key and scroll prevention
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && !disableEscapeClose) {
@@ -41,10 +35,6 @@ export const Modal: React.FC<ModalProps> = ({
       // Store original values
       const originalBodyStyle = {
         overflow: document.body.style.overflow,
-        position: document.body.style.position,
-        top: document.body.style.top,
-        left: document.body.style.left,
-        right: document.body.style.right,
         paddingRight: document.body.style.paddingRight,
       };
 
@@ -52,48 +42,23 @@ export const Modal: React.FC<ModalProps> = ({
         overflow: document.documentElement.style.overflow,
       };
 
-      // Calculate current scroll position
-      const scrollTop =
-        window.pageYOffset || document.documentElement.scrollTop;
-      const scrollLeft =
-        window.pageXOffset || document.documentElement.scrollLeft;
-
       // Calculate scrollbar width
       const scrollbarWidth =
         window.innerWidth - document.documentElement.clientWidth;
 
-      // Completely lock the page using fixed positioning
+      // Prevent scrolling without changing scroll position
       document.body.style.overflow = 'hidden';
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollTop}px`;
-      document.body.style.left = `-${scrollLeft}px`;
-      document.body.style.right = '0';
       document.body.style.paddingRight = `${scrollbarWidth}px`;
       document.documentElement.style.overflow = 'hidden';
-
-      // Store scroll position for restoration
-      scrollPositionRef.current = { top: scrollTop, left: scrollLeft };
 
       return () => {
         document.removeEventListener('keydown', handleEscape);
 
         // Restore original styles
         document.body.style.overflow = originalBodyStyle.overflow;
-        document.body.style.position = originalBodyStyle.position;
-        document.body.style.top = originalBodyStyle.top;
-        document.body.style.left = originalBodyStyle.left;
-        document.body.style.right = originalBodyStyle.right;
         document.body.style.paddingRight = originalBodyStyle.paddingRight;
         document.documentElement.style.overflow =
           originalDocumentStyle.overflow;
-
-        // Restore scroll position
-        const { top: storedScrollTop, left: storedScrollLeft } =
-          scrollPositionRef.current;
-        window.scrollTo(storedScrollLeft, storedScrollTop);
-
-        // Reset scroll position ref
-        scrollPositionRef.current = { top: 0, left: 0 };
       };
     }
 
