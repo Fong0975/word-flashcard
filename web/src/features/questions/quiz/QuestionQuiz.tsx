@@ -1,13 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkBreaks from 'remark-breaks';
-import { Question, QuestionQuizResult, QuestionsRandomRequest } from '../../../types/api';
+
+import {
+  Question,
+  QuestionQuizResult,
+  QuestionsRandomRequest,
+} from '../../../types/api';
 import { apiService } from '../../../lib/api';
 
 interface QuestionQuizProps {
   questionCount: number;
   onQuizComplete: (results: QuestionQuizResult[]) => void;
   onBackToHome: () => void;
+  onError?: (message: string) => void;
 }
 
 type QuizState = 'loading' | 'quiz' | 'completed';
@@ -15,7 +21,8 @@ type QuizState = 'loading' | 'quiz' | 'completed';
 export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
   questionCount,
   onQuizComplete,
-  onBackToHome
+  onBackToHome,
+  onError,
 }) => {
   const [state, setState] = useState<QuizState>('loading');
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -26,7 +33,11 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
 
   const currentQuestion = questions[currentQuestionIndex];
-  const progress = questions.length > 0 ? ((currentQuestionIndex + (showAnswer ? 0.5 : 0)) / questions.length) * 100 : 0;
+  const progress =
+    questions.length > 0
+      ? ((currentQuestionIndex + (showAnswer ? 0.5 : 0)) / questions.length) *
+        100
+      : 0;
 
   // Fetch random questions for quiz
   useEffect(() => {
@@ -35,36 +46,44 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
         setState('loading');
         setError(null);
 
-        console.log('Fetching random questions:', { count: questionCount });
-
         const request: QuestionsRandomRequest = {
-          count: questionCount
+          count: questionCount,
         };
 
         const fetchedQuestions = await apiService.getRandomQuestions(request);
 
         if (fetchedQuestions.length === 0) {
-          setError('No questions available for quiz. Please add some questions first.');
+          setError(
+            'No questions available for quiz. Please add some questions first.',
+          );
           return;
         }
 
         setQuestions(fetchedQuestions);
         setState('quiz');
       } catch (error) {
-        console.error('Failed to fetch quiz questions:', error);
-        setError(error instanceof Error ? error.message : 'Failed to load quiz questions');
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : 'Failed to load quiz questions';
+        setError(errorMessage);
+        if (onError) {
+          onError('Failed to fetch quiz questions: ' + errorMessage);
+        }
       }
     };
 
     fetchQuizQuestions();
-  }, [questionCount]);
+  }, [questionCount, onError]);
 
   const handleAnswerSelect = (answer: string) => {
     setSelectedAnswer(answer);
   };
 
   const handleSubmitAnswer = () => {
-    if (!currentQuestion || selectedAnswer === null) return;
+    if (!currentQuestion || selectedAnswer === null) {
+      return;
+    }
 
     const isCorrect = selectedAnswer === currentQuestion.answer;
 
@@ -72,7 +91,7 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
     const newResult: QuestionQuizResult = {
       question: currentQuestion,
       userAnswer: selectedAnswer,
-      isCorrect
+      isCorrect,
     };
 
     const newResults = [...results, newResult];
@@ -83,8 +102,6 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
   // Update question statistics after quiz completion
   const updateQuestionStatistics = async (results: QuestionQuizResult[]) => {
     try {
-      console.log('Updating question statistics...');
-
       // Update each question's statistics
       for (const result of results) {
         const question = result.question;
@@ -108,11 +125,13 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
           count_practise: newCountPractise,
           count_failure_practise: newCountFailurePractise,
         });
-
-        console.log(`Updated question ${question.id}: practise ${question.count_practise} -> ${newCountPractise}, failures ${question.count_failure_practise} -> ${newCountFailurePractise}`);
       }
     } catch (error) {
-      console.error('Failed to update question statistics:', error);
+      if (onError) {
+        const errorMessage =
+          error instanceof Error ? error.message : 'Unknown error';
+        onError('Failed to update question statistics: ' + errorMessage);
+      }
       // Don't block the quiz completion on statistics update failure
     }
   };
@@ -139,28 +158,32 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
   // Get available options (filter out empty options)
   const getAvailableOptions = (question: Question) => {
     const options = [];
-    if (question.option_a) options.push({ key: 'A', value: question.option_a });
-    if (question.option_b) options.push({ key: 'B', value: question.option_b });
-    if (question.option_c) options.push({ key: 'C', value: question.option_c });
-    if (question.option_d) options.push({ key: 'D', value: question.option_d });
+    if (question.option_a) {
+      options.push({ key: 'A', value: question.option_a });
+    }
+    if (question.option_b) {
+      options.push({ key: 'B', value: question.option_b });
+    }
+    if (question.option_c) {
+      options.push({ key: 'C', value: question.option_c });
+    }
+    if (question.option_d) {
+      options.push({ key: 'D', value: question.option_d });
+    }
     return options;
   };
 
   if (error) {
     return (
-      <div className="max-w-2xl mx-auto text-center py-12">
-        <div className="text-red-500 dark:text-red-400 text-6xl mb-4">⚠️</div>
-        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+      <div className='mx-auto max-w-2xl py-12 text-center'>
+        <div className='mb-4 text-6xl text-red-500 dark:text-red-400'>⚠️</div>
+        <h3 className='mb-2 text-xl font-semibold text-gray-900 dark:text-white'>
           Quiz Error
         </h3>
-        <p className="text-gray-600 dark:text-gray-300 mb-6">
-          {error}
-        </p>
+        <p className='mb-6 text-gray-600 dark:text-gray-300'>{error}</p>
         <button
           onClick={onBackToHome}
-          className="px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700
-                     hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors
-                     focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+          className='rounded-lg bg-gray-100 px-6 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
         >
           Back to Home
         </button>
@@ -170,12 +193,12 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
 
   if (state === 'loading') {
     return (
-      <div className="max-w-2xl mx-auto text-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
-        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+      <div className='mx-auto max-w-2xl py-12 text-center'>
+        <div className='mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-primary-500'></div>
+        <h3 className='mb-2 text-xl font-semibold text-gray-900 dark:text-white'>
           Loading Quiz
         </h3>
-        <p className="text-gray-600 dark:text-gray-300">
+        <p className='text-gray-600 dark:text-gray-300'>
           Preparing your quiz questions...
         </p>
       </div>
@@ -186,16 +209,18 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
     const availableOptions = getAvailableOptions(currentQuestion);
 
     return (
-      <div className="h-full flex flex-col">
+      <div className='flex h-full flex-col'>
         {/* Progress Bar */}
-        <div className="flex-shrink-0 mb-6">
-          <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
-            <span>Question {currentQuestionIndex + 1} of {questions.length}</span>
+        <div className='mb-6 flex-shrink-0'>
+          <div className='mb-2 flex justify-between text-sm text-gray-600 dark:text-gray-400'>
+            <span>
+              Question {currentQuestionIndex + 1} of {questions.length}
+            </span>
             <span>{Math.round(progress)}% Complete</span>
           </div>
-          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+          <div className='h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700'>
             <div
-              className="bg-primary-500 h-2 rounded-full transition-all duration-300"
+              className='h-2 rounded-full bg-primary-500 transition-all duration-300'
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -205,39 +230,37 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
           // Stage 1: Question and options
           <>
             {/* Question Display */}
-            <div className="flex-1 flex flex-col">
-              <div className="mb-8">
-                <h1 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white mb-6 leading-relaxed">
+            <div className='flex flex-1 flex-col'>
+              <div className='mb-8'>
+                <h1 className='mb-6 text-xl font-bold leading-relaxed text-gray-900 dark:text-white lg:text-2xl'>
                   {currentQuestion.question}
                 </h1>
 
                 {/* Options */}
-                <div className="space-y-3">
-                  {availableOptions.map((option) => (
+                <div className='space-y-3'>
+                  {availableOptions.map(option => (
                     <label
                       key={option.key}
-                      className={`
-                        flex items-start space-x-3 p-3 lg:p-4 rounded-lg border cursor-pointer transition-colors
-                        ${selectedAnswer === option.key
-                          ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500 ring-2 ring-blue-500'
-                          : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600'
-                        }
-                      `}
+                      className={`flex cursor-pointer items-start space-x-3 rounded-lg border p-3 transition-colors lg:p-4 ${
+                        selectedAnswer === option.key
+                          ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500 dark:bg-blue-900/20'
+                          : 'border-gray-200 bg-gray-50 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600'
+                      } `}
                     >
                       <input
-                        type="radio"
-                        name="answer"
+                        type='radio'
+                        name='answer'
                         value={option.key}
                         checked={selectedAnswer === option.key}
-                        onChange={(e) => handleAnswerSelect(e.target.value)}
-                        className="w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 mt-1 focus:outline-none"
+                        onChange={e => handleAnswerSelect(e.target.value)}
+                        className='mt-1 h-4 w-4 border-gray-300 bg-gray-100 text-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-primary-600'
                       />
-                      <div className="flex-1">
-                        <div className="flex items-start space-x-2">
-                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 font-medium text-sm flex-shrink-0">
+                      <div className='flex-1'>
+                        <div className='flex items-start space-x-2'>
+                          <span className='inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200'>
                             {option.key}
                           </span>
-                          <span className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                          <span className='leading-relaxed text-gray-700 dark:text-gray-300'>
                             {option.value}
                           </span>
                         </div>
@@ -249,14 +272,11 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
             </div>
 
             {/* Bottom Action */}
-            <div className="flex-shrink-0 text-center">
+            <div className='flex-shrink-0 text-center'>
               <button
                 onClick={handleSubmitAnswer}
                 disabled={!selectedAnswer}
-                className="px-8 py-3 md:text-lg font-medium text-white
-                           bg-blue-500 hover:bg-blue-600
-                           rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                           disabled:opacity-50 disabled:cursor-not-allowed w-full"
+                className='w-full rounded-lg bg-blue-500 px-8 py-3 font-medium text-white transition-colors hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-lg'
               >
                 Submit Answer
               </button>
@@ -264,32 +284,38 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
           </>
         ) : (
           // Stage 2: Answer and explanation
-          <div className="flex-1 overflow-y-auto">
-            <div className="max-w-2xl mx-auto">
+          <div className='flex-1 overflow-y-auto'>
+            <div className='mx-auto max-w-2xl'>
               {/* Question Display */}
-              <div className="mb-6">
-                <h1 className="text-xl font-bold text-gray-900 dark:text-white mb-4 leading-relaxed">
+              <div className='mb-6'>
+                <h1 className='mb-4 text-xl font-bold leading-relaxed text-gray-900 dark:text-white'>
                   {currentQuestion.question}
                 </h1>
 
                 {/* User's Answer vs Correct Answer */}
-                <div className="mb-6 space-y-3">
-                  <div className="flex items-center space-x-4">
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Your Answer:</span>
-                    <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                      results[results.length - 1]?.isCorrect
-                        ? 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200'
-                        : 'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200'
-                    }`}>
+                <div className='mb-6 space-y-3'>
+                  <div className='flex items-center space-x-4'>
+                    <span className='text-sm font-medium text-gray-600 dark:text-gray-400'>
+                      Your Answer:
+                    </span>
+                    <div
+                      className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${
+                        results[results.length - 1]?.isCorrect
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-200'
+                          : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-200'
+                      }`}
+                    >
                       {selectedAnswer}
                       {results[results.length - 1]?.isCorrect ? ' ✓' : ' ✗'}
                     </div>
                   </div>
 
                   {!results[results.length - 1]?.isCorrect && (
-                    <div className="flex items-center space-x-4">
-                      <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Correct Answer:</span>
-                      <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200">
+                    <div className='flex items-center space-x-4'>
+                      <span className='text-sm font-medium text-gray-600 dark:text-gray-400'>
+                        Correct Answer:
+                      </span>
+                      <div className='inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800 dark:bg-green-900/20 dark:text-green-200'>
                         {currentQuestion.answer}
                       </div>
                     </div>
@@ -297,27 +323,31 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
                 </div>
 
                 {/* All Options (with correct answer highlighted) */}
-                <div className="space-y-2 mb-6">
-                  {availableOptions.map((option) => (
+                <div className='mb-6 space-y-2'>
+                  {availableOptions.map(option => (
                     <div
                       key={option.key}
-                      className={`flex items-start space-x-3 p-3 rounded-lg ${
+                      className={`flex items-start space-x-3 rounded-lg p-3 ${
                         option.key === currentQuestion.answer
-                          ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800'
+                          ? 'border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20'
                           : 'bg-gray-50 dark:bg-gray-700'
                       }`}
                     >
-                      <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full font-medium text-sm flex-shrink-0 ${
-                        option.key === currentQuestion.answer
-                          ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
-                          : 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'
-                      }`}>
+                      <span
+                        className={`inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-sm font-medium ${
+                          option.key === currentQuestion.answer
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                            : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                        }`}
+                      >
                         {option.key}
                       </span>
-                      <span className="text-gray-700 dark:text-gray-300 leading-relaxed flex-1">
+                      <span className='flex-1 leading-relaxed text-gray-700 dark:text-gray-300'>
                         {option.value}
                         {option.key === currentQuestion.answer && (
-                          <span className="ml-2 text-green-600 dark:text-green-400 font-medium">✓ Correct</span>
+                          <span className='ml-2 font-medium text-green-600 dark:text-green-400'>
+                            ✓ Correct
+                          </span>
                         )}
                       </span>
                     </div>
@@ -327,12 +357,12 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
 
               {/* Reference */}
               {currentQuestion.reference && (
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+                <div className='mb-6'>
+                  <h3 className='mb-3 text-lg font-semibold text-gray-900 dark:text-white'>
                     Reference
                   </h3>
-                  <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-                    <p className="text-gray-700 dark:text-gray-300 text-sm">
+                  <div className='rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20'>
+                    <p className='text-sm text-gray-700 dark:text-gray-300'>
                       {currentQuestion.reference}
                     </p>
                   </div>
@@ -341,25 +371,13 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
 
               {/* Explanation */}
               {currentQuestion.notes && (
-                <div className="mb-8">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+                <div className='mb-8'>
+                  <h3 className='mb-3 text-lg font-semibold text-gray-900 dark:text-white'>
                     Explanation
                   </h3>
-                  <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                    <div className="prose prose-sm max-w-none prose-slate dark:prose-invert prose-p:text-gray-600 dark:prose-p:text-gray-400">
-                      <div className="
-                        prose prose-sm max-w-none prose-slate dark:prose-invert 
-                        prose-p:text-gray-600 dark:prose-p:text-gray-400
-                        /* 1. Remove the default backticks */
-                        prose-code:before:content-none 
-                        prose-code:after:content-none
-                        /* 2. Add special markup styles (e.g., gray background, pink text, rounded corners) */
-                        prose-code:bg-gray-100 dark:prose-code:bg-gray-800
-                        prose-code:text-pink-500 dark:prose-code:text-pink-400
-                        prose-code:px-1.5 prose-code:py-0.5
-                        prose-code:rounded-md
-                        prose-code:font-medium
-                      ">
+                  <div className='rounded-lg bg-gray-50 p-4 dark:bg-gray-700'>
+                    <div className='prose prose-sm prose-slate max-w-none dark:prose-invert prose-p:text-gray-600 dark:prose-p:text-gray-400'>
+                      <div className='prose prose-sm prose-slate max-w-none rounded dark:prose-invert prose-p:text-gray-600 prose-code:rounded-md prose-code:bg-gray-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:font-medium prose-code:text-pink-500 prose-code:before:content-none prose-code:after:content-none dark:prose-p:text-gray-400 dark:prose-code:bg-gray-800 dark:prose-code:text-pink-400'>
                         <ReactMarkdown remarkPlugins={[remarkBreaks]}>
                           {currentQuestion.notes.replace(/\\n/g, '\n')}
                         </ReactMarkdown>
@@ -370,14 +388,14 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
               )}
 
               {/* Next Button */}
-              <div className="text-center pb-2 md:pb-4 lg:pb-8">
+              <div className='pb-2 text-center md:pb-4 lg:pb-8'>
                 <button
                   onClick={handleNextQuestion}
-                  className="px-8 py-3 md:text-lg font-medium text-white
-                             bg-green-500 hover:bg-green-600
-                             rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 w-full"
+                  className='w-full rounded-lg bg-green-500 px-8 py-3 font-medium text-white transition-colors hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 md:text-lg'
                 >
-                  {currentQuestionIndex < questions.length - 1 ? 'Next Question' : 'Finish Quiz'}
+                  {currentQuestionIndex < questions.length - 1
+                    ? 'Next Question'
+                    : 'Finish Quiz'}
                 </button>
               </div>
             </div>

@@ -6,7 +6,10 @@ export const useDarkMode = () => {
   const [theme, setTheme] = useState<Theme>(() => {
     // Check for saved theme preference or default to system preference
     const savedTheme = localStorage.getItem('theme') as Theme;
-    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
+      .matches
+      ? 'dark'
+      : 'light';
     return savedTheme || systemTheme;
   });
 
@@ -37,7 +40,7 @@ export const useDarkMode = () => {
   }, []);
 
   const toggleTheme = () => {
-    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
   };
 
   return { theme, toggleTheme, isDarkMode: theme === 'dark' };

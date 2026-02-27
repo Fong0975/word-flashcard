@@ -11,7 +11,6 @@ import {
   FamiliarityLevel,
   SearchFilter,
   PaginationParams,
-  PaginationInfo,
   ApiResponse,
   ApiErrorResponse,
   ApiRequestOptions,
@@ -160,7 +159,9 @@ export interface WordResponse extends ApiResponse<Word> {}
 /**
  * Word definitions response
  */
-export interface WordDefinitionsResponse extends ApiResponse<readonly WordDefinition[]> {}
+export interface WordDefinitionsResponse extends ApiResponse<
+  readonly WordDefinition[]
+> {}
 
 /**
  * Questions list response
@@ -282,22 +283,63 @@ export interface QuizSessionResult<TResult> {
  */
 export interface WordsApiService {
   // CRUD operations
-  readonly getWord: (id: number, options?: ApiRequestOptions) => Promise<WordResponse>;
-  readonly getWords: (params?: WordsSearchParams, options?: ApiRequestOptions) => Promise<WordsResponse>;
-  readonly searchWords: (params: WordsSearchParams, options?: ApiRequestOptions) => Promise<WordsResponse>;
-  readonly createWord: (data: CreateWordRequest, options?: ApiRequestOptions) => Promise<WordResponse>;
-  readonly updateWord: (id: number, data: UpdateWordRequest, options?: ApiRequestOptions) => Promise<WordResponse>;
-  readonly deleteWord: (id: number, options?: ApiRequestOptions) => Promise<void>;
+  readonly getWord: (
+    id: number,
+    options?: ApiRequestOptions,
+  ) => Promise<WordResponse>;
+  readonly getWords: (
+    params?: WordsSearchParams,
+    options?: ApiRequestOptions,
+  ) => Promise<WordsResponse>;
+  readonly searchWords: (
+    params: WordsSearchParams,
+    options?: ApiRequestOptions,
+  ) => Promise<WordsResponse>;
+  readonly createWord: (
+    data: CreateWordRequest,
+    options?: ApiRequestOptions,
+  ) => Promise<WordResponse>;
+  readonly updateWord: (
+    id: number,
+    data: UpdateWordRequest,
+    options?: ApiRequestOptions,
+  ) => Promise<WordResponse>;
+  readonly deleteWord: (
+    id: number,
+    options?: ApiRequestOptions,
+  ) => Promise<void>;
 
   // Definition operations
-  readonly getWordDefinitions: (wordId: number, options?: ApiRequestOptions) => Promise<WordDefinitionsResponse>;
-  readonly createWordDefinition: (wordId: number, data: CreateWordDefinitionRequest, options?: ApiRequestOptions) => Promise<ApiResponse<WordDefinition>>;
-  readonly updateWordDefinition: (wordId: number, definitionId: number, data: UpdateWordDefinitionRequest, options?: ApiRequestOptions) => Promise<ApiResponse<WordDefinition>>;
-  readonly deleteWordDefinition: (wordId: number, definitionId: number, options?: ApiRequestOptions) => Promise<void>;
+  readonly getWordDefinitions: (
+    wordId: number,
+    options?: ApiRequestOptions,
+  ) => Promise<WordDefinitionsResponse>;
+  readonly createWordDefinition: (
+    wordId: number,
+    data: CreateWordDefinitionRequest,
+    options?: ApiRequestOptions,
+  ) => Promise<ApiResponse<WordDefinition>>;
+  readonly updateWordDefinition: (
+    wordId: number,
+    definitionId: number,
+    data: UpdateWordDefinitionRequest,
+    options?: ApiRequestOptions,
+  ) => Promise<ApiResponse<WordDefinition>>;
+  readonly deleteWordDefinition: (
+    wordId: number,
+    definitionId: number,
+    options?: ApiRequestOptions,
+  ) => Promise<void>;
 
   // Utility operations
-  readonly getWordsCount: (filter?: SearchFilter, options?: ApiRequestOptions) => Promise<CountResponse>;
-  readonly getRandomWords: (request: WordsRandomRequest, options?: ApiRequestOptions) => Promise<WordsResponse>;
+  readonly getWordsCount: (
+    filter?: SearchFilter,
+    options?: ApiRequestOptions,
+  ) => Promise<CountResponse>;
+  readonly getRandomWords: (
+    request: WordsRandomRequest,
+    options?: ApiRequestOptions,
+  ) => Promise<WordsResponse>;
 }
 
 /**
@@ -305,16 +347,41 @@ export interface WordsApiService {
  */
 export interface QuestionsApiService {
   // CRUD operations
-  readonly getQuestion: (id: number, options?: ApiRequestOptions) => Promise<QuestionResponse>;
-  readonly getQuestions: (params?: QuestionsSearchParams, options?: ApiRequestOptions) => Promise<QuestionsResponse>;
-  readonly searchQuestions: (params: QuestionsSearchParams, options?: ApiRequestOptions) => Promise<QuestionsResponse>;
-  readonly createQuestion: (data: CreateQuestionRequest, options?: ApiRequestOptions) => Promise<QuestionResponse>;
-  readonly updateQuestion: (id: number, data: UpdateQuestionRequest, options?: ApiRequestOptions) => Promise<QuestionResponse>;
-  readonly deleteQuestion: (id: number, options?: ApiRequestOptions) => Promise<void>;
+  readonly getQuestion: (
+    id: number,
+    options?: ApiRequestOptions,
+  ) => Promise<QuestionResponse>;
+  readonly getQuestions: (
+    params?: QuestionsSearchParams,
+    options?: ApiRequestOptions,
+  ) => Promise<QuestionsResponse>;
+  readonly searchQuestions: (
+    params: QuestionsSearchParams,
+    options?: ApiRequestOptions,
+  ) => Promise<QuestionsResponse>;
+  readonly createQuestion: (
+    data: CreateQuestionRequest,
+    options?: ApiRequestOptions,
+  ) => Promise<QuestionResponse>;
+  readonly updateQuestion: (
+    id: number,
+    data: UpdateQuestionRequest,
+    options?: ApiRequestOptions,
+  ) => Promise<QuestionResponse>;
+  readonly deleteQuestion: (
+    id: number,
+    options?: ApiRequestOptions,
+  ) => Promise<void>;
 
   // Utility operations
-  readonly getQuestionsCount: (filter?: SearchFilter, options?: ApiRequestOptions) => Promise<CountResponse>;
-  readonly getRandomQuestions: (request: QuestionsRandomRequest, options?: ApiRequestOptions) => Promise<QuestionsResponse>;
+  readonly getQuestionsCount: (
+    filter?: SearchFilter,
+    options?: ApiRequestOptions,
+  ) => Promise<CountResponse>;
+  readonly getRandomQuestions: (
+    request: QuestionsRandomRequest,
+    options?: ApiRequestOptions,
+  ) => Promise<QuestionsResponse>;
 }
 
 /**
@@ -323,7 +390,9 @@ export interface QuestionsApiService {
 export interface ApiService extends WordsApiService, QuestionsApiService {
   // Health and meta operations
   readonly health: (options?: ApiRequestOptions) => Promise<{ status: string }>;
-  readonly version: (options?: ApiRequestOptions) => Promise<{ version: string }>;
+  readonly version: (
+    options?: ApiRequestOptions,
+  ) => Promise<{ version: string }>;
 }
 
 // ===== ERROR TYPES =====
@@ -372,7 +441,7 @@ export const isValidationError = (error: unknown): error is ValidationError => {
     typeof error === 'object' &&
     error !== null &&
     'code' in error &&
-    (error as any).code === 'VALIDATION_ERROR'
+    (error as Record<string, unknown>).code === 'VALIDATION_ERROR'
   );
 };
 
@@ -384,7 +453,7 @@ export const isNotFoundError = (error: unknown): error is NotFoundError => {
     typeof error === 'object' &&
     error !== null &&
     'code' in error &&
-    (error as any).code === 'NOT_FOUND'
+    (error as Record<string, unknown>).code === 'NOT_FOUND'
   );
 };
 
@@ -396,7 +465,7 @@ export const isConflictError = (error: unknown): error is ConflictError => {
     typeof error === 'object' &&
     error !== null &&
     'code' in error &&
-    (error as any).code === 'CONFLICT'
+    (error as Record<string, unknown>).code === 'CONFLICT'
   );
 };
 
@@ -408,6 +477,6 @@ export const isRateLimitError = (error: unknown): error is RateLimitError => {
     typeof error === 'object' &&
     error !== null &&
     'code' in error &&
-    (error as any).code === 'RATE_LIMIT_EXCEEDED'
+    (error as Record<string, unknown>).code === 'RATE_LIMIT_EXCEEDED'
   );
 };

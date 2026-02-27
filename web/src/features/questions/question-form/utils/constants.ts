@@ -6,5 +6,5 @@ export const ANSWER_OPTION_LABELS = {
   A: 'Option A',
   B: 'Option B',
   C: 'Option C',
-  D: 'Option D'
+  D: 'Option D',
 } as const;

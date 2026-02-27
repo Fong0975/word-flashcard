@@ -12,6 +12,8 @@ export interface WordFormModalProps {
   mode: 'create' | 'edit';
   word?: Word; // Required when mode is 'edit'
   currentWords?: Word[]; // Current words in the list to check if newly created word is present
+  onError?: (message: string) => void;
+  onWarning?: (message: string) => void;
 }
 
 export interface WordFormData {

@@ -1,6 +1,8 @@
 import { QuestionFormData } from '../types';
 
-export const validateQuestionForm = (formData: QuestionFormData): string | null => {
+export const validateQuestionForm = (
+  formData: QuestionFormData,
+): string | null => {
   if (!formData.question.trim()) {
     return 'Please enter a question';
   }

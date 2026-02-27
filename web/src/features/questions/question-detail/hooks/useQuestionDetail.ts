@@ -1,5 +1,11 @@
 import { useState } from 'react';
-import { QuestionDetailModalProps, QuestionActionsCallbacks } from '../types/question-detail';
+
+import { Question } from '../../../../types/api';
+import {
+  QuestionDetailModalProps,
+  QuestionActionsCallbacks,
+} from '../types/question-detail';
+
 import { useQuestionStats } from './useQuestionStats';
 import { useQuestionActions } from './useQuestionActions';
 
@@ -7,14 +13,16 @@ interface UseQuestionDetailProps {
   question: QuestionDetailModalProps['question'];
   onClose: () => void;
   onQuestionUpdated?: () => void;
-  onQuestionRefreshed?: (question: any) => void;
+  onQuestionRefreshed?: (question: Question) => void;
+  onError?: (message: string) => void;
 }
 
 export const useQuestionDetail = ({
   question,
   onClose,
   onQuestionUpdated,
-  onQuestionRefreshed
+  onQuestionRefreshed,
+  onError,
 }: UseQuestionDetailProps) => {
   const [isAnswerExpanded, setIsAnswerExpanded] = useState(false);
 
@@ -23,10 +31,10 @@ export const useQuestionDetail = ({
   const callbacks: QuestionActionsCallbacks = {
     onClose,
     onQuestionUpdated,
-    onQuestionRefreshed
+    onQuestionRefreshed,
   };
 
-  const actions = useQuestionActions({ question, callbacks });
+  const actions = useQuestionActions({ question, callbacks, onError });
 
   const toggleAnswerSection = () => {
     setIsAnswerExpanded(!isAnswerExpanded);
@@ -36,6 +44,6 @@ export const useQuestionDetail = ({
     isAnswerExpanded,
     toggleAnswerSection,
     stats,
-    actions
+    actions,
   };
 };

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+
 import { Word, WordDefinition } from '../../types/api';
 import { EntityCard } from '../shared/components/EntityCard';
 import { getFamiliarityColor } from '../shared/constants/familiarity';
+
 import { WordDetailModal } from './word-detail/WordDetailModal';
 import { DefinitionFormModal } from './definition-form';
 
@@ -12,11 +14,18 @@ interface WordCardProps {
   onWordUpdated?: () => void;
 }
 
-export const WordCard: React.FC<WordCardProps> = ({ index, word, className = '', onWordUpdated }) => {
+export const WordCard: React.FC<WordCardProps> = ({
+  index,
+  word,
+  className = '',
+  onWordUpdated,
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDefinitionModalOpen, setIsDefinitionModalOpen] = useState(false);
-  const [isEditDefinitionModalOpen, setIsEditDefinitionModalOpen] = useState(false);
-  const [editingDefinition, setEditingDefinition] = useState<WordDefinition | null>(null);
+  const [isEditDefinitionModalOpen, setIsEditDefinitionModalOpen] =
+    useState(false);
+  const [editingDefinition, setEditingDefinition] =
+    useState<WordDefinition | null>(null);
 
   const handleCardClick = () => {
     setIsModalOpen(true);
@@ -50,7 +59,6 @@ export const WordCard: React.FC<WordCardProps> = ({ index, word, className = '',
     setEditingDefinition(null);
   };
 
-
   return (
     <EntityCard
       index={index}
@@ -65,22 +73,25 @@ export const WordCard: React.FC<WordCardProps> = ({ index, word, className = '',
         onClick: handleCardClick,
         onEntityUpdated: onWordUpdated,
       }}
-      renderContent={(word) => (
+      renderContent={word => (
         <div>
           {/* Word */}
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate mb-1">
+          <h3 className='mb-1 truncate text-lg font-semibold text-gray-900 dark:text-white'>
             {word.word}
           </h3>
 
           {/* Definition count hint */}
           {word.definitions && word.definitions.length > 0 && (
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-              {word.definitions.length} definition{word.definitions.length !== 1 ? 's' : ''}
+            <p className='mt-1 text-xs text-gray-400 dark:text-gray-500'>
+              {word.definitions.length} definition
+              {word.definitions.length !== 1 ? 's' : ''}
             </p>
           )}
         </div>
       )}
-      getLeftIndicatorColor={(word) => getFamiliarityColor(word.familiarity || '')}
+      getLeftIndicatorColor={word =>
+        getFamiliarityColor(word.familiarity || '')
+      }
       additionalModals={
         <>
           {/* Modal for word details */}
@@ -109,7 +120,7 @@ export const WordCard: React.FC<WordCardProps> = ({ index, word, className = '',
             onDefinitionUpdated={handleWordUpdated}
             wordId={word.id}
             wordText={word.word}
-            mode="edit"
+            mode='edit'
             definition={editingDefinition}
           />
         </>

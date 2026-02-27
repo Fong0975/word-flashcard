@@ -48,52 +48,61 @@ export const useAudio = (): UseAudioReturn => {
     currentUrlRef.current = null;
   }, [handleEnded, handleError, handleLoadStart, handleCanPlay]);
 
-  const play = useCallback(async (url: string) => {
-    try {
-      setError(null);
+  const play = useCallback(
+    async (url: string) => {
+      try {
+        setError(null);
 
-      // If we're already playing the same URL, just pause/resume
-      if (currentUrlRef.current === url && audioRef.current) {
-        if (isPlaying) {
-          audioRef.current.pause();
-          setIsPlaying(false);
-          return;
-        } else {
-          audioRef.current.play();
-          setIsPlaying(true);
-          return;
+        // If we're already playing the same URL, just pause/resume
+        if (currentUrlRef.current === url && audioRef.current) {
+          if (isPlaying) {
+            audioRef.current.pause();
+            setIsPlaying(false);
+            return;
+          } else {
+            audioRef.current.play();
+            setIsPlaying(true);
+            return;
+          }
         }
+
+        // Stop current audio if playing
+        if (audioRef.current) {
+          cleanup();
+        }
+
+        // Create new audio instance
+        const audio = new Audio(url);
+        audioRef.current = audio;
+        currentUrlRef.current = url;
+
+        // Add event listeners
+        audio.addEventListener('ended', handleEnded);
+        audio.addEventListener('error', handleError);
+        audio.addEventListener('loadstart', handleLoadStart);
+        audio.addEventListener('canplaythrough', handleCanPlay);
+
+        // Set loading state
+        setIsLoading(true);
+
+        // Start playing
+        await audio.play();
+        setIsPlaying(true);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to play audio');
+        setIsPlaying(false);
+        setIsLoading(false);
       }
-
-      // Stop current audio if playing
-      if (audioRef.current) {
-        cleanup();
-      }
-
-      // Create new audio instance
-      const audio = new Audio(url);
-      audioRef.current = audio;
-      currentUrlRef.current = url;
-
-      // Add event listeners
-      audio.addEventListener('ended', handleEnded);
-      audio.addEventListener('error', handleError);
-      audio.addEventListener('loadstart', handleLoadStart);
-      audio.addEventListener('canplaythrough', handleCanPlay);
-
-      // Set loading state
-      setIsLoading(true);
-
-      // Start playing
-      await audio.play();
-      setIsPlaying(true);
-
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to play audio');
-      setIsPlaying(false);
-      setIsLoading(false);
-    }
-  }, [isPlaying, cleanup, handleEnded, handleError, handleLoadStart, handleCanPlay]);
+    },
+    [
+      isPlaying,
+      cleanup,
+      handleEnded,
+      handleError,
+      handleLoadStart,
+      handleCanPlay,
+    ],
+  );
 
   const pause = useCallback(() => {
     if (audioRef.current) {

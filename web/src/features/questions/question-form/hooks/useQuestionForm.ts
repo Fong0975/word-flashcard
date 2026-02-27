@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+
 import { Question } from '../../../../types/api';
 import { QuestionFormData, AnswerOption } from '../types';
 import { validateQuestionForm } from '../utils';
@@ -9,7 +10,11 @@ interface UseQuestionFormProps {
   isOpen: boolean;
 }
 
-export const useQuestionForm = ({ mode, question, isOpen }: UseQuestionFormProps) => {
+export const useQuestionForm = ({
+  mode,
+  question,
+  isOpen,
+}: UseQuestionFormProps) => {
   const [formData, setFormData] = useState<QuestionFormData>({
     question: '',
     answer: '',
@@ -17,10 +22,10 @@ export const useQuestionForm = ({ mode, question, isOpen }: UseQuestionFormProps
       A: '',
       B: '',
       C: '',
-      D: ''
+      D: '',
     },
     notes: '',
-    reference: ''
+    reference: '',
   });
 
   // Initialize form values when modal opens or question changes
@@ -33,10 +38,10 @@ export const useQuestionForm = ({ mode, question, isOpen }: UseQuestionFormProps
           A: question.option_a,
           B: question.option_b || '',
           C: question.option_c || '',
-          D: question.option_d || ''
+          D: question.option_d || '',
         },
         notes: question.notes,
-        reference: question.reference
+        reference: question.reference,
       });
     } else if (mode === 'create') {
       setFormData({
@@ -46,10 +51,10 @@ export const useQuestionForm = ({ mode, question, isOpen }: UseQuestionFormProps
           A: '',
           B: '',
           C: '',
-          D: ''
+          D: '',
         },
         notes: '',
-        reference: ''
+        reference: '',
       });
     }
   }, [mode, question, isOpen]);
@@ -63,15 +68,18 @@ export const useQuestionForm = ({ mode, question, isOpen }: UseQuestionFormProps
     setFormData(prev => ({ ...prev, answer: value }));
   }, []);
 
-  const handleOptionChange = useCallback((option: AnswerOption, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      options: {
-        ...prev.options,
-        [option]: value
-      }
-    }));
-  }, []);
+  const handleOptionChange = useCallback(
+    (option: AnswerOption, value: string) => {
+      setFormData(prev => ({
+        ...prev,
+        options: {
+          ...prev.options,
+          [option]: value,
+        },
+      }));
+    },
+    [],
+  );
 
   const handleNotesChange = useCallback((value: string) => {
     setFormData(prev => ({ ...prev, notes: value }));
@@ -90,10 +98,10 @@ export const useQuestionForm = ({ mode, question, isOpen }: UseQuestionFormProps
         A: '',
         B: '',
         C: '',
-        D: ''
+        D: '',
       },
       notes: '',
-      reference: ''
+      reference: '',
     });
   }, []);
 
@@ -110,8 +118,8 @@ export const useQuestionForm = ({ mode, question, isOpen }: UseQuestionFormProps
       handleAnswerChange,
       handleOptionChange,
       handleNotesChange,
-      handleReferenceChange
+      handleReferenceChange,
     },
-    resetForm
+    resetForm,
   };
 };

@@ -12,6 +12,11 @@
  */
 
 // ===== BASE TYPES =====
+// Import types needed for type utilities (not re-exported)
+import type { EntityListHook, FormManagerHook } from './hooks';
+import type { Word, Question, ApiError } from './api';
+import { FamiliarityLevel, type BaseEntity, type ApiResponse } from './base';
+
 export * from './base';
 
 // ===== COMPONENT TYPES =====
@@ -52,9 +57,6 @@ export type {
   ApiResponse,
 } from './base';
 
-// Export as both type and value
-export { FamiliarityLevel } from './base';
-
 export type {
   EntityListHook as UseEntityListReturn, // Legacy alias
   FormManagerHook as UseFormManagerReturn, // Legacy alias
@@ -62,25 +64,19 @@ export type {
   ErrorHandlerHook as UseErrorHandlerReturn, // Legacy alias
 } from './hooks';
 
-// Import types needed for type utilities (not re-exported)
-import type { EntityListHook, FormManagerHook } from './hooks';
-import type { BaseEntity, ApiResponse } from './base';
-import type { Word, Question, ApiError } from './api';
-
-// Import values needed for runtime validation
-import { FamiliarityLevel } from './base';
-
 // ===== TYPE UTILITIES =====
 
 /**
  * Extract the entity type from a list hook
  */
-export type EntityFromListHook<T> = T extends EntityListHook<infer U> ? U : never;
+export type EntityFromListHook<T> =
+  T extends EntityListHook<infer U> ? U : never;
 
 /**
  * Extract the form data type from a form manager hook
  */
-export type FormDataFromHook<T> = T extends FormManagerHook<infer U> ? U : never;
+export type FormDataFromHook<T> =
+  T extends FormManagerHook<infer U> ? U : never;
 
 /**
  * Extract the data type from an API response
@@ -91,7 +87,9 @@ export type DataFromResponse<T> = T extends ApiResponse<infer U> ? U : never;
  * Make API request type from entity type
  */
 export type CreateRequestFromEntity<T extends BaseEntity> = Omit<T, 'id'>;
-export type UpdateRequestFromEntity<T extends BaseEntity> = Partial<Omit<T, 'id'>>;
+export type UpdateRequestFromEntity<T extends BaseEntity> = Partial<
+  Omit<T, 'id'>
+>;
 
 /**
  * Extract keys that can be used for search
@@ -106,7 +104,8 @@ export type SearchableKeys<T> = {
 export type ID = number;
 export type Timestamp = string;
 export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
-export type RequiredBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
+export type RequiredBy<T, K extends keyof T> = Omit<T, K> &
+  Required<Pick<T, K>>;
 
 // ===== GLOBAL TYPE AUGMENTATIONS =====
 
@@ -144,7 +143,7 @@ export const TypeValidation = {
       typeof value === 'object' &&
       value !== null &&
       'id' in value &&
-      typeof (value as any).id === 'number'
+      typeof (value as Record<string, unknown>).id === 'number'
     );
   },
 
@@ -155,10 +154,10 @@ export const TypeValidation = {
     return (
       TypeValidation.isEntity(value) &&
       'word' in value &&
-      typeof (value as any).word === 'string' &&
+      typeof (value as Record<string, unknown>).word === 'string' &&
       'familiarity' in value &&
       'definitions' in value &&
-      Array.isArray((value as any).definitions)
+      Array.isArray((value as Record<string, unknown>).definitions)
     );
   },
 
@@ -169,11 +168,11 @@ export const TypeValidation = {
     return (
       TypeValidation.isEntity(value) &&
       'question' in value &&
-      typeof (value as any).question === 'string' &&
+      typeof (value as Record<string, unknown>).question === 'string' &&
       'answer' in value &&
-      typeof (value as any).answer === 'string' &&
+      typeof (value as Record<string, unknown>).answer === 'string' &&
       'option_a' in value &&
-      typeof (value as any).option_a === 'string'
+      typeof (value as Record<string, unknown>).option_a === 'string'
     );
   },
 
@@ -191,11 +190,7 @@ export const TypeValidation = {
    * Check if value is a valid API response
    */
   isApiResponse: <T>(value: unknown): value is ApiResponse<T> => {
-    return (
-      typeof value === 'object' &&
-      value !== null &&
-      'data' in value
-    );
+    return typeof value === 'object' && value !== null && 'data' in value;
   },
 
   /**
@@ -206,7 +201,7 @@ export const TypeValidation = {
       typeof value === 'object' &&
       value !== null &&
       'error' in value &&
-      typeof (value as any).error === 'string'
+      typeof (value as Record<string, unknown>).error === 'string'
     );
   },
 } as const;

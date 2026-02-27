@@ -33,7 +33,10 @@ export const Pagination: React.FC<PaginationProps> = ({
 }) => {
   // Calculate display range
   const startItem = (currentPage - 1) * itemsPerPage + 1;
-  const endItem = Math.min(currentPage * itemsPerPage, totalItems || currentPage * itemsPerPage);
+  const endItem = Math.min(
+    currentPage * itemsPerPage,
+    totalItems || currentPage * itemsPerPage,
+  );
 
   // Generate page numbers to show
   const getPageNumbers = () => {
@@ -69,7 +72,8 @@ export const Pagination: React.FC<PaginationProps> = ({
     focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
   `;
 
-  const buttonMobileClass = `w-full mx-1 relative inline-flex items-center justify-center`;
+  const buttonMobileClass =
+    'w-full mx-1 relative inline-flex items-center justify-center';
 
   const buttonEnabledClass = `
     bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200
@@ -88,28 +92,37 @@ export const Pagination: React.FC<PaginationProps> = ({
   `;
 
   return (
-    <nav className={`flex items-center justify-between w-full ${className}`} aria-label="Pagination">
+    <nav
+      className={`flex w-full items-center justify-between ${className}`}
+      aria-label='Pagination'
+    >
       {/* Mobile section */}
-      <div className="flex-1 sm:hidden">
+      <div className='flex-1 sm:hidden'>
         {/* Mobile navigation buttons */}
-        <div className="flex justify-between items-center mb-2">
+        <div className='mb-2 flex items-center justify-between'>
           <button
             onClick={onFirst}
             disabled={currentPage === 1 || loading}
             className={`${buttonBaseClass} ${buttonMobileClass} ${
-              currentPage > 1 && !loading ? buttonEnabledClass : buttonDisabledClass
+              currentPage > 1 && !loading
+                ? buttonEnabledClass
+                : buttonDisabledClass
             }`}
           >
-            <span className="sr-only">First page</span>
+            <span className='sr-only'>First page</span>
             <svg
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="2"
-                stroke="currentColor"
-                aria-hidden="true"
+              className='h-4 w-4'
+              fill='none'
+              viewBox='0 0 24 24'
+              strokeWidth='2'
+              stroke='currentColor'
+              aria-hidden='true'
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M18.75 19.5l-7.5-7.5 7.5-7.5m-6 15L5.25 12l7.5-7.5" />
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                d='M18.75 19.5l-7.5-7.5 7.5-7.5m-6 15L5.25 12l7.5-7.5'
+              />
             </svg>
           </button>
           <button
@@ -119,16 +132,20 @@ export const Pagination: React.FC<PaginationProps> = ({
               hasPrevious && !loading ? buttonEnabledClass : buttonDisabledClass
             }`}
           >
-            <span className="sr-only">Previous</span>
+            <span className='sr-only'>Previous</span>
             <svg
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="2"
-                stroke="currentColor"
-                aria-hidden="true"
+              className='h-4 w-4'
+              fill='none'
+              viewBox='0 0 24 24'
+              strokeWidth='2'
+              stroke='currentColor'
+              aria-hidden='true'
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                d='M15 19l-7-7 7-7'
+              />
             </svg>
           </button>
           <button
@@ -138,43 +155,55 @@ export const Pagination: React.FC<PaginationProps> = ({
               hasNext && !loading ? buttonEnabledClass : buttonDisabledClass
             }`}
           >
-            <span className="sr-only">Next</span>
+            <span className='sr-only'>Next</span>
             <svg
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="2"
-                stroke="currentColor"
-                aria-hidden="true"
+              className='h-4 w-4'
+              fill='none'
+              viewBox='0 0 24 24'
+              strokeWidth='2'
+              stroke='currentColor'
+              aria-hidden='true'
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                d='M9 5l7 7-7 7'
+              />
             </svg>
           </button>
           <button
             onClick={onLast}
             disabled={currentPage === totalPages || loading}
             className={`${buttonBaseClass} ${buttonMobileClass} ${
-              currentPage < totalPages && !loading ? buttonEnabledClass : buttonDisabledClass
+              currentPage < totalPages && !loading
+                ? buttonEnabledClass
+                : buttonDisabledClass
             }`}
           >
-            <span className="sr-only">Last page</span>
+            <span className='sr-only'>Last page</span>
             <svg
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="2"
-                stroke="currentColor"
-                aria-hidden="true"
+              className='h-4 w-4'
+              fill='none'
+              viewBox='0 0 24 24'
+              strokeWidth='2'
+              stroke='currentColor'
+              aria-hidden='true'
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 4.5l7.5 7.5-7.5 7.5m6-15l7.5 7.5-7.5 7.5" />
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                d='M5.25 4.5l7.5 7.5-7.5 7.5m6-15l7.5 7.5-7.5 7.5'
+              />
             </svg>
           </button>
         </div>
         {/* Mobile page info */}
-        <div className="text-sm text-gray-700 dark:text-gray-300 flex flex-col items-center justify-center mt-3">
-          <span>Page {currentPage} of {totalPages}</span>
+        <div className='mt-3 flex flex-col items-center justify-center text-sm text-gray-700 dark:text-gray-300'>
+          <span>
+            Page {currentPage} of {totalPages}
+          </span>
           {totalItems && (
-            <span className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <span className='mt-1 text-xs text-gray-500 dark:text-gray-400'>
               ({totalItems} total)
             </span>
           )}
@@ -182,45 +211,46 @@ export const Pagination: React.FC<PaginationProps> = ({
       </div>
 
       {/* Desktop pagination */}
-      <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-        <div className="flex-shrink-0">
-          <p className="text-sm text-gray-700 dark:text-gray-300">
-            Showing{' '}
-            <span className="font-medium">{startItem}</span>
-            {' '}to{' '}
-            <span className="font-medium">{endItem}</span>
+      <div className='hidden sm:flex sm:flex-1 sm:items-center sm:justify-between'>
+        <div className='flex-shrink-0'>
+          <p className='text-sm text-gray-700 dark:text-gray-300'>
+            Showing <span className='font-medium'>{startItem}</span> to{' '}
+            <span className='font-medium'>{endItem}</span>
             {totalItems && (
               <>
-                {' '}of{' '}
-                <span className="font-medium">{totalItems}</span>
+                {' '}
+                of <span className='font-medium'>{totalItems}</span>
               </>
-            )}
-            {' '}results
+            )}{' '}
+            results
           </p>
         </div>
 
-        <div className="flex-shrink-0 ml-auto">
-          <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+        <div className='ml-auto flex-shrink-0'>
+          <nav
+            className='isolate inline-flex -space-x-px rounded-md shadow-sm'
+            aria-label='Pagination'
+          >
             {/* First button */}
             <button
               onClick={onFirst}
               disabled={currentPage === 1 || loading}
-              className={`
-                relative inline-flex items-center rounded-l-md px-3 py-2 text-sm font-medium
-                border border-gray-300 dark:border-gray-600
-                ${currentPage > 1 && !loading ? buttonEnabledClass : buttonDisabledClass}
-              `}
+              className={`relative inline-flex items-center rounded-l-md border border-gray-300 px-3 py-2 text-sm font-medium dark:border-gray-600 ${currentPage > 1 && !loading ? buttonEnabledClass : buttonDisabledClass} `}
             >
-              <span className="sr-only">First page</span>
+              <span className='sr-only'>First page</span>
               <svg
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="2"
-                stroke="currentColor"
-                aria-hidden="true"
+                className='h-4 w-4'
+                fill='none'
+                viewBox='0 0 24 24'
+                strokeWidth='2'
+                stroke='currentColor'
+                aria-hidden='true'
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M18.75 19.5l-7.5-7.5 7.5-7.5m-6 15L5.25 12l7.5-7.5" />
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  d='M18.75 19.5l-7.5-7.5 7.5-7.5m-6 15L5.25 12l7.5-7.5'
+                />
               </svg>
             </button>
 
@@ -228,41 +258,38 @@ export const Pagination: React.FC<PaginationProps> = ({
             <button
               onClick={onPrevious}
               disabled={!hasPrevious || loading}
-              className={`
-                relative inline-flex items-center px-3 py-2 text-sm font-medium
-                border border-gray-300 dark:border-gray-600
-                ${hasPrevious && !loading ? buttonEnabledClass : buttonDisabledClass}
-              `}
+              className={`relative inline-flex items-center border border-gray-300 px-3 py-2 text-sm font-medium dark:border-gray-600 ${hasPrevious && !loading ? buttonEnabledClass : buttonDisabledClass} `}
             >
-              <span className="sr-only">Previous</span>
+              <span className='sr-only'>Previous</span>
               <svg
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="2"
-                stroke="currentColor"
-                aria-hidden="true"
+                className='h-4 w-4'
+                fill='none'
+                viewBox='0 0 24 24'
+                strokeWidth='2'
+                stroke='currentColor'
+                aria-hidden='true'
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  d='M15 19l-7-7 7-7'
+                />
               </svg>
             </button>
 
             {/* Page numbers */}
-            {pageNumbers.map((pageNum) => (
+            {pageNumbers.map(pageNum => (
               <button
                 key={pageNum}
                 onClick={() => onPageChange(pageNum)}
                 disabled={loading}
-                className={`
-                  relative inline-flex items-center px-4 py-2 text-sm font-medium
-                  border border-gray-300 dark:border-gray-600
-                  ${pageNum === currentPage
+                className={`relative inline-flex items-center border border-gray-300 px-4 py-2 text-sm font-medium dark:border-gray-600 ${
+                  pageNum === currentPage
                     ? buttonActiveClass
                     : loading
-                    ? buttonDisabledClass
-                    : buttonEnabledClass
-                  }
-                `}
+                      ? buttonDisabledClass
+                      : buttonEnabledClass
+                } `}
                 aria-current={pageNum === currentPage ? 'page' : undefined}
               >
                 {pageNum}
@@ -271,7 +298,7 @@ export const Pagination: React.FC<PaginationProps> = ({
 
             {/* Show ellipsis if there are more pages */}
             {totalPages > pageNumbers[pageNumbers.length - 1] && (
-              <span className="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800">
+              <span className='relative inline-flex items-center border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300'>
                 ...
               </span>
             )}
@@ -280,22 +307,22 @@ export const Pagination: React.FC<PaginationProps> = ({
             <button
               onClick={onNext}
               disabled={!hasNext || loading}
-              className={`
-                relative inline-flex items-center px-3 py-2 text-sm font-medium
-                border border-gray-300 dark:border-gray-600
-                ${hasNext && !loading ? buttonEnabledClass : buttonDisabledClass}
-              `}
+              className={`relative inline-flex items-center border border-gray-300 px-3 py-2 text-sm font-medium dark:border-gray-600 ${hasNext && !loading ? buttonEnabledClass : buttonDisabledClass} `}
             >
-              <span className="sr-only">Next</span>
+              <span className='sr-only'>Next</span>
               <svg
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="2"
-                stroke="currentColor"
-                aria-hidden="true"
+                className='h-4 w-4'
+                fill='none'
+                viewBox='0 0 24 24'
+                strokeWidth='2'
+                stroke='currentColor'
+                aria-hidden='true'
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  d='M9 5l7 7-7 7'
+                />
               </svg>
             </button>
 
@@ -303,22 +330,22 @@ export const Pagination: React.FC<PaginationProps> = ({
             <button
               onClick={onLast}
               disabled={currentPage === totalPages || loading}
-              className={`
-                relative inline-flex items-center rounded-r-md px-3 py-2 text-sm font-medium
-                border border-gray-300 dark:border-gray-600
-                ${currentPage < totalPages && !loading ? buttonEnabledClass : buttonDisabledClass}
-              `}
+              className={`relative inline-flex items-center rounded-r-md border border-gray-300 px-3 py-2 text-sm font-medium dark:border-gray-600 ${currentPage < totalPages && !loading ? buttonEnabledClass : buttonDisabledClass} `}
             >
-              <span className="sr-only">Last page</span>
+              <span className='sr-only'>Last page</span>
               <svg
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="2"
-                stroke="currentColor"
-                aria-hidden="true"
+                className='h-4 w-4'
+                fill='none'
+                viewBox='0 0 24 24'
+                strokeWidth='2'
+                stroke='currentColor'
+                aria-hidden='true'
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 4.5l7.5 7.5-7.5 7.5m6-15l7.5 7.5-7.5 7.5" />
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  d='M5.25 4.5l7.5 7.5-7.5 7.5m6-15l7.5 7.5-7.5 7.5'
+                />
               </svg>
             </button>
           </nav>

@@ -36,7 +36,9 @@ export interface ModalLayoutClasses {
  * // Use layout.container, layout.header, layout.content, layout.footer
  * // in your modal JSX structure
  */
-export const useModalLayout = (config: ModalLayoutConfig = {}): ModalLayoutClasses => {
+export const useModalLayout = (
+  config: ModalLayoutConfig = {},
+): ModalLayoutClasses => {
   const {
     hasFixedHeader = false,
     hasFixedFooter = false,
@@ -49,7 +51,8 @@ export const useModalLayout = (config: ModalLayoutConfig = {}): ModalLayoutClass
   const layout = useMemo(() => {
     const baseContainer = 'flex flex-col';
     const baseHeader = hasFixedHeader ? 'flex-shrink-0' : '';
-    const baseContent = hasFixedHeader || hasFixedFooter ? 'flex-1 min-h-0 overflow-y-auto' : '';
+    const baseContent =
+      hasFixedHeader || hasFixedFooter ? 'flex-1 min-h-0 overflow-y-auto' : '';
     const baseFooter = hasFixedFooter ? 'flex-shrink-0' : '';
 
     return {
@@ -58,7 +61,14 @@ export const useModalLayout = (config: ModalLayoutConfig = {}): ModalLayoutClass
       content: [baseContent, contentClassName].filter(Boolean).join(' '),
       footer: [baseFooter, footerClassName].filter(Boolean).join(' '),
     };
-  }, [hasFixedHeader, hasFixedFooter, className, contentClassName, headerClassName, footerClassName]);
+  }, [
+    hasFixedHeader,
+    hasFixedFooter,
+    className,
+    contentClassName,
+    headerClassName,
+    footerClassName,
+  ]);
 
   return layout;
 };
@@ -107,8 +117,10 @@ export const ModalLayoutPresets = {
     hasFixedHeader: true,
     hasFixedFooter: true,
     className: 'max-h-[95vh] overflow-hidden flex flex-col',
-    headerClassName: 'flex-shrink-0 px-6 pt-6 pb-0 mb-2 border-b border-gray-200 dark:border-gray-700',
+    headerClassName:
+      'flex-shrink-0 px-6 pt-6 pb-0 mb-2 border-b border-gray-200 dark:border-gray-700',
     contentClassName: 'flex-1 min-h-0 overflow-y-auto px-6 py-2',
-    footerClassName: 'flex-shrink-0 px-6 pt-0 pb-6 border-t border-gray-200 dark:border-gray-700',
+    footerClassName:
+      'flex-shrink-0 px-6 pt-0 pb-6 border-t border-gray-200 dark:border-gray-700',
   },
 } as const;

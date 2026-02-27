@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+
 import { Word } from '../../../../types/api';
 import { FamiliarityLevel } from '../../../../types/base';
 import { WordFormData } from '../types';
@@ -12,7 +13,7 @@ interface UseWordFormProps {
 export const useWordForm = ({ mode, word, isOpen }: UseWordFormProps) => {
   const [formData, setFormData] = useState<WordFormData>({
     word: '',
-    familiarity: FamiliarityLevel.GREEN
+    familiarity: FamiliarityLevel.GREEN,
   });
 
   // Initialize form values when modal opens or word changes
@@ -20,12 +21,12 @@ export const useWordForm = ({ mode, word, isOpen }: UseWordFormProps) => {
     if (mode === 'edit' && word) {
       setFormData({
         word: word.word,
-        familiarity: word.familiarity || FamiliarityLevel.GREEN
+        familiarity: word.familiarity || FamiliarityLevel.GREEN,
       });
     } else if (mode === 'create') {
       setFormData({
         word: '',
-        familiarity: FamiliarityLevel.GREEN
+        familiarity: FamiliarityLevel.GREEN,
       });
     }
   }, [mode, word, isOpen]);
@@ -35,15 +36,18 @@ export const useWordForm = ({ mode, word, isOpen }: UseWordFormProps) => {
     setFormData(prev => ({ ...prev, word: value }));
   }, []);
 
-  const handleFamiliarityChange = useCallback((familiarity: FamiliarityLevel) => {
-    setFormData(prev => ({ ...prev, familiarity }));
-  }, []);
+  const handleFamiliarityChange = useCallback(
+    (familiarity: FamiliarityLevel) => {
+      setFormData(prev => ({ ...prev, familiarity }));
+    },
+    [],
+  );
 
   // Reset form
   const resetForm = useCallback(() => {
     setFormData({
       word: '',
-      familiarity: FamiliarityLevel.GREEN
+      familiarity: FamiliarityLevel.GREEN,
     });
   }, []);
 
@@ -55,8 +59,8 @@ export const useWordForm = ({ mode, word, isOpen }: UseWordFormProps) => {
     isValid,
     handlers: {
       handleWordChange,
-      handleFamiliarityChange
+      handleFamiliarityChange,
     },
-    resetForm
+    resetForm,
   };
 };

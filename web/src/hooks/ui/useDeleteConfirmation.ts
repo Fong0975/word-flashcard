@@ -39,7 +39,7 @@ export interface UseDeleteConfirmationReturn {
  *     onClose();
  *     onWordUpdated?.();
  *   },
- *   onError: (error) => console.error('Delete failed:', error)
+ *   onError: (error) => showError(`Delete failed: ${error.message}`)
  * });
  *
  * // In component:
@@ -78,7 +78,9 @@ export const useDeleteConfirmation = <T>({
   };
 
   const confirmDelete = async (): Promise<void> => {
-    if (!entity) return;
+    if (!entity) {
+      return;
+    }
 
     try {
       setIsDeleting(true);
@@ -88,7 +90,6 @@ export const useDeleteConfirmation = <T>({
     } catch (error) {
       const err = error instanceof Error ? error : new Error('Delete failed');
       onError?.(err);
-      console.error('Failed to delete entity:', error);
     } finally {
       setIsDeleting(false);
     }

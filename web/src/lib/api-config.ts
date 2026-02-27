@@ -7,7 +7,8 @@ export const API_CONFIG = {
   port: process.env.REACT_APP_API_PORT || '8080',
 
   // Dictionary API configuration
-  dictionaryHostname: process.env.REACT_APP_API_HOSTNAME_DICTIONARY || 'localhost',
+  dictionaryHostname:
+    process.env.REACT_APP_API_HOSTNAME_DICTIONARY || 'localhost',
   dictionaryPort: process.env.REACT_APP_API_PORT_DICTIONARY || '8081',
 
   // Construct base URL
@@ -36,8 +37,10 @@ export const API_ENDPOINTS = {
   wordsRandom: '/words/random',
   wordsCount: '/words/count',
   wordDefinition: (wordId: number) => `/words/definition/${wordId}`,
-  updateDefinition: (definitionId: number) => `/words/definition/${definitionId}`,
-  deleteDefinition: (definitionId: number) => `/words/definition/${definitionId}`,
+  updateDefinition: (definitionId: number) =>
+    `/words/definition/${definitionId}`,
+  deleteDefinition: (definitionId: number) =>
+    `/words/definition/${definitionId}`,
   questions: '/questions',
   questionById: (questionId: number) => `/questions/${questionId}`,
   questionsRandom: '/questions/random',

@@ -3,7 +3,7 @@ import { useState, useCallback } from 'react';
 /**
  * Modal configuration interface
  */
-export interface ModalConfig<T = any> {
+export interface ModalConfig<T = unknown> {
   isOpen: boolean;
   data?: T;
 }
@@ -11,7 +11,7 @@ export interface ModalConfig<T = any> {
 /**
  * Modal manager return type
  */
-export interface UseModalManagerReturn<T = any> {
+export interface UseModalManagerReturn<T = unknown> {
   modalState: Record<string, ModalConfig<T>>;
   openModal: (modalName: string, data?: T) => void;
   closeModal: (modalName: string) => void;
@@ -46,8 +46,10 @@ export interface UseModalManagerReturn<T = any> {
  * modalManager.closeModal('editWord');
  * ```
  */
-export const useModalManager = <T = any>(): UseModalManagerReturn<T> => {
-  const [modalState, setModalState] = useState<Record<string, ModalConfig<T>>>({});
+export const useModalManager = <T = unknown>(): UseModalManagerReturn<T> => {
+  const [modalState, setModalState] = useState<Record<string, ModalConfig<T>>>(
+    {},
+  );
 
   const openModal = useCallback((modalName: string, data?: T) => {
     setModalState(prev => ({
@@ -82,13 +84,19 @@ export const useModalManager = <T = any>(): UseModalManagerReturn<T> => {
     });
   }, []);
 
-  const isModalOpen = useCallback((modalName: string): boolean => {
-    return modalState[modalName]?.isOpen ?? false;
-  }, [modalState]);
+  const isModalOpen = useCallback(
+    (modalName: string): boolean => {
+      return modalState[modalName]?.isOpen ?? false;
+    },
+    [modalState],
+  );
 
-  const getModalData = useCallback(<K = T>(modalName: string): K | undefined => {
-    return modalState[modalName]?.data as K | undefined;
-  }, [modalState]);
+  const getModalData = useCallback(
+    <K = T>(modalName: string): K | undefined => {
+      return modalState[modalName]?.data as K | undefined;
+    },
+    [modalState],
+  );
 
   const setModalData = useCallback((modalName: string, data: T) => {
     setModalState(prev => ({
@@ -134,4 +142,4 @@ export const MODAL_NAMES = {
   QUESTION_DETAIL: 'questionDetail',
 } as const;
 
-export type ModalName = typeof MODAL_NAMES[keyof typeof MODAL_NAMES];
+export type ModalName = (typeof MODAL_NAMES)[keyof typeof MODAL_NAMES];

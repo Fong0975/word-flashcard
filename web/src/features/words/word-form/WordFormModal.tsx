@@ -1,6 +1,8 @@
 import React, { useEffect, useCallback } from 'react';
+
 import { Modal } from '../../../components/ui/Modal';
 import { Word } from '../../../types/api';
+
 import { WordFormModalProps } from './types';
 import { useWordForm, useWordSearch, useWordSubmit } from './hooks';
 import {
@@ -8,7 +10,7 @@ import {
   SearchSuggestions,
   FamiliaritySelector,
   ErrorMessage,
-  FormActions
+  FormActions,
 } from './components';
 
 export const WordFormModal: React.FC<WordFormModalProps> = ({
@@ -19,40 +21,20 @@ export const WordFormModal: React.FC<WordFormModalProps> = ({
   mode,
   word,
   currentWords = [],
+  onError,
+  onWarning,
 }) => {
   // Hooks
   const formLogic = useWordForm({ mode, word, isOpen });
-  const searchLogic = useWordSearch({ mode, editingWord: word });
+  const searchLogic = useWordSearch({ mode, editingWord: word, onError });
   const submitLogic = useWordSubmit({
     mode,
     word,
     currentWords,
     callbacks: { onClose, onWordSaved, onOpenWordDetail },
-    resetForm: formLogic.resetForm
+    resetForm: formLogic.resetForm,
+    onWarning,
   });
-
-  // Handle word input change (both form and search)
-  const handleWordChange = useCallback((value: string) => {
-    formLogic.handlers.handleWordChange(value);
-    searchLogic.handleWordChange(value);
-  }, [formLogic.handlers.handleWordChange, searchLogic.handleWordChange]);
-
-  // Handle suggestion click
-  const handleSuggestionClick = useCallback((suggestedWord: Word) => {
-    if (onOpenWordDetail) {
-      // Close current modal and notify parent to open WordDetailModal
-      handleClose();
-      onOpenWordDetail(suggestedWord);
-    }
-  }, [onOpenWordDetail]);
-
-  // Handle form submission
-  const handleSubmit = useCallback((e?: React.FormEvent) => {
-    if (e) {
-      e.preventDefault();
-    }
-    submitLogic.handleSubmit(formLogic.formData);
-  }, [submitLogic.handleSubmit, formLogic.formData]);
 
   // Handle modal close
   const handleClose = useCallback(() => {
@@ -63,14 +45,46 @@ export const WordFormModal: React.FC<WordFormModalProps> = ({
       formLogic.resetForm();
       onClose();
     }
-  }, [submitLogic.isSubmitting, searchLogic, formLogic.resetForm, onClose]);
+  }, [submitLogic.isSubmitting, searchLogic, formLogic, onClose]);
+
+  // Handle word input change (both form and search)
+  const handleWordChange = useCallback(
+    (value: string) => {
+      formLogic.handlers.handleWordChange(value);
+      searchLogic.handleWordChange(value);
+    },
+    [formLogic.handlers, searchLogic],
+  );
+
+  // Handle suggestion click
+  const handleSuggestionClick = useCallback(
+    (suggestedWord: Word) => {
+      if (onOpenWordDetail) {
+        // Close current modal and notify parent to open WordDetailModal
+        handleClose();
+        onOpenWordDetail(suggestedWord);
+      }
+    },
+    [onOpenWordDetail, handleClose],
+  );
+
+  // Handle form submission
+  const handleSubmit = useCallback(
+    (e?: React.FormEvent) => {
+      if (e) {
+        e.preventDefault();
+      }
+      submitLogic.handleSubmit(formLogic.formData);
+    },
+    [submitLogic, formLogic.formData],
+  );
 
   // Reset search when modal opens/closes
   useEffect(() => {
     if (!isOpen) {
       searchLogic.resetSearch();
     }
-  }, [isOpen, searchLogic.resetSearch]);
+  }, [isOpen, searchLogic]);
 
   const modalTitle = mode === 'create' ? 'Add New Word' : 'Edit Word';
 
@@ -79,11 +93,11 @@ export const WordFormModal: React.FC<WordFormModalProps> = ({
       isOpen={isOpen}
       onClose={handleClose}
       title={modalTitle}
-      maxWidth="md"
+      maxWidth='md'
       disableBackdropClose={true}
     >
       <form onSubmit={handleSubmit}>
-        <div className="space-y-4">
+        <div className='space-y-4'>
           {/* Word Input Field */}
           <WordInput
             value={formLogic.formData.word}

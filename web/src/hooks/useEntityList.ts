@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+
 import { ApiError } from '../lib/api';
-import { SearchFilter } from '../types/base';
+import { SearchFilter, BaseEntity } from '../types/base';
 
 /**
  * Generic hook for managing paginated entity lists (words, questions, etc.)
@@ -41,12 +42,6 @@ import { SearchFilter } from '../types/base';
  * ```
  */
 
-// Generic entity type constraint
-export interface BaseEntity {
-  id: number;
-  [key: string]: any;
-}
-
 // Generic state interface
 export interface UseEntityListState<T> {
   entities: T[];
@@ -62,6 +57,7 @@ export interface UseEntityListState<T> {
 }
 
 // Generic actions interface
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface UseEntityListActions<T> {
   fetchEntities: (page?: number) => Promise<void>;
   nextPage: () => Promise<void>;
@@ -75,7 +71,8 @@ export interface UseEntityListActions<T> {
 }
 
 // Generic return interface
-export interface UseEntityListReturn<T> extends UseEntityListState<T>, UseEntityListActions<T> {}
+export interface UseEntityListReturn<T>
+  extends UseEntityListState<T>, UseEntityListActions<T> {}
 
 // Search configuration
 export interface SearchConfig<T> {
@@ -88,7 +85,11 @@ export interface SearchConfig<T> {
 
 // API service configuration
 export interface ApiServiceConfig<T> {
-  fetchList: (params: { limit: number; offset: number; searchFilter?: SearchFilter }) => Promise<T[]>;
+  fetchList: (params: {
+    limit: number;
+    offset: number;
+    searchFilter?: SearchFilter;
+  }) => Promise<T[]>;
   getCount: (searchFilter?: SearchFilter) => Promise<{ count: number }>;
 }
 
@@ -103,7 +104,7 @@ export interface UseEntityListOptions<T> {
 }
 
 export const useEntityList = <T extends BaseEntity>(
-  options: UseEntityListOptions<T>
+  options: UseEntityListOptions<T>,
 ): UseEntityListReturn<T> => {
   const {
     entityName,
@@ -130,81 +131,97 @@ export const useEntityList = <T extends BaseEntity>(
   const mounted = useRef(false);
   const previousSearchTerm = useRef('');
 
-  const fetchEntities = useCallback(async (page?: number) => {
-    setState(prev => ({
-      ...prev,
-      loading: true,
-      error: null,
-    }));
-
-    try {
-      const targetPage = page ?? state.currentPage;
-      const offset = (targetPage - 1) * itemsPerPage;
-
-      // Create search filter for server-side search
-      const searchFilter = searchConfig.type === 'server' && searchConfig.createSearchFilter
-        ? searchConfig.createSearchFilter(state.searchTerm)
-        : undefined;
-
-      const params = {
-        limit: itemsPerPage,
-        offset,
-        ...(searchFilter && { searchFilter }),
-      };
-
-      // Get entities and total count in parallel for better performance
-      const [entitiesResponse, countResponse] = await Promise.all([
-        apiService.fetchList(params),
-        apiService.getCount(searchFilter)
-      ]);
-
-      let entities = entitiesResponse;
-      if (entities == null || !Array.isArray(entities)) {
-        entities = [];
-      }
-
-      // Get the total count from the API response
-      const totalCount = countResponse.count || 0;
-
-      // Apply client-side filtering if configured
-      if (searchConfig.type === 'client' && state.searchTerm && searchConfig.filterPredicate) {
-        entities = entities.filter(entity => searchConfig.filterPredicate!(entity, state.searchTerm));
-      }
-
-      // Calculate pagination info based on real total count
-      const totalPages = Math.ceil(totalCount / itemsPerPage);
-      const hasNext = targetPage < totalPages;
-      const hasPrevious = targetPage > 1;
-
+  const fetchEntities = useCallback(
+    async (page?: number) => {
       setState(prev => ({
         ...prev,
-        entities,
-        loading: false,
-        currentPage: targetPage,
-        totalPages,
-        hasNext,
-        hasPrevious,
-        totalCount,
+        loading: true,
+        error: null,
       }));
 
-    } catch (error) {
-      let errorMessage = `Failed to fetch ${entityName}`;
+      try {
+        const targetPage = page ?? state.currentPage;
+        const offset = (targetPage - 1) * itemsPerPage;
 
-      if (error instanceof ApiError) {
-        errorMessage = error.message;
-      } else if (error instanceof Error) {
-        errorMessage = error.message;
+        // Create search filter for server-side search
+        const searchFilter =
+          searchConfig.type === 'server' && searchConfig.createSearchFilter
+            ? searchConfig.createSearchFilter(state.searchTerm)
+            : undefined;
+
+        const params = {
+          limit: itemsPerPage,
+          offset,
+          ...(searchFilter && { searchFilter }),
+        };
+
+        // Get entities and total count in parallel for better performance
+        const [entitiesResponse, countResponse] = await Promise.all([
+          apiService.fetchList(params),
+          apiService.getCount(searchFilter),
+        ]);
+
+        let entities = entitiesResponse;
+        if (entities === null || !Array.isArray(entities)) {
+          entities = [];
+        }
+
+        // Get the total count from the API response
+        const totalCount = countResponse.count || 0;
+
+        // Apply client-side filtering if configured
+        if (
+          searchConfig.type === 'client' &&
+          state.searchTerm &&
+          searchConfig.filterPredicate
+        ) {
+          entities = entities.filter(entity =>
+            searchConfig.filterPredicate!(entity, state.searchTerm),
+          );
+        }
+
+        // Calculate pagination info based on real total count
+        const totalPages = Math.ceil(totalCount / itemsPerPage);
+        const hasNext = targetPage < totalPages;
+        const hasPrevious = targetPage > 1;
+
+        setState(prev => ({
+          ...prev,
+          entities,
+          loading: false,
+          currentPage: targetPage,
+          totalPages,
+          hasNext,
+          hasPrevious,
+          totalCount,
+        }));
+      } catch (error) {
+        let errorMessage = `Failed to fetch ${entityName}`;
+
+        if (error instanceof ApiError) {
+          errorMessage = error.message;
+        } else if (error instanceof Error) {
+          errorMessage = error.message;
+        }
+
+        setState(prev => ({
+          ...prev,
+          loading: false,
+          error: errorMessage,
+          entities: [],
+          totalCount: 0,
+        }));
       }
-
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        error: errorMessage,
-        entities: [],
-        totalCount: 0,
-      }));
-    }
-  }, [state.currentPage, state.searchTerm, itemsPerPage, entityName, apiService, searchConfig]);
+    },
+    [
+      state.currentPage,
+      state.searchTerm,
+      itemsPerPage,
+      entityName,
+      apiService,
+      searchConfig,
+    ],
+  );
 
   const nextPage = useCallback(async () => {
     if (state.hasNext && !state.loading) {
@@ -218,11 +235,14 @@ export const useEntityList = <T extends BaseEntity>(
     }
   }, [state.hasPrevious, state.loading, state.currentPage, fetchEntities]);
 
-  const goToPage = useCallback(async (page: number) => {
-    if (page >= 1 && page <= state.totalPages && !state.loading) {
-      await fetchEntities(page);
-    }
-  }, [state.totalPages, state.loading, fetchEntities]);
+  const goToPage = useCallback(
+    async (page: number) => {
+      if (page >= 1 && page <= state.totalPages && !state.loading) {
+        await fetchEntities(page);
+      }
+    },
+    [state.totalPages, state.loading, fetchEntities],
+  );
 
   const goToFirst = useCallback(async () => {
     if (state.currentPage > 1 && !state.loading) {

@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { DropdownMenu, DropdownMenuItem } from './DropdownMenu';
 
 interface ActionButtonProps {
@@ -29,33 +30,29 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
   `;
 
   const triggerButton = (
-    <button
-      type="button"
-      className={buttonClass}
-      disabled={disabled}
-    >
-      <div className="flex items-center space-x-2">
+    <button type='button' className={buttonClass} disabled={disabled}>
+      <div className='flex items-center space-x-2'>
         {icon && <span>{icon}</span>}
         <span>{label}</span>
         {/* Dropdown chevron */}
         <svg
-          className={`w-4 h-4 transition-transform duration-200 ${disabled ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400'}`}
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth="2"
-          stroke="currentColor"
+          className={`h-4 w-4 transition-transform duration-200 ${disabled ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400'}`}
+          fill='none'
+          viewBox='0 0 24 24'
+          strokeWidth='2'
+          stroke='currentColor'
         >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          <path
+            strokeLinecap='round'
+            strokeLinejoin='round'
+            d='M19 9l-7 7-7-7'
+          />
         </svg>
       </div>
     </button>
   );
 
   return (
-    <DropdownMenu
-      trigger={triggerButton}
-      items={items}
-      disabled={disabled}
-    />
+    <DropdownMenu trigger={triggerButton} items={items} disabled={disabled} />
   );
 };

@@ -189,11 +189,43 @@ swag init
 
 This command will update the `docs/` directory with the latest API documentation based on your swagger annotations in the code.
 
-### Format Code
+### Code Quality
+
+#### Backend
+
 ```bash
 # Check formatting issues
 golangci-lint run
 ```
+
+#### Frontend
+
+```bash
+# Navigate to the web directory
+cd web
+
+# ESLint commands (includes Prettier formatting checks and Tailwind CSS linting)
+# Run ESLint to check for code quality issues, formatting, and Tailwind CSS class validation
+npm run lint
+
+# Run ESLint with automatic fixes for fixable issues
+npm run lint:fix
+
+# Run ESLint in strict mode (fail if there are any warnings)
+npm run lint:check
+
+# Pure Prettier commands (faster for formatting-only operations)
+# Run Prettier to format code and sort Tailwind CSS classes automatically
+npm run format
+
+# Check if code is formatted correctly without making changes
+npm run format:check
+
+# Show which files would be changed by Prettier
+npm run format:diff
+```
+
+**Note**: ESLint commands include code quality checks, Prettier formatting rules, and Tailwind CSS class validation (classnames order, custom class detection, conflicting classes). Use pure Prettier commands when you only need fast formatting operations without code quality analysis.
 
 ### Testing
 

@@ -11,8 +11,6 @@ import {
   PaginationInfo,
   SearchFilter,
   FormFieldValue,
-  ValidationResult,
-  ApiResponse,
   AsyncCallback,
   Callback,
 } from './base';
@@ -35,7 +33,9 @@ export interface EntityListConfig<TEntity extends BaseEntity> {
  * API service interface for entity operations
  */
 export interface EntityApiService<TEntity extends BaseEntity> {
-  readonly fetchList: (params: EntityListParams) => Promise<EntityListResponse<TEntity>>;
+  readonly fetchList: (
+    params: EntityListParams,
+  ) => Promise<EntityListResponse<TEntity>>;
   readonly getCount: (filter?: SearchFilter) => Promise<number>;
   readonly create?: (data: Partial<TEntity>) => Promise<TEntity>;
   readonly update?: (id: number, data: Partial<TEntity>) => Promise<TEntity>;
@@ -85,6 +85,7 @@ export interface EntityListState<TEntity extends BaseEntity> {
 /**
  * Entity list hook actions
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface EntityListActions<TEntity extends BaseEntity> {
   readonly fetchEntities: (page?: number) => Promise<void>;
   readonly nextPage: () => Promise<void>;
@@ -124,18 +125,27 @@ export interface ModalManagerState {
  * Modal manager actions
  */
 export interface ModalManagerActions {
-  readonly openModal: <TData = unknown>(modalName: string, data?: TData) => void;
+  readonly openModal: <TData = unknown>(
+    modalName: string,
+    data?: TData,
+  ) => void;
   readonly closeModal: (modalName: string) => void;
   readonly closeAllModals: () => void;
   readonly isModalOpen: (modalName: string) => boolean;
-  readonly getModalData: <TData = unknown>(modalName: string) => TData | undefined;
-  readonly setModalData: <TData = unknown>(modalName: string, data: TData) => void;
+  readonly getModalData: <TData = unknown>(
+    modalName: string,
+  ) => TData | undefined;
+  readonly setModalData: <TData = unknown>(
+    modalName: string,
+    data: TData,
+  ) => void;
 }
 
 /**
  * Complete modal manager hook return type
  */
-export interface ModalManagerHook extends ModalManagerState, ModalManagerActions {}
+export interface ModalManagerHook
+  extends ModalManagerState, ModalManagerActions {}
 
 // ===== FORM MANAGER HOOK TYPES =====
 
@@ -200,7 +210,10 @@ export interface FormManagerState<TFormData extends FormData> {
  * Form manager actions
  */
 export interface FormManagerActions<TFormData extends FormData> {
-  readonly updateField: (fieldName: keyof TFormData, value: FormFieldValue) => void;
+  readonly updateField: (
+    fieldName: keyof TFormData,
+    value: FormFieldValue,
+  ) => void;
   readonly setFormData: (formData: TFormData) => void;
   readonly resetForm: (newInitialValues?: Partial<TFormData>) => void;
   readonly validateField: (fieldName: keyof TFormData) => string | null;
@@ -208,7 +221,7 @@ export interface FormManagerActions<TFormData extends FormData> {
   readonly clearErrors: () => void;
   readonly handleSubmit: (
     submitFn: AsyncCallback<[TFormData], void>,
-    options?: FormSubmissionOptions
+    options?: FormSubmissionOptions,
   ) => Promise<boolean>;
   readonly setSubmitting: (submitting: boolean) => void;
   readonly setSubmitError: (error: string | null) => void;
@@ -273,14 +286,15 @@ export interface ErrorHandlerActions {
   readonly setRetryAction: (action: Callback | null) => void;
   readonly handleAsync: <TResult>(
     asyncFn: () => Promise<TResult>,
-    errorType?: ErrorType
+    errorType?: ErrorType,
   ) => Promise<TResult | null>;
 }
 
 /**
  * Complete error handler hook return type
  */
-export interface ErrorHandlerHook extends ErrorHandlerState, ErrorHandlerActions {}
+export interface ErrorHandlerHook
+  extends ErrorHandlerState, ErrorHandlerActions {}
 
 // ===== ASYNC OPERATION HOOK TYPES =====
 
@@ -314,8 +328,14 @@ export interface AsyncOperationActions<TArgs extends unknown[], TData> {
 /**
  * Complete async operation hook return type
  */
-export interface AsyncOperationHook<TArgs extends unknown[], TData, TError = Error>
-  extends AsyncOperationState<TData, TError>, AsyncOperationActions<TArgs, TData> {}
+export interface AsyncOperationHook<
+  TArgs extends unknown[],
+  TData,
+  TError = Error,
+>
+  extends
+    AsyncOperationState<TData, TError>,
+    AsyncOperationActions<TArgs, TData> {}
 
 // ===== DEBOUNCE HOOK TYPES =====
 
@@ -366,16 +386,16 @@ export interface LocalStorageHook<TValue> {
  * Type guard to check if hook result has error
  */
 export const hasError = <THook extends { error: unknown }>(
-  hookResult: THook
+  hookResult: THook,
 ): hookResult is THook & { error: NonNullable<THook['error']> } => {
-  return hookResult.error != null;
+  return hookResult.error !== null;
 };
 
 /**
  * Type guard to check if hook result is loading
  */
 export const isLoading = <THook extends { loading: boolean }>(
-  hookResult: THook
+  hookResult: THook,
 ): hookResult is THook & { loading: true } => {
   return hookResult.loading === true;
 };
@@ -384,7 +404,7 @@ export const isLoading = <THook extends { loading: boolean }>(
  * Type guard to check if async operation has data
  */
 export const hasData = <TData>(
-  operation: AsyncOperationState<TData>
+  operation: AsyncOperationState<TData>,
 ): operation is AsyncOperationState<TData> & { data: NonNullable<TData> } => {
-  return operation.data != null;
+  return operation.data !== null;
 };

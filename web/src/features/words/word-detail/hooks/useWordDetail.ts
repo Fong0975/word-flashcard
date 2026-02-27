@@ -1,5 +1,6 @@
 import { WordDefinition } from '../../../../types/api';
 import { WordDetailModalProps } from '../types/word-detail';
+
 import { useWordActions } from './useWordActions';
 import { useDefinitionActions } from './useDefinitionActions';
 
@@ -16,18 +17,18 @@ export const useWordDetail = ({
   onClose,
   onWordUpdated,
   onOpenDefinitionModal,
-  onOpenEditDefinitionModal
+  onOpenEditDefinitionModal,
 }: UseWordDetailProps) => {
   const wordActionsCallbacks = {
     onEdit: () => {}, // Edit action is handled by the hook itself
     onDelete: () => {}, // Delete action is handled by the hook itself
-    onWordUpdated
+    onWordUpdated,
   };
 
   const wordActions = useWordActions({
     word,
     callbacks: wordActionsCallbacks,
-    onClose
+    onClose,
   });
 
   const definitionActionsCallbacks = {
@@ -39,11 +40,11 @@ export const useWordDetail = ({
     onDelete: (definition: WordDefinition) => {
       // Delete is handled by the hook itself
     },
-    onWordUpdated
+    onWordUpdated,
   };
 
   const definitionActions = useDefinitionActions({
-    callbacks: definitionActionsCallbacks
+    callbacks: definitionActionsCallbacks,
   });
 
   const handleNewDefinition = () => {
@@ -56,7 +57,7 @@ export const useWordDetail = ({
     wordActions,
     definitionActions: {
       ...definitionActions,
-      handleNew: handleNewDefinition
-    }
+      handleNew: handleNewDefinition,
+    },
   };
 };

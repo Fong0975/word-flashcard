@@ -18,7 +18,7 @@ export enum ErrorType {
 export interface ErrorInfo {
   type: ErrorType;
   message: string;
-  details?: any;
+  details?: Error;
   timestamp: Date;
   retryable: boolean;
 }
@@ -44,7 +44,7 @@ export interface UseErrorHandlerReturn {
   setRetryAction: (action: (() => void) | null) => void;
   handleAsync: <T>(
     asyncFn: () => Promise<T>,
-    errorType?: ErrorType
+    errorType?: ErrorType,
   ) => Promise<T | null>;
 }
 
@@ -122,7 +122,9 @@ const isRetryable = (type: ErrorType): boolean => {
  * errorHandler.setRetryAction(() => fetchData());
  * ```
  */
-export const useErrorHandler = (config: ErrorHandlerConfig = {}): UseErrorHandlerReturn => {
+export const useErrorHandler = (
+  config: ErrorHandlerConfig = {},
+): UseErrorHandlerReturn => {
   const {
     defaultRetryable = false,
     logErrors = false,
@@ -132,46 +134,47 @@ export const useErrorHandler = (config: ErrorHandlerConfig = {}): UseErrorHandle
   const [error, setErrorState] = useState<ErrorInfo | null>(null);
   const [retryAction, setRetryAction] = useState<(() => void) | null>(null);
 
-  const setError = useCallback((
-    error: Error | string | null,
-    type?: ErrorType
-  ) => {
-    if (error === null) {
-      setErrorState(null);
-      setRetryAction(null);
-      return;
-    }
+  const setError = useCallback(
+    (error: Error | string | null, type?: ErrorType) => {
+      if (error === null) {
+        setErrorState(null);
+        setRetryAction(null);
+        return;
+      }
 
-    const errorObj = typeof error === 'string' ? new Error(error) : error;
-    const errorType = type || getErrorType(errorObj);
-    const retryable = defaultRetryable || isRetryable(errorType);
+      const errorObj = typeof error === 'string' ? new Error(error) : error;
+      const errorType = type || getErrorType(errorObj);
+      const retryable = defaultRetryable || isRetryable(errorType);
 
-    const errorInfo: ErrorInfo = {
-      type: errorType,
-      message: errorObj.message,
-      details: errorObj,
-      timestamp: new Date(),
-      retryable,
-    };
+      const errorInfo: ErrorInfo = {
+        type: errorType,
+        message: errorObj.message,
+        details: errorObj,
+        timestamp: new Date(),
+        retryable,
+      };
 
-    setErrorState(errorInfo);
+      setErrorState(errorInfo);
 
-    // Log error if configured
-    if (logErrors) {
-      console.error(`[${errorType.toUpperCase()}]`, errorObj);
-    }
+      // Log error if configured
+      if (logErrors) {
+        // eslint-disable-next-line no-console
+        console.error(`[${errorType.toUpperCase()}]`, errorObj);
+      }
 
-    // Setup auto clear if configured
-    const autoClearTime = autoClears[errorType];
-    if (autoClearTime) {
-      setTimeout(() => {
-        setErrorState(current => {
-          // Only clear if this is still the current error
-          return current?.timestamp === errorInfo.timestamp ? null : current;
-        });
-      }, autoClearTime);
-    }
-  }, [defaultRetryable, logErrors, autoClears]);
+      // Setup auto clear if configured
+      const autoClearTime = autoClears[errorType];
+      if (autoClearTime) {
+        setTimeout(() => {
+          setErrorState(current => {
+            // Only clear if this is still the current error
+            return current?.timestamp === errorInfo.timestamp ? null : current;
+          });
+        }, autoClearTime);
+      }
+    },
+    [defaultRetryable, logErrors, autoClears],
+  );
 
   const clearError = useCallback(() => {
     setErrorState(null);
@@ -184,19 +187,23 @@ export const useErrorHandler = (config: ErrorHandlerConfig = {}): UseErrorHandle
     setRetryAction(() => action);
   }, []);
 
-  const handleAsync = useCallback(async <T>(
-    asyncFn: () => Promise<T>,
-    errorType?: ErrorType
-  ): Promise<T | null> => {
-    try {
-      clearError();
-      return await asyncFn();
-    } catch (error) {
-      const errorObj = error instanceof Error ? error : new Error(String(error));
-      setError(errorObj, errorType);
-      return null;
-    }
-  }, [setError, clearError]);
+  const handleAsync = useCallback(
+    async <T>(
+      asyncFn: () => Promise<T>,
+      errorType?: ErrorType,
+    ): Promise<T | null> => {
+      try {
+        clearError();
+        return await asyncFn();
+      } catch (error) {
+        const errorObj =
+          error instanceof Error ? error : new Error(String(error));
+        setError(errorObj, errorType);
+        return null;
+      }
+    },
+    [setError, clearError],
+  );
 
   return {
     error,
