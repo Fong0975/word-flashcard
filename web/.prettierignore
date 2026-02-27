@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+build/
+dist/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Lock files
+package-lock.json
+yarn.lock
+
+# Logs
+*.log
+
+# Coverage
+coverage/
+
+# Documentation and markdown files
+*.md
+
+# Config files that shouldn't be formatted
+public/

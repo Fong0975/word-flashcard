@@ -1,8 +1,10 @@
 {
   "extends": [
     "react-app",
-    "react-app/jest"
+    "react-app/jest",
+    "prettier"
   ],
+  "plugins": ["prettier"],
   "rules": {
     // TypeScript specific rules
     "@typescript-eslint/no-unused-vars": "warn",
@@ -27,9 +29,7 @@
     "eqeqeq": ["error", "always"],
     "curly": ["error", "all"],
 
-    // Code style rules (less strict to avoid overwhelming errors)
-    "quotes": ["warn", "single", { "avoidEscape": true }],
-    "semi": ["warn", "always"],
-    "comma-dangle": ["warn", "always-multiline"]
+    // Prettier integration
+    "prettier/prettier": "error"
   }
 }

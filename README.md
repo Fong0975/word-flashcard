@@ -204,7 +204,8 @@ golangci-lint run
 # Navigate to the web directory
 cd web
 
-# Run ESLint to check for code quality issues
+# ESLint commands (includes Prettier formatting checks via prettier/prettier rule)
+# Run ESLint to check for code quality issues and formatting
 npm run lint
 
 # Run ESLint with automatic fixes for fixable issues
@@ -212,7 +213,19 @@ npm run lint:fix
 
 # Run ESLint in strict mode (fail if there are any warnings)
 npm run lint:check
+
+# Pure Prettier commands (faster for formatting-only operations)
+# Run Prettier to format code automatically
+npm run format
+
+# Check if code is formatted correctly without making changes
+npm run format:check
+
+# Show which files would be changed by Prettier
+npm run format:diff
 ```
+
+**Note**: ESLint commands include both code quality checks and Prettier formatting rules. Use pure Prettier commands when you only need fast formatting operations without code quality analysis.
 
 ### Testing
 
