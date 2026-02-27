@@ -84,7 +84,7 @@ export const AnswerSection: React.FC<AnswerSectionProps> = ({
                 Explanation:
               </h3>
               <div className='prose prose-sm prose-slate max-w-none dark:prose-invert prose-p:text-gray-700 dark:prose-p:text-gray-300'>
-                <div className='/* 1. Remove the default backticks */ /* 2. Add special markup styles */ prose prose-sm prose-slate max-w-none dark:prose-invert prose-p:text-gray-700 prose-code:rounded-md prose-code:bg-gray-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:font-medium prose-code:text-pink-600 prose-code:before:content-none prose-code:after:content-none dark:prose-p:text-gray-300 dark:prose-code:bg-gray-700 dark:prose-code:text-pink-400'>
+                <div className='prose prose-sm prose-slate max-w-none dark:prose-invert prose-p:text-gray-700 prose-code:rounded-md prose-code:bg-gray-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:font-medium prose-code:text-pink-600 prose-code:before:content-none prose-code:after:content-none dark:prose-p:text-gray-300 dark:prose-code:bg-gray-700 dark:prose-code:text-pink-400'>
                   <ReactMarkdown remarkPlugins={[remarkBreaks]}>
                     {explanation.replace(/\\n/g, '\n')}
                   </ReactMarkdown>

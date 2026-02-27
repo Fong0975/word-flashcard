@@ -117,7 +117,7 @@ export const DictionaryLookup: React.FC<DictionaryLookupProps> = ({
               {dictionaryData.pronunciation &&
                 dictionaryData.pronunciation.length > 0 && (
                   <div className='rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20'>
-                    <h4 className='text-md mb-4 font-medium text-blue-900 dark:text-blue-300'>
+                    <h4 className='mb-4 text-base font-medium text-blue-900 dark:text-blue-300'>
                       Pronunciation
                     </h4>
                     <div className='space-y-4'>

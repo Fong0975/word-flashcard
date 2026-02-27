@@ -76,10 +76,10 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
           <div className='mb-4 flex items-center justify-between border-b border-gray-100 pb-2 dark:border-gray-700'>
             {/* Index Number */}
             <div className='flex items-center'>
-              <span className='dark:text-primary-400 mr-1 text-xs font-bold uppercase tracking-tighter text-primary-500 opacity-70'>
+              <span className='mr-1 text-xs font-bold uppercase tracking-tighter text-primary-500 opacity-70 dark:text-primary-400'>
                 No.
               </span>
-              <span className='dark:group-hover:text-primary-400 font-mono text-base font-bold tabular-nums text-gray-400 transition-colors group-hover:text-primary-600 dark:text-gray-500'>
+              <span className='font-mono text-base font-bold tabular-nums text-gray-400 transition-colors group-hover:text-primary-600 dark:text-gray-500 dark:group-hover:text-primary-400'>
                 {index}
               </span>
             </div>

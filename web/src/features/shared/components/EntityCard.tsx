@@ -113,10 +113,10 @@ export const EntityCard = <T extends BaseEntity>({
       return (
         <div className='mr-2 w-12 flex-shrink-0 border-r border-gray-100 pt-1 dark:border-gray-700/50'>
           <div className='flex flex-col items-center justify-center'>
-            <span className='dark:text-primary-400 text-xs font-bold uppercase tracking-tighter text-primary-500 opacity-70'>
+            <span className='text-xs font-bold uppercase tracking-tighter text-primary-500 opacity-70 dark:text-primary-400'>
               No.
             </span>
-            <span className='dark:group-hover:text-primary-400 font-mono text-base font-bold tabular-nums text-gray-800 transition-colors group-hover:text-primary-600 dark:text-gray-500'>
+            <span className='font-mono text-base font-bold tabular-nums text-gray-800 transition-colors group-hover:text-primary-600 dark:text-gray-500 dark:group-hover:text-primary-400'>
               {index}
             </span>
           </div>
@@ -157,7 +157,7 @@ export const EntityCard = <T extends BaseEntity>({
   return (
     <>
       <div
-        className={`hover:border-primary-300 group flex cursor-pointer items-center rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-all duration-200 ease-in-out hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-primary-600 ${config.sequenceStyle === 'detailed' ? 'items-start' : 'items-center'} ${className} `}
+        className={`group flex cursor-pointer items-center rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-all duration-200 ease-in-out hover:border-primary-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-primary-600 ${config.sequenceStyle === 'detailed' ? 'items-start' : 'items-center'} ${className} `}
         onClick={handleCardClick}
       >
         {/* Left color indicator */}
