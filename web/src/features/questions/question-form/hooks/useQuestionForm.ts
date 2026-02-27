@@ -89,6 +89,21 @@ export const useQuestionForm = ({
     setFormData(prev => ({ ...prev, reference: value }));
   }, []);
 
+  // Append template text to fields
+  const appendToNotes = useCallback((textToAppend: string) => {
+    setFormData(prev => ({
+      ...prev,
+      notes: prev.notes ? `${prev.notes}\n${textToAppend}` : textToAppend,
+    }));
+  }, []);
+
+  const setReferenceFromTemplate = useCallback((templateText: string) => {
+    setFormData(prev => ({
+      ...prev,
+      reference: templateText,
+    }));
+  }, []);
+
   // Reset form
   const resetForm = useCallback(() => {
     setFormData({
@@ -119,6 +134,8 @@ export const useQuestionForm = ({
       handleOptionChange,
       handleNotesChange,
       handleReferenceChange,
+      appendToNotes,
+      setReferenceFromTemplate,
     },
     resetForm,
   };

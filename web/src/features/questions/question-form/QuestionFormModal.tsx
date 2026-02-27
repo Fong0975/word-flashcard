@@ -7,6 +7,7 @@ import { formatFormDataForCopy } from '../question-detail/utils/questionFormat';
 
 import { useQuestionForm } from './hooks/useQuestionForm';
 import { useQuestionSubmit } from './hooks/useQuestionSubmit';
+import { useTemplateButtons } from './hooks/useTemplateButtons';
 import {
   QuestionInput,
   OptionsGroup,
@@ -47,6 +48,8 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
       handleOptionChange,
       handleNotesChange,
       handleReferenceChange,
+      appendToNotes,
+      setReferenceFromTemplate,
     },
     resetForm,
   } = useQuestionForm({ mode, question, isOpen });
@@ -56,6 +59,16 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
     question,
     callbacks,
     resetForm,
+  });
+
+  // Template buttons configurations
+  const { templateButtonsConfig: referenceTemplateButtons } =
+    useTemplateButtons({
+      configFileName: 'questionFormModalReferenceButtonsConfig.json',
+    });
+
+  const { templateButtonsConfig: notesTemplateButtons } = useTemplateButtons({
+    configFileName: 'questionFormModalNotesButtonsConfig.json',
   });
 
   const handleClose = () => {
@@ -125,12 +138,16 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
                 value={formData.reference}
                 onChange={handleReferenceChange}
                 disabled={isSubmitting}
+                templateButtons={referenceTemplateButtons}
+                onSelectTemplate={setReferenceFromTemplate}
               />
 
               <NotesInput
                 value={formData.notes}
                 onChange={handleNotesChange}
                 disabled={isSubmitting}
+                templateButtons={notesTemplateButtons}
+                onAppendTemplate={appendToNotes}
               />
 
               <ErrorMessage error={error} />
