@@ -4,7 +4,12 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'web/**/*.{ts,tsx,js,jsx,json,css}'
+      - 'web/**/*.ts'
+      - 'web/**/*.tsx'
+      - 'web/**/*.js'
+      - 'web/**/*.jsx'
+      - 'web/**/*.json'
+      - 'web/**/*.css'
       - 'web/package.json'
       - 'web/package-lock.json'
       - 'web/.eslintrc.json'
@@ -16,7 +21,12 @@ on:
   pull_request:
     branches: [ main ]
     paths:
-      - 'web/**/*.{ts,tsx,js,jsx,json,css}'
+      - 'web/**/*.ts'
+      - 'web/**/*.tsx'
+      - 'web/**/*.js'
+      - 'web/**/*.jsx'
+      - 'web/**/*.json'
+      - 'web/**/*.css'
       - 'web/package.json'
       - 'web/package-lock.json'
       - 'web/.eslintrc.json'
@@ -25,6 +35,13 @@ on:
       - 'web/tailwind.config.js'
       - 'web/postcss.config.js'
       - 'web/tsconfig.json'
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to run the workflow on'
+        required: true
+        default: 'main'
+        type: string
 
 jobs:
   frontend-lint:
