@@ -9,17 +9,49 @@ import {
   DefinitionForm,
 } from '../types';
 
+export interface ExternalDictionaryState {
+  dictionaryData: CambridgeApiResponse | null;
+  isLoadingDictionary: boolean;
+  dictionaryError: string | null;
+  isCollapsed: boolean;
+  setDictionaryData: (data: CambridgeApiResponse | null) => void;
+  setIsLoadingDictionary: (loading: boolean) => void;
+  setDictionaryError: (error: string | null) => void;
+  setIsCollapsed: (collapsed: boolean) => void;
+}
+
 export const useDictionaryData = (
   wordText: string | null,
   onShowSuccess?: (message: string) => void,
   onShowError?: (message: string) => void,
+  externalState?: ExternalDictionaryState,
 ) => {
-  // Dictionary data state
-  const [dictionaryData, setDictionaryData] =
+  // Use external state if provided, otherwise use internal state
+  const [internalDictionaryData, setInternalDictionaryData] =
     useState<CambridgeApiResponse | null>(null);
-  const [isLoadingDictionary, setIsLoadingDictionary] = useState(false);
-  const [dictionaryError, setDictionaryError] = useState<string | null>(null);
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [internalIsLoadingDictionary, setInternalIsLoadingDictionary] =
+    useState(false);
+  const [internalDictionaryError, setInternalDictionaryError] = useState<
+    string | null
+  >(null);
+  const [internalIsCollapsed, setInternalIsCollapsed] = useState(true);
+
+  const dictionaryData =
+    externalState?.dictionaryData ?? internalDictionaryData;
+  const isLoadingDictionary =
+    externalState?.isLoadingDictionary ?? internalIsLoadingDictionary;
+  const dictionaryError =
+    externalState?.dictionaryError ?? internalDictionaryError;
+  const isCollapsed = externalState?.isCollapsed ?? internalIsCollapsed;
+
+  const setDictionaryData =
+    externalState?.setDictionaryData ?? setInternalDictionaryData;
+  const setIsLoadingDictionary =
+    externalState?.setIsLoadingDictionary ?? setInternalIsLoadingDictionary;
+  const setDictionaryError =
+    externalState?.setDictionaryError ?? setInternalDictionaryError;
+  const setIsCollapsed =
+    externalState?.setIsCollapsed ?? setInternalIsCollapsed;
 
   // Fetch Cambridge Dictionary data
   const fetchDictionaryData = useCallback(async () => {
@@ -48,7 +80,14 @@ export const useDictionaryData = (
     } finally {
       setIsLoadingDictionary(false);
     }
-  }, [wordText, onShowError]);
+  }, [
+    wordText,
+    onShowError,
+    setDictionaryData,
+    setDictionaryError,
+    setIsLoadingDictionary,
+    setIsCollapsed,
+  ]);
 
   // Helper function to group pronunciations by position
   const groupPronunciationsByPos = useCallback(
@@ -171,12 +210,12 @@ export const useDictionaryData = (
     setDictionaryData(null);
     setDictionaryError(null);
     setIsCollapsed(true);
-  }, []);
+  }, [setDictionaryData, setDictionaryError, setIsCollapsed]);
 
   // Toggle collapsed state
   const toggleCollapsed = useCallback(() => {
     setIsCollapsed(!isCollapsed);
-  }, [isCollapsed]);
+  }, [isCollapsed, setIsCollapsed]);
 
   return {
     // State

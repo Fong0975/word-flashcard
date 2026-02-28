@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import { Modal, ToastContainer } from '../../../components/ui';
 import { useToast } from '../../../hooks/ui/useToast';
@@ -18,6 +18,8 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
   wordText,
   mode = 'add' as const,
   definition = null,
+  shouldResetDictionaryOnClose = true,
+  externalDictionaryState,
 }) => {
   // Hooks
   const { toasts, showSuccess, showError, showWarning, removeToast } =
@@ -33,7 +35,12 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
     onError: showError,
   });
 
-  const dictionaryLogic = useDictionaryData(wordText, showSuccess, showError);
+  const dictionaryLogic = useDictionaryData(
+    wordText,
+    showSuccess,
+    showError,
+    externalDictionaryState,
+  );
   const { copySuccess, copyToClipboard } = useCopyToClipboard({
     onError: (error, message) => showError(message),
   });
@@ -41,12 +48,29 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
     onWarning: showWarning,
   });
 
-  // Reset dictionary data when modal closes
+  // Handle modal close behavior - track previous isOpen state
+  const prevIsOpenRef = useRef(isOpen);
+
   useEffect(() => {
-    if (!isOpen) {
-      dictionaryLogic.resetDictionaryData();
+    const wasOpen = prevIsOpenRef.current;
+    prevIsOpenRef.current = isOpen;
+
+    // Only execute when modal closes (was open, now closed)
+    if (wasOpen && !isOpen) {
+      if (shouldResetDictionaryOnClose) {
+        // Full reset (used when no external state)
+        dictionaryLogic.resetDictionaryData();
+      } else if (externalDictionaryState) {
+        // Only collapse when using external shared state
+        externalDictionaryState.setIsCollapsed(true);
+      }
     }
-  }, [isOpen, dictionaryLogic]);
+  }, [
+    isOpen,
+    shouldResetDictionaryOnClose,
+    dictionaryLogic,
+    externalDictionaryState,
+  ]);
 
   // Enhanced dictionary handlers that update form data
   const handleApplyPronunciation = (

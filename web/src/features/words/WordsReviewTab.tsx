@@ -24,6 +24,8 @@ import {
 import { QuizModal } from '../../components/modals/QuizModal';
 import { apiService } from '../../lib/api';
 
+import { ExternalDictionaryState } from './definition-form/hooks/useDictionaryData';
+import { CambridgeApiResponse } from './definition-form/types';
 import { WordFormModal } from './word-form';
 import { WordDetailModal } from './word-detail/WordDetailModal';
 import { DefinitionFormModal } from './definition-form';
@@ -39,6 +41,28 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
   const modalManager = useModalManager();
   const [quizConfig, setQuizConfig] = useState<QuizConfig | null>(null);
   const { toasts, showError, showWarning, removeToast } = useToast();
+
+  // Shared dictionary state for both DefinitionFormModals
+  const [sharedDictionaryData, setSharedDictionaryData] =
+    useState<CambridgeApiResponse | null>(null);
+  const [sharedIsLoadingDictionary, setSharedIsLoadingDictionary] =
+    useState(false);
+  const [sharedDictionaryError, setSharedDictionaryError] = useState<
+    string | null
+  >(null);
+  const [sharedIsCollapsed, setSharedIsCollapsed] = useState(true);
+
+  // Create shared dictionary state object
+  const sharedDictionaryState: ExternalDictionaryState = {
+    dictionaryData: sharedDictionaryData,
+    isLoadingDictionary: sharedIsLoadingDictionary,
+    dictionaryError: sharedDictionaryError,
+    isCollapsed: sharedIsCollapsed,
+    setDictionaryData: setSharedDictionaryData,
+    setIsLoadingDictionary: setSharedIsLoadingDictionary,
+    setDictionaryError: setSharedDictionaryError,
+    setIsCollapsed: setSharedIsCollapsed,
+  };
 
   const wordsHook = useWords({
     itemsPerPage: 30,
@@ -156,6 +180,11 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
   // Handle closing WordDetailModal
   const handleCloseWordDetailModal = () => {
     modalManager.closeModal(MODAL_NAMES.WORD_DETAIL);
+
+    // Reset shared dictionary data when WordDetailModal closes
+    setSharedDictionaryData(null);
+    setSharedDictionaryError(null);
+    setSharedIsCollapsed(true);
   };
 
   // Handle word updated (familiarity, word text, etc.)
@@ -311,6 +340,8 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
               }
               mode='add'
               definition={null}
+              shouldResetDictionaryOnClose={false}
+              externalDictionaryState={sharedDictionaryState}
             />
 
             {/* Definition Form Modal for Editing */}
@@ -334,6 +365,8 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
                   definition: WordDefinition;
                 }>(MODAL_NAMES.DEFINITION_EDIT)?.definition || null
               }
+              shouldResetDictionaryOnClose={false}
+              externalDictionaryState={sharedDictionaryState}
             />
           </>
         }

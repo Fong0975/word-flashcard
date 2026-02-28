@@ -2,6 +2,7 @@
  * Definition form interfaces and types
  */
 import { WordDefinition } from '../../../../types/api';
+import { ExternalDictionaryState } from '../hooks/useDictionaryData';
 
 export interface DefinitionForm {
   part_of_speech: string[];
@@ -20,6 +21,8 @@ export interface DefinitionFormModalProps {
   wordText: string | null;
   mode?: 'add' | 'edit';
   definition?: WordDefinition | null;
+  shouldResetDictionaryOnClose?: boolean;
+  externalDictionaryState?: ExternalDictionaryState;
 }
 
 export interface NoteButton {

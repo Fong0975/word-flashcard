@@ -4,6 +4,8 @@ import { Word, WordDefinition } from '../../types/api';
 import { EntityCard } from '../shared/components/EntityCard';
 import { getFamiliarityColor } from '../shared/constants/familiarity';
 
+import { ExternalDictionaryState } from './definition-form/hooks/useDictionaryData';
+import { CambridgeApiResponse } from './definition-form/types';
 import { WordDetailModal } from './word-detail/WordDetailModal';
 import { DefinitionFormModal } from './definition-form';
 
@@ -27,12 +29,39 @@ export const WordCard: React.FC<WordCardProps> = ({
   const [editingDefinition, setEditingDefinition] =
     useState<WordDefinition | null>(null);
 
+  // Shared dictionary state for both DefinitionFormModals
+  const [sharedDictionaryData, setSharedDictionaryData] =
+    useState<CambridgeApiResponse | null>(null);
+  const [sharedIsLoadingDictionary, setSharedIsLoadingDictionary] =
+    useState(false);
+  const [sharedDictionaryError, setSharedDictionaryError] = useState<
+    string | null
+  >(null);
+  const [sharedIsCollapsed, setSharedIsCollapsed] = useState(true);
+
+  // Create shared dictionary state object
+  const sharedDictionaryState: ExternalDictionaryState = {
+    dictionaryData: sharedDictionaryData,
+    isLoadingDictionary: sharedIsLoadingDictionary,
+    dictionaryError: sharedDictionaryError,
+    isCollapsed: sharedIsCollapsed,
+    setDictionaryData: setSharedDictionaryData,
+    setIsLoadingDictionary: setSharedIsLoadingDictionary,
+    setDictionaryError: setSharedDictionaryError,
+    setIsCollapsed: setSharedIsCollapsed,
+  };
+
   const handleCardClick = () => {
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+
+    // Reset shared dictionary data when WordDetailModal closes
+    setSharedDictionaryData(null);
+    setSharedDictionaryError(null);
+    setSharedIsCollapsed(true);
   };
 
   const handleOpenDefinitionModal = () => {
@@ -111,6 +140,8 @@ export const WordCard: React.FC<WordCardProps> = ({
             onDefinitionAdded={handleWordUpdated}
             wordId={word.id}
             wordText={word.word}
+            shouldResetDictionaryOnClose={false}
+            externalDictionaryState={sharedDictionaryState}
           />
 
           {/* Modal for editing definition */}
@@ -122,6 +153,8 @@ export const WordCard: React.FC<WordCardProps> = ({
             wordText={word.word}
             mode='edit'
             definition={editingDefinition}
+            shouldResetDictionaryOnClose={false}
+            externalDictionaryState={sharedDictionaryState}
           />
         </>
       }
