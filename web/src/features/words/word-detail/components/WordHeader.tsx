@@ -20,7 +20,7 @@ export const WordHeader: React.FC<WordHeaderProps> = ({
 
       <FamiliarityBar familiarity={word.familiarity} />
 
-      <WordActions onEdit={onEdit} onDelete={onDelete} />
+      <WordActions word={word} onEdit={onEdit} onDelete={onDelete} />
     </div>
   );
 };

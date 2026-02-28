@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react';
 
+import { useModalScrollManager } from '../../hooks/ui/useModalScrollManager';
+
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -21,7 +23,10 @@ export const Modal: React.FC<ModalProps> = ({
   disableBackdropClose = false,
   disableEscapeClose = false,
 }) => {
-  // Handle escape key and scroll prevention
+  // Use modal scroll manager for consistent scrollbar behavior
+  useModalScrollManager(isOpen);
+
+  // Handle escape key
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && !disableEscapeClose) {
@@ -32,33 +37,8 @@ export const Modal: React.FC<ModalProps> = ({
     if (isOpen) {
       document.addEventListener('keydown', handleEscape);
 
-      // Store original values
-      const originalBodyStyle = {
-        overflow: document.body.style.overflow,
-        paddingRight: document.body.style.paddingRight,
-      };
-
-      const originalDocumentStyle = {
-        overflow: document.documentElement.style.overflow,
-      };
-
-      // Calculate scrollbar width
-      const scrollbarWidth =
-        window.innerWidth - document.documentElement.clientWidth;
-
-      // Prevent scrolling without changing scroll position
-      document.body.style.overflow = 'hidden';
-      document.body.style.paddingRight = `${scrollbarWidth}px`;
-      document.documentElement.style.overflow = 'hidden';
-
       return () => {
         document.removeEventListener('keydown', handleEscape);
-
-        // Restore original styles
-        document.body.style.overflow = originalBodyStyle.overflow;
-        document.body.style.paddingRight = originalBodyStyle.paddingRight;
-        document.documentElement.style.overflow =
-          originalDocumentStyle.overflow;
       };
     }
 

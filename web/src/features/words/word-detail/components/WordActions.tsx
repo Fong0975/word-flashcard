@@ -1,16 +1,42 @@
 import React from 'react';
 
+import { Word } from '../../../../types/api';
+
 interface WordActionsProps {
+  word: Word;
   onEdit: () => void;
   onDelete: () => void;
 }
 
 export const WordActions: React.FC<WordActionsProps> = ({
+  word,
   onEdit,
   onDelete,
 }) => {
   return (
     <div className='me-2 flex justify-end space-x-2'>
+      {/* Cambridge Dictionary Button */}
+      <a
+        href={`https://dictionary.cambridge.org/zht/%E8%A9%9E%E5%85%B8/%E8%8B%B1%E8%AA%9E-%E6%BC%A2%E8%AA%9E-%E7%B9%81%E9%AB%94/${word.word}`}
+        target='_blank'
+        rel='noopener noreferrer'
+        className='rounded-md p-2 text-gray-600 transition-colors hover:bg-green-50 hover:text-green-600 dark:text-gray-400 dark:hover:bg-green-900/20 dark:hover:text-green-400'
+        title='Open in Cambridge Dictionary'
+      >
+        <svg
+          className='h-5 w-5'
+          fill='none'
+          viewBox='0 0 24 24'
+          strokeWidth='2'
+          stroke='currentColor'
+        >
+          <path
+            strokeLinecap='round'
+            strokeLinejoin='round'
+            d='M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253'
+          />
+        </svg>
+      </a>
       <button
         type='button'
         onClick={onEdit}
