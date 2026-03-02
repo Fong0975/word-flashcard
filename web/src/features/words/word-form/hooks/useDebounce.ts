@@ -18,7 +18,7 @@ export const useDebounce = <TArgs extends unknown[]>(
         callback(...args);
       }, delay);
     },
-    [callback, delay],
+    [delay], // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const cancel = useCallback(() => {

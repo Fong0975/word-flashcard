@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 
 import { useWords } from '../../hooks/useWords';
 import {
@@ -69,61 +69,51 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
     autoFetch: true,
   });
 
-  // Update selected word when words list changes (after refresh)
-  useEffect(() => {
+  // Manual refresh function for word details when explicitly needed
+  const refreshWordDetailIfOpen = useCallback(async () => {
     const selectedWord = modalManager.getModalData<Word>(
       MODAL_NAMES.WORD_DETAIL,
     );
 
-    if (selectedWord) {
+    if (!selectedWord) {
+      return;
+    }
+
+    try {
       // Find the updated word in the current words list
       const updatedWord = wordsHook.words.find(w => w.id === selectedWord.id);
+
       if (updatedWord) {
-        // Only update if the word content has actually changed
-        if (JSON.stringify(updatedWord) !== JSON.stringify(selectedWord)) {
+        // Simple comparison - only check if the object reference is different
+        if (updatedWord !== selectedWord) {
           modalManager.setModalData(MODAL_NAMES.WORD_DETAIL, updatedWord);
         }
-      } else if (wordsHook.words.length > 0) {
-        // If word is not found in current list (possibly due to filtering or pagination),
-        // search for it explicitly using API
-        const searchForUpdatedWord = async () => {
-          try {
-            const searchFilter = {
-              conditions: [
-                {
-                  key: 'word',
-                  operator: SearchOperation.LIKE,
-                  value: selectedWord.word,
-                },
-              ],
-              logic: SearchLogic.OR,
-            };
-
-            const searchResults = await apiService.searchWords({
-              searchFilter,
-              limit: 1,
-            });
-
-            // Update the selected word if found and content has changed
-            if (
-              searchResults.length > 0 &&
-              JSON.stringify(searchResults[0]) !== JSON.stringify(selectedWord)
-            ) {
-              modalManager.setModalData(
-                MODAL_NAMES.WORD_DETAIL,
-                searchResults[0],
-              );
-            }
-          } catch (error) {
-            showError('Failed to refresh selected word. Please try again.');
-          }
+      } else {
+        // If word is not found in current list, search for it explicitly
+        const searchFilter = {
+          conditions: [
+            {
+              key: 'word',
+              operator: SearchOperation.LIKE,
+              value: selectedWord.word,
+            },
+          ],
+          logic: SearchLogic.OR,
         };
 
-        searchForUpdatedWord();
+        const searchResults = await apiService.searchWords({
+          searchFilter,
+          limit: 1,
+        });
+
+        if (searchResults.length > 0) {
+          modalManager.setModalData(MODAL_NAMES.WORD_DETAIL, searchResults[0]);
+        }
       }
+    } catch (error) {
+      showError('Failed to refresh selected word. Please try again.');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wordsHook.words, modalManager]);
+  }, [wordsHook.words, modalManager, showError]);
 
   // Handle opening add word modal
   const handleNew = () => {
@@ -190,6 +180,8 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
   // Handle word updated (familiarity, word text, etc.)
   const handleWordUpdated = () => {
     wordsHook.refresh(); // Refresh the words list
+    // Manually refresh the detail modal if it's open
+    refreshWordDetailIfOpen();
   };
 
   // Handle opening DefinitionFormModal for adding new definition
@@ -214,11 +206,13 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
   // Handle definition added successfully
   const handleDefinitionAdded = () => {
     wordsHook.refresh(); // Refresh the words list
+    refreshWordDetailIfOpen(); // Update the detail modal
   };
 
   // Handle definition updated successfully
   const handleDefinitionUpdated = () => {
     wordsHook.refresh(); // Refresh the words list
+    refreshWordDetailIfOpen(); // Update the detail modal
   };
 
   return (

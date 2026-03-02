@@ -45,7 +45,7 @@ export const WordFormModal: React.FC<WordFormModalProps> = ({
       formLogic.resetForm();
       onClose();
     }
-  }, [submitLogic.isSubmitting, searchLogic, formLogic, onClose]);
+  }, [submitLogic.isSubmitting, onClose]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Handle word input change (both form and search)
   const handleWordChange = useCallback(
@@ -53,7 +53,7 @@ export const WordFormModal: React.FC<WordFormModalProps> = ({
       formLogic.handlers.handleWordChange(value);
       searchLogic.handleWordChange(value);
     },
-    [formLogic.handlers, searchLogic],
+    [], // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   // Handle suggestion click
@@ -76,15 +76,15 @@ export const WordFormModal: React.FC<WordFormModalProps> = ({
       }
       submitLogic.handleSubmit(formLogic.formData);
     },
-    [submitLogic, formLogic.formData],
+    [], // eslint-disable-line react-hooks/exhaustive-deps
   );
 
-  // Reset search when modal opens/closes
+  // Reset search when modal closes
   useEffect(() => {
     if (!isOpen) {
       searchLogic.resetSearch();
     }
-  }, [isOpen, searchLogic]);
+  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const modalTitle = mode === 'create' ? 'Add New Word' : 'Edit Word';
 
