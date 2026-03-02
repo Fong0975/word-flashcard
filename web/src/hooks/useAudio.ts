@@ -19,6 +19,9 @@ export const useAudio = (): UseAudioReturn => {
   const handleEnded = useCallback(() => {
     setIsPlaying(false);
     setIsLoading(false);
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0; // force reset
+    }
   }, []);
 
   const handleError = useCallback(() => {
