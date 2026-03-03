@@ -87,6 +87,9 @@ export const useModalScrollManager = (isOpen: boolean) => {
     return () => {
       const wasOpen = wasOpenRef.current;
       if (wasOpen) {
+        // Reset the ref so that StrictMode correctly re-detects the open state during remount
+        wasOpenRef.current = false;
+
         modalCount = Math.max(0, modalCount - 1);
 
         // If this was the last modal, restore styles
