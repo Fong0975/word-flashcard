@@ -251,12 +251,39 @@ export const EntityReviewTab = <T extends BaseEntity>({
               type='text'
               value={searchTerm}
               onChange={handleSearchChange}
-              className='block w-full rounded-md border border-gray-300 bg-white py-2 pl-10 pr-3 leading-5 text-gray-900 placeholder-gray-500 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 sm:text-sm'
+              className='block w-full rounded-md border border-gray-300 bg-white py-2 pl-10 pr-8 leading-5 text-gray-900 placeholder-gray-500 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 sm:text-sm'
               placeholder={
                 config.searchPlaceholder ||
                 `Search ${config.entityNamePlural.toLowerCase()}...`
               }
             />
+            {searchTerm && (
+              <button
+                type='button'
+                onClick={() => {
+                  setSearchTerm('');
+                  if (actions.onSearch) {
+                    actions.onSearch('');
+                  }
+                }}
+                className='absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
+                aria-label='Clear search'
+              >
+                <svg
+                  className='h-4 w-4'
+                  fill='none'
+                  viewBox='0 0 24 24'
+                  strokeWidth='2'
+                  stroke='currentColor'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    d='M6 18L18 6M6 6l12 12'
+                  />
+                </svg>
+              </button>
+            )}
           </div>
         </div>
       )}

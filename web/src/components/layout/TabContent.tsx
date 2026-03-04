@@ -14,7 +14,7 @@ const QuestionsContent: React.FC = () => <QuestionsReviewTab />;
 
 export const TabContent: React.FC<TabContentProps> = ({ currentTab }) => {
   return (
-    <div className='p-6'>
+    <div className='px-3 py-6 md:px-4 lg:px-6'>
       {currentTab === 'words' && <WordsContent />}
       {currentTab === 'questions' && <QuestionsContent />}
     </div>

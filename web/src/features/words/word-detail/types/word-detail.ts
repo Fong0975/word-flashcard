@@ -1,14 +1,5 @@
 import { Word, WordDefinition } from '../../../../types/api';
 
-export interface WordDetailModalProps {
-  word: Word | null;
-  isOpen: boolean;
-  onClose: () => void;
-  onWordUpdated?: () => void;
-  onOpenDefinitionModal?: () => void;
-  onOpenEditDefinitionModal?: (definition: WordDefinition) => void;
-}
-
 export interface DefinitionCardProps {
   definition: WordDefinition;
   index: number;
@@ -44,7 +35,7 @@ export interface PronunciationGroupProps {
 export interface WordActionsCallbacks {
   onEdit: () => void;
   onDelete: () => void;
-  onWordUpdated?: () => void;
+  onWordUpdated?: (newWordText?: string) => void;
 }
 
 export interface DefinitionActionsCallbacks {

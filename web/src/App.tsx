@@ -1,9 +1,14 @@
 import React from 'react';
+import { Routes, Route } from 'react-router-dom';
 
 import { Header, TabNavigation, TabContent, Footer } from './components';
 import { useTab } from './hooks/useTab';
+import { WordDetailPage } from './features/words/word-detail/WordDetailPage';
+import { WordQuizPage } from './features/words/quiz/WordQuizPage';
+import { QuestionDetailPage } from './features/questions/question-detail/QuestionDetailPage';
+import { QuestionQuizPage } from './features/questions/quiz/QuestionQuizPage';
 
-function App() {
+function HomePage() {
   const { currentTab, switchTab } = useTab();
 
   return (
@@ -32,6 +37,18 @@ function App() {
 
       <Footer />
     </div>
+  );
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route path='/' element={<HomePage />} />
+      <Route path='/word/quiz' element={<WordQuizPage />} />
+      <Route path='/word/:wordText' element={<WordDetailPage />} />
+      <Route path='/question/quiz' element={<QuestionQuizPage />} />
+      <Route path='/question/:id' element={<QuestionDetailPage />} />
+    </Routes>
   );
 }
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { Question } from '../../types/api';
 import { EntityCard } from '../shared/components/EntityCard';
@@ -8,22 +9,17 @@ interface QuestionCardProps {
   index: number;
   question: Question;
   className?: string;
-  onQuestionUpdated?: () => void;
-  onClick?: () => void;
 }
 
 export const QuestionCard: React.FC<QuestionCardProps> = ({
   index,
   question,
   className = '',
-  onQuestionUpdated,
-  onClick,
 }) => {
-  // Handle card click
+  const navigate = useNavigate();
+
   const handleCardClick = () => {
-    if (onClick) {
-      onClick();
-    }
+    navigate(`/question/${question.id}`);
   };
   // Get available options (filter out empty options)
   const getAvailableOptions = () => {
@@ -68,7 +64,6 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
       }}
       actions={{
         onClick: handleCardClick,
-        onEntityUpdated: onQuestionUpdated,
       }}
       renderContent={question => (
         <div className='w-full'>
