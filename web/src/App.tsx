@@ -4,6 +4,7 @@ import { Routes, Route } from 'react-router-dom';
 import { Header, TabNavigation, TabContent, Footer } from './components';
 import { useTab } from './hooks/useTab';
 import { WordDetailPage } from './features/words/word-detail/WordDetailPage';
+import { QuestionDetailPage } from './features/questions/question-detail/QuestionDetailPage';
 
 function HomePage() {
   const { currentTab, switchTab } = useTab();
@@ -42,6 +43,7 @@ function App() {
     <Routes>
       <Route path='/' element={<HomePage />} />
       <Route path='/word/:wordText' element={<WordDetailPage />} />
+      <Route path='/question/:id' element={<QuestionDetailPage />} />
     </Routes>
   );
 }

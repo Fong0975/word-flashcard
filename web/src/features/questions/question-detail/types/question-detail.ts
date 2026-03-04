@@ -1,15 +1,6 @@
 import { Question } from '../../../../types/api';
 import { UseDeleteConfirmationReturn } from '../../../../hooks/ui/useDeleteConfirmation';
 
-export interface QuestionDetailModalProps {
-  question: Question | null;
-  isOpen: boolean;
-  onClose: () => void;
-  onQuestionUpdated?: () => void;
-  onQuestionRefreshed?: (updatedQuestion: Question) => void;
-  onError?: (message: string) => void;
-}
-
 export interface QuestionHeaderProps {
   question: Question;
   onEdit: () => void;
