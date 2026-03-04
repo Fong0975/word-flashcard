@@ -193,7 +193,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
       : { uk: null, us: null };
 
     return (
-      <div className='flex h-full flex-col'>
+      <div className='flex min-h-0 flex-1 flex-col'>
         {/* Progress Bar */}
         <div className='mb-6 flex-shrink-0'>
           <div className='mb-2 flex justify-between text-sm text-gray-600 dark:text-gray-400'>
@@ -212,7 +212,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
 
         {!showAnswer ? (
           // Stage 1: Word display only
-          <>
+          <div className='mx-auto flex w-full max-w-4xl flex-1 flex-col'>
             {/* Centered Word Display */}
             <div className='flex flex-1 flex-col items-center justify-center'>
               <h1 className='mb-6 break-all text-center text-4xl font-bold text-gray-900 dark:text-white md:text-4xl lg:text-8xl'>
@@ -287,11 +287,11 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
                 Show Answer
               </button>
             </div>
-          </>
+          </div>
         ) : (
           // Stage 2: Word details and familiarity selection
           <div className='flex-1 overflow-y-auto'>
-            <div className='mx-auto max-w-2xl'>
+            <div className='mx-auto max-w-4xl'>
               {/* Word Display */}
               <div className='mb-8 text-center'>
                 <h1 className='mb-4 text-4xl font-bold text-gray-900 dark:text-white md:text-4xl lg:text-8xl'>
@@ -417,7 +417,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
               </div>
 
               {/* Familiarity Buttons */}
-              <div className='mb-8 flex flex-col justify-center space-y-4'>
+              <div className='flex flex-col justify-center space-y-4'>
                 <button
                   onClick={() => handleFamiliaritySelect(FamiliarityLevel.RED)}
                   className='flex min-w-[150px] flex-col items-center rounded-lg border-2 border-red-200 bg-red-50 p-4 transition-colors hover:bg-red-100 dark:border-red-700 dark:bg-red-900/20 dark:hover:bg-red-900/30'

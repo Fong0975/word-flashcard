@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useMemo,
-  useCallback,
-  useEffect,
-  useRef,
-} from 'react';
+import React, { useMemo, useCallback, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { useWords } from '../../hooks/useWords';
@@ -15,19 +9,13 @@ import {
 import { useToast } from '../../hooks/ui/useToast';
 import { EntityReviewTab } from '../shared/components/EntityReviewTab';
 import { ToastContainer } from '../../components/ui';
-import { QuizSetupModal } from '../shared/components/QuizSetupModal';
 import {
-  WordQuizConfig as QuizConfig,
-  Word,
-  BaseComponentProps,
-} from '../../types';
-import { WordQuizResult } from '../../types/api';
-import { FamiliarityLevel } from '../../types/base';
-import { QuizModal } from '../../components/modals/QuizModal';
+  QuizSetupModal,
+  QuizSetupConfig,
+} from '../shared/components/QuizSetupModal';
+import { Word, BaseComponentProps } from '../../types';
 
 import { WordFormModal } from './word-form';
-import { WordQuiz } from './quiz/WordQuiz';
-import { WordQuizResults } from './quiz/WordQuizResults';
 import { WordCard } from './WordCard';
 
 interface WordsReviewTabProps extends BaseComponentProps {}
@@ -40,7 +28,6 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const modalManager = useModalManager();
-  const [quizConfig, setQuizConfig] = useState<QuizConfig | null>(null);
   const { toasts, showError, showWarning, removeToast } = useToast();
 
   // Read the persisted search term from sessionStorage once on mount (clears when browser closes).
@@ -185,22 +172,13 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
     modalManager.closeModal(MODAL_NAMES.QUIZ_SETUP);
   };
 
-  const handleStartQuiz = (config: {
-    questionCount: number;
-    selectedFamiliarity?: FamiliarityLevel[];
-  }) => {
+  const handleStartQuiz = (config: QuizSetupConfig) => {
     modalManager.closeModal(MODAL_NAMES.QUIZ_SETUP);
-    modalManager.openModal(MODAL_NAMES.QUIZ, config);
-
-    setQuizConfig({
-      selectedFamiliarity: config.selectedFamiliarity || [],
-      questionCount: config.questionCount,
-    });
-  };
-
-  const handleCloseQuizModal = () => {
-    modalManager.closeModal(MODAL_NAMES.QUIZ);
-    setQuizConfig(null);
+    const params = new URLSearchParams({ count: String(config.questionCount) });
+    if (config.selectedFamiliarity && config.selectedFamiliarity.length > 0) {
+      params.set('familiarity', config.selectedFamiliarity.join(','));
+    }
+    navigate(`/word/quiz?${params.toString()}`);
   };
 
   const handleOpenWordDetailFromSuggestion = (word: Word) => {
@@ -263,40 +241,6 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
               entityName='words'
               enableFamiliaritySelection={true}
             />
-
-            {/* Quiz Modal */}
-            {quizConfig && (
-              <QuizModal
-                isOpen={modalManager.isModalOpen(MODAL_NAMES.QUIZ)}
-                onClose={handleCloseQuizModal}
-                quizConfig={quizConfig}
-                config={{
-                  quizTitle: 'Word Quiz',
-                  resultsTitle: 'Quiz Results',
-                  exitConfirmTitle: 'Exit Quiz',
-                  exitConfirmMessage:
-                    "Are you sure you want to exit the quiz? Your progress will be lost and you'll need to start over.",
-                  exitButtonText: 'Exit Quiz',
-                  continueButtonText: 'Continue Quiz',
-                }}
-                renderQuiz={(config, onComplete, onBackToHome) => (
-                  <WordQuiz
-                    selectedFamiliarity={config.selectedFamiliarity}
-                    questionCount={config.questionCount}
-                    onQuizComplete={onComplete}
-                    onBackToHome={onBackToHome}
-                    onError={showError}
-                  />
-                )}
-                renderResults={(results, onRetake, onBackToHome) => (
-                  <WordQuizResults
-                    results={results as WordQuizResult[]}
-                    onRetakeQuiz={onRetake}
-                    onBackToHome={onBackToHome}
-                  />
-                )}
-              />
-            )}
           </>
         }
         className={className}

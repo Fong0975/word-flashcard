@@ -9,5 +9,4 @@ export { PartOfSpeechTags } from './PartOfSpeechTags';
 export { PronunciationGroup } from './PronunciationGroup';
 export { AddDefinitionButton } from './AddDefinitionButton';
 export { EmptyState } from './EmptyState';
-export { WordFooter } from './WordFooter';
 export { WordDeleteConfirmation } from './WordDeleteConfirmation';

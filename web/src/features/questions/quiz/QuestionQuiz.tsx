@@ -9,11 +9,19 @@ import {
 } from '../../../types/api';
 import { apiService } from '../../../lib/api';
 
+export interface NextActionProps {
+  onClick: () => void;
+  label: string;
+  disabled?: boolean;
+  className?: string;
+}
+
 interface QuestionQuizProps {
   questionCount: number;
   onQuizComplete: (results: QuestionQuizResult[]) => void;
   onBackToHome: () => void;
   onError?: (message: string) => void;
+  onNextAction?: (action: NextActionProps | null) => void;
 }
 
 type QuizState = 'loading' | 'quiz' | 'completed';
@@ -23,6 +31,7 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
   onQuizComplete,
   onBackToHome,
   onError,
+  onNextAction,
 }) => {
   const [state, setState] = useState<QuizState>('loading');
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -75,6 +84,33 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
 
     fetchQuizQuestions();
   }, [questionCount, onError]);
+
+  useEffect(() => {
+    if (!onNextAction || !currentQuestion) {
+      return;
+    }
+    if (showAnswer) {
+      const label =
+        currentQuestionIndex < questions.length - 1
+          ? 'Next Question'
+          : 'Finish Quiz';
+      onNextAction({
+        onClick: handleNextQuestion,
+        label,
+        className:
+          'w-full rounded-lg bg-green-500 px-8 py-3 font-medium text-white transition-colors hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 md:text-lg',
+      });
+    } else {
+      onNextAction({
+        onClick: handleSubmitAnswer,
+        label: 'Submit Answer',
+        disabled: !selectedAnswer,
+        className:
+          'w-full rounded-lg bg-blue-500 px-8 py-3 font-medium text-white transition-colors hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-lg',
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showAnswer, selectedAnswer, currentQuestionIndex, questions.length]);
 
   const handleAnswerSelect = (answer: string) => {
     setSelectedAnswer(answer);
@@ -270,17 +306,6 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
                 </div>
               </div>
             </div>
-
-            {/* Bottom Action */}
-            <div className='flex-shrink-0 text-center'>
-              <button
-                onClick={handleSubmitAnswer}
-                disabled={!selectedAnswer}
-                className='w-full rounded-lg bg-blue-500 px-8 py-3 font-medium text-white transition-colors hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-lg'
-              >
-                Submit Answer
-              </button>
-            </div>
           </>
         ) : (
           // Stage 2: Answer and explanation
@@ -386,18 +411,6 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
                   </div>
                 </div>
               )}
-
-              {/* Next Button */}
-              <div className='pb-2 text-center md:pb-4 lg:pb-8'>
-                <button
-                  onClick={handleNextQuestion}
-                  className='w-full rounded-lg bg-green-500 px-8 py-3 font-medium text-white transition-colors hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 md:text-lg'
-                >
-                  {currentQuestionIndex < questions.length - 1
-                    ? 'Next Question'
-                    : 'Finish Quiz'}
-                </button>
-              </div>
             </div>
           </div>
         )}
