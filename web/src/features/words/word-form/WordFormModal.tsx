@@ -60,7 +60,7 @@ export const WordFormModal: React.FC<WordFormModalProps> = ({
   const handleSuggestionClick = useCallback(
     (suggestedWord: Word) => {
       if (onOpenWordDetail) {
-        // Close current modal and notify parent to open WordDetailModal
+        // Close current modal and navigate to word detail page
         handleClose();
         onOpenWordDetail(suggestedWord);
       }

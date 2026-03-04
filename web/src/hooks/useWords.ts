@@ -19,6 +19,7 @@ export interface UseWordsActions {
 export interface UseWordsOptions {
   itemsPerPage?: number;
   initialPage?: number;
+  initialSearchTerm?: string;
   autoFetch?: boolean;
 }
 
@@ -26,7 +27,12 @@ export interface UseWordsReturn
   extends UseWordsState, UseWordsActions, EntityListHook<Word> {}
 
 export const useWords = (options: UseWordsOptions = {}): UseWordsReturn => {
-  const { itemsPerPage = 50, initialPage = 1, autoFetch = true } = options;
+  const {
+    itemsPerPage = 50,
+    initialPage = 1,
+    initialSearchTerm = '',
+    autoFetch = true,
+  } = options;
 
   // Create configuration for the generic hook
   const entityListOptions = useMemo(
@@ -65,9 +71,10 @@ export const useWords = (options: UseWordsOptions = {}): UseWordsReturn => {
       },
       itemsPerPage,
       initialPage,
+      initialSearchTerm,
       autoFetch,
     }),
-    [itemsPerPage, initialPage, autoFetch],
+    [itemsPerPage, initialPage, initialSearchTerm, autoFetch],
   );
 
   // Use the generic hook

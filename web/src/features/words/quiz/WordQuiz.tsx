@@ -330,7 +330,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
                 )}
               </div>
 
-              {/* Word Details (like WordDetailModal) */}
+              {/* Word Details */}
               {currentWord.definitions &&
                 currentWord.definitions.length > 0 && (
                   <div className='mb-8 rounded-lg bg-gray-50 p-6 dark:bg-gray-700'>

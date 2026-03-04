@@ -46,7 +46,7 @@ export const useWordSubmit = ({
             limit: 1,
           });
 
-          // If we found the word, open WordDetailModal
+          // If we found the word, navigate to its detail page
           if (searchResults.length > 0) {
             callbacks.onOpenWordDetail(searchResults[0]);
           }
@@ -99,7 +99,7 @@ export const useWordSubmit = ({
 
         // Notify parent component to refresh data
         if (callbacks.onWordSaved) {
-          callbacks.onWordSaved();
+          callbacks.onWordSaved(newWordText);
         }
 
         // Handle newly created word logic

@@ -7,7 +7,7 @@ import { FamiliarityLevel } from '../../../../types/base';
 export interface WordFormModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onWordSaved?: () => void;
+  onWordSaved?: (newWordText?: string) => void;
   onOpenWordDetail?: (word: Word) => void;
   mode: 'create' | 'edit';
   word?: Word; // Required when mode is 'edit'
@@ -35,6 +35,6 @@ export interface WordSearchState {
 
 export interface WordFormSubmitCallbacks {
   onClose: () => void;
-  onWordSaved?: () => void;
+  onWordSaved?: (newWordText?: string) => void;
   onOpenWordDetail?: (word: Word) => void;
 }

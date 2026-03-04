@@ -100,6 +100,7 @@ export interface UseEntityListOptions<T> {
   searchConfig: SearchConfig<T>;
   itemsPerPage?: number;
   initialPage?: number;
+  initialSearchTerm?: string;
   autoFetch?: boolean;
 }
 
@@ -112,6 +113,7 @@ export const useEntityList = <T extends BaseEntity>(
     searchConfig,
     itemsPerPage = 50,
     initialPage = 1,
+    initialSearchTerm = '',
     autoFetch = true,
   } = options;
 
@@ -124,12 +126,12 @@ export const useEntityList = <T extends BaseEntity>(
     hasNext: false,
     hasPrevious: false,
     itemsPerPage,
-    searchTerm: '',
+    searchTerm: initialSearchTerm,
     totalCount: 0,
   });
 
   const mounted = useRef(false);
-  const previousSearchTerm = useRef('');
+  const previousSearchTerm = useRef(initialSearchTerm);
 
   const fetchEntities = useCallback(
     async (page?: number) => {

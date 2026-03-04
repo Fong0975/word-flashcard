@@ -1,4 +1,11 @@
-import React, { useState, useCallback } from 'react';
+import React, {
+  useState,
+  useMemo,
+  useCallback,
+  useEffect,
+  useRef,
+} from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { useWords } from '../../hooks/useWords';
 import {
@@ -12,207 +19,192 @@ import { QuizSetupModal } from '../shared/components/QuizSetupModal';
 import {
   WordQuizConfig as QuizConfig,
   Word,
-  WordDefinition,
   BaseComponentProps,
 } from '../../types';
 import { WordQuizResult } from '../../types/api';
-import {
-  SearchOperation,
-  SearchLogic,
-  FamiliarityLevel,
-} from '../../types/base';
+import { FamiliarityLevel } from '../../types/base';
 import { QuizModal } from '../../components/modals/QuizModal';
-import { apiService } from '../../lib/api';
 
-import { ExternalDictionaryState } from './definition-form/hooks/useDictionaryData';
-import { CambridgeApiResponse } from './definition-form/types';
 import { WordFormModal } from './word-form';
-import { WordDetailModal } from './word-detail/WordDetailModal';
-import { DefinitionFormModal } from './definition-form';
 import { WordQuiz } from './quiz/WordQuiz';
 import { WordQuizResults } from './quiz/WordQuizResults';
 import { WordCard } from './WordCard';
 
 interface WordsReviewTabProps extends BaseComponentProps {}
 
+const SESSION_SEARCH_KEY = 'word-review-search';
+
 export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
   className = '',
 }) => {
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const modalManager = useModalManager();
   const [quizConfig, setQuizConfig] = useState<QuizConfig | null>(null);
   const { toasts, showError, showWarning, removeToast } = useToast();
 
-  // Shared dictionary state for both DefinitionFormModals
-  const [sharedDictionaryData, setSharedDictionaryData] =
-    useState<CambridgeApiResponse | null>(null);
-  const [sharedIsLoadingDictionary, setSharedIsLoadingDictionary] =
-    useState(false);
-  const [sharedDictionaryError, setSharedDictionaryError] = useState<
-    string | null
-  >(null);
-  const [sharedIsCollapsed, setSharedIsCollapsed] = useState(true);
+  // Read the persisted search term from sessionStorage once on mount (clears when browser closes).
+  const initialSessionTerm = useRef(
+    sessionStorage.getItem(SESSION_SEARCH_KEY) ?? '',
+  );
 
-  // Create shared dictionary state object
-  const sharedDictionaryState: ExternalDictionaryState = {
-    dictionaryData: sharedDictionaryData,
-    isLoadingDictionary: sharedIsLoadingDictionary,
-    dictionaryError: sharedDictionaryError,
-    isCollapsed: sharedIsCollapsed,
-    setDictionaryData: setSharedDictionaryData,
-    setIsLoadingDictionary: setSharedIsLoadingDictionary,
-    setDictionaryError: setSharedDictionaryError,
-    setIsCollapsed: setSharedIsCollapsed,
-  };
+  const urlPage = useMemo(() => {
+    const p = parseInt(searchParams.get('page') || '1', 10);
+    return isNaN(p) || p < 1 ? 1 : p;
+  }, [searchParams]);
 
   const wordsHook = useWords({
     itemsPerPage: 30,
     autoFetch: true,
+    initialPage: urlPage,
+    initialSearchTerm: initialSessionTerm.current,
   });
 
-  // Manual refresh function for word details when explicitly needed
-  const refreshWordDetailIfOpen = useCallback(async () => {
-    const selectedWord = modalManager.getModalData<Word>(
-      MODAL_NAMES.WORD_DETAIL,
-    );
+  const setUrlPage = useCallback(
+    (page: number) => {
+      setSearchParams(
+        prev => {
+          const next = new URLSearchParams(prev);
+          if (page <= 1) {
+            next.delete('page');
+          } else {
+            next.set('page', page.toString());
+          }
+          return next;
+        },
+        { replace: true },
+      );
+    },
+    [setSearchParams],
+  );
 
-    if (!selectedWord) {
-      return;
+  // Keep a stable ref to fetchEntities to avoid stale closures in the effect below
+  const fetchEntitiesRef = useRef(wordsHook.fetchEntities);
+  fetchEntitiesRef.current = wordsHook.fetchEntities;
+
+  // Keep a ref to current page to check inside the effect without adding it as a dep
+  const currentPageRef = useRef(wordsHook.currentPage);
+  currentPageRef.current = wordsHook.currentPage;
+
+  // Sync URL → hook: when the URL page param changes externally (address bar, browser history),
+  // fetch the corresponding page in the hook.
+  useEffect(() => {
+    if (urlPage !== currentPageRef.current) {
+      fetchEntitiesRef.current(urlPage);
     }
+  }, [urlPage]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    try {
-      // Find the updated word in the current words list
-      const updatedWord = wordsHook.words.find(w => w.id === selectedWord.id);
+  // Wrapped pagination actions: update URL only; the effect above handles the actual fetch.
+  const wrappedGoToPage = useCallback(
+    async (page: number) => {
+      setUrlPage(page);
+    },
+    [setUrlPage],
+  );
 
-      if (updatedWord) {
-        // Simple comparison - only check if the object reference is different
-        if (updatedWord !== selectedWord) {
-          modalManager.setModalData(MODAL_NAMES.WORD_DETAIL, updatedWord);
-        }
+  const wrappedNextPage = useCallback(async () => {
+    if (wordsHook.hasNext) {
+      setUrlPage(urlPage + 1);
+    }
+  }, [wordsHook.hasNext, urlPage, setUrlPage]);
+
+  const wrappedPreviousPage = useCallback(async () => {
+    if (wordsHook.hasPrevious) {
+      setUrlPage(urlPage - 1);
+    }
+  }, [wordsHook.hasPrevious, urlPage, setUrlPage]);
+
+  const wrappedGoToFirst = useCallback(async () => {
+    setUrlPage(1);
+  }, [setUrlPage]);
+
+  const wrappedGoToLast = useCallback(async () => {
+    setUrlPage(wordsHook.totalPages);
+  }, [wordsHook.totalPages, setUrlPage]);
+
+  // When searching, clear the page param so results start from the first page,
+  // and persist the search term in sessionStorage so it can be restored on back-navigation.
+  const wrappedSetSearchTerm = useCallback(
+    (term: string) => {
+      if (term) {
+        sessionStorage.setItem(SESSION_SEARCH_KEY, term);
       } else {
-        // If word is not found in current list, search for it explicitly
-        const searchFilter = {
-          conditions: [
-            {
-              key: 'word',
-              operator: SearchOperation.LIKE,
-              value: selectedWord.word,
-            },
-          ],
-          logic: SearchLogic.OR,
-        };
-
-        const searchResults = await apiService.searchWords({
-          searchFilter,
-          limit: 1,
-        });
-
-        if (searchResults.length > 0) {
-          modalManager.setModalData(MODAL_NAMES.WORD_DETAIL, searchResults[0]);
-        }
+        sessionStorage.removeItem(SESSION_SEARCH_KEY);
       }
-    } catch (error) {
-      showError('Failed to refresh selected word. Please try again.');
-    }
-  }, [wordsHook.words, modalManager, showError]);
+      setSearchParams(
+        prev => {
+          const next = new URLSearchParams(prev);
+          next.delete('page');
+          return next;
+        },
+        { replace: true },
+      );
+      wordsHook.setSearchTerm(term);
+    },
+    [setSearchParams, wordsHook.setSearchTerm], // eslint-disable-line react-hooks/exhaustive-deps
+  );
 
-  // Handle opening add word modal
+  const patchedWordsHook = useMemo(
+    () => ({
+      ...wordsHook,
+      goToPage: wrappedGoToPage,
+      nextPage: wrappedNextPage,
+      previousPage: wrappedPreviousPage,
+      goToFirst: wrappedGoToFirst,
+      goToLast: wrappedGoToLast,
+      setSearchTerm: wrappedSetSearchTerm,
+    }),
+    [
+      wordsHook,
+      wrappedGoToPage,
+      wrappedNextPage,
+      wrappedPreviousPage,
+      wrappedGoToFirst,
+      wrappedGoToLast,
+      wrappedSetSearchTerm,
+    ],
+  );
+
   const handleNew = () => {
     modalManager.openModal(MODAL_NAMES.ADD);
   };
 
-  // Handle closing add word modal
   const handleCloseAddModal = () => {
     modalManager.closeModal(MODAL_NAMES.ADD);
   };
 
-  // Handle word added successfully - refresh the word list
   const handleWordAdded = () => {
     wordsHook.refresh();
   };
 
-  // Handle opening quiz setup modal
   const handleQuizSetup = () => {
     modalManager.openModal(MODAL_NAMES.QUIZ_SETUP);
   };
 
-  // Handle closing quiz setup modal
   const handleCloseQuizSetupModal = () => {
     modalManager.closeModal(MODAL_NAMES.QUIZ_SETUP);
   };
 
-  // Handle starting quiz
   const handleStartQuiz = (config: {
     questionCount: number;
     selectedFamiliarity?: FamiliarityLevel[];
   }) => {
-    // Close the setup modal and open quiz modal
     modalManager.closeModal(MODAL_NAMES.QUIZ_SETUP);
     modalManager.openModal(MODAL_NAMES.QUIZ, config);
 
-    // Set quiz config for WordQuizModal
     setQuizConfig({
       selectedFamiliarity: config.selectedFamiliarity || [],
       questionCount: config.questionCount,
     });
   };
 
-  // Handle closing quiz modal
   const handleCloseQuizModal = () => {
     modalManager.closeModal(MODAL_NAMES.QUIZ);
     setQuizConfig(null);
   };
 
-  // Handle opening WordDetailModal from WordFormModal suggestion
   const handleOpenWordDetailFromSuggestion = (word: Word) => {
-    modalManager.openModal(MODAL_NAMES.WORD_DETAIL, word);
-  };
-
-  // Handle closing WordDetailModal
-  const handleCloseWordDetailModal = () => {
-    modalManager.closeModal(MODAL_NAMES.WORD_DETAIL);
-
-    // Reset shared dictionary data when WordDetailModal closes
-    setSharedDictionaryData(null);
-    setSharedDictionaryError(null);
-    setSharedIsCollapsed(true);
-  };
-
-  // Handle word updated (familiarity, word text, etc.)
-  const handleWordUpdated = () => {
-    wordsHook.refresh(); // Refresh the words list
-    // Manually refresh the detail modal if it's open
-    refreshWordDetailIfOpen();
-  };
-
-  // Handle opening DefinitionFormModal for adding new definition
-  const handleOpenDefinitionModal = () => {
-    modalManager.openModal(MODAL_NAMES.DEFINITION_ADD, { mode: 'add' });
-  };
-
-  // Handle opening DefinitionFormModal for editing definition
-  const handleOpenEditDefinitionModal = (definition: WordDefinition) => {
-    modalManager.openModal(MODAL_NAMES.DEFINITION_EDIT, {
-      mode: 'edit',
-      definition,
-    });
-  };
-
-  // Handle closing DefinitionFormModal
-  const handleCloseDefinitionFormModal = () => {
-    modalManager.closeModal(MODAL_NAMES.DEFINITION_ADD);
-    modalManager.closeModal(MODAL_NAMES.DEFINITION_EDIT);
-  };
-
-  // Handle definition added successfully
-  const handleDefinitionAdded = () => {
-    wordsHook.refresh(); // Refresh the words list
-    refreshWordDetailIfOpen(); // Update the detail modal
-  };
-
-  // Handle definition updated successfully
-  const handleDefinitionUpdated = () => {
-    wordsHook.refresh(); // Refresh the words list
-    refreshWordDetailIfOpen(); // Update the detail modal
+    navigate(`/word/${encodeURIComponent(word.word)}`);
   };
 
   return (
@@ -238,7 +230,7 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
           onSearch: wordsHook.setSearchTerm,
           onRefresh: () => wordsHook.refresh(),
         }}
-        entityListHook={wordsHook}
+        entityListHook={patchedWordsHook}
         renderCard={(word, index) => (
           <WordCard
             key={word.id}
@@ -305,63 +297,6 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
                 )}
               />
             )}
-
-            {/* Word Detail Modal */}
-            <WordDetailModal
-              word={
-                modalManager.getModalData<Word>(MODAL_NAMES.WORD_DETAIL) ?? null
-              }
-              isOpen={modalManager.isModalOpen(MODAL_NAMES.WORD_DETAIL)}
-              onClose={handleCloseWordDetailModal}
-              onWordUpdated={handleWordUpdated}
-              onOpenDefinitionModal={handleOpenDefinitionModal}
-              onOpenEditDefinitionModal={handleOpenEditDefinitionModal}
-            />
-
-            {/* Definition Form Modal for Adding */}
-            <DefinitionFormModal
-              isOpen={modalManager.isModalOpen(MODAL_NAMES.DEFINITION_ADD)}
-              onClose={handleCloseDefinitionFormModal}
-              onDefinitionAdded={handleDefinitionAdded}
-              onDefinitionUpdated={handleDefinitionUpdated}
-              wordId={
-                modalManager.getModalData<Word>(MODAL_NAMES.WORD_DETAIL)?.id ||
-                null
-              }
-              wordText={
-                modalManager.getModalData<Word>(MODAL_NAMES.WORD_DETAIL)
-                  ?.word || null
-              }
-              mode='add'
-              definition={null}
-              shouldResetDictionaryOnClose={false}
-              externalDictionaryState={sharedDictionaryState}
-            />
-
-            {/* Definition Form Modal for Editing */}
-            <DefinitionFormModal
-              isOpen={modalManager.isModalOpen(MODAL_NAMES.DEFINITION_EDIT)}
-              onClose={handleCloseDefinitionFormModal}
-              onDefinitionAdded={handleDefinitionAdded}
-              onDefinitionUpdated={handleDefinitionUpdated}
-              wordId={
-                modalManager.getModalData<Word>(MODAL_NAMES.WORD_DETAIL)?.id ||
-                null
-              }
-              wordText={
-                modalManager.getModalData<Word>(MODAL_NAMES.WORD_DETAIL)
-                  ?.word || null
-              }
-              mode='edit'
-              definition={
-                modalManager.getModalData<{
-                  mode: string;
-                  definition: WordDefinition;
-                }>(MODAL_NAMES.DEFINITION_EDIT)?.definition || null
-              }
-              shouldResetDictionaryOnClose={false}
-              externalDictionaryState={sharedDictionaryState}
-            />
           </>
         }
         className={className}

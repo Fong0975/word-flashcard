@@ -1,9 +1,11 @@
 import React from 'react';
+import { Routes, Route } from 'react-router-dom';
 
 import { Header, TabNavigation, TabContent, Footer } from './components';
 import { useTab } from './hooks/useTab';
+import { WordDetailPage } from './features/words/word-detail/WordDetailPage';
 
-function App() {
+function HomePage() {
   const { currentTab, switchTab } = useTab();
 
   return (
@@ -32,6 +34,15 @@ function App() {
 
       <Footer />
     </div>
+  );
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route path='/' element={<HomePage />} />
+      <Route path='/word/:wordText' element={<WordDetailPage />} />
+    </Routes>
   );
 }
 
