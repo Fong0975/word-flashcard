@@ -193,9 +193,9 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
       : { uk: null, us: null };
 
     return (
-      <div className='flex min-h-0 flex-1 flex-col'>
-        {/* Progress Bar */}
+      <div className='flex min-h-0 flex-1 flex-col overflow-hidden'>
         <div className='mb-6 flex-shrink-0'>
+          {/* Progress Bar */}
           <div className='mb-2 flex justify-between text-sm text-gray-600 dark:text-gray-400'>
             <span>
               Question {currentWordIndex + 1} of {words.length}
@@ -208,11 +208,29 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
               style={{ width: `${progress}%` }}
             />
           </div>
+
+          {showAnswer && (
+            <div className='mb-2 mt-4 text-center md:mb-4 md:mt-8'>
+              {/* Centered Word Display */}
+              <h1 className='mb-4 text-4xl font-bold text-gray-900 dark:text-white md:text-4xl lg:text-6xl'>
+                {currentWord.word}
+              </h1>
+
+              {/* Familiarity Bar */}
+              {currentWord.familiarity && (
+                <div className='mb-2 text-center md:mb-4'>
+                  <div
+                    className={`mx-auto h-2 w-40 rounded-full transition-colors duration-300 ${getFamiliarityBarColor(currentWord.familiarity)}`}
+                  />
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {!showAnswer ? (
           // Stage 1: Word display only
-          <div className='mx-auto flex w-full max-w-4xl flex-1 flex-col'>
+          <div className='mx-auto flex w-full max-w-4xl flex-1 flex-col overflow-y-auto'>
             {/* Centered Word Display */}
             <div className='flex flex-1 flex-col items-center justify-center'>
               <h1 className='mb-6 break-all text-center text-4xl font-bold text-gray-900 dark:text-white md:text-4xl lg:text-8xl'>
@@ -290,23 +308,10 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
           </div>
         ) : (
           // Stage 2: Word details and familiarity selection
-          <div className='flex-1 overflow-y-auto'>
+          <div className='min-h-0 flex-1 overflow-y-auto'>
             <div className='mx-auto max-w-4xl'>
               {/* Word Display */}
               <div className='mb-8 text-center'>
-                <h1 className='mb-4 text-4xl font-bold text-gray-900 dark:text-white md:text-4xl lg:text-8xl'>
-                  {currentWord.word}
-                </h1>
-
-                {/* Familiarity Bar */}
-                {currentWord.familiarity && (
-                  <div className='mb-4 text-center'>
-                    <div
-                      className={`mx-auto h-2 w-40 rounded-full transition-colors duration-300 ${getFamiliarityBarColor(currentWord.familiarity)}`}
-                    />
-                  </div>
-                )}
-
                 {/* Pronunciation buttons */}
                 {(pronunciationUrls.uk || pronunciationUrls.us) && (
                   <div className='mb-6 flex items-center justify-center space-x-4'>
