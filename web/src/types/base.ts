@@ -66,6 +66,10 @@ export enum SearchOperation {
   STARTS_WITH = 'starts_with',
   ENDS_WITH = 'ends_with',
   IN = 'in',
+  IS_NULL = 'is_null',
+  IS_NOT_NULL = 'is_not_null',
+  IS_EMPTY = 'is_empty',
+  IS_NOT_EMPTY = 'is_not_empty',
 }
 
 /**
@@ -233,7 +237,7 @@ export type AsyncCallback<TArgs extends unknown[] = [], TReturn = void> = (
 export interface SearchCondition {
   readonly key: string;
   readonly operator: SearchOperation;
-  readonly value: string;
+  readonly value?: string;
 }
 
 /**

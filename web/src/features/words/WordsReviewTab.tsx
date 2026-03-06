@@ -1,4 +1,10 @@
-import React, { useMemo, useCallback, useEffect, useRef } from 'react';
+import React, {
+  useMemo,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { useWords } from '../../hooks/useWords';
@@ -14,6 +20,7 @@ import {
   QuizSetupConfig,
 } from '../shared/components/QuizSetupModal';
 import { Word, BaseComponentProps } from '../../types';
+import { SearchCondition, SearchOperation } from '../../types/base';
 
 import { WordFormModal } from './word-form';
 import { WordCard } from './WordCard';
@@ -21,6 +28,7 @@ import { WordCard } from './WordCard';
 interface WordsReviewTabProps extends BaseComponentProps {}
 
 const SESSION_SEARCH_KEY = 'word-review-search';
+const SESSION_QUICK_FILTERS_KEY = 'word-review-quick-filters';
 
 export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
   className = '',
@@ -29,6 +37,30 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
   const [searchParams, setSearchParams] = useSearchParams();
   const modalManager = useModalManager();
   const { toasts, showError, showWarning, removeToast } = useToast();
+
+  // Active quick filter keys — restored from sessionStorage on mount.
+  const [activeFilters, setActiveFilters] = useState<string[]>(() => {
+    try {
+      const stored = sessionStorage.getItem(SESSION_QUICK_FILTERS_KEY);
+      return stored ? (JSON.parse(stored) as string[]) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const toggleFilter = useCallback((key: string) => {
+    setActiveFilters(prev => {
+      const next = prev.includes(key)
+        ? prev.filter(k => k !== key)
+        : [...prev, key];
+      if (next.length > 0) {
+        sessionStorage.setItem(SESSION_QUICK_FILTERS_KEY, JSON.stringify(next));
+      } else {
+        sessionStorage.removeItem(SESSION_QUICK_FILTERS_KEY);
+      }
+      return next;
+    });
+  }, []);
 
   // Read the persisted search term from sessionStorage once on mount (clears when browser closes).
   const initialSessionTerm = useRef(
@@ -40,11 +72,24 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
     return isNaN(p) || p < 1 ? 1 : p;
   }, [searchParams]);
 
+  // Build extra filter conditions based on active quick filters
+  const extraConditions = useMemo((): SearchCondition[] => {
+    const conditions: SearchCondition[] = [];
+    if (activeFilters.includes('withReminder')) {
+      conditions.push(
+        { key: 'reminder', operator: SearchOperation.IS_NOT_NULL },
+        { key: 'reminder', operator: SearchOperation.IS_NOT_EMPTY },
+      );
+    }
+    return conditions;
+  }, [activeFilters]);
+
   const wordsHook = useWords({
     itemsPerPage: 30,
     autoFetch: true,
     initialPage: urlPage,
     initialSearchTerm: initialSessionTerm.current,
+    extraConditions,
   });
 
   const setUrlPage = useCallback(
@@ -80,6 +125,20 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
       fetchEntitiesRef.current(urlPage);
     }
   }, [urlPage]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Stable string representation of active filters for use as an effect dep
+  const activeFiltersKey = activeFilters.join(',');
+
+  // Re-fetch from page 1 when quick filter conditions change
+  const isFirstRenderRef = useRef(true);
+  useEffect(() => {
+    if (isFirstRenderRef.current) {
+      isFirstRenderRef.current = false;
+      return;
+    }
+    setUrlPage(1);
+    fetchEntitiesRef.current(1);
+  }, [activeFiltersKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Wrapped pagination actions: update URL only; the effect above handles the actual fetch.
   const wrappedGoToPage = useCallback(
@@ -208,6 +267,37 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
           onSearch: wordsHook.setSearchTerm,
           onRefresh: () => wordsHook.refresh(),
         }}
+        quickFiltersContent={
+          <div className='flex flex-wrap items-center gap-2'>
+            <span className='text-sm text-gray-500 dark:text-gray-400'>
+              Filters:
+            </span>
+            <button
+              type='button'
+              onClick={() => toggleFilter('withReminder')}
+              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 ${
+                activeFilters.includes('withReminder')
+                  ? 'bg-primary-500 text-white hover:bg-primary-600'
+                  : 'border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+              }`}
+            >
+              {activeFilters.includes('withReminder') && (
+                <svg
+                  className='mr-1.5 h-3 w-3'
+                  fill='currentColor'
+                  viewBox='0 0 20 20'
+                >
+                  <path
+                    fillRule='evenodd'
+                    d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
+                    clipRule='evenodd'
+                  />
+                </svg>
+              )}
+              With Reminder
+            </button>
+          </div>
+        }
         entityListHook={patchedWordsHook}
         renderCard={(word, index) => (
           <WordCard

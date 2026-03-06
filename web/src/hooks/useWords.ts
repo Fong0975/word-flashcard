@@ -2,7 +2,12 @@ import { useMemo } from 'react';
 
 import { apiService } from '../lib/api';
 import { Word } from '../types/api';
-import { SearchFilter, SearchOperation, SearchLogic } from '../types/base';
+import {
+  SearchFilter,
+  SearchOperation,
+  SearchLogic,
+  SearchCondition,
+} from '../types/base';
 import { EntityListHook } from '../types/hooks';
 
 import { useEntityList, UseEntityListOptions } from './useEntityList';
@@ -21,6 +26,8 @@ export interface UseWordsOptions {
   initialPage?: number;
   initialSearchTerm?: string;
   autoFetch?: boolean;
+  /** Additional filter conditions to AND with keyword search results */
+  extraConditions?: SearchCondition[];
 }
 
 export interface UseWordsReturn
@@ -32,6 +39,7 @@ export const useWords = (options: UseWordsOptions = {}): UseWordsReturn => {
     initialPage = 1,
     initialSearchTerm = '',
     autoFetch = true,
+    extraConditions,
   } = options;
 
   // Create configuration for the generic hook
@@ -45,9 +53,20 @@ export const useWords = (options: UseWordsOptions = {}): UseWordsReturn => {
       searchConfig: {
         type: 'server',
         createSearchFilter: (searchTerm: string): SearchFilter | undefined => {
-          return searchTerm
-            ? {
-                conditions: [
+          const hasExtra = extraConditions && extraConditions.length > 0;
+
+          // When both keyword and extra conditions are present, scope keyword to the
+          // `word` field only to avoid OR/AND logic conflicts.
+          const keywordConditions: SearchCondition[] = searchTerm
+            ? hasExtra
+              ? [
+                  {
+                    key: 'word',
+                    operator: SearchOperation.LIKE,
+                    value: `%${searchTerm}%`,
+                  },
+                ]
+              : [
                   {
                     key: 'word',
                     operator: SearchOperation.LIKE,
@@ -63,10 +82,23 @@ export const useWords = (options: UseWordsOptions = {}): UseWordsReturn => {
                     operator: SearchOperation.LIKE,
                     value: `%${searchTerm}%`,
                   },
-                ],
-                logic: SearchLogic.OR,
-              }
-            : undefined;
+                ]
+            : [];
+
+          const allConditions = [
+            ...keywordConditions,
+            ...(extraConditions ?? []),
+          ];
+
+          if (allConditions.length === 0) {
+            return undefined;
+          }
+
+          // Use OR only when there's a keyword with no extra conditions (multi-field search)
+          const logic =
+            searchTerm && !hasExtra ? SearchLogic.OR : SearchLogic.AND;
+
+          return { conditions: allConditions, logic };
         },
       },
       itemsPerPage,
@@ -74,7 +106,7 @@ export const useWords = (options: UseWordsOptions = {}): UseWordsReturn => {
       initialSearchTerm,
       autoFetch,
     }),
-    [itemsPerPage, initialPage, initialSearchTerm, autoFetch],
+    [itemsPerPage, initialPage, initialSearchTerm, autoFetch, extraConditions],
   );
 
   // Use the generic hook

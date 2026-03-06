@@ -21,7 +21,8 @@ interface EntityReviewTabProps<
   readonly actions: EntityReviewActions;
   readonly entityListHook: EntityListHook<T>;
   readonly renderCard: (entity: T, index: number) => ReactNode;
-  readonly additionalContent?: ReactNode; // For additional modals, etc.
+  readonly additionalContent?: ReactNode;
+  readonly quickFiltersContent?: ReactNode;
 }
 
 /**
@@ -60,6 +61,7 @@ export const EntityReviewTab = <T extends BaseEntity>({
   entityListHook,
   renderCard,
   additionalContent,
+  quickFiltersContent,
   className = '',
 }: EntityReviewTabProps<T>) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -285,6 +287,9 @@ export const EntityReviewTab = <T extends BaseEntity>({
               </button>
             )}
           </div>
+          {quickFiltersContent && (
+            <div className='mt-2'>{quickFiltersContent}</div>
+          )}
         </div>
       )}
 
