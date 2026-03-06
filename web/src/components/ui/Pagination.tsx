@@ -6,7 +6,6 @@ interface PaginationProps {
   hasNext: boolean;
   hasPrevious: boolean;
   itemsPerPage: number;
-  totalItems?: number;
   onPageChange: (page: number) => void;
   onNext: () => void;
   onPrevious: () => void;
@@ -22,7 +21,6 @@ export const Pagination: React.FC<PaginationProps> = ({
   hasNext,
   hasPrevious,
   itemsPerPage,
-  totalItems,
   onPageChange,
   onNext,
   onPrevious,
@@ -220,11 +218,6 @@ export const Pagination: React.FC<PaginationProps> = ({
             </select>
             <span>of {totalPages}</span>
           </div>
-          {totalItems && (
-            <span className='mt-1 text-xs text-gray-500 dark:text-gray-400'>
-              ({totalItems} total)
-            </span>
-          )}
         </div>
       </div>
 
@@ -246,9 +239,7 @@ export const Pagination: React.FC<PaginationProps> = ({
                 </option>
               ))}
             </select>
-            <span>
-              of {totalPages} ({totalItems} total)
-            </span>
+            <span>of {totalPages}</span>
           </div>
         </div>
 

@@ -329,6 +329,13 @@ export const EntityReviewTab = <T extends BaseEntity>({
       {/* Entity List */}
       {entities.length > 0 && (
         <div>
+          {totalCount > 0 && (
+            <div className='mb-2 flex justify-end'>
+              <span className='text-xs text-gray-400 dark:text-gray-500'>
+                {totalCount} {config.entityNamePlural.toLowerCase()} total
+              </span>
+            </div>
+          )}
           <div className='space-y-3'>
             {entities.map((entity, index) => (
               <div key={entity.id}>
@@ -358,7 +365,6 @@ export const EntityReviewTab = <T extends BaseEntity>({
                 hasNext={hasNext}
                 hasPrevious={hasPrevious}
                 itemsPerPage={itemsPerPage}
-                totalItems={totalCount}
                 onPageChange={goToPage}
                 onNext={nextPage}
                 onPrevious={previousPage}
