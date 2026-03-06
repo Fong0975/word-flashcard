@@ -24,6 +24,7 @@ type Database interface {
 
 	// Low-level operations (for table creation and migrations)
 	Exec(query string, args ...interface{}) (sql.Result, error)
+	Query(query string, args ...interface{}) (*sql.Rows, error)
 	InitializeTables() error
 }
 

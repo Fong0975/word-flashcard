@@ -460,6 +460,63 @@ func (s *connectionTestSuite) TestExec() {
 	s.NoError(mock.ExpectationsWereMet())
 }
 
+// TestQuery tests executing raw SQL queries that return rows
+func (s *connectionTestSuite) TestQuery() {
+	// Test successful query returning rows with expected columns
+	{
+		db, mock, cleanup := createMockDatabase(s.t, "mysql")
+		defer cleanup()
+
+		rows := sqlmock.NewRows([]string{"id", "name"}).
+			AddRow(1, "Test User")
+
+		mock.ExpectQuery("SELECT \\* FROM users WHERE 1=0").
+			WillReturnRows(rows)
+
+		result, err := db.Query("SELECT * FROM users WHERE 1=0")
+
+		s.NoError(err, "Query should succeed")
+		s.NotNil(result, "Rows should not be nil")
+
+		cols, err := result.Columns()
+		s.NoError(err)
+		s.Equal([]string{"id", "name"}, cols, "Should return expected column names")
+
+		result.Close()
+
+		s.NoError(mock.ExpectationsWereMet())
+	}
+
+	// Test query failure propagates error
+	{
+		db, mock, cleanup := createMockDatabase(s.t, "mysql")
+		defer cleanup()
+
+		mock.ExpectQuery("SELECT \\* FROM missing_table WHERE 1=0").
+			WillReturnError(sqlmock.ErrCancelled)
+
+		result, err := db.Query("SELECT * FROM missing_table WHERE 1=0")
+
+		s.Error(err, "Query should fail")
+		s.Nil(result, "Rows should be nil on error")
+
+		s.NoError(mock.ExpectationsWereMet())
+	}
+
+	// Test query on disconnected database
+	{
+		db, _, cleanup := createMockDatabase(s.t, "mysql")
+		defer cleanup()
+
+		db.db = nil
+
+		result, err := db.Query("SELECT * FROM users WHERE 1=0")
+
+		s.Error(err, "Query should fail when not connected")
+		s.Nil(result, "Rows should be nil when not connected")
+	}
+}
+
 // TestTranslateDatabaseTerms tests the translateDatabaseTerms method for different database types
 func (s *connectionTestSuite) TestTranslateDatabaseTerms() {
 	// Test MySQL database term translation

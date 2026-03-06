@@ -11,6 +11,7 @@ A unified database operation module that supports both MySQL and PostgreSQL, pro
 - 🛡️ Built-in error handling with custom DatabaseError type
 - 📝 Clean API design with struct-to-map conversion
 - 🏗️ Automatic table creation and initialization
+- 🔧 Automatic column sync — adds missing columns to existing tables on startup
 - 📋 Centralized table schema definitions
 - 🔒 Thread-safe table registry management
 - 🎯 Mock-friendly design for testing
@@ -168,6 +169,33 @@ table := domain.UsersTable()
 if err := database.RegisterTable(table); err != nil {
     log.Printf("Failed to register table %s: %v", table.Name, err)
 }
+```
+
+## Schema Migration
+
+`InitializeTables()` (called via `db.InitializeTables()`) handles both first-time setup and ongoing schema changes:
+
+- **New table**: executed with `CREATE TABLE IF NOT EXISTS` as before.
+- **Existing table**: compares the registered `TableDefinition` against actual DB columns and issues `ALTER TABLE ... ADD COLUMN` for any column present in the definition but missing from the table.
+
+Columns added to an existing table are **never removed or modified** — only additions are applied.
+
+### Column Positioning
+
+| Database   | Behaviour |
+|------------|-----------|
+| MySQL      | `ADD COLUMN ... AFTER <prev>` / `FIRST` — preserves the order defined in `TableDefinition.Columns` |
+| PostgreSQL | New columns are always appended at the end (PostgreSQL does not support `AFTER`/`FIRST`) |
+
+### Usage
+
+No code change is required. Simply update the `TableDefinition` to include the new column and restart the application — `InitializeTables()` will detect and apply the difference automatically.
+
+```go
+// Before: definition has [id, name]
+// After:  definition has [id, name, score]
+// → ALTER TABLE users ADD COLUMN score INT AFTER name   (MySQL)
+// → ALTER TABLE users ADD COLUMN score INT              (PostgreSQL)
 ```
 
 ## Quick Start
@@ -507,6 +535,7 @@ database.ClearRegistry()
 | Insert Return | `LastInsertId()` | `RETURNING id` |
 | Boolean Type | `TINYINT(1)` | `BOOLEAN` |
 | Timestamp Update | `ON UPDATE CURRENT_TIMESTAMP` | Not supported |
+| Column Positioning (ADD COLUMN) | `AFTER <col>` / `FIRST` supported | Always appended at end |
 
 ### Automatic Handling
 

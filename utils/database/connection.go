@@ -424,6 +424,20 @@ func (u *UniversalDatabase) Exec(query string, args ...interface{}) (sql.Result,
 	return result, nil
 }
 
+// Query executes a raw SQL query and returns the resulting rows (for migrations and schema inspection)
+func (u *UniversalDatabase) Query(query string, args ...interface{}) (*sql.Rows, error) {
+	if u.db == nil {
+		return nil, NewDatabaseError("query", fmt.Errorf("not connected"))
+	}
+
+	rows, err := u.db.Query(query, args...)
+	if err != nil {
+		return nil, NewDatabaseError("query", err)
+	}
+
+	return rows, nil
+}
+
 // InitializeTables creates all registered tables
 func (u *UniversalDatabase) InitializeTables() error {
 	if u.db == nil {

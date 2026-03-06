@@ -22,7 +22,10 @@ func CreateDatabaseTables(db Database, dbType string) error {
 		}
 
 		if exists {
-			slog.Debug("Table already exists, skipping creation", "table", tableName)
+			slog.Debug("Table already exists, syncing columns", "table", tableName)
+			if err := syncMissingColumns(db, tableDef, dbType); err != nil {
+				return fmt.Errorf("failed to sync columns for table %s: %v", tableName, err)
+			}
 		} else {
 			// Generate CREATE TABLE SQL
 			createSQL := GetCreateSQL(tableDef, dbType)
@@ -217,6 +220,94 @@ func getForeignKeyConstraints(columns []domain.Column) []string {
 		}
 	}
 	return fkConstraints
+}
+
+// getExistingColumnNames returns a lowercase set of column names that already exist in the table.
+// It reuses the same "SELECT ... WHERE 1=0" pattern as tableExists to avoid fetching actual data.
+func getExistingColumnNames(db Database, tableName string) (map[string]bool, error) {
+	rows, err := db.Query(fmt.Sprintf("SELECT * FROM %s WHERE 1=0", tableName))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	cols, err := rows.Columns()
+	if err != nil {
+		return nil, err
+	}
+
+	existing := make(map[string]bool, len(cols))
+	for _, col := range cols {
+		existing[strings.ToLower(col)] = true
+	}
+	return existing, nil
+}
+
+// syncMissingColumns adds any columns present in tableDef that do not yet exist in the database table.
+// It reuses buildColumnSQL to generate the column definition for each ALTER TABLE statement.
+//
+// Column positioning behaviour differs by database type:
+//   - MySQL: supports ADD COLUMN ... AFTER <col> / FIRST, so columns are inserted at the
+//     position defined in the schema by locating the nearest preceding column that already exists.
+//   - PostgreSQL: does not support column positioning natively; new columns are always
+//     appended at the end of the table. Attempting AFTER/FIRST would cause a syntax error.
+func syncMissingColumns(db Database, tableDef *domain.TableDefinition, dbType string) error {
+	existing, err := getExistingColumnNames(db, tableDef.Name)
+	if err != nil {
+		return fmt.Errorf("failed to get existing columns for table %s: %v", tableDef.Name, err)
+	}
+
+	existingNames := make([]string, 0, len(existing))
+	for name := range existing {
+		existingNames = append(existingNames, name)
+	}
+
+	definedNames := make([]string, 0, len(tableDef.Columns))
+	for _, col := range tableDef.Columns {
+		definedNames = append(definedNames, col.Name)
+	}
+
+	slog.Debug("Syncing columns for table", "table", tableDef.Name, "existing", existingNames, "defined", definedNames)
+
+	for i, col := range tableDef.Columns {
+		if existing[strings.ToLower(col.Name)] {
+			continue
+		}
+
+		colDef := buildColumnSQL(col, dbType)
+		var alterSQL string
+		if dbType == "mysql" {
+			positionSuffix := columnPositionSuffix(tableDef.Columns, i, existing)
+			alterSQL = fmt.Sprintf("ALTER TABLE %s ADD COLUMN %s%s", tableDef.Name, colDef, positionSuffix)
+		} else {
+			alterSQL = fmt.Sprintf("ALTER TABLE %s ADD COLUMN %s", tableDef.Name, colDef)
+		}
+
+		if _, err := db.Exec(alterSQL); err != nil {
+			return fmt.Errorf("failed to add column %s to table %s: %v", col.Name, tableDef.Name, err)
+		}
+
+		// Track the newly added column so that subsequent missing columns in this
+		// same sync pass can use it as a valid AFTER anchor.
+		existing[strings.ToLower(col.Name)] = true
+
+		slog.Info("Column added to table", "table", tableDef.Name, "column", col.Name)
+	}
+
+	return nil
+}
+
+// columnPositionSuffix returns the MySQL-specific position clause for ADD COLUMN.
+// It walks backwards from colIndex to find the nearest preceding column that already
+// exists in the database, then returns " AFTER <name>". If no such column exists
+// (i.e. the new column belongs at the very beginning), it returns " FIRST".
+func columnPositionSuffix(columns []domain.Column, colIndex int, existing map[string]bool) string {
+	for i := colIndex - 1; i >= 0; i-- {
+		if existing[strings.ToLower(columns[i].Name)] {
+			return fmt.Sprintf(" AFTER %s", columns[i].Name)
+		}
+	}
+	return " FIRST"
 }
 
 // tableExists checks if a table exists in the database

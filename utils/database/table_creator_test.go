@@ -540,7 +540,7 @@ func (suite *tableCreatorTestSuite) TestTableExistsInDatabase() {
 	}
 }
 
-// Test CreateDatabaseTables skips existing tables
+// Test CreateDatabaseTables skips CREATE TABLE but still syncs columns for existing tables
 func (suite *tableCreatorTestSuite) TestCreateDatabaseTablesSkipsExistingTables() {
 	// Setup clean registry and register test table
 	ClearRegistry()
@@ -554,7 +554,55 @@ func (suite *tableCreatorTestSuite) TestCreateDatabaseTablesSkipsExistingTables(
 	mock.ExpectExec("SELECT 1 FROM test_table WHERE 1=0").
 		WillReturnResult(sqlmock.NewResult(0, 0)) // No error means table exists
 
+	// Mock column sync check — return all existing columns so no ALTER TABLE is needed
+	existingCols := sqlmock.NewRows([]string{"id", "name", "email", "category_id", "created_at", "updated_at"})
+	mock.ExpectQuery("SELECT \\* FROM test_table WHERE 1=0").
+		WillReturnRows(existingCols)
+
 	// Mock expectations for CREATE INDEX (should still create indexes even if table exists)
+	mock.ExpectExec("CREATE INDEX IF NOT EXISTS").
+		WillReturnResult(sqlmock.NewResult(0, 0))
+	mock.ExpectExec("CREATE UNIQUE INDEX IF NOT EXISTS").
+		WillReturnResult(sqlmock.NewResult(0, 0))
+
+	// Execute test
+	err := CreateDatabaseTables(db, "mysql")
+	if err != nil {
+		suite.t.Errorf("CreateDatabaseTables() failed: %v", err)
+	}
+
+	// Verify all expectations were met
+	if err := mock.ExpectationsWereMet(); err != nil {
+		suite.t.Errorf("Unfulfilled expectations: %v", err)
+	}
+}
+
+// Test CreateDatabaseTables issues ALTER TABLE for columns missing from an existing table
+func (suite *tableCreatorTestSuite) TestCreateDatabaseTablesSyncsMissingColumns() {
+	// Setup clean registry and register test table
+	ClearRegistry()
+	testTable := createTestTableDefinitionForCreator()
+	RegisterTable(testTable)
+
+	db, mock, cleanup := createMockDatabase(suite.t, "mysql")
+	defer cleanup()
+
+	// Mock table existence check (table exists)
+	mock.ExpectExec("SELECT 1 FROM test_table WHERE 1=0").
+		WillReturnResult(sqlmock.NewResult(0, 0))
+
+	// Mock column sync check — omit 'email' and 'updated_at' to simulate missing columns
+	existingCols := sqlmock.NewRows([]string{"id", "name", "category_id", "created_at"})
+	mock.ExpectQuery("SELECT \\* FROM test_table WHERE 1=0").
+		WillReturnRows(existingCols)
+
+	// Expect ALTER TABLE for each missing column in definition order
+	mock.ExpectExec("ALTER TABLE test_table ADD COLUMN email").
+		WillReturnResult(sqlmock.NewResult(0, 0))
+	mock.ExpectExec("ALTER TABLE test_table ADD COLUMN updated_at").
+		WillReturnResult(sqlmock.NewResult(0, 0))
+
+	// Mock expectations for CREATE INDEX
 	mock.ExpectExec("CREATE INDEX IF NOT EXISTS").
 		WillReturnResult(sqlmock.NewResult(0, 0))
 	mock.ExpectExec("CREATE UNIQUE INDEX IF NOT EXISTS").
