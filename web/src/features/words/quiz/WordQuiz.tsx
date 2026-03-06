@@ -14,6 +14,7 @@ import {
   extractPronunciationUrls,
   isValidAudioUrl,
 } from '../../shared/phonetics';
+import { speakText } from '../../shared/speech';
 
 interface WordQuizProps {
   selectedFamiliarity: readonly FamiliarityLevel[];
@@ -199,6 +200,10 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
     const pronunciationUrls = currentWord.definitions?.[0]?.phonetics
       ? extractPronunciationUrls(currentWord.definitions[0].phonetics)
       : { uk: null, us: null };
+    const hasUkUrl =
+      !!pronunciationUrls.uk && isValidAudioUrl(pronunciationUrls.uk);
+    const hasUsUrl =
+      !!pronunciationUrls.us && isValidAudioUrl(pronunciationUrls.us);
 
     return (
       <div className='flex min-h-0 flex-1 flex-col overflow-hidden'>
@@ -282,26 +287,58 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
                 )}
 
               {/* Pronunciation buttons */}
-              {(pronunciationUrls.uk || pronunciationUrls.us) && (
-                <div className='flex items-center justify-center space-x-4'>
-                  {pronunciationUrls.uk &&
-                    isValidAudioUrl(pronunciationUrls.uk) && (
-                      <PronunciationButton
-                        audioUrl={pronunciationUrls.uk}
-                        accent='uk'
-                        size='md'
-                      />
-                    )}
-                  {pronunciationUrls.us &&
-                    isValidAudioUrl(pronunciationUrls.us) && (
-                      <PronunciationButton
-                        audioUrl={pronunciationUrls.us}
-                        accent='us'
-                        size='md'
-                      />
-                    )}
-                </div>
-              )}
+              <div className='flex items-center justify-center space-x-4'>
+                {hasUkUrl ? (
+                  <PronunciationButton
+                    audioUrl={pronunciationUrls.uk!}
+                    accent='uk'
+                    size='md'
+                  />
+                ) : (
+                  <button
+                    onClick={() => speakText(currentWord.word, 'en-GB')}
+                    title='British pronunciation'
+                    className='inline-flex items-center space-x-1 rounded-md border border-dashed border-amber-400 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-700 transition-colors duration-200 hover:bg-amber-100 active:bg-amber-200 dark:border-amber-600 dark:bg-amber-900/20 dark:text-amber-400 dark:hover:bg-amber-900/40 dark:active:bg-amber-900/60'
+                  >
+                    <span className='text-xs' role='img' aria-label='UK accent'>
+                      🇬🇧
+                    </span>
+                    <svg
+                      className='h-4 w-4'
+                      fill='currentColor'
+                      viewBox='0 0 24 24'
+                    >
+                      <path d='M8 5v14l11-7z' />
+                    </svg>
+                    <span>UK</span>
+                  </button>
+                )}
+                {hasUsUrl ? (
+                  <PronunciationButton
+                    audioUrl={pronunciationUrls.us!}
+                    accent='us'
+                    size='md'
+                  />
+                ) : (
+                  <button
+                    onClick={() => speakText(currentWord.word, 'en-US')}
+                    title='American pronunciation'
+                    className='inline-flex items-center space-x-1 rounded-md border border-dashed border-amber-400 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-700 transition-colors duration-200 hover:bg-amber-100 active:bg-amber-200 dark:border-amber-600 dark:bg-amber-900/20 dark:text-amber-400 dark:hover:bg-amber-900/40 dark:active:bg-amber-900/60'
+                  >
+                    <span className='text-xs' role='img' aria-label='US accent'>
+                      🇺🇸
+                    </span>
+                    <svg
+                      className='h-4 w-4'
+                      fill='currentColor'
+                      viewBox='0 0 24 24'
+                    >
+                      <path d='M8 5v14l11-7z' />
+                    </svg>
+                    <span>US</span>
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Bottom Action */}
@@ -321,26 +358,66 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
               {/* Word Display */}
               <div className='mb-8 text-center'>
                 {/* Pronunciation buttons */}
-                {(pronunciationUrls.uk || pronunciationUrls.us) && (
-                  <div className='mb-6 flex items-center justify-center space-x-4'>
-                    {pronunciationUrls.uk &&
-                      isValidAudioUrl(pronunciationUrls.uk) && (
-                        <PronunciationButton
-                          audioUrl={pronunciationUrls.uk}
-                          accent='uk'
-                          size='md'
-                        />
-                      )}
-                    {pronunciationUrls.us &&
-                      isValidAudioUrl(pronunciationUrls.us) && (
-                        <PronunciationButton
-                          audioUrl={pronunciationUrls.us}
-                          accent='us'
-                          size='md'
-                        />
-                      )}
-                  </div>
-                )}
+                <div className='mb-6 flex items-center justify-center space-x-4'>
+                  {hasUkUrl ? (
+                    <PronunciationButton
+                      audioUrl={pronunciationUrls.uk!}
+                      accent='uk'
+                      size='md'
+                    />
+                  ) : (
+                    <button
+                      onClick={() => speakText(currentWord.word, 'en-GB')}
+                      title='British pronunciation'
+                      className='inline-flex items-center space-x-1 rounded-md border border-dashed border-amber-400 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-700 transition-colors duration-200 hover:bg-amber-100 active:bg-amber-200 dark:border-amber-600 dark:bg-amber-900/20 dark:text-amber-400 dark:hover:bg-amber-900/40 dark:active:bg-amber-900/60'
+                    >
+                      <span
+                        className='text-xs'
+                        role='img'
+                        aria-label='UK accent'
+                      >
+                        🇬🇧
+                      </span>
+                      <svg
+                        className='h-4 w-4'
+                        fill='currentColor'
+                        viewBox='0 0 24 24'
+                      >
+                        <path d='M8 5v14l11-7z' />
+                      </svg>
+                      <span>UK</span>
+                    </button>
+                  )}
+                  {hasUsUrl ? (
+                    <PronunciationButton
+                      audioUrl={pronunciationUrls.us!}
+                      accent='us'
+                      size='md'
+                    />
+                  ) : (
+                    <button
+                      onClick={() => speakText(currentWord.word, 'en-US')}
+                      title='American pronunciation'
+                      className='inline-flex items-center space-x-1 rounded-md border border-dashed border-amber-400 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-700 transition-colors duration-200 hover:bg-amber-100 active:bg-amber-200 dark:border-amber-600 dark:bg-amber-900/20 dark:text-amber-400 dark:hover:bg-amber-900/40 dark:active:bg-amber-900/60'
+                    >
+                      <span
+                        className='text-xs'
+                        role='img'
+                        aria-label='US accent'
+                      >
+                        🇺🇸
+                      </span>
+                      <svg
+                        className='h-4 w-4'
+                        fill='currentColor'
+                        viewBox='0 0 24 24'
+                      >
+                        <path d='M8 5v14l11-7z' />
+                      </svg>
+                      <span>US</span>
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* Word Details */}

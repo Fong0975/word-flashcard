@@ -12,12 +12,16 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
   index,
   onEdit,
   onDelete,
+  speechFallback,
 }) => {
   return (
     <div className='space-y-3 rounded-lg bg-gray-50 px-4 pb-2 pt-4 dark:bg-gray-700'>
       <div className='flex items-center justify-between'>
         <PartOfSpeechTags partOfSpeech={definition.part_of_speech} />
-        <PronunciationGroup phonetics={definition.phonetics} />
+        <PronunciationGroup
+          phonetics={definition.phonetics}
+          speechFallback={speechFallback}
+        />
       </div>
 
       <DefinitionContent definition={definition} />

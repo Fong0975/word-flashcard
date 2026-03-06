@@ -1,5 +1,9 @@
 import React from 'react';
 
+import {
+  extractPronunciationUrls,
+  isValidAudioUrl,
+} from '../../../shared/phonetics';
 import { DefinitionsListProps } from '../types/word-detail';
 
 import { DefinitionCard } from './DefinitionCard';
@@ -8,10 +12,24 @@ import { EmptyState } from './EmptyState';
 
 export const DefinitionsList: React.FC<DefinitionsListProps> = ({
   definitions,
+  wordText,
   onEdit,
   onDelete,
   onAddNew,
 }) => {
+  const anyHasUk = definitions.some(def => {
+    const urls = extractPronunciationUrls(def.phonetics);
+    return !!urls.uk && isValidAudioUrl(urls.uk);
+  });
+  const anyHasUs = definitions.some(def => {
+    const urls = extractPronunciationUrls(def.phonetics);
+    return !!urls.us && isValidAudioUrl(urls.us);
+  });
+  const firstCardSpeechFallback =
+    !anyHasUk || !anyHasUs
+      ? { wordText, uk: !anyHasUk, us: !anyHasUs }
+      : undefined;
+
   return (
     <div className='space-y-4'>
       {definitions && definitions.length > 0 ? (
@@ -30,6 +48,7 @@ export const DefinitionsList: React.FC<DefinitionsListProps> = ({
               index={index}
               onEdit={onEdit}
               onDelete={onDelete}
+              speechFallback={index === 0 ? firstCardSpeechFallback : undefined}
             />
           ))}
         </>
