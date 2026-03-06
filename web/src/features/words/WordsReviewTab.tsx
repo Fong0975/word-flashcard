@@ -24,11 +24,27 @@ import { SearchCondition, SearchOperation } from '../../types/base';
 
 import { WordFormModal } from './word-form';
 import { WordCard } from './WordCard';
+import { QuickFilterButton } from './QuickFilterButton';
 
 interface WordsReviewTabProps extends BaseComponentProps {}
 
 const SESSION_SEARCH_KEY = 'word-review-search';
 const SESSION_QUICK_FILTERS_KEY = 'word-review-quick-filters';
+
+const WORD_QUICK_FILTERS: readonly {
+  key: string;
+  label: string;
+  dotClassName?: string;
+}[] = [
+  { key: 'familiarity:red', label: 'Unfamiliar', dotClassName: 'bg-red-500' },
+  {
+    key: 'familiarity:yellow',
+    label: 'Somewhat Familiar',
+    dotClassName: 'bg-yellow-500',
+  },
+  { key: 'familiarity:green', label: 'Familiar', dotClassName: 'bg-green-500' },
+  { key: 'withReminder', label: 'With Reminder' },
+];
 
 export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
   className = '',
@@ -75,12 +91,26 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
   // Build extra filter conditions based on active quick filters
   const extraConditions = useMemo((): SearchCondition[] => {
     const conditions: SearchCondition[] = [];
+
+    // Combine all selected familiarity values into a single IN condition
+    const selectedFamiliarities = activeFilters
+      .filter(k => k.startsWith('familiarity:'))
+      .map(k => k.slice('familiarity:'.length));
+    if (selectedFamiliarities.length > 0) {
+      conditions.push({
+        key: 'familiarity',
+        operator: SearchOperation.IN,
+        value: JSON.stringify(selectedFamiliarities),
+      });
+    }
+
     if (activeFilters.includes('withReminder')) {
       conditions.push(
         { key: 'reminder', operator: SearchOperation.IS_NOT_NULL },
         { key: 'reminder', operator: SearchOperation.IS_NOT_EMPTY },
       );
     }
+
     return conditions;
   }, [activeFilters]);
 
@@ -272,30 +302,15 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
             <span className='text-sm text-gray-500 dark:text-gray-400'>
               Filters:
             </span>
-            <button
-              type='button'
-              onClick={() => toggleFilter('withReminder')}
-              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 ${
-                activeFilters.includes('withReminder')
-                  ? 'bg-primary-500 text-white hover:bg-primary-600'
-                  : 'border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
-              }`}
-            >
-              {activeFilters.includes('withReminder') && (
-                <svg
-                  className='mr-1.5 h-3 w-3'
-                  fill='currentColor'
-                  viewBox='0 0 20 20'
-                >
-                  <path
-                    fillRule='evenodd'
-                    d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
-                    clipRule='evenodd'
-                  />
-                </svg>
-              )}
-              With Reminder
-            </button>
+            {WORD_QUICK_FILTERS.map(filter => (
+              <QuickFilterButton
+                key={filter.key}
+                label={filter.label}
+                isActive={activeFilters.includes(filter.key)}
+                onClick={() => toggleFilter(filter.key)}
+                dotClassName={filter.dotClassName}
+              />
+            ))}
           </div>
         }
         entityListHook={patchedWordsHook}
