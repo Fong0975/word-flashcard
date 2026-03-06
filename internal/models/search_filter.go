@@ -14,11 +14,13 @@ type ErrorResponse struct {
 	Error string `json:"error"`
 }
 
-// SearchCondition represents a single search condition (key-operator-value)
+// SearchCondition represents a single search condition (key-operator-value).
+// Value is optional for null/empty operators (is_null, is_not_null, is_empty, is_not_empty)
+// and required for all other operators.
 type SearchCondition struct {
 	Key      string `json:"key" binding:"required"`
 	Operator string `json:"operator" binding:"required"`
-	Value    string `json:"value" binding:"required"`
+	Value    string `json:"value"`
 }
 
 // SearchFilter supports multiple conditions search with logic operator
@@ -119,8 +121,36 @@ func convertConditionToSqlizer(condition *SearchCondition) (squirrel.Sqlizer, er
 		}
 		return squirrel.NotLike{condition.Key: condition.Value}, nil
 
+	case "is_null", "null":
+		// Null check: column IS NULL
+		return squirrel.Eq{condition.Key: nil}, nil
+
+	case "is_not_null", "not_null", "nnull":
+		// Not null check: column IS NOT NULL
+		return squirrel.NotEq{condition.Key: nil}, nil
+
+	case "is_empty", "empty":
+		// Empty string check: column = ''
+		return squirrel.Eq{condition.Key: ""}, nil
+
+	case "is_not_empty", "not_empty", "nempty":
+		// Not empty string check: column != ''
+		return squirrel.NotEq{condition.Key: ""}, nil
+
 	default:
-		return nil, errors.New("unsupported operator: " + condition.Operator + ". Supported operators: equal/eq, not_equal/ne/neq, in, not_in/nin, like, not_like/nlike")
+		supportedOperators := []string{
+			"equal/eq",
+			"not_equal/ne/neq",
+			"in",
+			"not_in/nin",
+			"like",
+			"not_like/nlike",
+			"is_null/null",
+			"is_not_null/not_null/nnull",
+			"is_empty/empty",
+			"is_not_empty/not_empty/nempty",
+		}
+		return nil, errors.New("unsupported operator: " + condition.Operator + ". Supported operators: " + strings.Join(supportedOperators, ", "))
 	}
 }
 

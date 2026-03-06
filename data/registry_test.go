@@ -21,7 +21,7 @@ func TestRegisterAllTables(t *testing.T) {
 	// Verify that both words and word_definitions tables are registered
 	tableSchema := map[string][]string{
 		"words": {
-			"id", "word", "familiarity", "created_at", "updated_at",
+			"id", "word", "familiarity", "reminder", "created_at", "updated_at",
 		},
 		"word_definitions": {
 			"id", "word_id", "part_of_speech", "definition", "phonetics", "examples", "notes", "created_at", "updated_at",

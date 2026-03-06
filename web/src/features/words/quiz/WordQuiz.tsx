@@ -38,6 +38,8 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
   const [results, setResults] = useState<WordQuizResult[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [showAnswer, setShowAnswer] = useState(false);
+  const [reminderEnabled, setReminderEnabled] = useState(false);
+  const [reminderText, setReminderText] = useState('');
 
   const getFamiliarityBarColor = (familiarity: string) => {
     switch (familiarity.toLowerCase()) {
@@ -109,12 +111,14 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
   // Handle familiarity selection
   const handleFamiliaritySelect = async (newFamiliarity: FamiliarityLevel) => {
     const currentWord = words[currentWordIndex];
+    const pendingReminder =
+      reminderEnabled && reminderText.trim() ? reminderText.trim() : undefined;
 
     try {
-      // Update word familiarity via API
       await apiService.updateWordFields(currentWord.id, {
         word: currentWord.word,
         familiarity: newFamiliarity,
+        ...(pendingReminder !== undefined ? { reminder: pendingReminder } : {}),
       });
 
       // Add to results
@@ -126,6 +130,10 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
 
       setResults(prev => [...prev, result]);
 
+      // Reset reminder inputs for the next word
+      setReminderEnabled(false);
+      setReminderText('');
+
       // Move to next word or complete quiz
       if (currentWordIndex + 1 >= words.length) {
         const allResults = [...results, result];
@@ -133,7 +141,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
         onQuizComplete(allResults);
       } else {
         setCurrentWordIndex(prev => prev + 1);
-        setShowAnswer(false); // Reset to word display for next question
+        setShowAnswer(false);
       }
     } catch (error) {
       const errorMessage = 'Failed to update word. Please try again.';
@@ -414,6 +422,38 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
                     </div>
                   </div>
                 )}
+
+              {/* Reminder Note Section */}
+              <div className='mb-4 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-600 dark:bg-gray-700/50'>
+                <p className='mb-3 text-sm font-medium text-gray-700 dark:text-gray-300'>
+                  Have a note to remember? Set a reminder before rating.
+                </p>
+                <label className='mb-2 flex cursor-pointer items-center gap-2'>
+                  <input
+                    type='checkbox'
+                    checked={reminderEnabled}
+                    onChange={e => {
+                      setReminderEnabled(e.target.checked);
+                      if (!e.target.checked) {
+                        setReminderText('');
+                      }
+                    }}
+                    className='h-4 w-4 rounded border-gray-300 text-primary-500 focus:ring-primary-500 dark:border-gray-500'
+                  />
+                  <span className='text-sm text-gray-600 dark:text-gray-400'>
+                    Set a reminder note
+                  </span>
+                </label>
+                <input
+                  type='text'
+                  value={reminderText}
+                  onChange={e => setReminderText(e.target.value)}
+                  disabled={!reminderEnabled}
+                  placeholder='Enter reminder note...'
+                  maxLength={100}
+                  className='w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500 dark:disabled:bg-gray-700 dark:disabled:text-gray-500'
+                />
+              </div>
 
               <div className='mb-6 text-center'>
                 <p className='text-gray-600 dark:text-gray-400 lg:text-lg'>

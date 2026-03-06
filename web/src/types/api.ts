@@ -35,6 +35,7 @@ export interface WordDefinition extends BaseEntity {
 export interface Word extends BaseEntity {
   readonly word: string;
   readonly familiarity: FamiliarityLevel;
+  readonly reminder: string | null;
   readonly definitions: readonly WordDefinition[];
 }
 
@@ -90,6 +91,7 @@ export interface CreateWordRequest {
 export interface UpdateWordRequest {
   readonly word: string;
   readonly familiarity: FamiliarityLevel;
+  readonly reminder?: string;
 }
 
 /**

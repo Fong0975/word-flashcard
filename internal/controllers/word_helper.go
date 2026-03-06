@@ -165,6 +165,7 @@ func parseSearchConditionsByTable(searchFilter *models.SearchFilter) (*models.Se
 	wordsColumns := map[string]bool{
 		schema.WORD_WORD:        true,
 		schema.WORD_FAMILIARITY: true,
+		schema.WORD_REMINDER:    true,
 	}
 
 	wordDefinitionsColumns := map[string]bool{
@@ -291,6 +292,11 @@ func validateWordFields(wordData *models.Word, isUpdate bool) error {
 	validFamiliarity := []string{schema.WORD_FAMILIARITY_RED, schema.WORD_FAMILIARITY_YELLOW, schema.WORD_FAMILIARITY_GREEN}
 	if wordData.Familiarity != nil && !slices.Contains(validFamiliarity, *wordData.Familiarity) {
 		return errors.New("familiarity is invalid")
+	}
+
+	// Validate reminder field: VARCHAR(100), nullable
+	if wordData.Reminder != nil && len(*wordData.Reminder) > 100 {
+		return errors.New("reminder is invalid")
 	}
 
 	return nil

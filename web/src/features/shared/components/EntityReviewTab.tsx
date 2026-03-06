@@ -21,7 +21,8 @@ interface EntityReviewTabProps<
   readonly actions: EntityReviewActions;
   readonly entityListHook: EntityListHook<T>;
   readonly renderCard: (entity: T, index: number) => ReactNode;
-  readonly additionalContent?: ReactNode; // For additional modals, etc.
+  readonly additionalContent?: ReactNode;
+  readonly quickFiltersContent?: ReactNode;
 }
 
 /**
@@ -60,6 +61,7 @@ export const EntityReviewTab = <T extends BaseEntity>({
   entityListHook,
   renderCard,
   additionalContent,
+  quickFiltersContent,
   className = '',
 }: EntityReviewTabProps<T>) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -285,6 +287,9 @@ export const EntityReviewTab = <T extends BaseEntity>({
               </button>
             )}
           </div>
+          {quickFiltersContent && (
+            <div className='mt-2'>{quickFiltersContent}</div>
+          )}
         </div>
       )}
 
@@ -324,6 +329,13 @@ export const EntityReviewTab = <T extends BaseEntity>({
       {/* Entity List */}
       {entities.length > 0 && (
         <div>
+          {totalCount > 0 && (
+            <div className='mb-2 flex justify-end'>
+              <span className='text-xs text-gray-400 dark:text-gray-500'>
+                {totalCount} {config.entityNamePlural.toLowerCase()} total
+              </span>
+            </div>
+          )}
           <div className='space-y-3'>
             {entities.map((entity, index) => (
               <div key={entity.id}>
@@ -353,7 +365,6 @@ export const EntityReviewTab = <T extends BaseEntity>({
                 hasNext={hasNext}
                 hasPrevious={hasPrevious}
                 itemsPerPage={itemsPerPage}
-                totalItems={totalCount}
                 onPageChange={goToPage}
                 onNext={nextPage}
                 onPrevious={previousPage}

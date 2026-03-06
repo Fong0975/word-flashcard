@@ -22,6 +22,7 @@ type Word struct {
 	ID          *int             `json:"id,omitempty"`
 	Word        *string          `json:"word,omitempty"`
 	Familiarity *string          `json:"familiarity,omitempty"`
+	Reminder    *string          `json:"reminder"`
 	Definitions []WordDefinition `json:"definitions"`
 }
 
@@ -30,6 +31,7 @@ func (w *Word) FromDataModel(dm *models.Word, defs []*models.WordDefinition) *Wo
 	w.ID = dm.Id
 	w.Word = dm.Word
 	w.Familiarity = dm.Familiarity
+	w.Reminder = dm.Reminder
 
 	if len(defs) == 0 {
 		w.Definitions = []WordDefinition{}
@@ -90,6 +92,7 @@ func (w *Word) ToDataModel() *models.Word {
 		Id:          w.ID,
 		Word:        w.Word,
 		Familiarity: w.Familiarity,
+		Reminder:    w.Reminder,
 	}
 }
 
