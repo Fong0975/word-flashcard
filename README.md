@@ -7,6 +7,8 @@ The application features a REST API backend and an HTML frontend interface.
 
 ```
 word-flashcard/
+├── .claude/                       # Claude Code project configuration
+│   └── commands/                 # Project-specific Claude Code custom commands (skills)
 ├── data/                          # Database peers and models
 │   ├── mocks/                    # Mock function for testing
 │   ├── models/                   # Data models
