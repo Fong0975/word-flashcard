@@ -1,16 +1,16 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 export type TabName = 'words' | 'questions';
 
 export const useTab = () => {
-  const [currentTab, setCurrentTab] = useState<TabName>(() => {
-    // Get tab from URL on initial load
-    const urlParams = new URLSearchParams(window.location.search);
-    const tabFromURL = urlParams.get('tab') as TabName;
-    return tabFromURL && ['words', 'questions'].includes(tabFromURL)
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const tabFromURL = searchParams.get('tab') as TabName;
+  const currentTab: TabName =
+    tabFromURL && ['words', 'questions'].includes(tabFromURL)
       ? tabFromURL
       : 'words';
-  });
 
   const switchTab = useCallback(
     (tabName: TabName) => {
@@ -18,43 +18,27 @@ export const useTab = () => {
         return;
       }
 
-      setCurrentTab(tabName);
+      setSearchParams(
+        prev => {
+          const next = new URLSearchParams(prev);
+          if (tabName !== 'words') {
+            next.set('tab', tabName);
+          } else {
+            next.delete('tab');
+          }
+          next.delete('page');
+          return next;
+        },
+        { replace: true },
+      );
 
-      // Update URL without page reload
-      const url = new URL(window.location.href);
-      if (tabName !== 'words') {
-        // Don't add parameter for default tab
-        url.searchParams.set('tab', tabName);
-      } else {
-        url.searchParams.delete('tab');
-      }
-      window.history.replaceState({}, '', url);
-
-      // Trigger custom event for analytics or other components
       const event = new CustomEvent('tabChange', {
         detail: { tabName, previousTab: currentTab },
       });
       document.dispatchEvent(event);
     },
-    [currentTab],
+    [setSearchParams, currentTab],
   );
-
-  // Listen for browser navigation
-  useEffect(() => {
-    const handlePopState = () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const tabFromURL = urlParams.get('tab') as TabName;
-
-      if (tabFromURL && ['words', 'questions'].includes(tabFromURL)) {
-        setCurrentTab(tabFromURL);
-      } else {
-        setCurrentTab('words');
-      }
-    };
-
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
 
   // Keyboard shortcuts
   useEffect(() => {

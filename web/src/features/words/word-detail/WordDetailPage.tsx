@@ -229,6 +229,7 @@ export const WordDetailPage: React.FC = () => {
             )}
             <DefinitionsList
               definitions={word.definitions || []}
+              wordText={word.word}
               onEdit={definitionActions.handleEditDefinition}
               onDelete={definitionActions.handleDeleteDefinition}
               onAddNew={handleAddDefinition}

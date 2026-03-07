@@ -76,7 +76,7 @@ export const WordFormModal: React.FC<WordFormModalProps> = ({
       }
       submitLogic.handleSubmit(formLogic.formData);
     },
-    [], // eslint-disable-line react-hooks/exhaustive-deps
+    [submitLogic.handleSubmit, formLogic.formData], // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   // Reset search when modal closes

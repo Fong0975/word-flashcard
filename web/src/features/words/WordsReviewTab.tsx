@@ -159,13 +159,17 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
   // Stable string representation of active filters for use as an effect dep
   const activeFiltersKey = activeFilters.join(',');
 
-  // Re-fetch from page 1 when quick filter conditions change
-  const isFirstRenderRef = useRef(true);
+  // Re-fetch from page 1 when quick filter conditions change.
+  // Using a previousFiltersKeyRef instead of isFirstRenderRef to safely skip the
+  // initial run, because React 18 StrictMode preserves ref values across its
+  // mount→unmount→remount cycle, which caused isFirstRenderRef to be false on
+  // the second run and trigger a spurious reset to page 1.
+  const previousFiltersKeyRef = useRef(activeFiltersKey);
   useEffect(() => {
-    if (isFirstRenderRef.current) {
-      isFirstRenderRef.current = false;
+    if (activeFiltersKey === previousFiltersKeyRef.current) {
       return;
     }
+    previousFiltersKeyRef.current = activeFiltersKey;
     setUrlPage(1);
     fetchEntitiesRef.current(1);
   }, [activeFiltersKey]); // eslint-disable-line react-hooks/exhaustive-deps
