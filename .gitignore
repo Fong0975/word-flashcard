@@ -39,7 +39,11 @@ go.work.sum
 .vscode/
 
 # claude code
-.claude/
+# Exclude .claude directories inside any subdirectory
+*/**/.claude/
+# Root .claude: exclude all content except the commands/ directory
+/.claude/*
+!/.claude/commands/
 
 # React/Node.js dependencies and build artifacts
 web/node_modules/
