@@ -33,7 +33,7 @@ export const useWordForm = ({ mode, word, isOpen }: UseWordFormProps) => {
 
   // Form field handlers
   const handleWordChange = useCallback((value: string) => {
-    setFormData(prev => ({ ...prev, word: value }));
+    setFormData(prev => ({ ...prev, word: value.toLowerCase() }));
   }, []);
 
   const handleFamiliarityChange = useCallback(

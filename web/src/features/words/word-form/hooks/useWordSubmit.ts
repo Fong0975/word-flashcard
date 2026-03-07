@@ -79,6 +79,25 @@ export const useWordSubmit = ({
       try {
         const newWordText = formData.word.trim();
 
+        // Check for duplicate word before submitting
+        const isWordTextChanged =
+          mode === 'create' ||
+          (mode === 'edit' &&
+            word &&
+            newWordText.toLowerCase() !== word.word.toLowerCase());
+
+        if (isWordTextChanged) {
+          const searchFilter = createExactWordSearchFilter(newWordText);
+          const duplicates = await apiService.searchWords({
+            searchFilter,
+            limit: 1,
+          });
+          if (duplicates.length > 0) {
+            setError(`Word "${newWordText}" already exists`);
+            return;
+          }
+        }
+
         if (mode === 'create') {
           // Create mode: only send word field
           await apiService.createWord({
