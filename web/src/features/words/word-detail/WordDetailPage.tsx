@@ -119,6 +119,7 @@ export const WordDetailPage: React.FC = () => {
   const definitionActions = useDefinitionActions({
     callbacks: {
       onEdit: (definition: WordDefinition) => {
+        setSharedIsCollapsed(true);
         setEditingDefinition(definition);
         setIsDefinitionEditModalOpen(true);
       },
@@ -128,6 +129,7 @@ export const WordDetailPage: React.FC = () => {
   });
 
   const handleAddDefinition = () => {
+    setSharedIsCollapsed(true);
     setIsDefinitionAddModalOpen(true);
   };
 
@@ -135,9 +137,6 @@ export const WordDetailPage: React.FC = () => {
     setIsDefinitionAddModalOpen(false);
     setIsDefinitionEditModalOpen(false);
     setEditingDefinition(null);
-    setSharedDictionaryData(null);
-    setSharedDictionaryError(null);
-    setSharedIsCollapsed(true);
   };
 
   if (isLoading) {
