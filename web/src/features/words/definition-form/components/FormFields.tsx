@@ -92,7 +92,7 @@ export const FormFields: React.FC<FormFieldsProps> = ({
                   onChange={e =>
                     handlers.handleExamplesChange(index, e.target.value)
                   }
-                  rows={2}
+                  rows={3}
                   className='w-full resize-none rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
                   placeholder={`Example ${index + 1}...`}
                 />
@@ -173,7 +173,7 @@ export const FormFields: React.FC<FormFieldsProps> = ({
         <textarea
           value={formData.notes}
           onChange={e => handlers.handleNotesChange(e.target.value)}
-          rows={4}
+          rows={8}
           className='w-full resize-none rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
           placeholder='Additional notes in Markdown format&#10;&#10;Example:&#10;# Heading&#10;**Bold text**&#10;- List item&#10;&#10;Use actual line breaks for new lines.'
         />
