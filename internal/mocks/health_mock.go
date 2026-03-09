@@ -22,3 +22,12 @@ func (m *MockHealthController) HealthCheck(c *gin.Context) {
 		"status":     "ok",
 	})
 }
+
+// InformationCheck mock implementation
+func (m *MockHealthController) InformationCheck(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"method":     "InformationCheck",
+		"controller": "HealthController",
+		"version":    "0.0.0",
+	})
+}
