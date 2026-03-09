@@ -1,0 +1,154 @@
+name: Bump Version
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**'
+      - '!web/package.json'
+      - '!web/package-lock.json'
+      - '!VERSION'
+      - '!utils/cambridge-dictionary-api/**'
+      - '!.github/**'
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: 'Version bump type (patch, minor, or major)'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      target:
+        description: 'Target to bump (frontend, backend, or both)'
+        required: true
+        default: 'frontend'
+        type: choice
+        options:
+          - frontend
+          - backend
+          - both
+
+jobs:
+  detect-changes:
+    name: Detect changed paths
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+      backend: ${{ steps.filter.outputs.backend }}
+    steps:
+      - name: Filter paths
+        uses: dorny/paths-filter@v3
+        id: filter
+        if: github.event_name == 'push'
+        with:
+          filters: |
+            frontend:
+              - 'web/**'
+              - '!web/package.json'
+              - '!web/package-lock.json'
+            backend:
+              - '**'
+              - '!web/**'
+              - '!utils/cambridge-dictionary-api/**'
+              - '!VERSION'
+              - '!.github/**'
+
+  bump-version:
+    name: Bump version
+    needs: detect-changes
+    if: |
+      (github.event_name == 'push' && (needs.detect-changes.outputs.frontend == 'true' || needs.detect-changes.outputs.backend == 'true')) ||
+      github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: bump-version
+      cancel-in-progress: false
+    permissions:
+      contents: write
+
+    steps:
+      - name: Generate GitHub App token
+        id: app_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app_token.outputs.token }}
+          ref: main
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Determine bump type
+        id: bump_type
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "type=${{ github.event.inputs.bump_type }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "type=patch" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Bump frontend version
+        id: frontend
+        if: |
+          (github.event_name == 'push' && needs.detect-changes.outputs.frontend == 'true') ||
+          (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'frontend' || github.event.inputs.target == 'both'))
+        run: |
+          cd web
+          OLD_VERSION=$(node -p "require('./package.json').version")
+          npm version ${{ steps.bump_type.outputs.type }} --no-git-tag-version
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          echo "old_version=$OLD_VERSION" >> "$GITHUB_OUTPUT"
+          echo "new_version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Bump backend version
+        id: backend
+        if: |
+          (github.event_name == 'push' && needs.detect-changes.outputs.backend == 'true') ||
+          (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'backend' || github.event.inputs.target == 'both'))
+        run: |
+          CURRENT=$(cat VERSION)
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+          BUMP_TYPE="${{ steps.bump_type.outputs.type }}"
+          if [ "$BUMP_TYPE" = "major" ]; then
+            MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0
+          elif [ "$BUMP_TYPE" = "minor" ]; then
+            MINOR=$((MINOR + 1)); PATCH=0
+          else
+            PATCH=$((PATCH + 1))
+          fi
+          NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+          echo "$NEW_VERSION" > VERSION
+          echo "old_version=$CURRENT" >> "$GITHUB_OUTPUT"
+          echo "new_version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and push version bump
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add web/package.json web/package-lock.json VERSION
+
+          FRONTEND_NEW="${{ steps.frontend.outputs.new_version }}"
+          BACKEND_NEW="${{ steps.backend.outputs.new_version }}"
+
+          BODY=""
+          if [ -n "$FRONTEND_NEW" ]; then
+            BODY="- web/package.json: ${{ steps.frontend.outputs.old_version }} → $FRONTEND_NEW"
+          fi
+          if [ -n "$BACKEND_NEW" ]; then
+            LINE="- VERSION: ${{ steps.backend.outputs.old_version }} → $BACKEND_NEW"
+            BODY="${BODY:+$BODY$'\n'}$LINE"
+          fi
+
+          git commit -m "chore: Bump version [skip ci]" -m "$BODY"
+          git pull --rebase
+          git push
