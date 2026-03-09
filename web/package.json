@@ -1,6 +1,6 @@
 {
-  "name": "react-temp",
-  "version": "0.1.0",
+  "name": "word-flashcard",
+  "version": "1.0.0",
   "private": true,
   "dependencies": {
     "@tailwindcss/typography": "^0.5.19",
