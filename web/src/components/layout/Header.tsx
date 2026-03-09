@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 import { useDarkMode } from '../../hooks/useDarkMode';
 import { logo } from '../../assets/images';
@@ -12,7 +13,7 @@ export const Header: React.FC = () => {
         <div className='flex h-16 items-center justify-between'>
           {/* Logo and Title */}
           <div className='flex items-center space-x-4'>
-            <div className='flex items-center space-x-3'>
+            <Link to='/' className='flex items-center space-x-3'>
               <img
                 src={logo}
                 alt='Flashcard App Logo'
@@ -21,7 +22,7 @@ export const Header: React.FC = () => {
               <h1 className='text-2xl font-bold text-gray-900 dark:text-white'>
                 Flashcard
               </h1>
-            </div>
+            </Link>
           </div>
 
           {/* Dark Mode Toggle */}
