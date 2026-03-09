@@ -1,5 +1,10 @@
 basePath: /
 definitions:
+  models.InformationResponse:
+    properties:
+      version:
+        type: string
+    type: object
   word-flashcard_internal_models.DefinitionInfo:
     properties:
       definition:
@@ -208,6 +213,27 @@ paths:
           schema:
             $ref: '#/definitions/word-flashcard_internal_models.HealthResponse'
       summary: Health check endpoint
+      tags:
+      - health
+  /api/information:
+    get:
+      consumes:
+      - application/json
+      description: Returns application version read from the root VERSION file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Application information
+          schema:
+            $ref: '#/definitions/models.InformationResponse'
+        "500":
+          description: Failed to read version file
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Application information endpoint
       tags:
       - health
   /api/questions:

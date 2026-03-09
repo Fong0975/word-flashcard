@@ -36,8 +36,9 @@ func (s *healthControllerTestSuite) SetupTest() {
 	s.controller = NewHealthController()
 	s.router = gin.New()
 
-	// Register health route
+	// Register health routes
 	s.router.GET("/api/health", s.controller.HealthCheck)
+	s.router.GET("/api/information", s.controller.InformationCheck)
 }
 
 // setupHealthControllerTestLogging configures logging for health controller tests
@@ -47,6 +48,23 @@ func setupHealthControllerTestLogging() {
 	})
 	logger := slog.New(handler)
 	slog.SetDefault(logger)
+}
+
+// TestInformationCheckSuccess tests that the information endpoint responds with 200 OK and a non-empty version
+func (s *healthControllerTestSuite) TestInformationCheckSuccess() {
+	req := httptest.NewRequest("GET", "/api/information", nil)
+	recorder := httptest.NewRecorder()
+
+	s.router.ServeHTTP(recorder, req)
+
+	s.Equal(http.StatusOK, recorder.Code, "Information endpoint should respond with 200 OK")
+
+	var response models.InformationResponse
+	err := json.Unmarshal(recorder.Body.Bytes(), &response)
+	s.NoError(err, "Response should be valid JSON")
+
+	s.NotEmpty(response.Version, "Version should not be empty")
+	s.Equal("application/json; charset=utf-8", recorder.Header().Get("Content-Type"), "Content-Type should be application/json")
 }
 
 // TestHealthCheckSuccess tests that the health check endpoint responds with 200 OK and correct data

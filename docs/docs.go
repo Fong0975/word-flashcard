@@ -91,6 +91,38 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/information": {
+            "get": {
+                "description": "Returns application version read from the root VERSION file",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "health"
+                ],
+                "summary": "Application information endpoint",
+                "responses": {
+                    "200": {
+                        "description": "Application information",
+                        "schema": {
+                            "$ref": "#/definitions/models.InformationResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to read version file",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/questions": {
             "get": {
                 "description": "Get all questions, supports pagination through query parameters",
@@ -881,6 +913,14 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "models.InformationResponse": {
+            "type": "object",
+            "properties": {
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
         "word-flashcard_internal_models.DefinitionInfo": {
             "type": "object",
             "properties": {
