@@ -528,7 +528,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
                   disabled={!reminderEnabled}
                   placeholder='Enter reminder note...'
                   maxLength={100}
-                  className='w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500 dark:disabled:bg-gray-700 dark:disabled:text-gray-500'
+                  className='w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500 dark:disabled:bg-gray-700 dark:disabled:text-gray-500'
                 />
               </div>
 
