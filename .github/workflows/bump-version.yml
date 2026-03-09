@@ -44,6 +44,7 @@ jobs:
         id: filter
         if: github.event_name == 'push'
         with:
+          token: ${{ github.token }}
           filters: |
             frontend:
               - 'web/**'
