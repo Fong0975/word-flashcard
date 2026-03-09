@@ -10,14 +10,14 @@ on:
       - 'web/**/*.jsx'
       - 'web/**/*.json'
       - 'web/**/*.css'
-      - 'web/package.json'
-      - 'web/package-lock.json'
       - 'web/.eslintrc.json'
       - 'web/.prettierrc.json'
       - 'web/.prettierignore'
       - 'web/tailwind.config.js'
       - 'web/postcss.config.js'
       - 'web/tsconfig.json'
+      - '!web/package.json'
+      - '!web/package-lock.json'
   pull_request:
     branches: [ main ]
     paths:
