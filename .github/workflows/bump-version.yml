@@ -29,6 +29,12 @@ jobs:
     outputs:
       changed: ${{ steps.filter.outputs.changed }}
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        if: github.event_name == 'push'
+        with:
+          fetch-depth: 2
+
       - name: Filter paths
         uses: dorny/paths-filter@v3
         id: filter
