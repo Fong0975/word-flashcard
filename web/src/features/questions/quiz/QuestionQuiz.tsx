@@ -243,6 +243,7 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
 
   if (state === 'quiz' && currentQuestion) {
     const availableOptions = getAvailableOptions(currentQuestion);
+    const isCorrect = results[results.length - 1]?.isCorrect ?? false;
 
     return (
       <div className='flex h-full flex-col'>
@@ -310,73 +311,60 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
         ) : (
           // Stage 2: Answer and explanation
           <div className='flex-1 overflow-y-auto'>
-            <div className='mx-auto max-w-2xl'>
+            <div
+              className={`mx-auto max-w-2xl border-l-4 pl-4 ${
+                isCorrect ? 'border-green-400' : 'border-red-400'
+              } lg:my-6`}
+            >
               {/* Question Display */}
               <div className='mb-6'>
                 <h1 className='mb-4 text-xl font-bold leading-relaxed text-gray-900 dark:text-white'>
                   {currentQuestion.question}
                 </h1>
 
-                {/* User's Answer vs Correct Answer */}
-                <div className='mb-6 space-y-3'>
-                  <div className='flex items-center space-x-4'>
-                    <span className='text-sm font-medium text-gray-600 dark:text-gray-400'>
-                      Your Answer:
-                    </span>
-                    <div
-                      className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${
-                        results[results.length - 1]?.isCorrect
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-200'
-                          : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-200'
-                      }`}
-                    >
-                      {selectedAnswer}
-                      {results[results.length - 1]?.isCorrect ? ' ✓' : ' ✗'}
-                    </div>
-                  </div>
-
-                  {!results[results.length - 1]?.isCorrect && (
-                    <div className='flex items-center space-x-4'>
-                      <span className='text-sm font-medium text-gray-600 dark:text-gray-400'>
-                        Correct Answer:
-                      </span>
-                      <div className='inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800 dark:bg-green-900/20 dark:text-green-200'>
-                        {currentQuestion.answer}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
                 {/* All Options (with correct answer highlighted) */}
                 <div className='mb-6 space-y-2'>
-                  {availableOptions.map(option => (
-                    <div
-                      key={option.key}
-                      className={`flex items-start space-x-3 rounded-lg p-3 ${
-                        option.key === currentQuestion.answer
-                          ? 'border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20'
-                          : 'bg-gray-50 dark:bg-gray-700'
-                      }`}
-                    >
-                      <span
-                        className={`inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-sm font-medium ${
+                  {availableOptions.map(option => {
+                    const isUserWrongAnswer =
+                      option.key === selectedAnswer && !isCorrect;
+                    return (
+                      <div
+                        key={option.key}
+                        className={`flex items-start space-x-3 rounded-lg p-3 ${
                           option.key === currentQuestion.answer
-                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                            : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                            ? 'border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20'
+                            : isUserWrongAnswer
+                              ? 'border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20'
+                              : 'bg-gray-50 dark:bg-gray-700'
                         }`}
                       >
-                        {option.key}
-                      </span>
-                      <span className='flex-1 leading-relaxed text-gray-700 dark:text-gray-300'>
-                        {option.value}
-                        {option.key === currentQuestion.answer && (
-                          <span className='ml-2 font-medium text-green-600 dark:text-green-400'>
-                            ✓ Correct
-                          </span>
-                        )}
-                      </span>
-                    </div>
-                  ))}
+                        <span
+                          className={`inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-sm font-medium ${
+                            option.key === currentQuestion.answer
+                              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                              : isUserWrongAnswer
+                                ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                                : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                          }`}
+                        >
+                          {option.key}
+                        </span>
+                        <span className='flex-1 leading-relaxed text-gray-700 dark:text-gray-300'>
+                          {option.value}
+                          {option.key === currentQuestion.answer && (
+                            <span className='ml-2 font-medium text-green-600 dark:text-green-400'>
+                              ✓ Correct
+                            </span>
+                          )}
+                          {isUserWrongAnswer && (
+                            <span className='ml-2 font-medium text-red-600 dark:text-red-400'>
+                              ✗ Your Answer
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -396,7 +384,7 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
 
               {/* Explanation */}
               {currentQuestion.notes && (
-                <div className='mb-8'>
+                <div className='mb-3'>
                   <h3 className='mb-3 text-lg font-semibold text-gray-900 dark:text-white'>
                     Explanation
                   </h3>
