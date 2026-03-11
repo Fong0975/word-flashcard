@@ -6,7 +6,6 @@ import (
 	"word-flashcard/data/peers"
 	"word-flashcard/data/schema"
 	"word-flashcard/internal/models"
-	"word-flashcard/utils/database"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/gin-gonic/gin"
@@ -137,13 +136,9 @@ func (qc *QuestionController) RandomQuestions(c *gin.Context) {
 		return
 	}
 
-	// Convert count to uint64 for database layer
-	limitPtr := uint64(randomReq.Count)
-
 	// ================ 2. Fetch data from database ================
-	// Use database-agnostic random function pattern
-	orderBy := database.TERM_MAPPING_FUNC_RANDOM
-	questions, err := qc.questionPeer.Select([]*string{}, nil, []*string{&orderBy}, &limitPtr, nil)
+	// Use weighted bucket sampling: unpractised (50%) > high-failure-rate (30%) > high-success-rate (20%)
+	questions, err := qc.fetchRandomQuestionsWeighted(randomReq.Count)
 	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", err, c)
 		return

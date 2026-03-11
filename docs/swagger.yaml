@@ -1,10 +1,5 @@
 basePath: /
 definitions:
-  models.InformationResponse:
-    properties:
-      version:
-        type: string
-    type: object
   word-flashcard_internal_models.DefinitionInfo:
     properties:
       definition:
@@ -33,6 +28,11 @@ definitions:
   word-flashcard_internal_models.HealthResponse:
     properties:
       status:
+        type: string
+    type: object
+  word-flashcard_internal_models.InformationResponse:
+    properties:
+      version:
         type: string
     type: object
   word-flashcard_internal_models.MeaningInfo:
@@ -226,7 +226,7 @@ paths:
         "200":
           description: Application information
           schema:
-            $ref: '#/definitions/models.InformationResponse'
+            $ref: '#/definitions/word-flashcard_internal_models.InformationResponse'
         "500":
           description: Failed to read version file
           schema:

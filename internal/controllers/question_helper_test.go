@@ -6,10 +6,14 @@ import (
 	"testing"
 	"word-flashcard/data/mocks"
 	dbModels "word-flashcard/data/models"
+	"word-flashcard/data/schema"
 	"word-flashcard/internal/models"
 	"word-flashcard/utils"
+	"word-flashcard/utils/database"
 
+	"github.com/Masterminds/squirrel"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -295,4 +299,72 @@ func (suite *QuestionHelperTestSuite) TestValidateQuestionFields() {
 			}
 		})
 	}
+}
+
+// TestFetchQuestionBucket tests the fetchQuestionBucket helper
+func (suite *QuestionHelperTestSuite) TestFetchQuestionBucket() {
+	// Setup fresh mock with Select expectation
+	mockPeer := mocks.NewMockQuestionPeer(suite.T())
+	controller := NewQuestionController(mockPeer)
+
+	where := squirrel.Eq{schema.QUESTION_COUNT_PRACTISE: 0}
+	limit := uint64(2)
+	sampleQuestions := getSampleQuestions()
+	mockPeer.EXPECT().
+		Select(mock.Anything, where, mock.MatchedBy(func(orderBy []*string) bool {
+			return len(orderBy) == 1 && orderBy[0] != nil && *orderBy[0] == database.TERM_MAPPING_FUNC_RANDOM
+		}), &limit, (*uint64)(nil)).
+		Return([]*dbModels.Question{sampleQuestions[0], sampleQuestions[1]}, nil).Times(1)
+
+	// Poke the method
+	result, err := controller.fetchQuestionBucket(where, 2)
+
+	// Verify the result
+	assert.NoError(suite.T(), err)
+	resultJSON, err := json.Marshal(result)
+	assert.NoError(suite.T(), err)
+	expectedJSON, err := json.Marshal([]*dbModels.Question{sampleQuestions[0], sampleQuestions[1]})
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), string(expectedJSON), string(resultJSON))
+}
+
+// TestFetchRandomQuestionsWeighted tests the fetchRandomQuestionsWeighted helper
+func (suite *QuestionHelperTestSuite) TestFetchRandomQuestionsWeighted() {
+	// count=5 bucket quota breakdown (5:3:2 ratio):
+	//   quota1 = 5*5/10 = 2 (unpractised)
+	//   quota2 = 5*3/10 = 1 (high-failure-rate)
+	//   quota3 = 5-2-1  = 2 (high-success-rate)
+	// Each bucket fills its quota exactly so no cascade occurs.
+	mockPeer := mocks.NewMockQuestionPeer(suite.T())
+	controller := NewQuestionController(mockPeer)
+	sampleQuestions := getSampleQuestions()
+
+	randomOrderMatcher := mock.MatchedBy(func(orderBy []*string) bool {
+		return len(orderBy) == 1 && orderBy[0] != nil && *orderBy[0] == database.TERM_MAPPING_FUNC_RANDOM
+	})
+	limit1 := uint64(2)
+	limit2 := uint64(1)
+	limit3 := uint64(2)
+
+	// Bucket 1: unpractised (count_practise = 0) → returns 2 items, fills quota exactly
+	mockPeer.EXPECT().
+		Select(mock.Anything, squirrel.Eq{schema.QUESTION_COUNT_PRACTISE: 0}, randomOrderMatcher, &limit1, (*uint64)(nil)).
+		Return([]*dbModels.Question{sampleQuestions[0], sampleQuestions[1]}, nil).Times(1)
+
+	// Bucket 2: high failure rate → returns 1 item, fills quota exactly
+	mockPeer.EXPECT().
+		Select(mock.Anything, mock.Anything, randomOrderMatcher, &limit2, (*uint64)(nil)).
+		Return([]*dbModels.Question{sampleQuestions[2]}, nil).Times(1)
+
+	// Bucket 3: high success rate → returns 2 items, fills quota exactly
+	mockPeer.EXPECT().
+		Select(mock.Anything, mock.Anything, randomOrderMatcher, &limit3, (*uint64)(nil)).
+		Return([]*dbModels.Question{sampleQuestions[3], sampleQuestions[4]}, nil).Times(1)
+
+	// Poke the method
+	result, err := controller.fetchRandomQuestionsWeighted(5)
+
+	// Verify the result contains all expected questions (order varies due to shuffle)
+	assert.NoError(suite.T(), err)
+	assert.ElementsMatch(suite.T(), sampleQuestions, result)
 }
