@@ -108,7 +108,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Application information",
                         "schema": {
-                            "$ref": "#/definitions/models.InformationResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.InformationResponse"
                         }
                     },
                     "500": {
@@ -913,14 +913,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "models.InformationResponse": {
-            "type": "object",
-            "properties": {
-                "version": {
-                    "type": "string"
-                }
-            }
-        },
         "word-flashcard_internal_models.DefinitionInfo": {
             "type": "object",
             "properties": {
@@ -964,6 +956,14 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "word-flashcard_internal_models.InformationResponse": {
+            "type": "object",
+            "properties": {
+                "version": {
                     "type": "string"
                 }
             }
