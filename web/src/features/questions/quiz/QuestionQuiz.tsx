@@ -42,11 +42,9 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
 
   const currentQuestion = questions[currentQuestionIndex];
+  const completedCount = currentQuestionIndex + (showAnswer ? 1 : 0);
   const progress =
-    questions.length > 0
-      ? ((currentQuestionIndex + (showAnswer ? 0.5 : 0)) / questions.length) *
-        100
-      : 0;
+    questions.length > 0 ? (completedCount / questions.length) * 100 : 0;
 
   // Fetch random questions for quiz
   useEffect(() => {
