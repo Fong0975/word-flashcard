@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkBreaks from 'remark-breaks';
+import remarkGfm from 'remark-gfm';
 
 import { AnswerSectionProps } from '../types/question-detail';
 
@@ -85,7 +86,7 @@ export const AnswerSection: React.FC<AnswerSectionProps> = ({
               </h3>
               <div className='prose prose-sm prose-slate max-w-none dark:prose-invert prose-p:text-gray-700 dark:prose-p:text-gray-300'>
                 <div className='prose prose-sm prose-slate max-w-none dark:prose-invert prose-p:text-gray-700 prose-code:rounded-md prose-code:bg-gray-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:font-medium prose-code:text-pink-600 prose-code:before:content-none prose-code:after:content-none dark:prose-p:text-gray-300 dark:prose-code:bg-gray-700 dark:prose-code:text-pink-400'>
-                  <ReactMarkdown remarkPlugins={[remarkBreaks]}>
+                  <ReactMarkdown remarkPlugins={[remarkBreaks, remarkGfm]}>
                     {explanation.replace(/\\n/g, '\n')}
                   </ReactMarkdown>
                 </div>
