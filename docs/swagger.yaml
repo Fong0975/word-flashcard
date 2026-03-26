@@ -240,7 +240,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get all questions, supports pagination through query parameters
+      description: Get all questions, supports pagination and multi-column sorting
+        through query parameters
       parameters:
       - description: 'Maximum number of records to return (default: 100, max: 1000)'
         in: query
@@ -250,6 +251,11 @@ paths:
         in: query
         name: offset
         type: integer
+      - description: 'Sort columns/expressions, comma-separated. Format: col,-col,(expr),-(expr).
+          Allowed: id,question,answer,count_practise,count_failure_practise,created_at,updated_at'
+        in: query
+        name: sort
+        type: string
       produces:
       - application/json
       responses:
