@@ -59,7 +59,14 @@ export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
 }) => {
   const totalQuestions = results.length;
   const levels: Record<string, number> = { red: 0, yellow: 1, green: 2 };
-  const { improvementCount, stayCount, worsenedCount } = results.reduce(
+  const {
+    improvementCount,
+    stayCount,
+    worsenedCount,
+    redCount,
+    yellowCount,
+    greenCount,
+  } = results.reduce(
     (acc, result) => {
       const oldLevel = levels[result.oldFamiliarity];
       const newLevel = levels[result.newFamiliarity];
@@ -72,9 +79,24 @@ export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
         acc.worsenedCount++;
       }
 
+      if (result.newFamiliarity === 'red') {
+        acc.redCount++;
+      } else if (result.newFamiliarity === 'yellow') {
+        acc.yellowCount++;
+      } else if (result.newFamiliarity === 'green') {
+        acc.greenCount++;
+      }
+
       return acc;
     },
-    { improvementCount: 0, stayCount: 0, worsenedCount: 0 },
+    {
+      improvementCount: 0,
+      stayCount: 0,
+      worsenedCount: 0,
+      redCount: 0,
+      yellowCount: 0,
+      greenCount: 0,
+    },
   );
 
   return (
@@ -97,31 +119,63 @@ export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
           {totalQuestions}
         </div>
 
+        {/* Familiarity Distribution */}
+        <div className='flex items-center gap-4 border-t border-gray-200 pt-4 dark:border-gray-700'>
+          <span className='w-16 flex-shrink-0 text-right text-xs font-medium uppercase tracking-wide text-gray-400 dark:text-gray-500'>
+            After
+          </span>
+          <div className='flex flex-1 gap-2'>
+            <span className='flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-50 px-3 py-2 dark:bg-red-900/20'>
+              <span className='h-2.5 w-2.5 flex-shrink-0 rounded-full bg-red-500'></span>
+              <span className='text-lg font-bold text-red-700 dark:text-red-300'>
+                {redCount}
+              </span>
+            </span>
+            <span className='flex flex-1 items-center justify-center gap-2 rounded-lg bg-yellow-50 px-3 py-2 dark:bg-yellow-900/20'>
+              <span className='h-2.5 w-2.5 flex-shrink-0 rounded-full bg-yellow-500'></span>
+              <span className='text-lg font-bold text-yellow-700 dark:text-yellow-300'>
+                {yellowCount}
+              </span>
+            </span>
+            <span className='flex flex-1 items-center justify-center gap-2 rounded-lg bg-green-50 px-3 py-2 dark:bg-green-900/20'>
+              <span className='h-2.5 w-2.5 flex-shrink-0 rounded-full bg-green-500'></span>
+              <span className='text-lg font-bold text-green-700 dark:text-green-300'>
+                {greenCount}
+              </span>
+            </span>
+          </div>
+        </div>
+
         {/* Statistics */}
-        <div className='mt-1 grid grid-cols-3 gap-6 border-t border-gray-200 pt-4 dark:border-gray-700'>
-          <div className='text-center'>
-            <div className='text-2xl font-bold text-green-600 dark:text-green-400'>
-              {improvementCount}
-            </div>
-            <div className='text-sm text-gray-600 dark:text-gray-400'>
-              Improved
-            </div>
-          </div>
-          <div className='text-center'>
-            <div className='text-2xl font-bold text-yellow-600 dark:text-yellow-400'>
-              {stayCount}
-            </div>
-            <div className='text-sm text-gray-600 dark:text-gray-400'>
-              Stayed
-            </div>
-          </div>
-          <div className='text-center'>
-            <div className='text-2xl font-bold text-red-600 dark:text-red-400'>
-              {worsenedCount}
-            </div>
-            <div className='text-sm text-gray-600 dark:text-gray-400'>
-              Worsed
-            </div>
+        <div className='flex items-center gap-4 border-t border-gray-200 pt-4 dark:border-gray-700'>
+          <span className='w-16 flex-shrink-0 text-right text-xs font-medium uppercase tracking-wide text-gray-400 dark:text-gray-500'>
+            Change
+          </span>
+          <div className='flex flex-1 gap-2'>
+            <span className='flex flex-1 items-center justify-center gap-2 rounded-lg bg-gray-100 px-3 py-2 dark:bg-gray-700'>
+              <span className='text-base font-bold text-blue-500 dark:text-blue-400'>
+                ↑
+              </span>
+              <span className='text-lg font-bold text-gray-700 dark:text-gray-200'>
+                {improvementCount}
+              </span>
+            </span>
+            <span className='flex flex-1 items-center justify-center gap-2 rounded-lg bg-gray-100 px-3 py-2 dark:bg-gray-700'>
+              <span className='text-base font-bold text-gray-400 dark:text-gray-500'>
+                →
+              </span>
+              <span className='text-lg font-bold text-gray-700 dark:text-gray-200'>
+                {stayCount}
+              </span>
+            </span>
+            <span className='flex flex-1 items-center justify-center gap-2 rounded-lg bg-gray-100 px-3 py-2 dark:bg-gray-700'>
+              <span className='text-base font-bold text-orange-500 dark:text-orange-400'>
+                ↓
+              </span>
+              <span className='text-lg font-bold text-gray-700 dark:text-gray-200'>
+                {worsenedCount}
+              </span>
+            </span>
           </div>
         </div>
       </div>
