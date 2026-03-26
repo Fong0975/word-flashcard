@@ -13,6 +13,16 @@ import { Question } from '../../types/api';
 import { QuestionCard } from './QuestionCard';
 import { QuestionFormModal } from './question-form/QuestionFormModal';
 
+const SORT_OPTIONS = [
+  { label: 'Default', value: '' },
+  {
+    label: 'Familiarity (reversed)',
+    value: '-(count_failure_practise/count_practise),-count_failure_practise',
+  },
+  { label: 'Practice count', value: 'count_practise' },
+  { label: 'Practice count (reversed)', value: '-count_practise' },
+] as const;
+
 interface QuestionsReviewTabProps {
   className?: string;
 }
@@ -29,10 +39,13 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({
     return isNaN(p) || p < 1 ? 1 : p;
   }, [searchParams]);
 
+  const urlSort = useMemo(() => searchParams.get('sort') || '', [searchParams]);
+
   const questionsHook = useQuestions({
     itemsPerPage: 20,
     autoFetch: true,
     initialPage: urlPage,
+    sort: urlSort,
   });
 
   const setUrlPage = useCallback(
@@ -68,6 +81,15 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({
       fetchEntitiesRef.current(urlPage);
     }
   }, [urlPage]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Sync URL → hook: when the sort param changes, reset to page 1 and refetch.
+  const prevSortRef = useRef(urlSort);
+  useEffect(() => {
+    if (urlSort !== prevSortRef.current) {
+      prevSortRef.current = urlSort;
+      fetchEntitiesRef.current(1);
+    }
+  }, [urlSort]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Wrapped pagination actions: update URL only; the effect above handles the actual fetch.
   const wrappedGoToPage = useCallback(
@@ -116,6 +138,25 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({
     ],
   );
 
+  const handleSortChange = useCallback(
+    (value: string) => {
+      setSearchParams(
+        prev => {
+          const next = new URLSearchParams(prev);
+          next.delete('page');
+          if (value) {
+            next.set('sort', value);
+          } else {
+            next.delete('sort');
+          }
+          return next;
+        },
+        { replace: true },
+      );
+    },
+    [setSearchParams],
+  );
+
   const handleNew = () => {
     modalManager.openModal(MODAL_NAMES.ADD);
   };
@@ -145,6 +186,22 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({
     navigate(`/question/quiz?count=${config.questionCount}`);
   };
 
+  const sortToolbar = (
+    <div className='flex items-center justify-end'>
+      <select
+        value={urlSort}
+        onChange={e => handleSortChange(e.target.value)}
+        className='rounded-md border border-gray-300 bg-white py-1.5 pl-3 pr-8 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-800 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200'
+      >
+        {SORT_OPTIONS.map(opt => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+
   return (
     <EntityReviewTab
       config={{
@@ -165,6 +222,7 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({
         onQuizSetup: handleQuizSetup,
         onRefresh: () => questionsHook.refresh(),
       }}
+      toolbarContent={sortToolbar}
       entityListHook={patchedQuestionsHook}
       renderCard={(question, index) => (
         <QuestionCard
