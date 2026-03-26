@@ -125,7 +125,7 @@ const docTemplate = `{
         },
         "/api/questions": {
             "get": {
-                "description": "Get all questions, supports pagination through query parameters",
+                "description": "Get all questions, supports pagination and multi-column sorting through query parameters",
                 "consumes": [
                     "application/json"
                 ],
@@ -146,6 +146,12 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "Number of records to skip (default: 0)",
                         "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort columns/expressions, comma-separated. Format: col,-col,(expr),-(expr). Allowed: id,question,answer,count_practise,count_failure_practise,created_at,updated_at",
+                        "name": "sort",
                         "in": "query"
                     }
                 ],

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 
 import { apiService } from '../lib/api';
 import { Question } from '../types/api';
@@ -19,6 +19,7 @@ export interface UseQuestionsOptions {
   itemsPerPage?: number;
   initialPage?: number;
   autoFetch?: boolean;
+  sort?: string;
 }
 
 export interface UseQuestionsReturn
@@ -27,14 +28,25 @@ export interface UseQuestionsReturn
 export const useQuestions = (
   options: UseQuestionsOptions = {},
 ): UseQuestionsReturn => {
-  const { itemsPerPage = 20, initialPage = 1, autoFetch = true } = options;
+  const {
+    itemsPerPage = 20,
+    initialPage = 1,
+    autoFetch = true,
+    sort,
+  } = options;
+
+  // Use a ref so the fetchList closure always reads the latest sort value
+  // without needing to be recreated when sort changes.
+  const sortRef = useRef(sort);
+  sortRef.current = sort;
 
   // Create configuration for the generic hook
   const entityListOptions = useMemo(
     (): UseEntityListOptions<Question> => ({
       entityName: 'questions',
       apiService: {
-        fetchList: params => apiService.getAllQuestions(params),
+        fetchList: params =>
+          apiService.getAllQuestions({ ...params, sort: sortRef.current }),
         getCount: () => apiService.getQuestionsCount(),
       },
       searchConfig: {

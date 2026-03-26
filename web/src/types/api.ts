@@ -198,6 +198,7 @@ export interface QuestionsSearchParams extends PaginationParams {
   readonly searchFilter?: SearchFilter;
   readonly minPracticeCount?: number;
   readonly maxFailureRate?: number;
+  readonly sort?: string;
 }
 
 /**

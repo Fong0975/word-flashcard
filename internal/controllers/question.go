@@ -11,6 +11,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// questionSortableColumns defines the columns allowed in sort query parameters for the questions table.
+var questionSortableColumns = []string{
+	schema.QUESTION_ID,
+	schema.QUESTION_QUESTION,
+	schema.QUESTION_ANSWER,
+	schema.QUESTION_COUNT_PRACTISE,
+	schema.QUESTION_COUNT_FAILURE_PRACTISE,
+	schema.COMMON_CREATED_AT,
+	schema.COMMON_UPDATED_AT,
+}
+
 // QuestionController handles question-related requests
 type QuestionController struct {
 	questionPeer peers.QuestionPeerInterface
@@ -34,12 +45,13 @@ func GetReelQuestionPeer() (peers.QuestionPeerInterface, error) {
 }
 
 // ListQuestions @Summary List all questions with pagination
-// @Description Get all questions, supports pagination through query parameters
+// @Description Get all questions, supports pagination and multi-column sorting through query parameters
 // @Tags questions
 // @Accept json
 // @Produce json
 // @Param limit query int false "Maximum number of records to return (default: 100, max: 1000)"
 // @Param offset query int false "Number of records to skip (default: 0)"
+// @Param sort query string false "Sort columns/expressions, comma-separated. Format: col,-col,(expr),-(expr). Allowed: id,question,answer,count_practise,count_failure_practise,created_at,updated_at"
 // @Success 200 {array} models.Question "List of Questions retrieved successfully"
 // @Failure 400 {object} models.ErrorResponse "Bad request - Invalid query parameters"
 // @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to fetch data from database"
@@ -56,20 +68,38 @@ func (qc *QuestionController) ListQuestions(c *gin.Context) {
 	limitPtr := uint64(limit)
 	offsetPtr := uint64(offset)
 
-	// ================ 2. Fetch data from database ================
-	// Query 'questions' table
-	orderBy := fmt.Sprintf("%s DESC", schema.COMMON_CREATED_AT)
-	orderBy2 := fmt.Sprintf("%s DESC", schema.QUESTION_ID)
-	questions, err := qc.questionPeer.Select([]*string{}, nil, []*string{&orderBy, &orderBy2}, &limitPtr, &offsetPtr)
+	// ================ 2. Parse and validate sort parameters ================
+	sortParam, err := models.ParseSortParam(c.Query("sort"))
+	if err != nil {
+		ResponseError(http.StatusBadRequest, "Invalid sort parameter", err, c)
+		return
+	}
+	if err := sortParam.Validate(questionSortableColumns); err != nil {
+		ResponseError(http.StatusBadRequest, "Invalid sort parameter", err, c)
+		return
+	}
+
+	// Build ORDER BY clauses: use provided sort or fall back to default
+	var orderByClauses []*string
+	if !sortParam.IsEmpty() {
+		orderByClauses = sortParam.ToOrderByClauses()
+	} else {
+		defaultOrder1 := fmt.Sprintf("%s DESC", schema.COMMON_CREATED_AT)
+		defaultOrder2 := fmt.Sprintf("%s DESC", schema.QUESTION_ID)
+		orderByClauses = []*string{&defaultOrder1, &defaultOrder2}
+	}
+
+	// ================ 3. Fetch data from database ================
+	questions, err := qc.questionPeer.Select([]*string{}, nil, orderByClauses, &limitPtr, &offsetPtr)
 	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", err, c)
 		return
 	}
 
-	// ================ 3. Transform data to API model ================
+	// ================ 4. Transform data to API model ================
 	questionEntities := qc.convertToEntities(questions)
 
-	// ================ 4. Send response ================
+	// ================ 5. Send response ================
 	ResponseSuccess(http.StatusOK, questionEntities, c)
 }
 

@@ -23,6 +23,7 @@ interface EntityReviewTabProps<
   readonly renderCard: (entity: T, index: number) => ReactNode;
   readonly additionalContent?: ReactNode;
   readonly quickFiltersContent?: ReactNode;
+  readonly toolbarContent?: ReactNode;
 }
 
 /**
@@ -62,6 +63,7 @@ export const EntityReviewTab = <T extends BaseEntity>({
   renderCard,
   additionalContent,
   quickFiltersContent,
+  toolbarContent,
   className = '',
 }: EntityReviewTabProps<T>) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -228,6 +230,9 @@ export const EntityReviewTab = <T extends BaseEntity>({
           )}
         </div>
       </div>
+
+      {/* Toolbar (e.g. sort controls) */}
+      {toolbarContent}
 
       {/* Search */}
       {config.enableSearch && (

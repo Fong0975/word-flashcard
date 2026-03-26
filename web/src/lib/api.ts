@@ -348,6 +348,10 @@ class ApiService {
       searchParams.append('offset', params.offset.toString());
     }
 
+    if (params.sort) {
+      searchParams.append('sort', params.sort);
+    }
+
     const endpoint = `${API_ENDPOINTS.questions}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
 
     return this.get<Question[]>(endpoint, options);
