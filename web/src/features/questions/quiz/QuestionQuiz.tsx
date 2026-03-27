@@ -122,11 +122,16 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
 
     const isCorrect = selectedAnswer === currentQuestion.answer;
 
-    // Add result to results array
     const newResult: QuestionQuizResult = {
       question: currentQuestion,
       userAnswer: selectedAnswer,
       isCorrect,
+      updatedStats: {
+        countPractise: currentQuestion.count_practise + 1,
+        countFailurePractise: isCorrect
+          ? currentQuestion.count_failure_practise
+          : currentQuestion.count_failure_practise + 1,
+      },
     };
 
     const newResults = [...results, newResult];
@@ -134,20 +139,10 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
     setShowAnswer(true);
   };
 
-  // Update question statistics after quiz completion
   const updateQuestionStatistics = async (results: QuestionQuizResult[]) => {
     try {
-      // Update each question's statistics
       for (const result of results) {
         const question = result.question;
-
-        // Calculate new statistics
-        const newCountPractise = question.count_practise + 1;
-        const newCountFailurePractise = result.isCorrect
-          ? question.count_failure_practise
-          : question.count_failure_practise + 1;
-
-        // Update question with new statistics (preserve all other fields)
         await apiService.updateQuestion(question.id, {
           question: question.question,
           answer: question.answer,
@@ -157,8 +152,8 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
           option_d: question.option_d || '',
           notes: question.notes,
           reference: question.reference,
-          count_practise: newCountPractise,
-          count_failure_practise: newCountFailurePractise,
+          count_practise: result.updatedStats.countPractise,
+          count_failure_practise: result.updatedStats.countFailurePractise,
         });
       }
     } catch (error) {
@@ -317,9 +312,12 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
             >
               {/* Question Display */}
               <div className='mb-6'>
-                <h1 className='mb-4 text-xl font-bold leading-relaxed text-gray-900 dark:text-white'>
+                <h1 className='mb-1 text-xl font-bold leading-relaxed text-gray-900 dark:text-white'>
                   {currentQuestion.question}
                 </h1>
+                <p className='mb-4 text-xs text-gray-400 dark:text-gray-500'>
+                  #{currentQuestion.id}
+                </p>
 
                 {/* All Options (with correct answer highlighted) */}
                 <div className='mb-6 space-y-2'>
