@@ -36,12 +36,19 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
 }) => {
   const [state, setState] = useState<WordQuizState>('loading');
   const [words, setWords] = useState<Word[]>([]);
-  const [currentWordIndex, setCurrentWordIndex] = useState(0);
-  const [results, setResults] = useState<WordQuizResult[]>([]);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [decisions, setDecisions] = useState<Record<number, FamiliarityLevel>>(
+    {},
+  );
   const [error, setError] = useState<string | null>(null);
-  const [showAnswer, setShowAnswer] = useState(false);
   const [reminderEnabled, setReminderEnabled] = useState(false);
   const [reminderText, setReminderText] = useState('');
+
+  // Derived state
+  const currentWordIndex = Math.floor(currentStep / 2);
+  const showAnswer = currentStep % 2 === 1;
+  const isFirstStep = currentStep === 0;
+  const isLastStep = words.length > 0 && currentStep === words.length * 2 - 1;
 
   const getFamiliarityBarColor = (familiarity: string) => {
     switch (familiarity.toLowerCase()) {
@@ -63,7 +70,6 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
         setState('loading');
         setError(null);
 
-        // Construct API request based on selected familiarities
         const allSelectedFamiliarity = selectedFamiliarity.filter(f =>
           [
             FamiliarityLevel.RED,
@@ -72,7 +78,6 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
           ].includes(f),
         );
 
-        // Create a single request with all selected familiarity levels
         const request: WordsRandomRequest = {
           count: questionCount,
           filter: {
@@ -87,7 +92,6 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
           },
         };
 
-        // Fetch words for the quiz
         if (request.count <= 0) {
           setError('Invalid question count.');
           return;
@@ -110,7 +114,29 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
     fetchQuizWords();
   }, [selectedFamiliarity, questionCount, onError]);
 
-  // Handle familiarity selection
+  const buildAllResults = (
+    extraDecisions?: Record<number, FamiliarityLevel>,
+  ): WordQuizResult[] => {
+    const allDecisions = { ...decisions, ...extraDecisions };
+    return words.map((word, index) => ({
+      word,
+      oldFamiliarity: word.familiarity,
+      newFamiliarity: allDecisions[index] ?? word.familiarity,
+    }));
+  };
+
+  const resetReminder = () => {
+    setReminderEnabled(false);
+    setReminderText('');
+  };
+
+  const completeQuiz = (extraDecisions?: Record<number, FamiliarityLevel>) => {
+    const allResults = buildAllResults(extraDecisions);
+    setState('completed');
+    onQuizComplete(allResults);
+  };
+
+  // Handle familiarity selection — calls API, records decision, advances step
   const handleFamiliaritySelect = async (newFamiliarity: FamiliarityLevel) => {
     const currentWord = words[currentWordIndex];
     const pendingReminder =
@@ -123,27 +149,17 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
         ...(pendingReminder !== undefined ? { reminder: pendingReminder } : {}),
       });
 
-      // Add to results
-      const result: WordQuizResult = {
-        word: currentWord,
-        oldFamiliarity: currentWord.familiarity,
-        newFamiliarity,
+      const updatedDecisions = {
+        ...decisions,
+        [currentWordIndex]: newFamiliarity,
       };
+      setDecisions(updatedDecisions);
+      resetReminder();
 
-      setResults(prev => [...prev, result]);
-
-      // Reset reminder inputs for the next word
-      setReminderEnabled(false);
-      setReminderText('');
-
-      // Move to next word or complete quiz
-      if (currentWordIndex + 1 >= words.length) {
-        const allResults = [...results, result];
-        setState('completed');
-        onQuizComplete(allResults);
+      if (isLastStep) {
+        completeQuiz({ [currentWordIndex]: newFamiliarity });
       } else {
-        setCurrentWordIndex(prev => prev + 1);
-        setShowAnswer(false);
+        setCurrentStep(prev => prev + 1);
       }
     } catch (error) {
       const errorMessage = 'Failed to update word. Please try again.';
@@ -156,9 +172,31 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
     }
   };
 
-  // Handle showing answer
-  const handleShowAnswer = () => {
-    setShowAnswer(true);
+  const handleNext = () => {
+    if (!showAnswer) {
+      // Question page → show answer
+      setCurrentStep(prev => prev + 1);
+    } else if (isLastStep) {
+      // Last answer page → treat as maintain, complete quiz
+      completeQuiz();
+    } else {
+      // Answer page → record maintain if not yet decided, advance to next question
+      if (decisions[currentWordIndex] === undefined) {
+        setDecisions(prev => ({
+          ...prev,
+          [currentWordIndex]: words[currentWordIndex].familiarity,
+        }));
+      }
+      resetReminder();
+      setCurrentStep(prev => prev + 1);
+    }
+  };
+
+  const handlePrev = () => {
+    if (!isFirstStep) {
+      resetReminder();
+      setCurrentStep(prev => prev - 1);
+    }
   };
 
   const currentWord = words[currentWordIndex];
@@ -167,18 +205,26 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
 
   if (error) {
     return (
-      <div className='mx-auto max-w-2xl py-12 text-center'>
+      <div className='flex flex-1 flex-col items-center justify-center text-center'>
         <div className='mb-4 text-6xl'>❌</div>
         <h3 className='mb-2 text-xl font-semibold text-gray-900 dark:text-white'>
           Error
         </h3>
         <p className='mb-6 text-gray-600 dark:text-gray-300'>{error}</p>
-        <button
-          onClick={onBackToHome}
-          className='rounded-md bg-primary-500 px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-600'
-        >
-          Back to Home
-        </button>
+        <div className='flex justify-center gap-3'>
+          <button
+            onClick={() => setError(null)}
+            className='rounded-md bg-primary-500 px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-600'
+          >
+            Try Again
+          </button>
+          <button
+            onClick={onBackToHome}
+            className='rounded-md border border-gray-300 bg-white px-6 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+          >
+            Back to Home
+          </button>
+        </div>
       </div>
     );
   }
@@ -209,18 +255,66 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
     return (
       <div className='flex min-h-0 flex-1 flex-col overflow-hidden'>
         <div className='mb-6 flex-shrink-0'>
-          {/* Progress Bar */}
-          <div className='mb-2 flex justify-between text-sm text-gray-600 dark:text-gray-400'>
-            <span>
-              Question {currentWordIndex + 1} of {words.length}
-            </span>
-            <span>{Math.round(progress)}% Complete</span>
-          </div>
-          <div className='h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700'>
-            <div
-              className='h-2 rounded-full bg-primary-500 transition-all duration-300'
-              style={{ width: `${progress}%` }}
-            />
+          {/* Navigation + Progress Bar */}
+          <div className='flex items-center gap-3'>
+            {/* Prev button */}
+            <button
+              onClick={handlePrev}
+              disabled={isFirstStep}
+              aria-label='Previous'
+              className='flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-600 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+            >
+              <svg
+                className='h-4 w-4'
+                fill='none'
+                viewBox='0 0 24 24'
+                strokeWidth='2'
+                stroke='currentColor'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  d='M15.75 19.5L8.25 12l7.5-7.5'
+                />
+              </svg>
+            </button>
+
+            {/* Progress info + bar */}
+            <div className='flex-1'>
+              <div className='mb-2 flex justify-between text-sm text-gray-600 dark:text-gray-400'>
+                <span>
+                  Question {currentWordIndex + 1} of {words.length}
+                </span>
+                <span>{Math.round(progress)}% Complete</span>
+              </div>
+              <div className='h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700'>
+                <div
+                  className='h-2 rounded-full bg-primary-500 transition-all duration-300'
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Next button */}
+            <button
+              onClick={handleNext}
+              aria-label='Next'
+              className='flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-600 transition-colors hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+            >
+              <svg
+                className='h-4 w-4'
+                fill='none'
+                viewBox='0 0 24 24'
+                strokeWidth='2'
+                stroke='currentColor'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  d='M8.25 4.5l7.5 7.5-7.5 7.5'
+                />
+              </svg>
+            </button>
           </div>
 
           {showAnswer && (
@@ -345,7 +439,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
             {/* Bottom Action */}
             <div className='flex-shrink-0 text-center'>
               <button
-                onClick={handleShowAnswer}
+                onClick={handleNext}
                 className='w-full rounded-lg bg-blue-500 px-8 py-3 font-medium text-white transition-colors hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
               >
                 Show Answer
@@ -588,7 +682,6 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
     );
   }
 
-  // This should be handled by parent component, but fallback here
   return (
     <div className='mx-auto max-w-2xl py-12 text-center'>
       <h3 className='mb-2 text-xl font-semibold text-gray-900 dark:text-white'>
