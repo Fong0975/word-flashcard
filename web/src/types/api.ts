@@ -265,6 +265,10 @@ export interface QuestionQuizResult {
   readonly question: Question;
   readonly userAnswer: string | null;
   readonly isCorrect: boolean;
+  readonly updatedStats: {
+    readonly countPractise: number;
+    readonly countFailurePractise: number;
+  };
 }
 
 /**

@@ -181,6 +181,19 @@ export const QuestionQuizResults: React.FC<QuestionQuizResultsProps> = ({
                         </div>
                       </div>
                     )}
+
+                    <p className='text-xs text-gray-400 dark:text-gray-500'>
+                      {result.updatedStats.countPractise} practised &middot;{' '}
+                      {result.updatedStats.countFailurePractise} incorrect
+                      &middot;{' '}
+                      {Math.round(
+                        ((result.updatedStats.countPractise -
+                          result.updatedStats.countFailurePractise) /
+                          result.updatedStats.countPractise) *
+                          100,
+                      )}
+                      % accuracy
+                    </p>
                   </div>
                 </div>
               </div>
