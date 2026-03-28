@@ -236,6 +236,12 @@ class ApiService {
     return this.request<T>(endpoint, { method: 'DELETE', ...options });
   }
 
+  async getInformation(
+    options?: ApiRequestOptions,
+  ): Promise<{ version: string }> {
+    return this.get<{ version: string }>(API_ENDPOINTS.information, options);
+  }
+
   // Words API methods
 
   async searchWords(
