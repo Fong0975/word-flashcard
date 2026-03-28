@@ -32,6 +32,7 @@ export const API_CONFIG = {
 
 // API endpoints
 export const API_ENDPOINTS = {
+  information: '/information',
   words: '/words',
   wordsSearch: '/words/search',
   wordsRandom: '/words/random',
