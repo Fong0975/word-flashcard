@@ -40,6 +40,24 @@ export const QuestionQuizResults: React.FC<QuestionQuizResultsProps> = ({
     return 'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200 border-red-200 dark:border-red-700';
   };
 
+  const getOptionText = (result: QuestionQuizResult, key: string | null) => {
+    if (!key) {
+      return null;
+    }
+    switch (key.toUpperCase()) {
+      case 'A':
+        return result.question.option_a ?? null;
+      case 'B':
+        return result.question.option_b ?? null;
+      case 'C':
+        return result.question.option_c ?? null;
+      case 'D':
+        return result.question.option_d ?? null;
+      default:
+        return null;
+    }
+  };
+
   const getPerformanceMessage = (percentage: number) => {
     if (percentage >= 90) {
       return 'Excellent! You have a great understanding of the material.';
@@ -167,7 +185,9 @@ export const QuestionQuizResults: React.FC<QuestionQuizResultsProps> = ({
                             : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                         }`}
                       >
-                        {result.userAnswer || 'No answer'}
+                        {result.userAnswer
+                          ? `(${result.userAnswer}) ${getOptionText(result, result.userAnswer) ?? ''}`
+                          : 'No answer'}
                       </div>
                     </div>
 
@@ -177,7 +197,7 @@ export const QuestionQuizResults: React.FC<QuestionQuizResultsProps> = ({
                           Correct Answer:
                         </span>
                         <div className='inline-flex items-center rounded bg-green-100 px-2 py-1 text-sm font-medium text-green-800 dark:bg-green-900 dark:text-green-200'>
-                          {result.question.answer}
+                          {`(${result.question.answer}) ${getOptionText(result, result.question.answer) ?? ''}`}
                         </div>
                       </div>
                     )}

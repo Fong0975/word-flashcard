@@ -201,7 +201,9 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
 
   const currentWord = words[currentWordIndex];
   const progress =
-    words.length > 0 ? ((currentWordIndex + 1) / words.length) * 100 : 0;
+    words.length > 0
+      ? ((currentWordIndex + (showAnswer ? 1 : 0)) / words.length) * 100
+      : 0;
 
   if (error) {
     return (
