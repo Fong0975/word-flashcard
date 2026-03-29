@@ -250,6 +250,7 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({
             title='Question Quiz Setup'
             entityName='questions'
             enableFamiliaritySelection={false}
+            defaultQuestionCount={10}
           />
         </>
       }
