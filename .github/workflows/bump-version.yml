@@ -134,8 +134,7 @@ jobs:
           git add VERSION web/package.json web/package-lock.json
           BODY="- ${OLD} → ${NEW}"
           if [ -n "$EXTRA_BODY" ]; then
-            BODY="${BODY}
-${EXTRA_BODY}"
+            BODY="${BODY}"$'\n'"${EXTRA_BODY}"
           fi
           git commit -m "chore: Bump version to v${NEW} [skip ci]" -m "${BODY}"
           git pull --rebase
