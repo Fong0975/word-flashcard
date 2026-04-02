@@ -31,7 +31,7 @@ export const Footer: React.FC = () => {
 
           {/* Tablet/PC */}
           <span className='hidden md:inline'>
-            Copyright © 2026 SWind All rights reserved. |{' '}
+            Copyright © {new Date().getFullYear()} SWind All rights reserved. |{' '}
             <VersionTooltip
               label={`Build ${pkg.version}`}
               apiVersion={apiVersion}
