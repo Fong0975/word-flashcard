@@ -1,7 +1,26 @@
 # Word Flashcard
 
-A language learning flashcard system built with Go, designed for quick word and question management.
-The application features a REST API backend and an HTML frontend interface.
+![Preview](assets/preview.jpg)
+
+A personal language learning app for building vocabulary and practising with quizzes. Manage your own word cards and custom questions, then test yourself to track your progress.
+
+**Words**
+- Add words with multiple definitions, part-of-speech tags, and pronunciation (UK/US audio)
+- Look up a word in the Cambridge Dictionary and import its definitions and pronunciation in one click
+- Mark familiarity level (Unfamiliar / Somewhat Familiar / Familiar) to reflect your current confidence
+- Set reminders on words you want to revisit; clear them once you feel ready
+- Filter your word list by familiarity level or by words that have active reminders
+- Search words and browse with paginated results
+
+**Questions**
+- Create and manage multiple-choice questions (A / B / C / D) with a correct answer and explanation
+- Track per-question statistics: practice count, error count, and accuracy rate
+- Sort questions by familiarity (accuracy-based), practice count, or default order
+
+**Quizzes**
+- Start a word quiz with a configurable count and filter by familiarity level to focus on what you need most
+- Start a question quiz from your custom multiple-choice question bank
+- View your results after each quiz and choose to retake or return home
 
 ## Project Structure
 
@@ -19,7 +38,7 @@ word-flashcard/
 ├── docs/                          # Auto-generated Swagger API documentation
 ├── internal/                      # Internal application code
 │   ├── controllers/              # API controllers
-│   ├── handlers/                 # HTTP Web handlers
+│   ├── handlers/                 # HTTP web handlers
 │   ├── middleware/               # HTTP middleware
 │   ├── mocks/                    # Mock interfaces for testing
 │   ├── models/                   # Data models
@@ -52,11 +71,6 @@ word-flashcard/
 ├── README.md                     # This file
 └── run_dev.bat                   # Development startup script for Windows
 ```
-
-## Features
-
-- **REST API**: REST API service. Reference [API Documentation](#api-documentation) for details
-- **Web Interface**: React frontend application
 
 ## Prerequisites
 
