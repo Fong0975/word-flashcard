@@ -213,30 +213,32 @@ export const FormFields: React.FC<FormFieldsProps> = ({
           </div>
         </div>
 
-        {isNotesPreview ? (
-          <div className='h-52 overflow-y-auto rounded-md border border-gray-300 px-3 py-2 dark:border-gray-600'>
-            {formData.notes.trim() ? (
-              <div className='prose prose-sm prose-slate max-w-none dark:prose-invert prose-headings:text-gray-800 prose-p:text-gray-600 prose-code:rounded-md prose-code:bg-gray-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:font-medium prose-code:text-pink-500 prose-code:before:content-none prose-code:after:content-none prose-ul:text-gray-600 dark:prose-headings:text-gray-200 dark:prose-p:text-gray-400 dark:prose-code:bg-gray-800 dark:prose-code:text-pink-400 dark:prose-ul:text-gray-400'>
-                <ReactMarkdown remarkPlugins={[remarkBreaks, remarkGfm]}>
-                  {formData.notes.replaceAll(/\\n/g, '\n')}
-                </ReactMarkdown>
-              </div>
-            ) : (
-              <p className='text-sm text-gray-400 dark:text-gray-500'>
-                Nothing to preview.
-              </p>
-            )}
-          </div>
-        ) : (
-          <textarea
-            value={formData.notes}
-            onChange={e => handlers.handleNotesChange(e.target.value)}
-            rows={8}
-            className='h-52 w-full resize-none rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
-            placeholder='Additional notes in Markdown format&#10;&#10;Example:&#10;# Heading&#10;**Bold text**&#10;- List item&#10;&#10;Use actual line breaks for new lines.'
-          />
-        )}
-        <p className='mt-1 text-xs text-gray-500 dark:text-gray-400'>
+        <div className='mb-1'>
+          {isNotesPreview ? (
+            <div className='h-52 overflow-y-auto rounded-md border border-gray-300 px-3 py-2 dark:border-gray-600'>
+              {formData.notes.trim() ? (
+                <div className='prose prose-sm prose-slate max-w-none dark:prose-invert prose-headings:text-gray-800 prose-p:text-gray-600 prose-code:rounded-md prose-code:bg-gray-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:font-medium prose-code:text-pink-500 prose-code:before:content-none prose-code:after:content-none prose-ul:text-gray-600 dark:prose-headings:text-gray-200 dark:prose-p:text-gray-400 dark:prose-code:bg-gray-800 dark:prose-code:text-pink-400 dark:prose-ul:text-gray-400'>
+                  <ReactMarkdown remarkPlugins={[remarkBreaks, remarkGfm]}>
+                    {formData.notes.replaceAll(/\\n/g, '\n')}
+                  </ReactMarkdown>
+                </div>
+              ) : (
+                <p className='text-sm text-gray-400 dark:text-gray-500'>
+                  Nothing to preview.
+                </p>
+              )}
+            </div>
+          ) : (
+            <textarea
+              value={formData.notes}
+              onChange={e => handlers.handleNotesChange(e.target.value)}
+              rows={8}
+              className='block h-52 w-full resize-none rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+              placeholder='Additional notes in Markdown format&#10;&#10;Example:&#10;# Heading&#10;**Bold text**&#10;- List item&#10;&#10;Use actual line breaks for new lines.'
+            />
+          )}
+        </div>
+        <p className='text-xs text-gray-500 dark:text-gray-400'>
           Supports Markdown formatting. Use actual line breaks for new lines.
         </p>
       </div>
