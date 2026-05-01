@@ -1,6 +1,6 @@
 {
   "name": "word-flashcard",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "private": true,
   "dependencies": {
     "@tailwindcss/typography": "^0.5.19",
