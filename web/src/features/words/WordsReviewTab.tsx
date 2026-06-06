@@ -267,11 +267,28 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
 
   const handleStartQuiz = (config: QuizSetupConfig) => {
     modalManager.closeModal(MODAL_NAMES.QUIZ_SETUP);
-    const params = new URLSearchParams({ count: String(config.questionCount) });
-    if (config.selectedFamiliarity && config.selectedFamiliarity.length > 0) {
-      params.set('familiarity', config.selectedFamiliarity.join(','));
+    if (config.perCategoryCounts) {
+      const params = new URLSearchParams();
+      const { red, yellow, green } = config.perCategoryCounts;
+      if (red > 0) {
+        params.set('red', String(red));
+      }
+      if (yellow > 0) {
+        params.set('yellow', String(yellow));
+      }
+      if (green > 0) {
+        params.set('green', String(green));
+      }
+      navigate(`/word/quiz?${params.toString()}`);
+    } else {
+      const params = new URLSearchParams({
+        count: String(config.questionCount),
+      });
+      if (config.selectedFamiliarity && config.selectedFamiliarity.length > 0) {
+        params.set('familiarity', config.selectedFamiliarity.join(','));
+      }
+      navigate(`/word/quiz?${params.toString()}`);
     }
-    navigate(`/word/quiz?${params.toString()}`);
   };
 
   const handleOpenWordDetailFromSuggestion = (word: Word) => {

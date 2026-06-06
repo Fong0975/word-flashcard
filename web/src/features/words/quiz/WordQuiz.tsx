@@ -20,6 +20,7 @@ import { speakText } from '../../shared/speech';
 interface WordQuizProps {
   selectedFamiliarity: readonly FamiliarityLevel[];
   questionCount: number;
+  perCategoryCounts?: { red: number; yellow: number; green: number };
   onQuizComplete: (results: WordQuizResult[]) => void;
   onBackToHome: () => void;
   onError?: (message: string) => void;
@@ -30,6 +31,7 @@ type WordQuizState = 'loading' | 'quiz' | 'completed';
 export const WordQuiz: React.FC<WordQuizProps> = ({
   selectedFamiliarity,
   questionCount,
+  perCategoryCounts,
   onQuizComplete,
   onBackToHome,
   onError,
@@ -70,34 +72,76 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
         setState('loading');
         setError(null);
 
-        const allSelectedFamiliarity = selectedFamiliarity.filter(f =>
-          [
+        let randomWords: Word[];
+
+        if (perCategoryCounts) {
+          const levels = [
             FamiliarityLevel.RED,
             FamiliarityLevel.YELLOW,
             FamiliarityLevel.GREEN,
-          ].includes(f),
-        );
+          ] as const;
+          const requests = levels
+            .filter(f => perCategoryCounts[f] > 0)
+            .map(f =>
+              apiService.getRandomWords({
+                count: perCategoryCounts[f],
+                filter: {
+                  conditions: [
+                    {
+                      key: 'familiarity',
+                      operator: SearchOperation.IN,
+                      value: JSON.stringify([f]),
+                    },
+                  ],
+                  logic: SearchLogic.OR,
+                },
+              }),
+            );
+          const batches = await Promise.all(requests);
+          const combined = batches.flat();
+          for (let i = combined.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [combined[i], combined[j]] = [combined[j], combined[i]];
+          }
+          randomWords = combined;
+        } else {
+          const allSelectedFamiliarity = selectedFamiliarity.filter(f =>
+            [
+              FamiliarityLevel.RED,
+              FamiliarityLevel.YELLOW,
+              FamiliarityLevel.GREEN,
+            ].includes(f),
+          );
 
-        const request: WordsRandomRequest = {
-          count: questionCount,
-          filter: {
-            conditions: [
-              {
-                key: 'familiarity',
-                operator: SearchOperation.IN,
-                value: JSON.stringify(allSelectedFamiliarity),
-              },
-            ],
-            logic: SearchLogic.OR,
-          },
-        };
+          const request: WordsRandomRequest = {
+            count: questionCount,
+            filter: {
+              conditions: [
+                {
+                  key: 'familiarity',
+                  operator: SearchOperation.IN,
+                  value: JSON.stringify(allSelectedFamiliarity),
+                },
+              ],
+              logic: SearchLogic.OR,
+            },
+          };
 
-        if (request.count <= 0) {
-          setError('Invalid question count.');
+          if (request.count <= 0) {
+            setError('Invalid question count.');
+            return;
+          }
+
+          randomWords = await apiService.getRandomWords(request);
+        }
+
+        if (randomWords.length === 0) {
+          setError(
+            'No questions available for quiz. Please add some questions first.',
+          );
           return;
         }
 
-        const randomWords = await apiService.getRandomWords(request);
         setWords(randomWords);
         setState('quiz');
       } catch (error) {
@@ -112,7 +156,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
     };
 
     fetchQuizWords();
-  }, [selectedFamiliarity, questionCount, onError]);
+  }, [selectedFamiliarity, questionCount, perCategoryCounts, onError]);
 
   const buildAllResults = (
     extraDecisions?: Record<number, FamiliarityLevel>,
