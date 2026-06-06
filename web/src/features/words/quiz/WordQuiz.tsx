@@ -190,6 +190,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
       await apiService.updateWordFields(currentWord.id, {
         word: currentWord.word,
         familiarity: newFamiliarity,
+        increment_count_practise: true,
         ...(pendingReminder !== undefined ? { reminder: pendingReminder } : {}),
       });
 

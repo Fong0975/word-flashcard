@@ -19,11 +19,13 @@ type WordDefinition struct {
 
 // Word represents a word that can be used in both API requests and responses
 type Word struct {
-	ID          *int             `json:"id,omitempty"`
-	Word        *string          `json:"word,omitempty"`
-	Familiarity *string          `json:"familiarity,omitempty"`
-	Reminder    *string          `json:"reminder"`
-	Definitions []WordDefinition `json:"definitions"`
+	ID                     *int             `json:"id,omitempty"`
+	Word                   *string          `json:"word,omitempty"`
+	Familiarity            *string          `json:"familiarity,omitempty"`
+	Reminder               *string          `json:"reminder"`
+	CountPractise          *int             `json:"count_practise"`
+	IncrementCountPractise bool             `json:"increment_count_practise,omitempty"`
+	Definitions            []WordDefinition `json:"definitions"`
 }
 
 // FromDataModel converts a data model Word and its definitions to the API model Word
@@ -32,6 +34,7 @@ func (w *Word) FromDataModel(dm *models.Word, defs []*models.WordDefinition) *Wo
 	w.Word = dm.Word
 	w.Familiarity = dm.Familiarity
 	w.Reminder = dm.Reminder
+	w.CountPractise = dm.CountPractise
 
 	if len(defs) == 0 {
 		w.Definitions = []WordDefinition{}

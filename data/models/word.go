@@ -4,10 +4,11 @@ import "time"
 
 // Word represents a word record from the database
 type Word struct {
-	Id          *int       `db:"id" json:"id"`
-	Word        *string    `db:"word" json:"word"`
-	Familiarity *string    `db:"familiarity" json:"familiarity"`
-	Reminder    *string    `db:"reminder" json:"reminder"`
-	CreatedAt   *time.Time `db:"created_at" json:"created_at"`
-	UpdatedAt   *time.Time `db:"updated_at" json:"updated_at"`
+	Id            *int       `db:"id" json:"id"`
+	Word          *string    `db:"word" json:"word"`
+	Familiarity   *string    `db:"familiarity" json:"familiarity"`
+	Reminder      *string    `db:"reminder" json:"reminder"`
+	CountPractise *int       `db:"count_practise" json:"count_practise"`
+	CreatedAt     *time.Time `db:"created_at" json:"created_at"`
+	UpdatedAt     *time.Time `db:"updated_at" json:"updated_at"`
 }
