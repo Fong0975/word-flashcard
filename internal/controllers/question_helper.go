@@ -86,12 +86,14 @@ func (qc *QuestionController) validateQuestionFields(question *models.Question, 
 
 // fetchRandomQuestionsWeighted retrieves questions using weighted bucket sampling.
 // Target ratio is 5:3:2 (unpractised : high-failure-rate : high-success-rate).
-// Buckets are fetched in reverse priority order so that underflow cascades upward:
-// high-success-rate is fetched first and capped at its quota; any shortfall flows to
-// high-failure-rate, and remaining shortfall flows to unpractised.
-// This guarantees easy questions never exceed their intended 20% and the total returned
-// equals count as long as enough questions exist across all buckets.
-// When excludeRecentDays is set, questions created within that many days are excluded from all buckets.
+//
+// Phase 1: buckets are fetched in reverse priority order with the date filter applied,
+// so recent questions are avoided and underflow cascades upward to harder buckets.
+//
+// Phase 2: if phase 1 yields fewer questions than count (e.g. because all unpractised
+// questions are recent), the remaining quota is filled from any question not already
+// selected, ignoring the date filter. This ensures the total returned equals count
+// as long as the total question pool is large enough.
 func (qc *QuestionController) fetchRandomQuestionsWeighted(count int, excludeRecentDays *int) ([]*dbModels.Question, error) {
 	var excludeBefore *time.Time
 	if excludeRecentDays != nil && *excludeRecentDays > 0 {
@@ -106,14 +108,14 @@ func (qc *QuestionController) fetchRandomQuestionsWeighted(count int, excludeRec
 	bucket1Where := applyDateFilter(squirrel.Eq{schema.QUESTION_COUNT_PRACTISE: 0}, excludeBefore)
 	bucket2Where := applyDateFilter(squirrel.And{
 		squirrel.Gt{schema.QUESTION_COUNT_PRACTISE: 0},
-		squirrel.Expr(fmt.Sprintf("%s * 2 >= %s", schema.QUESTION_COUNT_FAILURE_PRACTISE, schema.QUESTION_COUNT_PRACTISE)),
+		squirrel.Expr(fmt.Sprintf("%s * 10 > %s * 3", schema.QUESTION_COUNT_FAILURE_PRACTISE, schema.QUESTION_COUNT_PRACTISE)),
 	}, excludeBefore)
 	bucket3Where := applyDateFilter(squirrel.And{
 		squirrel.Gt{schema.QUESTION_COUNT_PRACTISE: 0},
-		squirrel.Expr(fmt.Sprintf("%s * 2 < %s", schema.QUESTION_COUNT_FAILURE_PRACTISE, schema.QUESTION_COUNT_PRACTISE)),
+		squirrel.Expr(fmt.Sprintf("%s * 10 <= %s * 3", schema.QUESTION_COUNT_FAILURE_PRACTISE, schema.QUESTION_COUNT_PRACTISE)),
 	}, excludeBefore)
 
-	// Fetch lowest-priority bucket first; underflow cascades up to harder buckets
+	// Phase 1: fetch lowest-priority bucket first; underflow cascades up to harder buckets
 	bucket3, err := qc.fetchQuestionBucket(bucket3Where, quota3)
 	if err != nil {
 		return nil, err
@@ -131,8 +133,26 @@ func (qc *QuestionController) fetchRandomQuestionsWeighted(count int, excludeRec
 		return nil, err
 	}
 
-	// Merge all buckets and shuffle to avoid ordering bias
 	combined := append(append(bucket1, bucket2...), bucket3...)
+
+	// Phase 2: fill any remaining quota with recent questions (no date filter)
+	if remaining := count - len(combined); remaining > 0 {
+		var fallbackWhere squirrel.Sqlizer
+		if len(combined) > 0 {
+			selectedIDs := make([]int, len(combined))
+			for i, q := range combined {
+				selectedIDs[i] = *q.Id
+			}
+			fallbackWhere = squirrel.NotEq{schema.QUESTION_ID: selectedIDs}
+		}
+		fallback, err := qc.fetchQuestionBucket(fallbackWhere, remaining)
+		if err != nil {
+			return nil, err
+		}
+		combined = append(combined, fallback...)
+	}
+
+	// Shuffle after all phases to avoid ordering bias
 	rand.Shuffle(len(combined), func(i, j int) {
 		combined[i], combined[j] = combined[j], combined[i]
 	})
