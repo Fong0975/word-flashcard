@@ -1110,6 +1110,9 @@ const docTemplate = `{
         "word-flashcard_internal_models.Word": {
             "type": "object",
             "properties": {
+                "count_practise": {
+                    "type": "integer"
+                },
                 "definitions": {
                     "type": "array",
                     "items": {
@@ -1121,6 +1124,9 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "increment_count_practise": {
+                    "type": "boolean"
                 },
                 "reminder": {
                     "type": "string"

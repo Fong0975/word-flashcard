@@ -237,27 +237,46 @@ func (suite *WordControllerTestSuite) TestUpdateWord() {
 	testWordID := 1
 	whereWord := squirrel.Eq{schema.WORD_ID: testWordID}
 	whereDefinitionID := squirrel.Eq{schema.WORD_DEFINITIONS_WORD_ID: []int{testWordID}}
+
+	existingCount := 5
+	updatedCount := existingCount + 1
+
+	// Word with pre-existing count_practise returned by first Select.
+	wordBeforeUpdate := getSampleWords()[0]
+	wordBeforeUpdate.CountPractise = &existingCount
+
+	// Word returned by second Select after update.
 	dbWord := getSampleWords()[0]
 	dbWord.Familiarity = utils.StrPtr("yellow")
+	dbWord.CountPractise = &updatedCount
 
-	// Mock wordPeer & wordDefinitionPeer methods as needed
+	// First Select: fetch current count_practise before update.
+	suite.mockWordPeer.EXPECT().
+		Select(mock.Anything, whereWord, mock.Anything, mock.Anything, mock.Anything).
+		Return([]*dbModels.Word{wordBeforeUpdate}, nil).Once()
+
+	// Update: verify familiarity and count_practise incremented from existing value.
 	suite.mockWordPeer.EXPECT().
 		Update(mock.MatchedBy(func(word *dbModels.Word) bool {
 			isFamiliarity := word.Familiarity != nil && *word.Familiarity == "yellow"
-			return word != nil && word.Id == nil && isFamiliarity
+			isCountPractise := word.CountPractise != nil && *word.CountPractise == updatedCount
+			return word != nil && word.Id == nil && isFamiliarity && isCountPractise
 		}), whereWord).
-		Return(int64(1), nil).Times(1)
+		Return(int64(1), nil).Once()
+
+	// Second Select: fetch updated word for the response.
 	suite.mockWordPeer.EXPECT().
 		Select(mock.Anything, whereWord, mock.Anything, mock.Anything, mock.Anything).
-		Return([]*dbModels.Word{dbWord}, nil).Times(1)
+		Return([]*dbModels.Word{dbWord}, nil).Once()
+
 	suite.mockWordDefinitionPeer.EXPECT().
 		Select(mock.Anything, whereDefinitionID, mock.Anything, mock.Anything, mock.Anything).
-		Return([]*dbModels.WordDefinition{getSampleWordDefinitions()[0]}, nil).Times(1)
+		Return([]*dbModels.WordDefinition{getSampleWordDefinitions()[0]}, nil).Once()
 
 	// Create a test HTTP request and call the handler
 	w := httptest.NewRecorder()
 	ctx, _ := gin.CreateTestContext(w)
-	requestBody := "{\"familiarity\": \"yellow\"}"
+	requestBody := "{\"familiarity\": \"yellow\", \"increment_count_practise\": true}"
 	ctx.Request = httptest.NewRequest(http.MethodPut, "/api/words/1", io.NopCloser(bytes.NewReader([]byte(requestBody))))
 	ctx.Params = gin.Params{gin.Param{Key: "id", Value: "1"}}
 	suite.wc.UpdateWord(ctx)
@@ -267,6 +286,7 @@ func (suite *WordControllerTestSuite) TestUpdateWord() {
 	// Verify the response body
 	expectedWordObj := getExpectedWords()[0]
 	expectedWordObj.Familiarity = utils.StrPtr("yellow")
+	expectedWordObj.CountPractise = &updatedCount
 	expectedWord, err := json.Marshal(expectedWordObj)
 	assert.NoError(suite.T(), err)
 	assert.Equal(suite.T(), string(expectedWord), w.Body.String())

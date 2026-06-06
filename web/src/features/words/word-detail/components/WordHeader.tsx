@@ -15,7 +15,10 @@ export const WordHeader: React.FC<WordHeaderProps> = ({
       {/* Word id and count of definitions */}
       <div className='mb-6 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400'>
         <span>Word ID: {word.id}</span>
-        <span>{word.definitions?.length || 0} definition(s)</span>
+        <span>
+          {word.definitions?.length || 0} definition(s) &middot;{' '}
+          {word.count_practise ?? 0} practise(s)
+        </span>
       </div>
 
       {/* Word Title */}

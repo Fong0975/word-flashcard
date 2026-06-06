@@ -351,14 +351,29 @@ func (wc *WordController) UpdateWord(c *gin.Context) {
 	wordModel := wordData.ToDataModel()
 	wordModel.Id = nil // To prevent updating the ID field
 
-	// ================ 3. Update data in database ================
+	// ================ 3. Conditionally increment count_practise ================
 	where := squirrel.Eq{schema.WORD_ID: wordID}
+	if wordData.IncrementCountPractise {
+		currentWords, err := wc.wordPeer.Select([]*string{}, where, nil, nil, nil)
+		if err != nil || len(currentWords) == 0 {
+			ResponseError(http.StatusInternalServerError, "Failed to fetch current word data", err, c)
+			return
+		}
+		currentCount := 0
+		if currentWords[0].CountPractise != nil {
+			currentCount = *currentWords[0].CountPractise
+		}
+		newCount := currentCount + 1
+		wordModel.CountPractise = &newCount
+	}
+
+	// ================ 4. Update data in database ================
 	if effected, err := wc.wordPeer.Update(wordModel, where); err != nil || effected == 0 {
 		ResponseError(http.StatusInternalServerError, "Failed to update data in database", err, c)
 		return
 	}
 
-	// ================ 4. Query inserted data ================
+	// ================ 5. Query updated data ================
 	whereQuery := squirrel.Eq{schema.WORD_ID: wordID}
 	orderBy := fmt.Sprintf("%s DESC", schema.WORD_ID)
 	wordEntities, err := wc.fetchWordsWithDefinitions([]*string{}, whereQuery, []*string{&orderBy}, nil, nil)
@@ -367,7 +382,7 @@ func (wc *WordController) UpdateWord(c *gin.Context) {
 		return
 	}
 
-	// ================ 3. Send response ================
+	// ================ 6. Send response ================
 	ResponseSuccess(http.StatusOK, wordEntities[0], c)
 }
 

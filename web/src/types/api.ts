@@ -36,6 +36,7 @@ export interface Word extends BaseEntity {
   readonly word: string;
   readonly familiarity: FamiliarityLevel;
   readonly reminder: string | null;
+  readonly count_practise: number;
   readonly definitions: readonly WordDefinition[];
 }
 
@@ -92,6 +93,7 @@ export interface UpdateWordRequest {
   readonly word: string;
   readonly familiarity: FamiliarityLevel;
   readonly reminder?: string;
+  readonly increment_count_practise?: boolean;
 }
 
 /**

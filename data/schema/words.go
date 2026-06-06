@@ -8,6 +8,7 @@ const (
 	WORD_WORD               = "word"
 	WORD_FAMILIARITY        = "familiarity"
 	WORD_REMINDER           = "reminder"
+	WORD_COUNT_PRACTISE     = "count_practise"
 	WORD_FAMILIARITY_RED    = "red"
 	WORD_FAMILIARITY_YELLOW = "yellow"
 	WORD_FAMILIARITY_GREEN  = "green"
@@ -41,6 +42,12 @@ func WordsTable() *domain.TableDefinition {
 				Name:    WORD_REMINDER,
 				Type:    domain.VarcharType(100),
 				NotNull: false,
+			},
+			{
+				Name:    WORD_COUNT_PRACTISE,
+				Type:    domain.IntType,
+				NotNull: true,
+				Default: "0",
 			},
 			{
 				Name:    COMMON_CREATED_AT,

@@ -28,7 +28,25 @@ export const WordQuizPage: React.FC = () => {
     [familiarityParam],
   );
 
-  const isValidConfig = !isNaN(count) && count > 0 && familiarity.length > 0;
+  const isCategoryMode =
+    searchParams.has('red') ||
+    searchParams.has('yellow') ||
+    searchParams.has('green');
+
+  const perCategoryCounts = useMemo(() => {
+    if (!isCategoryMode) {
+      return undefined;
+    }
+    return {
+      red: parseInt(searchParams.get('red') ?? '0', 10) || 0,
+      yellow: parseInt(searchParams.get('yellow') ?? '0', 10) || 0,
+      green: parseInt(searchParams.get('green') ?? '0', 10) || 0,
+    };
+  }, [isCategoryMode, searchParams]);
+
+  const isValidConfig = isCategoryMode
+    ? !!perCategoryCounts && Object.values(perCategoryCounts).some(v => v > 0)
+    : !isNaN(count) && count > 0 && familiarity.length > 0;
 
   const [pageState, setPageState] = useState<PageState>('quiz');
   const [results, setResults] = useState<WordQuizResult[]>([]);
@@ -127,6 +145,7 @@ export const WordQuizPage: React.FC = () => {
                 <WordQuiz
                   selectedFamiliarity={familiarity}
                   questionCount={count}
+                  perCategoryCounts={perCategoryCounts}
                   onQuizComplete={handleQuizComplete}
                   onBackToHome={handleBackButton}
                 />

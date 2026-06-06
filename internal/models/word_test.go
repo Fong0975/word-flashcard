@@ -63,6 +63,7 @@ func (ws *WordModelTestSuite) TestFromDataModel() {
 	if ws.NotNil(result.Familiarity) {
 		ws.Equal(fam, *result.Familiarity)
 	}
+	ws.Nil(result.CountPractise)
 
 	// Assert - Definitions
 	if ws.Len(result.Definitions, 1) {
