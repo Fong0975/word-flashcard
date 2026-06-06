@@ -103,3 +103,12 @@ func (m *MockWordController) CountWords(c *gin.Context) {
 		"status":     "ok",
 	})
 }
+
+// StatsWords mock implementation
+func (m *MockWordController) StatsWords(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"method":     "StatsWords",
+		"controller": "WordController",
+		"status":     "ok",
+	})
+}

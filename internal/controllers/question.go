@@ -338,3 +338,85 @@ func (qc *QuestionController) CountQuestions(c *gin.Context) {
 	// ================ 2. Send response ================
 	ResponseSuccess(http.StatusOK, gin.H{"count": count}, c)
 }
+
+// StatsQuestions @Summary Get question statistics
+// @Description Get question count distribution by accuracy rate in 10% intervals
+// @Tags questions
+// @Produce json
+// @Success 200 {object} models.QuestionStats "Question accuracy distribution"
+// @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to fetch questions"
+// @Router /api/questions/stats [get]
+func (qc *QuestionController) StatsQuestions(c *gin.Context) {
+	// ================ 1. Fetch minimal question data for accuracy computation ================
+	cpCol := schema.QUESTION_COUNT_PRACTISE
+	cfpCol := schema.QUESTION_COUNT_FAILURE_PRACTISE
+	questions, err := qc.questionPeer.Select([]*string{&cpCol, &cfpCol}, nil, nil, nil, nil)
+	if err != nil {
+		ResponseError(http.StatusInternalServerError, "Failed to fetch questions", err, c)
+		return
+	}
+
+	// ================ 2. Bucket questions by accuracy rate (100% → N/A) ================
+	buckets := []models.AccuracyBucket{
+		{Range: "100%", Count: 0},
+		{Range: "91-99%", Count: 0},
+		{Range: "81-90%", Count: 0},
+		{Range: "71-80%", Count: 0},
+		{Range: "61-70%", Count: 0},
+		{Range: "51-60%", Count: 0},
+		{Range: "41-50%", Count: 0},
+		{Range: "31-40%", Count: 0},
+		{Range: "21-30%", Count: 0},
+		{Range: "11-20%", Count: 0},
+		{Range: "1-10%", Count: 0},
+		{Range: "0%", Count: 0},
+		{Range: "N/A", Count: 0},
+	}
+
+	for _, q := range questions {
+		if q.CountPractise == nil || *q.CountPractise == 0 {
+			buckets[12].Count++
+			continue
+		}
+		successCount := *q.CountPractise
+		if q.CountFailurePractise != nil {
+			successCount -= *q.CountFailurePractise
+		}
+		if successCount < 0 {
+			successCount = 0
+		}
+		accuracy := successCount * 100 / *q.CountPractise
+
+		switch {
+		case accuracy == 100:
+			buckets[0].Count++
+		case accuracy >= 91:
+			buckets[1].Count++
+		case accuracy >= 81:
+			buckets[2].Count++
+		case accuracy >= 71:
+			buckets[3].Count++
+		case accuracy >= 61:
+			buckets[4].Count++
+		case accuracy >= 51:
+			buckets[5].Count++
+		case accuracy >= 41:
+			buckets[6].Count++
+		case accuracy >= 31:
+			buckets[7].Count++
+		case accuracy >= 21:
+			buckets[8].Count++
+		case accuracy >= 11:
+			buckets[9].Count++
+		case accuracy >= 1:
+			buckets[10].Count++
+		default:
+			buckets[11].Count++
+		}
+	}
+
+	// ================ 3. Send response ================
+	ResponseSuccess(http.StatusOK, models.QuestionStats{
+		AccuracyDistribution: buckets,
+	}, c)
+}
