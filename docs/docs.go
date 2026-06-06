@@ -343,6 +343,31 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/questions/stats": {
+            "get": {
+                "description": "Get question count distribution by accuracy rate in 10% intervals",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "questions"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Question accuracy distribution",
+                        "schema": {
+                            "$ref": "#/definitions/models.QuestionStats"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to fetch questions",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/questions/{id}": {
             "get": {
                 "description": "Get the question by its ID",
@@ -827,6 +852,31 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/words/stats": {
+            "get": {
+                "description": "Get word count distribution by familiarity level",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "words"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Word familiarity distribution",
+                        "schema": {
+                            "$ref": "#/definitions/models.WordStats"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to count words",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/words/{id}": {
             "put": {
                 "description": "Update an existing word's properties like familiarity level",
@@ -919,6 +969,50 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "models.AccuracyBucket": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "range": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.QuestionStats": {
+            "type": "object",
+            "properties": {
+                "accuracy_distribution": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.AccuracyBucket"
+                    }
+                }
+            }
+        },
+        "models.WordFamiliarityDistribution": {
+            "type": "object",
+            "properties": {
+                "green": {
+                    "type": "integer"
+                },
+                "red": {
+                    "type": "integer"
+                },
+                "yellow": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.WordStats": {
+            "type": "object",
+            "properties": {
+                "familiarity_distribution": {
+                    "$ref": "#/definitions/models.WordFamiliarityDistribution"
+                }
+            }
+        },
         "word-flashcard_internal_models.DefinitionInfo": {
             "type": "object",
             "properties": {

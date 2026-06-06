@@ -233,6 +233,57 @@ func (suite *QuestionControllerTestSuite) TestCountQuestions() {
 	assert.Equal(suite.T(), expected, w.Body.String())
 }
 
+// TestStatsQuestions tests the StatsQuestions handler
+func (suite *QuestionControllerTestSuite) TestStatsQuestions() {
+	// Select receives only the two count columns; match by value, not pointer address.
+	suite.mockQuestionPeer.EXPECT().
+		Select(
+			mock.MatchedBy(func(cols []*string) bool {
+				return len(cols) == 2 &&
+					*cols[0] == schema.QUESTION_COUNT_PRACTISE &&
+					*cols[1] == schema.QUESTION_COUNT_FAILURE_PRACTISE
+			}),
+			(squirrel.Sqlizer)(nil),
+			([]*string)(nil),
+			(*uint64)(nil),
+			(*uint64)(nil),
+		).
+		Return(getSampleQuestions(), nil).Times(1)
+
+	// Create a test HTTP request and call the handler
+	w := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(w)
+	ctx.Request = httptest.NewRequest(http.MethodGet, "/api/questions/stats", nil)
+	suite.controller.StatsQuestions(ctx)
+
+	// Verify the response status code
+	assert.Equal(suite.T(), http.StatusOK, w.Code)
+	// Verify the response body
+	// Q1 (10-2)*100/10=80 → "71-80%", Q2 (8-0)*100/8=100 → "100%"
+	// Q3 (2-1)*100/2=50  → "41-50%", Q4 (15-4)*100/15=73 → "71-80%"
+	// Q5 (3-0)*100/3=100 → "100%"
+	expected := models.QuestionStats{
+		AccuracyDistribution: []models.AccuracyBucket{
+			{Range: "100%", Count: 2},
+			{Range: "91-99%", Count: 0},
+			{Range: "81-90%", Count: 0},
+			{Range: "71-80%", Count: 2},
+			{Range: "61-70%", Count: 0},
+			{Range: "51-60%", Count: 0},
+			{Range: "41-50%", Count: 1},
+			{Range: "31-40%", Count: 0},
+			{Range: "21-30%", Count: 0},
+			{Range: "11-20%", Count: 0},
+			{Range: "1-10%", Count: 0},
+			{Range: "0%", Count: 0},
+			{Range: "N/A", Count: 0},
+		},
+	}
+	expectedJSON, err := json.Marshal(expected)
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), string(expectedJSON), w.Body.String())
+}
+
 // getSampleQuestions return sample Question for testing
 func getSampleQuestions() []*dbModels.Question {
 	modifyTime := time.Now()

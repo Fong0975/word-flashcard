@@ -552,3 +552,38 @@ func (wc *WordController) CountWords(c *gin.Context) {
 	// ================ 3. Send response ================
 	ResponseSuccess(http.StatusOK, gin.H{"count": count}, c)
 }
+
+// StatsWords @Summary Get word statistics
+// @Description Get word count distribution by familiarity level
+// @Tags words
+// @Produce json
+// @Success 200 {object} models.WordStats "Word familiarity distribution"
+// @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to count words"
+// @Router /api/words/stats [get]
+func (wc *WordController) StatsWords(c *gin.Context) {
+	// ================ 1. Count per familiarity level ================
+	red, err := wc.wordPeer.Count(squirrel.Eq{schema.WORD_FAMILIARITY: schema.WORD_FAMILIARITY_RED})
+	if err != nil {
+		ResponseError(http.StatusInternalServerError, "Failed to count words", err, c)
+		return
+	}
+	yellow, err := wc.wordPeer.Count(squirrel.Eq{schema.WORD_FAMILIARITY: schema.WORD_FAMILIARITY_YELLOW})
+	if err != nil {
+		ResponseError(http.StatusInternalServerError, "Failed to count words", err, c)
+		return
+	}
+	green, err := wc.wordPeer.Count(squirrel.Eq{schema.WORD_FAMILIARITY: schema.WORD_FAMILIARITY_GREEN})
+	if err != nil {
+		ResponseError(http.StatusInternalServerError, "Failed to count words", err, c)
+		return
+	}
+
+	// ================ 2. Send response ================
+	ResponseSuccess(http.StatusOK, models.WordStats{
+		FamiliarityDistribution: models.WordFamiliarityDistribution{
+			Red:    red,
+			Yellow: yellow,
+			Green:  green,
+		},
+	}, c)
+}

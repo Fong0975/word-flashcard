@@ -24,6 +24,7 @@ interface EntityReviewTabProps<
   readonly additionalContent?: ReactNode;
   readonly quickFiltersContent?: ReactNode;
   readonly toolbarContent?: ReactNode;
+  readonly onTotalCountClick?: () => void;
 }
 
 /**
@@ -64,6 +65,7 @@ export const EntityReviewTab = <T extends BaseEntity>({
   additionalContent,
   quickFiltersContent,
   toolbarContent,
+  onTotalCountClick,
   className = '',
 }: EntityReviewTabProps<T>) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -336,9 +338,18 @@ export const EntityReviewTab = <T extends BaseEntity>({
         <div>
           {totalCount > 0 && (
             <div className='mb-2 flex justify-end'>
-              <span className='text-xs text-gray-400 dark:text-gray-500'>
-                {totalCount} {config.entityNamePlural.toLowerCase()} total
-              </span>
+              {onTotalCountClick ? (
+                <button
+                  onClick={onTotalCountClick}
+                  className='text-xs text-gray-400 underline-offset-2 hover:text-gray-600 hover:underline dark:text-gray-500 dark:hover:text-gray-300'
+                >
+                  {totalCount} {config.entityNamePlural.toLowerCase()} total
+                </button>
+              ) : (
+                <span className='text-xs text-gray-400 dark:text-gray-500'>
+                  {totalCount} {config.entityNamePlural.toLowerCase()} total
+                </span>
+              )}
             </div>
           )}
           <div className='space-y-3'>

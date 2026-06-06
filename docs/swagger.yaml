@@ -1,5 +1,33 @@
 basePath: /
 definitions:
+  models.AccuracyBucket:
+    properties:
+      count:
+        type: integer
+      range:
+        type: string
+    type: object
+  models.QuestionStats:
+    properties:
+      accuracy_distribution:
+        items:
+          $ref: '#/definitions/models.AccuracyBucket'
+        type: array
+    type: object
+  models.WordFamiliarityDistribution:
+    properties:
+      green:
+        type: integer
+      red:
+        type: integer
+      yellow:
+        type: integer
+    type: object
+  models.WordStats:
+    properties:
+      familiarity_distribution:
+        $ref: '#/definitions/models.WordFamiliarityDistribution'
+    type: object
   word-flashcard_internal_models.DefinitionInfo:
     properties:
       definition:
@@ -448,6 +476,22 @@ paths:
             $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
       tags:
       - questions
+  /api/questions/stats:
+    get:
+      description: Get question count distribution by accuracy rate in 10% intervals
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Question accuracy distribution
+          schema:
+            $ref: '#/definitions/models.QuestionStats'
+        "500":
+          description: Internal server error - Failed to fetch questions
+          schema:
+            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+      tags:
+      - questions
   /api/words:
     get:
       consumes:
@@ -762,6 +806,22 @@ paths:
             $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
         "500":
           description: Internal server error - Failed to fetch data from database
+          schema:
+            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+      tags:
+      - words
+  /api/words/stats:
+    get:
+      description: Get word count distribution by familiarity level
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Word familiarity distribution
+          schema:
+            $ref: '#/definitions/models.WordStats'
+        "500":
+          description: Internal server error - Failed to count words
           schema:
             $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
       tags:

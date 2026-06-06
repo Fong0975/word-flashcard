@@ -1,4 +1,10 @@
-import React, { useMemo, useCallback, useEffect, useRef } from 'react';
+import React, {
+  useMemo,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { useQuestions } from '../../hooks/useQuestions';
@@ -12,6 +18,7 @@ import { Question } from '../../types/api';
 
 import { QuestionCard } from './QuestionCard';
 import { QuestionFormModal } from './question-form/QuestionFormModal';
+import { QuestionStatsModal } from './QuestionStatsModal';
 
 const SORT_OPTIONS = [
   { label: 'Default', value: '' },
@@ -33,6 +40,7 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const modalManager = useModalManager();
+  const [isStatsOpen, setIsStatsOpen] = useState(false);
 
   const urlPage = useMemo(() => {
     const p = parseInt(searchParams.get('page') || '1', 10);
@@ -224,6 +232,7 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({
       }}
       toolbarContent={sortToolbar}
       entityListHook={patchedQuestionsHook}
+      onTotalCountClick={() => setIsStatsOpen(true)}
       renderCard={(question, index) => (
         <QuestionCard
           key={question.id}
@@ -234,6 +243,12 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({
       )}
       additionalContent={
         <>
+          {/* Question Stats Modal */}
+          <QuestionStatsModal
+            isOpen={isStatsOpen}
+            onClose={() => setIsStatsOpen(false)}
+          />
+
           {/* Add Question Modal */}
           <QuestionFormModal
             isOpen={modalManager.isModalOpen(MODAL_NAMES.ADD)}

@@ -42,10 +42,12 @@ export const API_ENDPOINTS = {
     `/words/definition/${definitionId}`,
   deleteDefinition: (definitionId: number) =>
     `/words/definition/${definitionId}`,
+  wordsStats: '/words/stats',
   questions: '/questions',
   questionById: (questionId: number) => `/questions/${questionId}`,
   questionsRandom: '/questions/random',
   questionsCount: '/questions/count',
+  questionsStats: '/questions/stats',
 } as const;
 
 // Dictionary API endpoints
