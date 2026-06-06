@@ -362,7 +362,7 @@ func (suite *QuestionHelperTestSuite) TestFetchRandomQuestionsWeighted() {
 		Return([]*dbModels.Question{sampleQuestions[3], sampleQuestions[4]}, nil).Times(1)
 
 	// Poke the method
-	result, err := controller.fetchRandomQuestionsWeighted(5)
+	result, err := controller.fetchRandomQuestionsWeighted(5, nil)
 
 	// Verify the result contains all expected questions (order varies due to shuffle)
 	assert.NoError(suite.T(), err)

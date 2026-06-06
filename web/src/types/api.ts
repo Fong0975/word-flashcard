@@ -221,6 +221,7 @@ export interface WordsRandomRequest {
  */
 export interface QuestionsRandomRequest {
   readonly count: number;
+  readonly exclude_recent_days?: number;
   readonly filter?: {
     readonly minPracticeCount?: number;
     readonly maxFailureRate?: number;

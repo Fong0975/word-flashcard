@@ -63,5 +63,6 @@ func (q *Question) ToDataModel() *models.Question {
 
 // QuestionRandomRequest represents the request structure for random questions
 type QuestionRandomRequest struct {
-	Count int `json:"count" binding:"required,min=1,max=1000"`
+	Count             int  `json:"count" binding:"required,min=1,max=1000"`
+	ExcludeRecentDays *int `json:"exclude_recent_days"`
 }

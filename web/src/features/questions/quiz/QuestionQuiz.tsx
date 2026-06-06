@@ -56,6 +56,7 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
 
         const request: QuestionsRandomRequest = {
           count: questionCount,
+          exclude_recent_days: 3,
         };
 
         const fetchedQuestions = await apiService.getRandomQuestions(request);
