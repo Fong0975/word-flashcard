@@ -82,6 +82,8 @@ definitions:
         maximum: 1000
         minimum: 1
         type: integer
+      exclude_recent_days:
+        type: integer
     required:
     - count
     type: object
