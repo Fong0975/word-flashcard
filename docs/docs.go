@@ -1047,6 +1047,9 @@ const docTemplate = `{
                     "type": "integer",
                     "maximum": 1000,
                     "minimum": 1
+                },
+                "exclude_recent_days": {
+                    "type": "integer"
                 }
             }
         },

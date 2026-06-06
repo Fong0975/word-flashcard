@@ -10,6 +10,16 @@ import {
 } from '../../../types/api';
 import { apiService } from '../../../lib/api';
 
+const formatAccuracy = (
+  countPractise: number,
+  countFailurePractise: number,
+): string => {
+  if (countPractise === 0) {
+    return 'No attempts yet';
+  }
+  return `${Math.round(((countPractise - countFailurePractise) / countPractise) * 100)}%`;
+};
+
 export interface NextActionProps {
   onClick: () => void;
   label: string;
@@ -27,6 +37,8 @@ interface QuestionQuizProps {
 
 type QuizState = 'loading' | 'quiz' | 'completed';
 
+type ShuffledOption = { key: string; value: string };
+
 export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
   questionCount,
   onQuizComplete,
@@ -41,6 +53,8 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [showAnswer, setShowAnswer] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [shuffledOptions, setShuffledOptions] = useState<ShuffledOption[]>([]);
+  const [shuffledAnswer, setShuffledAnswer] = useState<string>('');
 
   const currentQuestion = questions[currentQuestionIndex];
   const completedCount = currentQuestionIndex + (showAnswer ? 1 : 0);
@@ -56,6 +70,7 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
 
         const request: QuestionsRandomRequest = {
           count: questionCount,
+          exclude_recent_days: 3,
         };
 
         const fetchedQuestions = await apiService.getRandomQuestions(request);
@@ -111,6 +126,45 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showAnswer, selectedAnswer, currentQuestionIndex, questions.length]);
 
+  useEffect(() => {
+    if (!currentQuestion) {
+      return;
+    }
+
+    const opts: Array<{ originalKey: string; value: string }> = [];
+    if (currentQuestion.option_a) {
+      opts.push({ originalKey: 'A', value: currentQuestion.option_a });
+    }
+    if (currentQuestion.option_b) {
+      opts.push({ originalKey: 'B', value: currentQuestion.option_b });
+    }
+    if (currentQuestion.option_c) {
+      opts.push({ originalKey: 'C', value: currentQuestion.option_c });
+    }
+    if (currentQuestion.option_d) {
+      opts.push({ originalKey: 'D', value: currentQuestion.option_d });
+    }
+
+    for (let i = opts.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [opts[i], opts[j]] = [opts[j], opts[i]];
+    }
+
+    const originalAnswer = currentQuestion.answer.toUpperCase();
+    const labels = ['A', 'B', 'C', 'D'];
+    let newAnswer = originalAnswer;
+    const relabeled = opts.map((opt, idx) => {
+      const newKey = labels[idx];
+      if (opt.originalKey === originalAnswer) {
+        newAnswer = newKey;
+      }
+      return { key: newKey, value: opt.value };
+    });
+
+    setShuffledOptions(relabeled);
+    setShuffledAnswer(newAnswer);
+  }, [currentQuestion]);
+
   const handleAnswerSelect = (answer: string) => {
     setSelectedAnswer(answer);
   };
@@ -120,7 +174,7 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
       return;
     }
 
-    const isCorrect = selectedAnswer === currentQuestion.answer;
+    const isCorrect = selectedAnswer === shuffledAnswer;
 
     const newResult: QuestionQuizResult = {
       question: currentQuestion,
@@ -185,24 +239,6 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
     }
   };
 
-  // Get available options (filter out empty options)
-  const getAvailableOptions = (question: Question) => {
-    const options = [];
-    if (question.option_a) {
-      options.push({ key: 'A', value: question.option_a });
-    }
-    if (question.option_b) {
-      options.push({ key: 'B', value: question.option_b });
-    }
-    if (question.option_c) {
-      options.push({ key: 'C', value: question.option_c });
-    }
-    if (question.option_d) {
-      options.push({ key: 'D', value: question.option_d });
-    }
-    return options;
-  };
-
   if (error) {
     return (
       <div className='mx-auto max-w-2xl py-12 text-center'>
@@ -235,8 +271,7 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
     );
   }
 
-  if (state === 'quiz' && currentQuestion) {
-    const availableOptions = getAvailableOptions(currentQuestion);
+  if (state === 'quiz' && currentQuestion && shuffledOptions.length > 0) {
     const isCorrect = results[results.length - 1]?.isCorrect ?? false;
 
     return (
@@ -263,13 +298,20 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
             {/* Question Display */}
             <div className='flex flex-1 flex-col'>
               <div className='mb-8'>
-                <h1 className='mb-6 text-xl font-bold leading-relaxed text-gray-900 dark:text-white lg:text-2xl'>
+                <h1 className='mb-1 text-xl font-bold leading-relaxed text-gray-900 dark:text-white lg:text-2xl'>
                   {currentQuestion.question}
                 </h1>
+                <p className='mb-6 text-xs text-gray-400 dark:text-gray-500'>
+                  Accuracy:{' '}
+                  {formatAccuracy(
+                    currentQuestion.count_practise,
+                    currentQuestion.count_failure_practise,
+                  )}
+                </p>
 
                 {/* Options */}
                 <div className='space-y-3'>
-                  {availableOptions.map(option => (
+                  {shuffledOptions.map(option => (
                     <label
                       key={option.key}
                       className={`flex cursor-pointer items-start space-x-3 rounded-lg border p-3 transition-colors lg:p-4 ${
@@ -321,14 +363,14 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
 
                 {/* All Options (with correct answer highlighted) */}
                 <div className='mb-6 space-y-2'>
-                  {availableOptions.map(option => {
+                  {shuffledOptions.map(option => {
                     const isUserWrongAnswer =
                       option.key === selectedAnswer && !isCorrect;
                     return (
                       <div
                         key={option.key}
                         className={`flex items-start space-x-3 rounded-lg p-3 ${
-                          option.key === currentQuestion.answer
+                          option.key === shuffledAnswer
                             ? 'border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20'
                             : isUserWrongAnswer
                               ? 'border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20'
@@ -337,7 +379,7 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
                       >
                         <span
                           className={`inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-sm font-medium ${
-                            option.key === currentQuestion.answer
+                            option.key === shuffledAnswer
                               ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                               : isUserWrongAnswer
                                 ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
@@ -348,7 +390,7 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
                         </span>
                         <span className='flex-1 leading-relaxed text-gray-700 dark:text-gray-300'>
                           {option.value}
-                          {option.key === currentQuestion.answer && (
+                          {option.key === shuffledAnswer && (
                             <span className='ml-2 font-medium text-green-600 dark:text-green-400'>
                               ✓ Correct
                             </span>
@@ -363,6 +405,19 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
                     );
                   })}
                 </div>
+                <p className='text-xs text-gray-400 dark:text-gray-500'>
+                  Accuracy:{' '}
+                  {formatAccuracy(
+                    currentQuestion.count_practise,
+                    currentQuestion.count_failure_practise,
+                  )}{' '}
+                  →{' '}
+                  {formatAccuracy(
+                    results[results.length - 1].updatedStats.countPractise,
+                    results[results.length - 1].updatedStats
+                      .countFailurePractise,
+                  )}
+                </p>
               </div>
 
               {/* Reference */}

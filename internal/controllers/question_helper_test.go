@@ -334,7 +334,9 @@ func (suite *QuestionHelperTestSuite) TestFetchRandomQuestionsWeighted() {
 	//   quota1 = 5*5/10 = 2 (unpractised)
 	//   quota2 = 5*3/10 = 1 (high-failure-rate)
 	//   quota3 = 5-2-1  = 2 (high-success-rate)
-	// Each bucket fills its quota exactly so no cascade occurs.
+	// Buckets are fetched in reverse priority order (bucket3 → bucket2 → bucket1)
+	// so underflow cascades upward to harder buckets. Each bucket fills its quota
+	// exactly here so no cascade occurs.
 	mockPeer := mocks.NewMockQuestionPeer(suite.T())
 	controller := NewQuestionController(mockPeer)
 	sampleQuestions := getSampleQuestions()
@@ -346,23 +348,23 @@ func (suite *QuestionHelperTestSuite) TestFetchRandomQuestionsWeighted() {
 	limit2 := uint64(1)
 	limit3 := uint64(2)
 
-	// Bucket 1: unpractised (count_practise = 0) → returns 2 items, fills quota exactly
+	// Bucket 1: unpractised (count_practise = 0) → fetched last, returns 2 items
 	mockPeer.EXPECT().
 		Select(mock.Anything, squirrel.Eq{schema.QUESTION_COUNT_PRACTISE: 0}, randomOrderMatcher, &limit1, (*uint64)(nil)).
 		Return([]*dbModels.Question{sampleQuestions[0], sampleQuestions[1]}, nil).Times(1)
 
-	// Bucket 2: high failure rate → returns 1 item, fills quota exactly
+	// Bucket 2: high failure rate → fetched second, returns 1 item
 	mockPeer.EXPECT().
 		Select(mock.Anything, mock.Anything, randomOrderMatcher, &limit2, (*uint64)(nil)).
 		Return([]*dbModels.Question{sampleQuestions[2]}, nil).Times(1)
 
-	// Bucket 3: high success rate → returns 2 items, fills quota exactly
+	// Bucket 3: high success rate → fetched first, returns 2 items
 	mockPeer.EXPECT().
 		Select(mock.Anything, mock.Anything, randomOrderMatcher, &limit3, (*uint64)(nil)).
 		Return([]*dbModels.Question{sampleQuestions[3], sampleQuestions[4]}, nil).Times(1)
 
 	// Poke the method
-	result, err := controller.fetchRandomQuestionsWeighted(5)
+	result, err := controller.fetchRandomQuestionsWeighted(5, nil)
 
 	// Verify the result contains all expected questions (order varies due to shuffle)
 	assert.NoError(suite.T(), err)

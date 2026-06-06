@@ -168,7 +168,7 @@ func (qc *QuestionController) RandomQuestions(c *gin.Context) {
 
 	// ================ 2. Fetch data from database ================
 	// Use weighted bucket sampling: unpractised (50%) > high-failure-rate (30%) > high-success-rate (20%)
-	questions, err := qc.fetchRandomQuestionsWeighted(randomReq.Count)
+	questions, err := qc.fetchRandomQuestionsWeighted(randomReq.Count, randomReq.ExcludeRecentDays)
 	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", err, c)
 		return
