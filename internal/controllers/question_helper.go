@@ -85,8 +85,12 @@ func (qc *QuestionController) validateQuestionFields(question *models.Question, 
 }
 
 // fetchRandomQuestionsWeighted retrieves questions using weighted bucket sampling.
-// Buckets are filled in priority order (5:3:2 ratio): unpractised > high-failure-rate > high-success-rate.
-// If a higher-priority bucket has fewer records than its quota, the remainder cascades to the next bucket.
+// Target ratio is 5:3:2 (unpractised : high-failure-rate : high-success-rate).
+// Buckets are fetched in reverse priority order so that underflow cascades upward:
+// high-success-rate is fetched first and capped at its quota; any shortfall flows to
+// high-failure-rate, and remaining shortfall flows to unpractised.
+// This guarantees easy questions never exceed their intended 20% and the total returned
+// equals count as long as enough questions exist across all buckets.
 // When excludeRecentDays is set, questions created within that many days are excluded from all buckets.
 func (qc *QuestionController) fetchRandomQuestionsWeighted(count int, excludeRecentDays *int) ([]*dbModels.Question, error) {
 	var excludeBefore *time.Time
@@ -99,30 +103,30 @@ func (qc *QuestionController) fetchRandomQuestionsWeighted(count int, excludeRec
 	quota2 := count * 3 / 10
 	quota3 := count - quota1 - quota2
 
-	// Bucket 1: unpractised (count_practise = 0)
-	bucket1, err := qc.fetchQuestionBucket(applyDateFilter(squirrel.Eq{schema.QUESTION_COUNT_PRACTISE: 0}, excludeBefore), quota1)
-	if err != nil {
-		return nil, err
-	}
-	quota2 += quota1 - len(bucket1)
-
-	// Bucket 2: practised with high failure rate (count_failure_practise * 2 >= count_practise, i.e. >= 50%)
-	highFailureWhere := applyDateFilter(squirrel.And{
+	bucket1Where := applyDateFilter(squirrel.Eq{schema.QUESTION_COUNT_PRACTISE: 0}, excludeBefore)
+	bucket2Where := applyDateFilter(squirrel.And{
 		squirrel.Gt{schema.QUESTION_COUNT_PRACTISE: 0},
 		squirrel.Expr(fmt.Sprintf("%s * 2 >= %s", schema.QUESTION_COUNT_FAILURE_PRACTISE, schema.QUESTION_COUNT_PRACTISE)),
 	}, excludeBefore)
-	bucket2, err := qc.fetchQuestionBucket(highFailureWhere, quota2)
-	if err != nil {
-		return nil, err
-	}
-	quota3 += quota2 - len(bucket2)
-
-	// Bucket 3: practised with high success rate (count_failure_practise * 2 < count_practise, i.e. < 50%)
-	highSuccessWhere := applyDateFilter(squirrel.And{
+	bucket3Where := applyDateFilter(squirrel.And{
 		squirrel.Gt{schema.QUESTION_COUNT_PRACTISE: 0},
 		squirrel.Expr(fmt.Sprintf("%s * 2 < %s", schema.QUESTION_COUNT_FAILURE_PRACTISE, schema.QUESTION_COUNT_PRACTISE)),
 	}, excludeBefore)
-	bucket3, err := qc.fetchQuestionBucket(highSuccessWhere, quota3)
+
+	// Fetch lowest-priority bucket first; underflow cascades up to harder buckets
+	bucket3, err := qc.fetchQuestionBucket(bucket3Where, quota3)
+	if err != nil {
+		return nil, err
+	}
+	quota2 += quota3 - len(bucket3)
+
+	bucket2, err := qc.fetchQuestionBucket(bucket2Where, quota2)
+	if err != nil {
+		return nil, err
+	}
+	quota1 += quota2 - len(bucket2)
+
+	bucket1, err := qc.fetchQuestionBucket(bucket1Where, quota1)
 	if err != nil {
 		return nil, err
 	}
