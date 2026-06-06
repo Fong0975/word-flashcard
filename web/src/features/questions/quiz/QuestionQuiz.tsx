@@ -10,6 +10,16 @@ import {
 } from '../../../types/api';
 import { apiService } from '../../../lib/api';
 
+const formatAccuracy = (
+  countPractise: number,
+  countFailurePractise: number,
+): string => {
+  if (countPractise === 0) {
+    return 'No attempts yet';
+  }
+  return `${Math.round(((countPractise - countFailurePractise) / countPractise) * 100)}%`;
+};
+
 export interface NextActionProps {
   onClick: () => void;
   label: string;
@@ -264,9 +274,16 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
             {/* Question Display */}
             <div className='flex flex-1 flex-col'>
               <div className='mb-8'>
-                <h1 className='mb-6 text-xl font-bold leading-relaxed text-gray-900 dark:text-white lg:text-2xl'>
+                <h1 className='mb-1 text-xl font-bold leading-relaxed text-gray-900 dark:text-white lg:text-2xl'>
                   {currentQuestion.question}
                 </h1>
+                <p className='mb-6 text-xs text-gray-400 dark:text-gray-500'>
+                  Accuracy:{' '}
+                  {formatAccuracy(
+                    currentQuestion.count_practise,
+                    currentQuestion.count_failure_practise,
+                  )}
+                </p>
 
                 {/* Options */}
                 <div className='space-y-3'>
@@ -364,6 +381,19 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
                     );
                   })}
                 </div>
+                <p className='text-xs text-gray-400 dark:text-gray-500'>
+                  Accuracy:{' '}
+                  {formatAccuracy(
+                    currentQuestion.count_practise,
+                    currentQuestion.count_failure_practise,
+                  )}{' '}
+                  →{' '}
+                  {formatAccuracy(
+                    results[results.length - 1].updatedStats.countPractise,
+                    results[results.length - 1].updatedStats
+                      .countFailurePractise,
+                  )}
+                </p>
               </div>
 
               {/* Reference */}
