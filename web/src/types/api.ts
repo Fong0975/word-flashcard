@@ -405,6 +405,27 @@ export interface ApiService extends WordsApiService, QuestionsApiService {
   ) => Promise<{ version: string }>;
 }
 
+// ===== STATS TYPES =====
+
+export interface WordFamiliarityDistribution {
+  readonly red: number;
+  readonly yellow: number;
+  readonly green: number;
+}
+
+export interface WordStatsResponse {
+  readonly familiarity_distribution: WordFamiliarityDistribution;
+}
+
+export interface AccuracyBucket {
+  readonly range: string;
+  readonly count: number;
+}
+
+export interface QuestionStatsResponse {
+  readonly accuracy_distribution: readonly AccuracyBucket[];
+}
+
 // ===== ERROR TYPES =====
 
 /**

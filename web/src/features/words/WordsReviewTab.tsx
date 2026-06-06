@@ -25,6 +25,7 @@ import { SearchCondition, SearchOperation } from '../../types/base';
 import { WordFormModal } from './word-form';
 import { WordCard } from './WordCard';
 import { QuickFilterButton } from './QuickFilterButton';
+import { WordStatsModal } from './WordStatsModal';
 
 interface WordsReviewTabProps extends BaseComponentProps {}
 
@@ -53,6 +54,7 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
   const [searchParams, setSearchParams] = useSearchParams();
   const modalManager = useModalManager();
   const { toasts, showError, showWarning, removeToast } = useToast();
+  const [isStatsOpen, setIsStatsOpen] = useState(false);
 
   // Active quick filter keys — restored from sessionStorage on mount.
   const [activeFilters, setActiveFilters] = useState<string[]>(() => {
@@ -335,6 +337,7 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
           </div>
         }
         entityListHook={patchedWordsHook}
+        onTotalCountClick={() => setIsStatsOpen(true)}
         renderCard={(word, index) => (
           <WordCard
             key={word.id}
@@ -346,6 +349,12 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
         )}
         additionalContent={
           <>
+            {/* Word Stats Modal */}
+            <WordStatsModal
+              isOpen={isStatsOpen}
+              onClose={() => setIsStatsOpen(false)}
+            />
+
             {/* Add Word Modal */}
             <WordFormModal
               isOpen={modalManager.isModalOpen(MODAL_NAMES.ADD)}

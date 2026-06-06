@@ -5,11 +5,13 @@ import {
   UpdateWordRequest,
   WordsSearchParams,
   WordsRandomRequest,
+  WordStatsResponse,
   Question,
   CreateQuestionRequest,
   UpdateQuestionRequest,
   QuestionsSearchParams,
   QuestionsRandomRequest,
+  QuestionStatsResponse,
 } from '../types/api';
 import {
   SearchFilter,
@@ -408,6 +410,19 @@ class ApiService {
     options?: ApiRequestOptions,
   ): Promise<{ count: number }> {
     return this.get<{ count: number }>(API_ENDPOINTS.questionsCount, options);
+  }
+
+  async getWordStats(options?: ApiRequestOptions): Promise<WordStatsResponse> {
+    return this.get<WordStatsResponse>(API_ENDPOINTS.wordsStats, options);
+  }
+
+  async getQuestionStats(
+    options?: ApiRequestOptions,
+  ): Promise<QuestionStatsResponse> {
+    return this.get<QuestionStatsResponse>(
+      API_ENDPOINTS.questionsStats,
+      options,
+    );
   }
 
   // Dictionary API methods
