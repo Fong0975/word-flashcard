@@ -28,6 +28,7 @@ export interface UseWordsOptions {
   autoFetch?: boolean;
   /** Additional filter conditions to AND with keyword search results */
   extraConditions?: SearchCondition[];
+  sort?: string;
 }
 
 export interface UseWordsReturn
@@ -40,6 +41,7 @@ export const useWords = (options: UseWordsOptions = {}): UseWordsReturn => {
     initialSearchTerm = '',
     autoFetch = true,
     extraConditions,
+    sort,
   } = options;
 
   // Create configuration for the generic hook
@@ -47,7 +49,8 @@ export const useWords = (options: UseWordsOptions = {}): UseWordsReturn => {
     (): UseEntityListOptions<Word> => ({
       entityName: 'words',
       apiService: {
-        fetchList: params => apiService.searchWords(params),
+        fetchList: params =>
+          apiService.searchWords({ ...params, sort: sort || undefined }),
         getCount: searchFilter => apiService.getWordsCount(searchFilter),
       },
       searchConfig: {
@@ -106,7 +109,14 @@ export const useWords = (options: UseWordsOptions = {}): UseWordsReturn => {
       initialSearchTerm,
       autoFetch,
     }),
-    [itemsPerPage, initialPage, initialSearchTerm, autoFetch, extraConditions],
+    [
+      itemsPerPage,
+      initialPage,
+      initialSearchTerm,
+      autoFetch,
+      extraConditions,
+      sort,
+    ],
   );
 
   // Use the generic hook

@@ -88,7 +88,7 @@ export const QuizSetupModal: React.FC<QuizSetupModalProps> = ({
       ? [FamiliarityLevel.RED, FamiliarityLevel.YELLOW, FamiliarityLevel.GREEN]
       : [],
   );
-  const [countMode, setCountMode] = useState<CountMode>('total');
+  const [countMode, setCountMode] = useState<CountMode>('category');
   const [categoryCounts, setCategoryCounts] = useState<
     Record<FamiliarityLevel, number>
   >(defaultCategoryCounts());
@@ -201,7 +201,7 @@ export const QuizSetupModal: React.FC<QuizSetupModalProps> = ({
         FamiliarityLevel.YELLOW,
         FamiliarityLevel.GREEN,
       ]);
-      setCountMode('total');
+      setCountMode('category');
       setCategoryCounts(defaultCategoryCounts());
       setCategoryInputs(defaultCategoryInputs());
     }

@@ -191,6 +191,7 @@ export interface WordsSearchParams extends PaginationParams {
   readonly searchFilter?: SearchFilter;
   readonly familiarity?: readonly FamiliarityLevel[];
   readonly hasDefinitions?: boolean;
+  readonly sort?: string;
 }
 
 /**
@@ -413,8 +414,14 @@ export interface WordFamiliarityDistribution {
   readonly green: number;
 }
 
+export interface PracticeCountBucket {
+  readonly range: string;
+  readonly count: number;
+}
+
 export interface WordStatsResponse {
   readonly familiarity_distribution: WordFamiliarityDistribution;
+  readonly practice_count_distribution: readonly PracticeCountBucket[];
 }
 
 export interface AccuracyBucket {

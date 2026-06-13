@@ -356,7 +356,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Question accuracy distribution",
                         "schema": {
-                            "$ref": "#/definitions/models.QuestionStats"
+                            "$ref": "#/definitions/word-flashcard_internal_models.QuestionStats"
                         }
                     },
                     "500": {
@@ -825,6 +825,12 @@ const docTemplate = `{
                         "description": "Number of records to skip (default: 0)",
                         "name": "offset",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort columns, comma-separated. Format: col,-col. Allowed: id,word,familiarity,count_practise,created_at",
+                        "name": "sort",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -854,7 +860,7 @@ const docTemplate = `{
         },
         "/api/words/stats": {
             "get": {
-                "description": "Get word count distribution by familiarity level",
+                "description": "Get word count distribution by familiarity level and practice count",
                 "produces": [
                     "application/json"
                 ],
@@ -865,7 +871,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Word familiarity distribution",
                         "schema": {
-                            "$ref": "#/definitions/models.WordStats"
+                            "$ref": "#/definitions/word-flashcard_internal_models.WordStats"
                         }
                     },
                     "500": {
@@ -969,7 +975,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "models.AccuracyBucket": {
+        "models.PracticeCountBucket": {
             "type": "object",
             "properties": {
                 "count": {
@@ -980,36 +986,14 @@ const docTemplate = `{
                 }
             }
         },
-        "models.QuestionStats": {
+        "word-flashcard_internal_models.AccuracyBucket": {
             "type": "object",
             "properties": {
-                "accuracy_distribution": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.AccuracyBucket"
-                    }
-                }
-            }
-        },
-        "models.WordFamiliarityDistribution": {
-            "type": "object",
-            "properties": {
-                "green": {
+                "count": {
                     "type": "integer"
                 },
-                "red": {
-                    "type": "integer"
-                },
-                "yellow": {
-                    "type": "integer"
-                }
-            }
-        },
-        "models.WordStats": {
-            "type": "object",
-            "properties": {
-                "familiarity_distribution": {
-                    "$ref": "#/definitions/models.WordFamiliarityDistribution"
+                "range": {
+                    "type": "string"
                 }
             }
         },
@@ -1147,6 +1131,17 @@ const docTemplate = `{
                 }
             }
         },
+        "word-flashcard_internal_models.QuestionStats": {
+            "type": "object",
+            "properties": {
+                "accuracy_distribution": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/word-flashcard_internal_models.AccuracyBucket"
+                    }
+                }
+            }
+        },
         "word-flashcard_internal_models.RandomFilter": {
             "type": "object",
             "required": [
@@ -1254,6 +1249,34 @@ const docTemplate = `{
                 "phonetics": {
                     "type": "object",
                     "additionalProperties": true
+                }
+            }
+        },
+        "word-flashcard_internal_models.WordFamiliarityDistribution": {
+            "type": "object",
+            "properties": {
+                "green": {
+                    "type": "integer"
+                },
+                "red": {
+                    "type": "integer"
+                },
+                "yellow": {
+                    "type": "integer"
+                }
+            }
+        },
+        "word-flashcard_internal_models.WordStats": {
+            "type": "object",
+            "properties": {
+                "familiarity_distribution": {
+                    "$ref": "#/definitions/word-flashcard_internal_models.WordFamiliarityDistribution"
+                },
+                "practice_count_distribution": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.PracticeCountBucket"
+                    }
                 }
             }
         }

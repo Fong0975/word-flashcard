@@ -1,32 +1,18 @@
 basePath: /
 definitions:
-  models.AccuracyBucket:
+  models.PracticeCountBucket:
     properties:
       count:
         type: integer
       range:
         type: string
     type: object
-  models.QuestionStats:
+  word-flashcard_internal_models.AccuracyBucket:
     properties:
-      accuracy_distribution:
-        items:
-          $ref: '#/definitions/models.AccuracyBucket'
-        type: array
-    type: object
-  models.WordFamiliarityDistribution:
-    properties:
-      green:
+      count:
         type: integer
-      red:
-        type: integer
-      yellow:
-        type: integer
-    type: object
-  models.WordStats:
-    properties:
-      familiarity_distribution:
-        $ref: '#/definitions/models.WordFamiliarityDistribution'
+      range:
+        type: string
     type: object
   word-flashcard_internal_models.DefinitionInfo:
     properties:
@@ -115,6 +101,13 @@ definitions:
     required:
     - count
     type: object
+  word-flashcard_internal_models.QuestionStats:
+    properties:
+      accuracy_distribution:
+        items:
+          $ref: '#/definitions/word-flashcard_internal_models.AccuracyBucket'
+        type: array
+    type: object
   word-flashcard_internal_models.RandomFilter:
     properties:
       count:
@@ -188,6 +181,24 @@ definitions:
       phonetics:
         additionalProperties: true
         type: object
+    type: object
+  word-flashcard_internal_models.WordFamiliarityDistribution:
+    properties:
+      green:
+        type: integer
+      red:
+        type: integer
+      yellow:
+        type: integer
+    type: object
+  word-flashcard_internal_models.WordStats:
+    properties:
+      familiarity_distribution:
+        $ref: '#/definitions/word-flashcard_internal_models.WordFamiliarityDistribution'
+      practice_count_distribution:
+        items:
+          $ref: '#/definitions/models.PracticeCountBucket'
+        type: array
     type: object
 host: localhost:8080
 info:
@@ -485,7 +496,7 @@ paths:
         "200":
           description: Question accuracy distribution
           schema:
-            $ref: '#/definitions/models.QuestionStats'
+            $ref: '#/definitions/word-flashcard_internal_models.QuestionStats'
         "500":
           description: Internal server error - Failed to fetch questions
           schema:
@@ -791,6 +802,10 @@ paths:
         in: query
         name: offset
         type: integer
+      - description: 'Sort columns, comma-separated. Format: col,-col. Allowed: id,word,familiarity,count_practise,created_at'
+        in: query
+        name: sort
+        type: string
       produces:
       - application/json
       responses:
@@ -812,14 +827,14 @@ paths:
       - words
   /api/words/stats:
     get:
-      description: Get word count distribution by familiarity level
+      description: Get word count distribution by familiarity level and practice count
       produces:
       - application/json
       responses:
         "200":
           description: Word familiarity distribution
           schema:
-            $ref: '#/definitions/models.WordStats'
+            $ref: '#/definitions/word-flashcard_internal_models.WordStats'
         "500":
           description: Internal server error - Failed to count words
           schema:

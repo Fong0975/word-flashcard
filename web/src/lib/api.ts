@@ -260,6 +260,10 @@ class ApiService {
       searchParams.append('offset', params.offset.toString());
     }
 
+    if (params.sort) {
+      searchParams.append('sort', params.sort);
+    }
+
     const endpoint = `${API_ENDPOINTS.wordsSearch}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
 
     // If searchFilter is provided, send it in the request body

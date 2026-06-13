@@ -7,9 +7,16 @@ type WordFamiliarityDistribution struct {
 	Green  int64 `json:"green"`
 }
 
+// PracticeCountBucket holds the word count for a given practice count range
+type PracticeCountBucket struct {
+	Range string `json:"range"`
+	Count int    `json:"count"`
+}
+
 // WordStats is the response for the word statistics endpoint
 type WordStats struct {
-	FamiliarityDistribution WordFamiliarityDistribution `json:"familiarity_distribution"`
+	FamiliarityDistribution   WordFamiliarityDistribution `json:"familiarity_distribution"`
+	PracticeCountDistribution []PracticeCountBucket       `json:"practice_count_distribution"`
 }
 
 // AccuracyBucket holds the question count for a given accuracy range
