@@ -12,6 +12,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// wordSortableColumns defines the columns allowed in sort query parameters for the words table.
+var wordSortableColumns = []string{
+	schema.WORD_ID,
+	schema.WORD_WORD,
+	schema.WORD_FAMILIARITY,
+	schema.WORD_COUNT_PRACTISE,
+	schema.COMMON_CREATED_AT,
+}
+
 // WordController handles word-related requests
 type WordController struct {
 	wordPeer           peers.WordPeerInterface
@@ -95,6 +104,7 @@ func (wc *WordController) ListWords(c *gin.Context) {
 // @Param searchFilter body models.SearchFilter true "Search filter criteria"
 // @Param limit query int false "Maximum number of records to return (default: 100, max: 1000)"
 // @Param offset query int false "Number of records to skip (default: 0)"
+// @Param sort query string false "Sort columns, comma-separated. Format: col,-col. Allowed: id,word,familiarity,count_practise,created_at"
 // @Success 200 {array} models.Word "Words found matching the search criteria"
 // @Failure 400 {object} models.ErrorResponse "Bad request - Invalid request body, filter, or query parameters"
 // @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to fetch data from database"
@@ -119,11 +129,30 @@ func (wc *WordController) SearchWords(c *gin.Context) {
 	limitPtr := uint64(limit)
 	offsetPtr := uint64(offset)
 
-	// ================ 3. Handle empty search filter ================
+	// ================ 3. Parse and validate sort parameters ================
+	sortParam, err := models.ParseSortParam(c.Query("sort"))
+	if err != nil {
+		ResponseError(http.StatusBadRequest, "Invalid sort parameter", err, c)
+		return
+	}
+	if err := sortParam.Validate(wordSortableColumns); err != nil {
+		ResponseError(http.StatusBadRequest, "Invalid sort parameter", err, c)
+		return
+	}
+
+	// Build ORDER BY clauses: use provided sort or fall back to default
+	var orderByClauses []*string
+	if !sortParam.IsEmpty() {
+		orderByClauses = sortParam.ToOrderByClauses()
+	} else {
+		defaultOrder := fmt.Sprintf("%s ASC", schema.WORD_WORD)
+		orderByClauses = []*string{&defaultOrder}
+	}
+
+	// ================ 4. Handle empty search filter ================
 	if searchReq.IsEmpty() {
 		// No filter, fetch all records with pagination
-		orderBy := fmt.Sprintf("%s ASC", schema.WORD_WORD)
-		wordEntities, err := wc.fetchWordsWithDefinitions([]*string{}, nil, []*string{&orderBy}, &limitPtr, &offsetPtr)
+		wordEntities, err := wc.fetchWordsWithDefinitions([]*string{}, nil, orderByClauses, &limitPtr, &offsetPtr)
 		if err != nil {
 			ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", err, c)
 			return
@@ -135,14 +164,14 @@ func (wc *WordController) SearchWords(c *gin.Context) {
 		return
 	}
 
-	// ================ 4. Separate conditions by table ================
+	// ================ 5. Separate conditions by table ================
 	wordsFilter, wordDefsFilter, err := parseSearchConditionsByTable(&searchReq)
 	if err != nil {
 		ResponseError(http.StatusBadRequest, fmt.Sprintf("Invalid filter: %s", err.Error()), err, c)
 		return
 	}
 
-	// ================ 5. Query each table separately ================
+	// ================ 6. Query each table separately ================
 	wordsIDs, err := wc.queryWordIDsByTableFilter(wordsFilter, false)
 	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Failed to query words table", err, c)
@@ -155,12 +184,11 @@ func (wc *WordController) SearchWords(c *gin.Context) {
 		return
 	}
 
-	// ================ 6. Combine results based on logic operator ================
+	// ================ 7. Combine results based on logic operator ================
 	finalWordIDs := wc.combineWordIDsWithLogic(wordsIDs, wordDefsIDs, searchReq.Logic)
 
-	// ================ 7. Query final words with pagination ================
-	orderBy := fmt.Sprintf("%s ASC", schema.WORD_WORD)
-	wordEntities, err := wc.queryWordsByIDsWithPagination(finalWordIDs, []*string{&orderBy}, &limitPtr, &offsetPtr)
+	// ================ 8. Query final words with pagination ================
+	wordEntities, err := wc.queryWordsByIDsWithPagination(finalWordIDs, orderByClauses, &limitPtr, &offsetPtr)
 	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Failed to fetch final word data from database", err, c)
 		return
@@ -169,7 +197,7 @@ func (wc *WordController) SearchWords(c *gin.Context) {
 		wordEntities = []*models.Word{}
 	}
 
-	// ================ 8. Send response ================
+	// ================ 9. Send response ================
 	ResponseSuccess(http.StatusOK, wordEntities, c)
 }
 

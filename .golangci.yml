@@ -56,6 +56,7 @@ linters:
       - builtin$
       - examples$
       - _test.go$
+      - web/node_modules
 formatters:
   enable:
     - gofmt
@@ -66,3 +67,4 @@ formatters:
       - third_party$
       - builtin$
       - examples$
+      - web/node_modules

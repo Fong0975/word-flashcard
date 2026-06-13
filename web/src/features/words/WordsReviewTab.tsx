@@ -32,6 +32,13 @@ interface WordsReviewTabProps extends BaseComponentProps {}
 const SESSION_SEARCH_KEY = 'word-review-search';
 const SESSION_QUICK_FILTERS_KEY = 'word-review-quick-filters';
 
+const SORT_OPTIONS = [
+  { label: 'Default', value: '' },
+  { label: 'Alphabetical (reversed)', value: '-word' },
+  { label: 'Practice count', value: 'count_practise,word' },
+  { label: 'Practice count (reversed)', value: '-count_practise,word' },
+] as const;
+
 const WORD_QUICK_FILTERS: readonly {
   key: string;
   label: string;
@@ -90,6 +97,8 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
     return isNaN(p) || p < 1 ? 1 : p;
   }, [searchParams]);
 
+  const urlSort = useMemo(() => searchParams.get('sort') || '', [searchParams]);
+
   // Build extra filter conditions based on active quick filters
   const extraConditions = useMemo((): SearchCondition[] => {
     const conditions: SearchCondition[] = [];
@@ -122,6 +131,7 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
     initialPage: urlPage,
     initialSearchTerm: initialSessionTerm.current,
     extraConditions,
+    sort: urlSort,
   });
 
   const setUrlPage = useCallback(
@@ -133,6 +143,25 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
             next.delete('page');
           } else {
             next.set('page', page.toString());
+          }
+          return next;
+        },
+        { replace: true },
+      );
+    },
+    [setSearchParams],
+  );
+
+  const handleSortChange = useCallback(
+    (value: string) => {
+      setSearchParams(
+        prev => {
+          const next = new URLSearchParams(prev);
+          next.delete('page');
+          if (value) {
+            next.set('sort', value);
+          } else {
+            next.delete('sort');
           }
           return next;
         },
@@ -157,6 +186,15 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
       fetchEntitiesRef.current(urlPage);
     }
   }, [urlPage]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Sync URL → hook: when the sort param changes, reset to page 1 and refetch.
+  const prevSortRef = useRef(urlSort);
+  useEffect(() => {
+    if (urlSort !== prevSortRef.current) {
+      prevSortRef.current = urlSort;
+      fetchEntitiesRef.current(1);
+    }
+  }, [urlSort]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Stable string representation of active filters for use as an effect dep
   const activeFiltersKey = activeFilters.join(',');
@@ -297,6 +335,22 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
     navigate(`/word/${encodeURIComponent(word.word)}`);
   };
 
+  const sortToolbar = (
+    <div className='flex items-center justify-end'>
+      <select
+        value={urlSort}
+        onChange={e => handleSortChange(e.target.value)}
+        className='rounded-md border border-gray-300 bg-white py-1.5 pl-3 pr-8 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-800 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200'
+      >
+        {SORT_OPTIONS.map(opt => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+
   return (
     <>
       <EntityReviewTab
@@ -320,6 +374,7 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
           onSearch: wordsHook.setSearchTerm,
           onRefresh: () => wordsHook.refresh(),
         }}
+        toolbarContent={sortToolbar}
         quickFiltersContent={
           <div className='flex flex-wrap items-center gap-2'>
             <span className='text-sm text-gray-500 dark:text-gray-400'>

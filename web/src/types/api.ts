@@ -191,6 +191,7 @@ export interface WordsSearchParams extends PaginationParams {
   readonly searchFilter?: SearchFilter;
   readonly familiarity?: readonly FamiliarityLevel[];
   readonly hasDefinitions?: boolean;
+  readonly sort?: string;
 }
 
 /**
