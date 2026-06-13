@@ -1,5 +1,12 @@
 basePath: /
 definitions:
+  models.PracticeCountBucket:
+    properties:
+      count:
+        type: integer
+      range:
+        type: string
+    type: object
   word-flashcard_internal_models.AccuracyBucket:
     properties:
       count:
@@ -188,6 +195,10 @@ definitions:
     properties:
       familiarity_distribution:
         $ref: '#/definitions/word-flashcard_internal_models.WordFamiliarityDistribution'
+      practice_count_distribution:
+        items:
+          $ref: '#/definitions/models.PracticeCountBucket'
+        type: array
     type: object
 host: localhost:8080
 info:
@@ -816,7 +827,7 @@ paths:
       - words
   /api/words/stats:
     get:
-      description: Get word count distribution by familiarity level
+      description: Get word count distribution by familiarity level and practice count
       produces:
       - application/json
       responses:

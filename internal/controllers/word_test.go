@@ -357,6 +357,12 @@ func (suite *WordControllerTestSuite) TestStatsWords() {
 	suite.mockWordPeer.EXPECT().
 		Count(squirrel.Eq{schema.WORD_FAMILIARITY: schema.WORD_FAMILIARITY_GREEN}).
 		Return(int64(1), nil).Times(1)
+	// Mock the Select call that fetches practice counts for all words.
+	// getSampleWords() has no CountPractise set (nil → treated as 0), so all 5 words
+	// land in the "0" bucket.
+	suite.mockWordPeer.EXPECT().
+		Select(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(getSampleWords(), nil).Times(1)
 
 	// Create a test HTTP request and call the handler
 	w := httptest.NewRecorder()
@@ -372,6 +378,9 @@ func (suite *WordControllerTestSuite) TestStatsWords() {
 			Red:    1,
 			Yellow: 3,
 			Green:  1,
+		},
+		PracticeCountDistribution: []models.PracticeCountBucket{
+			{Range: "0", Count: 5},
 		},
 	}
 	expectedJSON, err := json.Marshal(expected)

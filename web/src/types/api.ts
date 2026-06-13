@@ -414,8 +414,14 @@ export interface WordFamiliarityDistribution {
   readonly green: number;
 }
 
+export interface PracticeCountBucket {
+  readonly range: string;
+  readonly count: number;
+}
+
 export interface WordStatsResponse {
   readonly familiarity_distribution: WordFamiliarityDistribution;
+  readonly practice_count_distribution: readonly PracticeCountBucket[];
 }
 
 export interface AccuracyBucket {

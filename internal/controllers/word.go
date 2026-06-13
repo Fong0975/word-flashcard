@@ -582,7 +582,7 @@ func (wc *WordController) CountWords(c *gin.Context) {
 }
 
 // StatsWords @Summary Get word statistics
-// @Description Get word count distribution by familiarity level
+// @Description Get word count distribution by familiarity level and practice count
 // @Tags words
 // @Produce json
 // @Success 200 {object} models.WordStats "Word familiarity distribution"
@@ -606,12 +606,31 @@ func (wc *WordController) StatsWords(c *gin.Context) {
 		return
 	}
 
-	// ================ 2. Send response ================
+	// ================ 2. Fetch practice counts for all words ================
+	cpCol := schema.WORD_COUNT_PRACTISE
+	words, err := wc.wordPeer.Select([]*string{&cpCol}, nil, nil, nil, nil)
+	if err != nil {
+		ResponseError(http.StatusInternalServerError, "Failed to fetch practice counts", err, c)
+		return
+	}
+
+	counts := make([]int, len(words))
+	for i, w := range words {
+		if w.CountPractise != nil {
+			counts[i] = *w.CountPractise
+		}
+	}
+
+	// ================ 3. Bucket words by practice count ================
+	practiceBuckets := buildPracticeCountBuckets(counts)
+
+	// ================ 4. Send response ================
 	ResponseSuccess(http.StatusOK, models.WordStats{
 		FamiliarityDistribution: models.WordFamiliarityDistribution{
 			Red:    red,
 			Yellow: yellow,
 			Green:  green,
 		},
+		PracticeCountDistribution: practiceBuckets,
 	}, c)
 }

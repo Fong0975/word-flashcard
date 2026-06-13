@@ -860,7 +860,7 @@ const docTemplate = `{
         },
         "/api/words/stats": {
             "get": {
-                "description": "Get word count distribution by familiarity level",
+                "description": "Get word count distribution by familiarity level and practice count",
                 "produces": [
                     "application/json"
                 ],
@@ -975,6 +975,17 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "models.PracticeCountBucket": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "range": {
+                    "type": "string"
+                }
+            }
+        },
         "word-flashcard_internal_models.AccuracyBucket": {
             "type": "object",
             "properties": {
@@ -1260,6 +1271,12 @@ const docTemplate = `{
             "properties": {
                 "familiarity_distribution": {
                     "$ref": "#/definitions/word-flashcard_internal_models.WordFamiliarityDistribution"
+                },
+                "practice_count_distribution": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.PracticeCountBucket"
+                    }
                 }
             }
         }
