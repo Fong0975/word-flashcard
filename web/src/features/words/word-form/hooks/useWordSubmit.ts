@@ -104,10 +104,13 @@ export const useWordSubmit = ({
             word: newWordText,
           });
         } else if (mode === 'edit' && word) {
-          // Edit mode: send word and familiarity fields
+          // Edit mode: send word, familiarity, and reminder fields
           await apiService.updateWordFields(word.id, {
             word: newWordText,
             familiarity: formData.familiarity,
+            ...(formData.reminder !== undefined
+              ? { reminder: formData.reminder }
+              : {}),
           });
         }
 
