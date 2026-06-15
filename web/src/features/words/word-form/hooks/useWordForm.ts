@@ -15,6 +15,8 @@ export const useWordForm = ({ mode, word, isOpen }: UseWordFormProps) => {
     word: '',
     familiarity: FamiliarityLevel.GREEN,
   });
+  const [reminderEnabled, setReminderEnabled] = useState(false);
+  const [reminderText, setReminderText] = useState('');
 
   // Initialize form values when modal opens or word changes
   useEffect(() => {
@@ -23,11 +25,15 @@ export const useWordForm = ({ mode, word, isOpen }: UseWordFormProps) => {
         word: word.word,
         familiarity: word.familiarity || FamiliarityLevel.GREEN,
       });
+      setReminderEnabled(Boolean(word.reminder));
+      setReminderText(word.reminder ?? '');
     } else if (mode === 'create') {
       setFormData({
         word: '',
         familiarity: FamiliarityLevel.GREEN,
       });
+      setReminderEnabled(false);
+      setReminderText('');
     }
   }, [mode, word, isOpen]);
 
@@ -43,12 +49,25 @@ export const useWordForm = ({ mode, word, isOpen }: UseWordFormProps) => {
     [],
   );
 
+  const handleReminderEnabledChange = useCallback((enabled: boolean) => {
+    setReminderEnabled(enabled);
+    if (!enabled) {
+      setReminderText('');
+    }
+  }, []);
+
+  const handleReminderTextChange = useCallback((text: string) => {
+    setReminderText(text);
+  }, []);
+
   // Reset form
   const resetForm = useCallback(() => {
     setFormData({
       word: '',
       familiarity: FamiliarityLevel.GREEN,
     });
+    setReminderEnabled(false);
+    setReminderText('');
   }, []);
 
   // Form validation
@@ -57,9 +76,12 @@ export const useWordForm = ({ mode, word, isOpen }: UseWordFormProps) => {
   return {
     formData,
     isValid,
+    reminderState: { reminderEnabled, reminderText },
     handlers: {
       handleWordChange,
       handleFamiliarityChange,
+      handleReminderEnabledChange,
+      handleReminderTextChange,
     },
     resetForm,
   };

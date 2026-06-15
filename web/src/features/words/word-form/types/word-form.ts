@@ -19,6 +19,7 @@ export interface WordFormModalProps {
 export interface WordFormData {
   word: string;
   familiarity: FamiliarityLevel;
+  reminder?: string;
 }
 
 export interface FamiliarityOption {
