@@ -12,6 +12,11 @@ import {
   QuestionsSearchParams,
   QuestionsRandomRequest,
   QuestionStatsResponse,
+  Note,
+  CreateNoteRequest,
+  UpdateNoteRequest,
+  NotesListParams,
+  NotesSearchParams,
 } from '../types/api';
 import {
   SearchFilter,
@@ -429,6 +434,77 @@ class ApiService {
     );
   }
 
+  // Note API methods
+  async getAllNotes(
+    params: NotesListParams = {},
+    options?: ApiRequestOptions,
+  ): Promise<Note[]> {
+    const searchParams = new URLSearchParams();
+
+    if (params.limit !== undefined) {
+      searchParams.append('limit', params.limit.toString());
+    }
+
+    if (params.offset !== undefined) {
+      searchParams.append('offset', params.offset.toString());
+    }
+
+    if (params.sort) {
+      searchParams.append('sort', params.sort);
+    }
+
+    const endpoint = `${API_ENDPOINTS.notes}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+
+    return this.get<Note[]>(endpoint, options);
+  }
+
+  async searchNotes(
+    params: NotesSearchParams = {},
+    options?: ApiRequestOptions,
+  ): Promise<Note[]> {
+    const searchParams = new URLSearchParams();
+
+    if (params.limit !== undefined) {
+      searchParams.append('limit', params.limit.toString());
+    }
+
+    if (params.offset !== undefined) {
+      searchParams.append('offset', params.offset.toString());
+    }
+
+    const endpoint = `${API_ENDPOINTS.notesSearch}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+    const requestBody = params.searchFilter ? params.searchFilter : {};
+
+    return this.post<Note[]>(endpoint, requestBody, options);
+  }
+
+  async getNote(id: number, options?: ApiRequestOptions): Promise<Note> {
+    return this.get<Note>(API_ENDPOINTS.noteById(id), options);
+  }
+
+  async createNote(
+    noteData: CreateNoteRequest,
+    options?: ApiRequestOptions,
+  ): Promise<Note> {
+    return this.post<Note>(API_ENDPOINTS.notes, noteData, options);
+  }
+
+  async updateNote(
+    id: number,
+    noteData: UpdateNoteRequest,
+    options?: ApiRequestOptions,
+  ): Promise<Note> {
+    return this.put<Note>(API_ENDPOINTS.noteById(id), noteData, options);
+  }
+
+  async deleteNote(id: number, options?: ApiRequestOptions): Promise<void> {
+    await this.delete<void>(API_ENDPOINTS.noteById(id), options);
+  }
+
+  async getNotesCount(options?: ApiRequestOptions): Promise<{ count: number }> {
+    return this.get<{ count: number }>(API_ENDPOINTS.notesCount, options);
+  }
+
   // Dictionary API methods
   async lookupWord<T = unknown>(
     word: string,
@@ -455,6 +531,11 @@ export type {
   CreateQuestionRequest,
   UpdateQuestionRequest,
   QuestionsRandomRequest,
+  Note,
+  CreateNoteRequest,
+  UpdateNoteRequest,
+  NotesListParams,
+  NotesSearchParams,
   WordQuizConfig,
   WordQuizResult,
   QuestionQuizConfig,

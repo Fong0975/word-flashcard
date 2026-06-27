@@ -48,6 +48,10 @@ export const API_ENDPOINTS = {
   questionsRandom: '/questions/random',
   questionsCount: '/questions/count',
   questionsStats: '/questions/stats',
+  notes: '/notes',
+  notesSearch: '/notes/search',
+  noteById: (noteId: number) => `/notes/${noteId}`,
+  notesCount: '/notes/count',
 } as const;
 
 // Dictionary API endpoints
