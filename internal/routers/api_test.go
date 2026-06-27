@@ -36,6 +36,7 @@ func (s *apiRoutesTestSuite) SetupTest() {
 	mockDictionaryController := mocks.NewMockDictionaryController()
 	mockWordController := mocks.NewMockWordController()
 	mockQuestionController := mocks.NewMockQuestionController()
+	mockNoteController := mocks.NewMockNoteController()
 
 	// Create controller dependencies with mock controllers
 	deps := &ControllerDependencies{
@@ -43,6 +44,7 @@ func (s *apiRoutesTestSuite) SetupTest() {
 		DictionaryController: mockDictionaryController,
 		WordController:       mockWordController,
 		QuestionController:   mockQuestionController,
+		NoteController:       mockNoteController,
 	}
 
 	// Create a new gin router and setup API routes with mock controllers
@@ -93,6 +95,14 @@ func (s *apiRoutesTestSuite) TestAPIRouteMappings() {
 		{"DELETE", "/api/questions/1", "QuestionController.DeleteQuestions", "DeleteQuestions", "QuestionController"},
 		{"GET", "/api/questions/count", "QuestionController.CountQuestions", "CountQuestions", "QuestionController"},
 		{"GET", "/api/questions/stats", "QuestionController.StatsQuestions", "StatsQuestions", "QuestionController"},
+		// Notes
+		{"GET", "/api/notes", "NoteController.ListNotes", "ListNotes", "NoteController"},
+		{"POST", "/api/notes/search", "NoteController.SearchNotes", "SearchNotes", "NoteController"},
+		{"POST", "/api/notes", "NoteController.CreateNote", "CreateNote", "NoteController"},
+		{"GET", "/api/notes/1", "NoteController.GetNote", "GetNote", "NoteController"},
+		{"PUT", "/api/notes/1", "NoteController.UpdateNote", "UpdateNote", "NoteController"},
+		{"DELETE", "/api/notes/1", "NoteController.DeleteNote", "DeleteNote", "NoteController"},
+		{"GET", "/api/notes/count", "NoteController.CountNotes", "CountNotes", "NoteController"},
 	}
 
 	// Test each route mapping calls the correct method

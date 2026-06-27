@@ -123,6 +123,320 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/notes": {
+            "get": {
+                "description": "Get all notes, supports pagination and multi-column sorting through query parameters",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notes"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Maximum number of records to return (default: 100, max: 1000)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of records to skip (default: 0)",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort columns/expressions, comma-separated. Allowed: id,title,sort_order,created_at,updated_at",
+                        "name": "sort",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of notes retrieved successfully",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/word-flashcard_internal_models.Note"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid query parameters",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to fetch data from database",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new note card entry",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notes"
+                ],
+                "parameters": [
+                    {
+                        "description": "Note data to create",
+                        "name": "note",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.Note"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Note created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.Note"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to insert data into database",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/notes/count": {
+            "get": {
+                "description": "Get the total count of notes in the database",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notes"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Total count of notes",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer",
+                                "format": "int64"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to count notes in database",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/notes/search": {
+            "post": {
+                "description": "Search for notes using specified filter criteria. Supports equal, not equal, in, not in, like and other operations with pagination.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notes"
+                ],
+                "parameters": [
+                    {
+                        "description": "Search filter criteria",
+                        "name": "searchFilter",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.SearchFilter"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Maximum number of records to return (default: 100, max: 1000)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of records to skip (default: 0)",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort columns/expressions, comma-separated. Allowed: id,title,sort_order,created_at,updated_at",
+                        "name": "sort",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Notes found matching the search criteria",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/word-flashcard_internal_models.Note"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid request body, filter, or query parameters",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to fetch data from database",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/notes/{id}": {
+            "get": {
+                "description": "Get a specific note by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notes"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Note ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Note retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.Note"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid note ID",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to fetch data from database",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing note's properties",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notes"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Note ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Note data to update",
+                        "name": "note",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.Note"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Note updated successfully",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.Note"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid note ID or request body",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to update data in database",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a specific note",
+                "tags": [
+                    "notes"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Note ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Note deleted successfully"
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid note ID",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to delete data from database",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/questions": {
             "get": {
                 "description": "Get all questions, supports pagination and multi-column sorting through query parameters",
@@ -975,17 +1289,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "models.PracticeCountBucket": {
-            "type": "object",
-            "properties": {
-                "count": {
-                    "type": "integer"
-                },
-                "range": {
-                    "type": "string"
-                }
-            }
-        },
         "word-flashcard_internal_models.AccuracyBucket": {
             "type": "object",
             "properties": {
@@ -1066,6 +1369,26 @@ const docTemplate = `{
                 }
             }
         },
+        "word-flashcard_internal_models.Note": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "sort_order": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
         "word-flashcard_internal_models.PhoneticInfo": {
             "type": "object",
             "properties": {
@@ -1073,6 +1396,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "language": {
+                    "type": "string"
+                }
+            }
+        },
+        "word-flashcard_internal_models.PracticeCountBucket": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "range": {
                     "type": "string"
                 }
             }
@@ -1275,7 +1609,7 @@ const docTemplate = `{
                 "practice_count_distribution": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.PracticeCountBucket"
+                        "$ref": "#/definitions/word-flashcard_internal_models.PracticeCountBucket"
                     }
                 }
             }

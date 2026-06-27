@@ -29,6 +29,9 @@ func TestRegisterAllTables(t *testing.T) {
 		"questions": {
 			"id", "question", "option_a", "option_b", "option_c", "option_d", "answer", "reference", "notes", "count_practise", "count_failure_practise", "created_at", "updated_at",
 		},
+		"notes": {
+			"id", "title", "content", "sort_order", "created_at", "updated_at",
+		},
 	}
 
 	for name := range tableSchema {
@@ -114,7 +117,7 @@ func TestMultipleRegistrations(t *testing.T) {
 
 	// Should still have the same number of tables
 	tables := database.GetAllTables()
-	expectedTableCount := 3
+	expectedTableCount := 4
 	if len(tables) != expectedTableCount {
 		t.Errorf("Expected %d tables after multiple registrations, got %d", expectedTableCount, len(tables))
 	}
