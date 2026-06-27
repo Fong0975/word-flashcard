@@ -22,6 +22,12 @@ A personal language learning app for building vocabulary and practising with qui
 - Start a question quiz from your custom multiple-choice question bank
 - View your results after each quiz and choose to retake or return home
 
+**Notes**
+- Create and manage note cards with a title and markdown content
+- Write rich notes using a markdown editor with live preview
+- Reorder notes via drag-and-drop or move-up / move-down buttons
+- Search notes and browse with paginated results
+
 ## Project Structure
 
 ```
@@ -215,8 +221,11 @@ This command will update the `docs/` directory with the latest API documentation
 #### Backend
 
 ```bash
-# Check formatting issues
+# Run golangci-lint to check for code quality and formatting issues
 golangci-lint run
+
+# Run golangci-lint with automatic fixes for fixable issues
+golangci-lint run --fix
 ```
 
 #### Frontend
