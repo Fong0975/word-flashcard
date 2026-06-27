@@ -15,6 +15,7 @@ func RegisterAllTables() {
 		schema.WordsTable(),
 		schema.WordDefinitionsTable(),
 		schema.QuestionsTable(),
+		schema.NotesTable(),
 	}
 
 	for _, table := range tables {

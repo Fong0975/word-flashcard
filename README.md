@@ -134,6 +134,11 @@ DB_PASSWORD=your_password
 DB_NAME=word_flashcard
 ```
 
+> **MySQL Charset Requirement**: The database must use `utf8mb4` character set to support full Unicode content (including emoji and multi-byte characters). Use the following SQL when creating the database:
+> ```sql
+> CREATE DATABASE word_flashcard CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+> ```
+
 #### Frontend Configuration (`web/.env`)
 
 Create a `.env` file in the `web/` directory with the following configuration:

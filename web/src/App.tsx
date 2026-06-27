@@ -7,6 +7,8 @@ import { WordDetailPage } from './features/words/word-detail/WordDetailPage';
 import { WordQuizPage } from './features/words/quiz/WordQuizPage';
 import { QuestionDetailPage } from './features/questions/question-detail/QuestionDetailPage';
 import { QuestionQuizPage } from './features/questions/quiz/QuestionQuizPage';
+import { NoteDetailPage } from './features/notes/note-detail/NoteDetailPage';
+import { NoteCreatePage } from './features/notes/note-form/NoteCreatePage';
 
 function HomePage() {
   const { currentTab, switchTab } = useTab();
@@ -48,6 +50,8 @@ function App() {
       <Route path='/word/:wordText' element={<WordDetailPage />} />
       <Route path='/question/quiz' element={<QuestionQuizPage />} />
       <Route path='/question/:id' element={<QuestionDetailPage />} />
+      <Route path='/note/new' element={<NoteCreatePage />} />
+      <Route path='/note/:id' element={<NoteDetailPage />} />
     </Routes>
   );
 }

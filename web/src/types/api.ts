@@ -41,6 +41,16 @@ export interface Word extends BaseEntity {
 }
 
 /**
+ * Note card entity
+ */
+export interface Note extends BaseEntity {
+  readonly title: string;
+  readonly content: string | null;
+  readonly sort_order: number;
+  readonly updated_at: string | null;
+}
+
+/**
  * Question entity
  */
 export interface Question extends BaseEntity {
@@ -203,6 +213,49 @@ export interface QuestionsSearchParams extends PaginationParams {
   readonly maxFailureRate?: number;
   readonly sort?: string;
 }
+
+/**
+ * Create note request
+ */
+export interface CreateNoteRequest {
+  readonly title: string;
+  readonly content?: string;
+  readonly sort_order?: number;
+}
+
+/**
+ * Update note request
+ */
+export interface UpdateNoteRequest {
+  readonly title?: string;
+  readonly content?: string;
+  readonly sort_order?: number;
+}
+
+/**
+ * Notes list parameters
+ */
+export interface NotesListParams extends PaginationParams {
+  readonly sort?: string;
+}
+
+/**
+ * Notes search parameters
+ */
+export interface NotesSearchParams extends PaginationParams {
+  readonly searchFilter?: SearchFilter;
+  readonly sort?: string;
+}
+
+/**
+ * Notes list response
+ */
+export interface NotesResponse extends ApiResponse<readonly Note[]> {}
+
+/**
+ * Single note response
+ */
+export interface NoteResponse extends ApiResponse<Note> {}
 
 /**
  * Random words filter

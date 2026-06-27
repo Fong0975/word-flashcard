@@ -14,6 +14,7 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({
   const tabs = [
     { id: 'words' as TabName, label: 'Words', icon: '📝' },
     { id: 'questions' as TabName, label: 'Questions', icon: '❓' },
+    { id: 'notes' as TabName, label: 'Notes', icon: '📒' },
   ];
 
   const getTabClasses = (tabId: TabName) => {

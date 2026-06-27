@@ -1,14 +1,14 @@
 import { useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-export type TabName = 'words' | 'questions';
+export type TabName = 'words' | 'questions' | 'notes';
 
 export const useTab = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const tabFromURL = searchParams.get('tab') as TabName;
   const currentTab: TabName =
-    tabFromURL && ['words', 'questions'].includes(tabFromURL)
+    tabFromURL && ['words', 'questions', 'notes'].includes(tabFromURL)
       ? tabFromURL
       : 'words';
 
@@ -53,6 +53,12 @@ export const useTab = () => {
       if (event.altKey && event.code === 'Digit2') {
         event.preventDefault();
         switchTab('questions');
+      }
+
+      // Alt + 3: Switch to Notes tab
+      if (event.altKey && event.code === 'Digit3') {
+        event.preventDefault();
+        switchTab('notes');
       }
     };
 

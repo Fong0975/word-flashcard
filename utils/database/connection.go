@@ -449,7 +449,7 @@ func (u *UniversalDatabase) InitializeTables() error {
 
 // buildMySQLDSN builds MySQL data source name
 func (u *UniversalDatabase) buildMySQLDSN() string {
-	return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true",
+	return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true&charset=utf8mb4&collation=utf8mb4_unicode_ci",
 		u.config.User, u.config.Password,
 		u.config.Host, u.config.Port,
 		u.config.DatabaseName)

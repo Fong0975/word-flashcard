@@ -636,6 +636,10 @@ func TestUserOperations(t *testing.T) {
 2. **Thread Safety**: The table registry uses `sync.RWMutex` for concurrent access
 3. **Connection Pool**: Default connection pool settings are optimized for typical applications
 4. **SQL Injection Protection**: Always use the provided CRUD methods or parameterized queries
+5. **MySQL Charset**: The MySQL database must be created with `utf8mb4` character set. Using `utf8` (utf8mb3) causes collation mismatch errors when inserting records with TEXT columns, because the Go MySQL driver sends parameters as `utf8mb4`. Create the database with:
+   ```sql
+   CREATE DATABASE your_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   ```
 
 ## Example: Complete Word Management
 

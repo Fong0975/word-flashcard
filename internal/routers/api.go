@@ -14,6 +14,7 @@ type ControllerDependencies struct {
 	DictionaryController controllers.DictionaryControllerInterface
 	WordController       controllers.WordControllerInterface
 	QuestionController   controllers.QuestionControllerInterface
+	NoteController       controllers.NoteControllerInterface
 }
 
 // SetupAPIRoutes configures all API routes with default controllers
@@ -33,12 +34,20 @@ func SetupAPIRoutes(router *gin.Engine) {
 	}
 	questionController := controllers.NewQuestionController(questionPeer)
 
+	notePeer, err := controllers.GetReelNotePeer()
+	if err != nil {
+		slog.Error("Failed to initialize Note controller", "error", err)
+		return
+	}
+	noteController := controllers.NewNoteController(notePeer)
+
 	// Inject controllers into dependencies struct
 	deps := &ControllerDependencies{
 		HealthController:     controllers.NewHealthController(),
 		DictionaryController: controllers.NewDictionaryController(),
 		WordController:       wordController,
 		QuestionController:   questionController,
+		NoteController:       noteController,
 	}
 
 	// Setup routes with dependencies
@@ -80,4 +89,13 @@ func SetupAPIRoutesWithDependencies(router *gin.Engine, deps *ControllerDependen
 	apiGroup.DELETE("/questions/:id", deps.QuestionController.DeleteQuestions)
 	apiGroup.GET("/questions/count", deps.QuestionController.CountQuestions)
 	apiGroup.GET("/questions/stats", deps.QuestionController.StatsQuestions)
+
+	// Note routes
+	apiGroup.GET("/notes", deps.NoteController.ListNotes)
+	apiGroup.POST("/notes/search", deps.NoteController.SearchNotes)
+	apiGroup.POST("/notes", deps.NoteController.CreateNote)
+	apiGroup.GET("/notes/:id", deps.NoteController.GetNote)
+	apiGroup.PUT("/notes/:id", deps.NoteController.UpdateNote)
+	apiGroup.DELETE("/notes/:id", deps.NoteController.DeleteNote)
+	apiGroup.GET("/notes/count", deps.NoteController.CountNotes)
 }
