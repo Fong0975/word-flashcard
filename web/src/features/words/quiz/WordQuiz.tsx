@@ -367,6 +367,9 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
           {showAnswer && (
             <div className='mb-2 mt-4 text-center md:mb-4 md:mt-8'>
               {/* Centered Word Display */}
+              <p className='mb-6 text-xs text-gray-400 dark:text-gray-500'>
+                Practice #{currentWord.count_practise + 1}
+              </p>
               <h1 className='mb-4 text-4xl font-bold text-gray-900 dark:text-white md:text-4xl lg:text-6xl'>
                 {currentWord.word}
               </h1>
@@ -422,11 +425,14 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
               {/* Definition count */}
               {currentWord.definitions &&
                 currentWord.definitions.length > 0 && (
-                  <div className='mb-8 flex justify-between text-sm text-gray-700 dark:text-gray-300'>
+                  <div className='mb-2 flex justify-between text-sm text-gray-700 dark:text-gray-300'>
                     Total {currentWord.definitions.length} definition
                     {currentWord.definitions.length > 1 ? 's' : ''}
                   </div>
                 )}
+              <p className='mb-8 text-xs text-gray-400 dark:text-gray-500'>
+                Practice #{currentWord.count_practise + 1}
+              </p>
 
               {/* Pronunciation buttons */}
               <div className='flex items-center justify-center space-x-4'>
@@ -500,7 +506,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
               {/* Word Display */}
               <div className='mb-8 text-center'>
                 {/* Pronunciation buttons */}
-                <div className='mb-6 flex items-center justify-center space-x-4'>
+                <div className='mb-4 flex items-center justify-center space-x-4'>
                   {hasUkUrl ? (
                     <PronunciationButton
                       audioUrl={pronunciationUrls.uk!}

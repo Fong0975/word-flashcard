@@ -15,7 +15,7 @@ const formatAccuracy = (
   countFailurePractise: number,
 ): string => {
   if (countPractise === 0) {
-    return 'No attempts yet';
+    return 'N/A';
   }
   return `${Math.round(((countPractise - countFailurePractise) / countPractise) * 100)}%`;
 };
@@ -307,6 +307,8 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
                     currentQuestion.count_practise,
                     currentQuestion.count_failure_practise,
                   )}
+                  {currentQuestion.count_practise > 0 &&
+                    ` (${currentQuestion.count_practise - currentQuestion.count_failure_practise}/${currentQuestion.count_practise})`}
                 </p>
 
                 {/* Options */}
@@ -354,11 +356,32 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
             >
               {/* Question Display */}
               <div className='mb-6'>
+                <p className='mb-1 text-xs text-gray-400 dark:text-gray-500'>
+                  #{currentQuestion.id}
+                </p>
                 <h1 className='mb-1 text-xl font-bold leading-relaxed text-gray-900 dark:text-white'>
                   {currentQuestion.question}
                 </h1>
                 <p className='mb-4 text-xs text-gray-400 dark:text-gray-500'>
-                  #{currentQuestion.id}
+                  Accuracy:{' '}
+                  {formatAccuracy(
+                    currentQuestion.count_practise,
+                    currentQuestion.count_failure_practise,
+                  )}
+                  {currentQuestion.count_practise > 0 &&
+                    ` (${currentQuestion.count_practise - currentQuestion.count_failure_practise}/${currentQuestion.count_practise})`}{' '}
+                  →{' '}
+                  {(() => {
+                    const { countPractise, countFailurePractise } =
+                      results[results.length - 1].updatedStats;
+                    return (
+                      <>
+                        {formatAccuracy(countPractise, countFailurePractise)}
+                        {countPractise > 0 &&
+                          ` (${countPractise - countFailurePractise}/${countPractise})`}
+                      </>
+                    );
+                  })()}
                 </p>
 
                 {/* All Options (with correct answer highlighted) */}
@@ -405,19 +428,6 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
                     );
                   })}
                 </div>
-                <p className='text-xs text-gray-400 dark:text-gray-500'>
-                  Accuracy:{' '}
-                  {formatAccuracy(
-                    currentQuestion.count_practise,
-                    currentQuestion.count_failure_practise,
-                  )}{' '}
-                  →{' '}
-                  {formatAccuracy(
-                    results[results.length - 1].updatedStats.countPractise,
-                    results[results.length - 1].updatedStats
-                      .countFailurePractise,
-                  )}
-                </p>
               </div>
 
               {/* Reference */}
