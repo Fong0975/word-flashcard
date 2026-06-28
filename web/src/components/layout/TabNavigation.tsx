@@ -19,7 +19,7 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({
 
   const getTabClasses = (tabId: TabName) => {
     const baseClasses =
-      'focus:outline-none focus:ring-0 flex-1 py-4 px-6 text-sm font-medium text-center border-b-2 transition-colors duration-200';
+      'focus:outline-none focus:ring-0 flex-1 py-4 px-2 sm:px-6 text-sm font-medium text-center border-b-2 transition-colors duration-200';
 
     if (currentTab === tabId) {
       return `${baseClasses} border-blue-500 text-blue-600 dark:text-blue-400`;
@@ -40,7 +40,7 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({
             role='tab'
           >
             <span className='flex items-center justify-center space-x-2'>
-              <span>{tab.icon}</span>
+              <span className='hidden sm:inline'>{tab.icon}</span>
               <span>{tab.label}</span>
             </span>
           </button>

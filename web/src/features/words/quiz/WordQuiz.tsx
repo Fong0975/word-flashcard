@@ -367,9 +367,6 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
           {showAnswer && (
             <div className='mb-2 mt-4 text-center md:mb-4 md:mt-8'>
               {/* Centered Word Display */}
-              <p className='mb-6 text-xs text-gray-400 dark:text-gray-500'>
-                Practice #{currentWord.count_practise + 1}
-              </p>
               <h1 className='mb-4 text-4xl font-bold text-gray-900 dark:text-white md:text-4xl lg:text-6xl'>
                 {currentWord.word}
               </h1>
@@ -505,6 +502,9 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
             <div className='mx-auto max-w-4xl'>
               {/* Word Display */}
               <div className='mb-8 text-center'>
+                <p className='mb-4 text-xs text-gray-400 dark:text-gray-500'>
+                  Practice #{currentWord.count_practise + 1}
+                </p>
                 {/* Pronunciation buttons */}
                 <div className='mb-4 flex items-center justify-center space-x-4'>
                   {hasUkUrl ? (
