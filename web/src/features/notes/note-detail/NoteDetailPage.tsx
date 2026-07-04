@@ -4,9 +4,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Note } from '../../../types/api';
 import { apiService } from '../../../lib/api';
 import { DetailPageLayout } from '../../../components/layout';
-import { MarkdownContent } from '../../../components/ui';
+import { MarkdownContent, ToastContainer } from '../../../components/ui';
+import { useToast } from '../../../hooks/ui/useToast';
+import { useTemplateButtons } from '../../../hooks/shared';
+import { appendTemplateText } from '../../../utils/textTemplates';
 import { MarkdownEditor } from '../components/MarkdownEditor';
-import { useNoteTemplateButtons } from '../hooks';
 
 const formatDate = (dateStr: string | null): string => {
   if (!dateStr) {
@@ -39,13 +41,14 @@ export const NoteDetailPage: React.FC = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const { templateButtonsConfig } = useNoteTemplateButtons();
+  const { toasts, showWarning, removeToast } = useToast();
+  const { templateButtonsConfig } = useTemplateButtons({
+    configFileName: 'noteContentButtonsConfig.json',
+    onWarning: showWarning,
+  });
 
   const appendToEditContent = (textToAppend: string) => {
-    setEditContent(prev => {
-      const separator = prev && !prev.endsWith('\n') ? '\n' : '';
-      return prev + separator + textToAppend;
-    });
+    setEditContent(prev => appendTemplateText(prev, textToAppend));
   };
 
   const fetchNote = useCallback(async () => {
@@ -267,10 +270,13 @@ export const NoteDetailPage: React.FC = () => {
   );
 
   return (
-    <DetailPageLayout
-      onBack={() => navigate('/?tab=notes')}
-      header={isEditing ? editHeader : viewHeader}
-      body={isEditing ? editBody : viewBody}
-    />
+    <>
+      <DetailPageLayout
+        onBack={() => navigate('/?tab=notes')}
+        header={isEditing ? editHeader : viewHeader}
+        body={isEditing ? editBody : viewBody}
+      />
+      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
+    </>
   );
 };

@@ -3,8 +3,11 @@ import { useNavigate } from 'react-router-dom';
 
 import { apiService } from '../../../lib/api';
 import { DetailPageLayout } from '../../../components/layout';
+import { ToastContainer } from '../../../components/ui';
+import { useToast } from '../../../hooks/ui/useToast';
+import { useTemplateButtons } from '../../../hooks/shared';
+import { appendTemplateText } from '../../../utils/textTemplates';
 import { MarkdownEditor } from '../components/MarkdownEditor';
-import { useNoteTemplateButtons } from '../hooks';
 
 export const NoteCreatePage: React.FC = () => {
   const navigate = useNavigate();
@@ -14,13 +17,14 @@ export const NoteCreatePage: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  const { templateButtonsConfig } = useNoteTemplateButtons();
+  const { toasts, showWarning, removeToast } = useToast();
+  const { templateButtonsConfig } = useTemplateButtons({
+    configFileName: 'noteContentButtonsConfig.json',
+    onWarning: showWarning,
+  });
 
   const appendToContent = (textToAppend: string) => {
-    setContent(prev => {
-      const separator = prev && !prev.endsWith('\n') ? '\n' : '';
-      return prev + separator + textToAppend;
-    });
+    setContent(prev => appendTemplateText(prev, textToAppend));
   };
 
   const handleSave = async () => {
@@ -80,10 +84,13 @@ export const NoteCreatePage: React.FC = () => {
   );
 
   return (
-    <DetailPageLayout
-      onBack={() => navigate('/?tab=notes')}
-      header={header}
-      body={body}
-    />
+    <>
+      <DetailPageLayout
+        onBack={() => navigate('/?tab=notes')}
+        header={header}
+        body={body}
+      />
+      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
+    </>
   );
 };

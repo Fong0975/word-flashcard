@@ -2,12 +2,14 @@ import React from 'react';
 
 import { Modal } from '../../../components/ui/Modal';
 import { CopyButton } from '../../../components/ui/CopyButton';
+import { ToastContainer } from '../../../components/ui';
+import { useToast } from '../../../hooks/ui/useToast';
+import { useTemplateButtons } from '../../../hooks/shared';
 import { Question } from '../../../types/api';
 import { formatFormDataForCopy } from '../question-detail/utils/questionFormat';
 
 import { useQuestionForm } from './hooks/useQuestionForm';
 import { useQuestionSubmit } from './hooks/useQuestionSubmit';
-import { useTemplateButtons } from './hooks/useTemplateButtons';
 import {
   QuestionInput,
   OptionsGroup,
@@ -61,14 +63,18 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
     resetForm,
   });
 
+  const { toasts, showWarning, removeToast } = useToast();
+
   // Template buttons configurations
   const { templateButtonsConfig: referenceTemplateButtons } =
     useTemplateButtons({
       configFileName: 'questionFormModalReferenceButtonsConfig.json',
+      onWarning: showWarning,
     });
 
   const { templateButtonsConfig: notesTemplateButtons } = useTemplateButtons({
     configFileName: 'questionFormModalNotesButtonsConfig.json',
+    onWarning: showWarning,
   });
 
   const handleClose = () => {
@@ -166,6 +172,9 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
           />
         </div>
       </div>
+
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
     </Modal>
   );
 };

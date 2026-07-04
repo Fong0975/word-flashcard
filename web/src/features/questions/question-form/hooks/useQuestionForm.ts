@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 
 import { Question } from '../../../../types/api';
+import { appendTemplateText } from '../../../../utils/textTemplates';
 import { QuestionFormData, AnswerOption } from '../types';
 import { validateQuestionForm } from '../utils';
 
@@ -93,7 +94,7 @@ export const useQuestionForm = ({
   const appendToNotes = useCallback((textToAppend: string) => {
     setFormData(prev => ({
       ...prev,
-      notes: prev.notes ? `${prev.notes}\n${textToAppend}` : textToAppend,
+      notes: appendTemplateText(prev.notes, textToAppend),
     }));
   }, []);
 

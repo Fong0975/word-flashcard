@@ -24,8 +24,3 @@ export interface DefinitionFormModalProps {
   shouldResetDictionaryOnClose?: boolean;
   externalDictionaryState?: ExternalDictionaryState;
 }
-
-export interface NoteButton {
-  label: string;
-  value: string;
-}
