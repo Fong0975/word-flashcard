@@ -1,5 +1,7 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
+import rehypeSanitize from 'rehype-sanitize';
 import remarkBreaks from 'remark-breaks';
 import remarkGfm from 'remark-gfm';
 
@@ -49,7 +51,10 @@ export const MarkdownContent: React.FC<MarkdownContentProps> = ({
     : content;
 
   const markdown = (
-    <ReactMarkdown remarkPlugins={[remarkBreaks, remarkGfm]}>
+    <ReactMarkdown
+      remarkPlugins={[remarkBreaks, remarkGfm]}
+      rehypePlugins={[rehypeRaw, rehypeSanitize]}
+    >
       {text}
     </ReactMarkdown>
   );
