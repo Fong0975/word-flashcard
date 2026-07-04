@@ -49,10 +49,6 @@ export interface CorrectAnswerProps {
   answer: string;
 }
 
-export interface ExplanationContentProps {
-  explanation: string;
-}
-
 export interface QuestionFooterProps {
   question: Question;
 }

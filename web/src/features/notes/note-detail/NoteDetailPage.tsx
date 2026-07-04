@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import ReactMarkdown from 'react-markdown';
-import remarkBreaks from 'remark-breaks';
-import remarkGfm from 'remark-gfm';
 
 import { Note } from '../../../types/api';
 import { apiService } from '../../../lib/api';
 import { DetailPageLayout } from '../../../components/layout';
+import { MarkdownContent } from '../../../components/ui';
 import { MarkdownEditor } from '../components/MarkdownEditor';
 
 const formatDate = (dateStr: string | null): string => {
@@ -215,11 +213,7 @@ export const NoteDetailPage: React.FC = () => {
       )}
 
       {note.content ? (
-        <div className='prose prose-sm prose-slate max-w-none dark:prose-invert prose-headings:text-gray-800 prose-p:text-gray-600 prose-code:rounded-md prose-code:bg-gray-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:font-medium prose-code:text-pink-500 prose-code:before:content-none prose-code:after:content-none prose-ul:text-gray-600 dark:prose-headings:text-gray-200 dark:prose-p:text-gray-400 dark:prose-code:bg-gray-800 dark:prose-code:text-pink-400 dark:prose-ul:text-gray-400'>
-          <ReactMarkdown remarkPlugins={[remarkBreaks, remarkGfm]}>
-            {note.content}
-          </ReactMarkdown>
-        </div>
+        <MarkdownContent content={note.content} />
       ) : (
         <p className='text-sm text-gray-400 dark:text-gray-500'>
           No content yet. Click Edit to add content.

@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkBreaks from 'remark-breaks';
-import remarkGfm from 'remark-gfm';
 
+import { MarkdownContent } from '../../../../components/ui';
 import { TemplateButton } from '../types/question-form';
 
 interface NotesInputProps {
@@ -21,7 +19,6 @@ export const NotesInput: React.FC<NotesInputProps> = ({
   onAppendTemplate,
 }) => {
   const [isPreview, setIsPreview] = useState(false);
-  const displayValue = value ? value.replace(/\\n/g, '\n') : '';
 
   return (
     <div>
@@ -92,12 +89,8 @@ export const NotesInput: React.FC<NotesInputProps> = ({
       <div className='mb-1'>
         {isPreview ? (
           <div className='h-52 overflow-y-auto rounded-md border border-gray-300 px-3 py-2 dark:border-gray-600'>
-            {displayValue.trim() ? (
-              <div className='prose prose-sm prose-slate max-w-none dark:prose-invert prose-headings:text-gray-800 prose-p:text-gray-600 prose-code:rounded-md prose-code:bg-gray-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:font-medium prose-code:text-pink-500 prose-code:before:content-none prose-code:after:content-none prose-ul:text-gray-600 dark:prose-headings:text-gray-200 dark:prose-p:text-gray-400 dark:prose-code:bg-gray-800 dark:prose-code:text-pink-400 dark:prose-ul:text-gray-400'>
-                <ReactMarkdown remarkPlugins={[remarkBreaks, remarkGfm]}>
-                  {displayValue}
-                </ReactMarkdown>
-              </div>
+            {value.trim() ? (
+              <MarkdownContent content={value} />
             ) : (
               <p className='text-sm text-gray-400 dark:text-gray-500'>
                 Nothing to preview.
@@ -107,7 +100,7 @@ export const NotesInput: React.FC<NotesInputProps> = ({
         ) : (
           <textarea
             id='notes'
-            value={displayValue}
+            value={value}
             onChange={e => onChange(e.target.value)}
             rows={8}
             className='block h-52 w-full resize-none rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-gray-100 disabled:text-gray-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:disabled:bg-gray-800'
