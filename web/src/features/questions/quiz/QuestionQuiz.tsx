@@ -1,7 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkBreaks from 'remark-breaks';
-import remarkGfm from 'remark-gfm';
 
 import {
   Question,
@@ -9,6 +6,7 @@ import {
   QuestionsRandomRequest,
 } from '../../../types/api';
 import { apiService } from '../../../lib/api';
+import { MarkdownContent } from '../../../components/ui/MarkdownContent';
 
 const formatAccuracy = (
   countPractise: number,
@@ -451,15 +449,10 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
                     Explanation
                   </h3>
                   <div className='rounded-lg bg-gray-50 p-4 dark:bg-gray-700'>
-                    <div className='prose prose-sm prose-slate max-w-none dark:prose-invert prose-p:text-gray-600 dark:prose-p:text-gray-400'>
-                      <div className='prose prose-sm prose-slate max-w-none rounded dark:prose-invert prose-p:text-gray-600 prose-code:rounded-md prose-code:bg-gray-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:font-medium prose-code:text-pink-500 prose-code:before:content-none prose-code:after:content-none dark:prose-p:text-gray-400 dark:prose-code:bg-gray-800 dark:prose-code:text-pink-400'>
-                        <ReactMarkdown
-                          remarkPlugins={[remarkBreaks, remarkGfm]}
-                        >
-                          {currentQuestion.notes.replace(/\\n/g, '\n')}
-                        </ReactMarkdown>
-                      </div>
-                    </div>
+                    <MarkdownContent
+                      content={currentQuestion.notes}
+                      variant='boxed-gray'
+                    />
                   </div>
                 </div>
               )}

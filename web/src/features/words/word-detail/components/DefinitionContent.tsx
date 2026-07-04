@@ -1,8 +1,6 @@
 import React from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkBreaks from 'remark-breaks';
-import remarkGfm from 'remark-gfm';
 
+import { MarkdownContent } from '../../../../components/ui';
 import { WordDefinition } from '../../../../types/api';
 
 interface DefinitionContentProps {
@@ -41,13 +39,11 @@ export const DefinitionContent: React.FC<DefinitionContentProps> = ({
           <h5 className='mb-1 text-sm font-medium text-gray-600 dark:text-gray-400'>
             Notes:
           </h5>
-          <div className='prose prose-sm prose-slate max-w-none rounded bg-yellow-50 p-2 dark:prose-invert prose-headings:text-gray-800 prose-p:text-gray-600 prose-ul:text-gray-600 dark:bg-yellow-900/20 dark:prose-headings:text-gray-200 dark:prose-p:text-gray-400 dark:prose-ul:text-gray-400'>
-            <div className='prose prose-sm prose-slate max-w-none rounded dark:prose-invert prose-p:text-gray-600 prose-code:rounded-md prose-code:bg-gray-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:font-medium prose-code:text-pink-500 prose-code:before:content-none prose-code:after:content-none dark:prose-p:text-gray-400 dark:prose-code:bg-gray-800 dark:prose-code:text-pink-400'>
-              <ReactMarkdown remarkPlugins={[remarkBreaks, remarkGfm]}>
-                {definition.notes.replaceAll(/\\n/g, '\n')}
-              </ReactMarkdown>
-            </div>
-          </div>
+          <MarkdownContent
+            content={definition.notes}
+            variant='boxed-yellow'
+            unescapeLiteralNewlines
+          />
         </div>
       )}
     </div>
