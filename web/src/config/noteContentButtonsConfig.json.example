@@ -1,0 +1,26 @@
+[
+  {
+    "label": "Summary",
+    "value": "## Summary\n- "
+  },
+  {
+    "label": "Key Point",
+    "value": "## Key Point\n- "
+  },
+  {
+    "label": "To Review",
+    "value": "## To Review\n- "
+  },
+  {
+    "label": "Reference",
+    "value": "## Reference\n- "
+  },
+  {
+    "label": "Idea",
+    "value": "## Idea\n- "
+  },
+  {
+    "label": "Todo",
+    "value": "## Todo\n- [ ] "
+  }
+]

@@ -6,6 +6,7 @@ import { apiService } from '../../../lib/api';
 import { DetailPageLayout } from '../../../components/layout';
 import { MarkdownContent } from '../../../components/ui';
 import { MarkdownEditor } from '../components/MarkdownEditor';
+import { useNoteTemplateButtons } from '../hooks';
 
 const formatDate = (dateStr: string | null): string => {
   if (!dateStr) {
@@ -37,6 +38,15 @@ export const NoteDetailPage: React.FC = () => {
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const { templateButtonsConfig } = useNoteTemplateButtons();
+
+  const appendToEditContent = (textToAppend: string) => {
+    setEditContent(prev => {
+      const separator = prev && !prev.endsWith('\n') ? '\n' : '';
+      return prev + separator + textToAppend;
+    });
+  };
 
   const fetchNote = useCallback(async () => {
     if (!id) {
@@ -229,6 +239,8 @@ export const NoteDetailPage: React.FC = () => {
         onChange={setEditContent}
         placeholder='Write your note in Markdown...'
         rows={20}
+        templateButtons={templateButtonsConfig}
+        onAppendTemplate={appendToEditContent}
       />
       <div className='flex items-center gap-2'>
         <button

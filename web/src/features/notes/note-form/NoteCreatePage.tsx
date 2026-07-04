@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { apiService } from '../../../lib/api';
 import { DetailPageLayout } from '../../../components/layout';
 import { MarkdownEditor } from '../components/MarkdownEditor';
+import { useNoteTemplateButtons } from '../hooks';
 
 export const NoteCreatePage: React.FC = () => {
   const navigate = useNavigate();
@@ -12,6 +13,15 @@ export const NoteCreatePage: React.FC = () => {
   const [content, setContent] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+
+  const { templateButtonsConfig } = useNoteTemplateButtons();
+
+  const appendToContent = (textToAppend: string) => {
+    setContent(prev => {
+      const separator = prev && !prev.endsWith('\n') ? '\n' : '';
+      return prev + separator + textToAppend;
+    });
+  };
 
   const handleSave = async () => {
     if (!title.trim()) {
@@ -50,6 +60,8 @@ export const NoteCreatePage: React.FC = () => {
         onChange={setContent}
         placeholder='Write your note in Markdown...'
         rows={20}
+        templateButtons={templateButtonsConfig}
+        onAppendTemplate={appendToContent}
       />
       <div className='flex items-center gap-2'>
         <button

@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 
 import { MarkdownContent } from '../../../components/ui';
+import { NoteTemplateButton } from '../hooks';
 
 interface MarkdownEditorProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
   rows?: number;
+  templateButtons?: NoteTemplateButton[];
+  onAppendTemplate?: (textToAppend: string) => void;
 }
 
 export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
@@ -14,11 +17,41 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
   onChange,
   placeholder = 'Write your note in Markdown...',
   rows = 16,
+  templateButtons = [],
+  onAppendTemplate,
 }) => {
   const [isPreview, setIsPreview] = useState(false);
 
   return (
     <div className='flex flex-1 flex-col'>
+      {templateButtons.length > 0 && onAppendTemplate && (
+        <div className='mb-3'>
+          <div className='flex flex-wrap gap-2'>
+            {templateButtons.map((button, index) => (
+              <button
+                key={index}
+                type='button'
+                disabled={isPreview}
+                onClick={() => onAppendTemplate(button.value)}
+                title={
+                  isPreview ? 'Switch to Edit mode to use templates' : undefined
+                }
+                className={`inline-flex items-center rounded-md border px-3 py-1.5 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                  isPreview
+                    ? 'cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-600'
+                    : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                }`}
+              >
+                {button.label}
+              </button>
+            ))}
+          </div>
+          <p className='mt-2 text-xs text-gray-500 dark:text-gray-400'>
+            Click buttons above to quickly add note templates
+          </p>
+        </div>
+      )}
+
       <div className='mb-1 flex justify-end'>
         <div className='flex rounded-md border border-gray-300 text-xs dark:border-gray-600'>
           <button
