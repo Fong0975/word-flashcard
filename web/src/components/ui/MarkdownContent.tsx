@@ -42,7 +42,7 @@ interface MarkdownContentProps {
 
 const OUTER_CLASSNAMES: Record<MarkdownContentVariant, string> = {
   plain:
-    'prose prose-sm prose-slate max-w-none dark:prose-invert prose-headings:text-gray-800 prose-p:text-gray-600 prose-code:rounded-md prose-code:bg-gray-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:font-medium prose-code:text-pink-500 prose-code:before:content-none prose-code:after:content-none prose-ul:text-gray-600 dark:prose-headings:text-gray-200 dark:prose-p:text-gray-400 dark:prose-code:bg-gray-800 dark:prose-code:text-pink-400 dark:prose-ul:text-gray-400',
+    'prose prose-sm prose-slate max-w-none dark:prose-invert prose-headings:text-gray-800 prose-p:text-gray-600 prose-code:rounded-md prose-code:bg-gray-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:font-medium prose-code:text-pink-500 prose-code:before:content-none prose-code:after:content-none prose-ul:text-gray-600 dark:prose-headings:text-gray-200 dark:prose-p:text-gray-400 dark:prose-code:bg-gray-700 dark:prose-code:text-pink-400 dark:prose-ul:text-gray-400',
   'boxed-yellow':
     'prose prose-sm prose-slate max-w-none rounded bg-yellow-50 p-2 dark:prose-invert prose-headings:text-gray-800 prose-p:text-gray-600 prose-ul:text-gray-600 dark:bg-yellow-900/20 dark:prose-headings:text-gray-200 dark:prose-p:text-gray-400 dark:prose-ul:text-gray-400',
   'boxed-gray':
@@ -53,7 +53,7 @@ const OUTER_CLASSNAMES: Record<MarkdownContentVariant, string> = {
 
 const INNER_CLASSNAMES: Partial<Record<MarkdownContentVariant, string>> = {
   'boxed-yellow':
-    'prose prose-sm prose-slate max-w-none rounded dark:prose-invert prose-p:text-gray-600 prose-code:rounded-md prose-code:bg-gray-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:font-medium prose-code:text-pink-500 prose-code:before:content-none prose-code:after:content-none dark:prose-p:text-gray-400 dark:prose-code:bg-gray-800 dark:prose-code:text-pink-400',
+    'prose prose-sm prose-slate max-w-none rounded dark:prose-invert prose-p:text-gray-600 prose-code:rounded-md prose-code:bg-gray-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:font-medium prose-code:text-pink-500 prose-code:before:content-none prose-code:after:content-none dark:prose-p:text-gray-400 dark:prose-code:bg-gray-700 dark:prose-code:text-pink-400',
   'boxed-gray':
     'prose prose-sm prose-slate max-w-none rounded dark:prose-invert prose-p:text-gray-600 prose-code:rounded-md prose-code:bg-gray-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:font-medium prose-code:text-pink-500 prose-code:before:content-none prose-code:after:content-none dark:prose-p:text-gray-400 dark:prose-code:bg-gray-800 dark:prose-code:text-pink-400',
   'boxed-white':
