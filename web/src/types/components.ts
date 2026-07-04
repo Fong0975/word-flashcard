@@ -207,6 +207,17 @@ export interface PaginationProps extends BaseComponentProps {
   readonly maxPageNumbers?: number;
 }
 
+// ===== TEMPLATE BUTTON PROPS =====
+
+/**
+ * A quick-insert template button: `label` is the button text, `value` is the
+ * markdown snippet inserted (or field value set) when clicked.
+ */
+export interface TemplateButton {
+  readonly label: string;
+  readonly value: string;
+}
+
 // ===== SEARCH COMPONENT PROPS =====
 
 /**

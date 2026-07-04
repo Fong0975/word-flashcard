@@ -38,8 +38,3 @@ export interface OptionInputProps {
   required?: boolean;
   disabled?: boolean;
 }
-
-export interface TemplateButton {
-  label: string;
-  value: string;
-}

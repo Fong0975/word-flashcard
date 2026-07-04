@@ -3,9 +3,10 @@ import React, { useEffect, useRef } from 'react';
 import { Modal, ToastContainer } from '../../../components/ui';
 import { useToast } from '../../../hooks/ui/useToast';
 import { useCopyToClipboard } from '../../../hooks/ui/useCopyToClipboard';
+import { useTemplateButtons } from '../../../hooks/shared';
 
 import { DictionaryLookup, FormFields } from './components';
-import { useDefinitionForm, useDictionaryData, useNoteButtons } from './hooks';
+import { useDefinitionForm, useDictionaryData } from './hooks';
 import { DefinitionFormModalProps } from './types';
 import { CambridgeDefinition } from './types/cambridge';
 
@@ -44,7 +45,8 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
   const { copySuccess, copyToClipboard } = useCopyToClipboard({
     onError: (error, message) => showError(message),
   });
-  const { noteButtonsConfig } = useNoteButtons({
+  const { templateButtonsConfig: noteButtonsConfig } = useTemplateButtons({
+    configFileName: 'definitionFormModalNoteButtonsConfig.json',
     onWarning: showWarning,
   });
 

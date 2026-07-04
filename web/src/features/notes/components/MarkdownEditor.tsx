@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 
-import { MarkdownContent } from '../../../components/ui';
+import { MarkdownContent, TemplateButtonRow } from '../../../components/ui';
+import { TemplateButton } from '../../../types/components';
 
 interface MarkdownEditorProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
   rows?: number;
+  templateButtons?: TemplateButton[];
+  onAppendTemplate?: (textToAppend: string) => void;
 }
 
 export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
@@ -14,11 +17,24 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
   onChange,
   placeholder = 'Write your note in Markdown...',
   rows = 16,
+  templateButtons = [],
+  onAppendTemplate,
 }) => {
   const [isPreview, setIsPreview] = useState(false);
 
   return (
     <div className='flex flex-1 flex-col'>
+      {onAppendTemplate && (
+        <TemplateButtonRow
+          buttons={templateButtons}
+          onSelect={onAppendTemplate}
+          disabled={isPreview}
+          tooltip={
+            isPreview ? 'Switch to Edit mode to use templates' : undefined
+          }
+        />
+      )}
+
       <div className='mb-1 flex justify-end'>
         <div className='flex rounded-md border border-gray-300 text-xs dark:border-gray-600'>
           <button

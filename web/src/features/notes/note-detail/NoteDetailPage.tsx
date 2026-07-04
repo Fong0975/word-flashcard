@@ -4,7 +4,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Note } from '../../../types/api';
 import { apiService } from '../../../lib/api';
 import { DetailPageLayout } from '../../../components/layout';
-import { MarkdownContent } from '../../../components/ui';
+import { MarkdownContent, ToastContainer } from '../../../components/ui';
+import { useToast } from '../../../hooks/ui/useToast';
+import { useTemplateButtons } from '../../../hooks/shared';
+import { appendTemplateText } from '../../../utils/textTemplates';
 import { MarkdownEditor } from '../components/MarkdownEditor';
 
 const formatDate = (dateStr: string | null): string => {
@@ -37,6 +40,16 @@ export const NoteDetailPage: React.FC = () => {
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const { toasts, showWarning, removeToast } = useToast();
+  const { templateButtonsConfig } = useTemplateButtons({
+    configFileName: 'noteContentButtonsConfig.json',
+    onWarning: showWarning,
+  });
+
+  const appendToEditContent = (textToAppend: string) => {
+    setEditContent(prev => appendTemplateText(prev, textToAppend));
+  };
 
   const fetchNote = useCallback(async () => {
     if (!id) {
@@ -229,6 +242,8 @@ export const NoteDetailPage: React.FC = () => {
         onChange={setEditContent}
         placeholder='Write your note in Markdown...'
         rows={20}
+        templateButtons={templateButtonsConfig}
+        onAppendTemplate={appendToEditContent}
       />
       <div className='flex items-center gap-2'>
         <button
@@ -255,10 +270,13 @@ export const NoteDetailPage: React.FC = () => {
   );
 
   return (
-    <DetailPageLayout
-      onBack={() => navigate('/?tab=notes')}
-      header={isEditing ? editHeader : viewHeader}
-      body={isEditing ? editBody : viewBody}
-    />
+    <>
+      <DetailPageLayout
+        onBack={() => navigate('/?tab=notes')}
+        header={isEditing ? editHeader : viewHeader}
+        body={isEditing ? editBody : viewBody}
+      />
+      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
+    </>
   );
 };

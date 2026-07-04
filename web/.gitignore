@@ -22,6 +22,7 @@
 definitionFormModalNoteButtonsConfig.json
 questionFormModalNotesButtonsConfig.json
 questionFormModalReferenceButtonsConfig.json
+noteContentButtonsConfig.json
 
 npm-debug.log*
 yarn-debug.log*

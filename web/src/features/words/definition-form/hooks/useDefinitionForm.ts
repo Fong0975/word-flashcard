@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 
 import { apiService } from '../../../../lib/api';
 import { WordDefinition } from '../../../../types/api';
+import { appendTemplateText } from '../../../../utils/textTemplates';
 import { DefinitionForm } from '../types';
 
 // Mutable version of the request types for building payload
@@ -112,13 +113,10 @@ export const useDefinitionForm = ({
   };
 
   const appendToNotes = (textToAppend: string) => {
-    setFormData(prev => {
-      const currentNotes = prev.notes;
-      const separator =
-        currentNotes && !currentNotes.endsWith('\n') ? '\n' : '';
-      const newNotes = currentNotes + separator + textToAppend;
-      return { ...prev, notes: newNotes };
-    });
+    setFormData(prev => ({
+      ...prev,
+      notes: appendTemplateText(prev.notes, textToAppend),
+    }));
   };
 
   const handleExamplesChange = (index: number, value: string) => {

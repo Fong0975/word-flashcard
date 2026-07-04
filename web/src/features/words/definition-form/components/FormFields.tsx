@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 
-import { MarkdownContent } from '../../../../components/ui';
-import { DefinitionForm, NoteButton } from '../types';
+import { MarkdownContent, TemplateButtonRow } from '../../../../components/ui';
+import { TemplateButton } from '../../../../types/components';
+import { DefinitionForm } from '../types';
 
 interface FormFieldsProps {
   formData: DefinitionForm;
   isFormValid: boolean;
   partOfSpeechOptions: string[];
-  noteButtonsConfig: NoteButton[];
+  noteButtonsConfig: TemplateButton[];
   handlers: {
     handlePartOfSpeechChange: (pos: string, checked: boolean) => void;
     handleDefinitionChange: (definition: string) => void;
@@ -153,35 +154,14 @@ export const FormFields: React.FC<FormFieldsProps> = ({
         </label>
 
         {/* Quick note templates buttons - always visible, grayed out in preview mode */}
-        {noteButtonsConfig.length > 0 && (
-          <div className='mb-3'>
-            <div className='flex flex-wrap gap-2'>
-              {noteButtonsConfig.map((button, index) => (
-                <button
-                  key={index}
-                  type='button'
-                  disabled={isNotesPreview}
-                  onClick={() => handlers.appendToNotes(button.value)}
-                  title={
-                    isNotesPreview
-                      ? 'Switch to Edit mode to use templates'
-                      : undefined
-                  }
-                  className={`inline-flex items-center rounded-md border px-3 py-1.5 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                    isNotesPreview
-                      ? 'cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-600'
-                      : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
-                  }`}
-                >
-                  {button.label}
-                </button>
-              ))}
-            </div>
-            <p className='mt-2 text-xs text-gray-500 dark:text-gray-400'>
-              Click buttons above to quickly add note templates
-            </p>
-          </div>
-        )}
+        <TemplateButtonRow
+          buttons={noteButtonsConfig}
+          onSelect={handlers.appendToNotes}
+          disabled={isNotesPreview}
+          tooltip={
+            isNotesPreview ? 'Switch to Edit mode to use templates' : undefined
+          }
+        />
 
         {/* Edit/Preview toggle above the content area */}
         <div className='mb-1 flex justify-end'>
