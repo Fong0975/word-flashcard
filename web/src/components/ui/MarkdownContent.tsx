@@ -1,9 +1,28 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
+import { remarkAlert } from 'remark-github-blockquote-alert';
 import rehypeRaw from 'rehype-raw';
-import rehypeSanitize from 'rehype-sanitize';
+import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import remarkBreaks from 'remark-breaks';
 import remarkGfm from 'remark-gfm';
+
+/**
+ * `remark-github-blockquote-alert` renders its NOTE/TIP/IMPORTANT/WARNING/CAUTION
+ * boxes as `className`-tagged divs/paragraphs plus an inline octicon `<svg>`. None
+ * of those are in rehype-sanitize's default (very conservative) schema, so it has
+ * to be extended or the alert styling/icon gets silently stripped.
+ */
+const markdownSanitizeSchema = {
+  ...defaultSchema,
+  tagNames: [...(defaultSchema.tagNames ?? []), 'svg', 'path'],
+  attributes: {
+    ...defaultSchema.attributes,
+    div: [...(defaultSchema.attributes?.div ?? []), 'className'],
+    p: [...(defaultSchema.attributes?.p ?? []), 'className'],
+    svg: ['className', 'viewBox', 'width', 'height', 'ariaHidden'],
+    path: ['d'],
+  },
+};
 
 export type MarkdownContentVariant =
   | 'plain'
@@ -52,8 +71,8 @@ export const MarkdownContent: React.FC<MarkdownContentProps> = ({
 
   const markdown = (
     <ReactMarkdown
-      remarkPlugins={[remarkBreaks, remarkGfm]}
-      rehypePlugins={[rehypeRaw, rehypeSanitize]}
+      remarkPlugins={[remarkBreaks, remarkGfm, remarkAlert]}
+      rehypePlugins={[rehypeRaw, [rehypeSanitize, markdownSanitizeSchema]]}
     >
       {text}
     </ReactMarkdown>
