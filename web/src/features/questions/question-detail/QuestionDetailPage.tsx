@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 import { apiService } from '../../../lib/api';
+import { getApiErrorMessage } from '../../../lib/apiErrorMessage';
 import { Question } from '../../../types/api';
 import { DetailPageLayout } from '../../../components/layout';
 import { QuestionFormModal } from '../question-form/QuestionFormModal';
@@ -35,8 +36,8 @@ export const QuestionDetailPage: React.FC = () => {
       setFetchError(null);
       const q = await apiService.getQuestion(Number(id));
       setQuestion(q);
-    } catch {
-      setFetchError('Failed to load question. Please try again.');
+    } catch (error) {
+      setFetchError(getApiErrorMessage(error, 'Failed to load question.'));
     } finally {
       setIsLoading(false);
     }

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 
 import { Note } from '../../../types/api';
 import { apiService } from '../../../lib/api';
+import { getApiErrorMessage } from '../../../lib/apiErrorMessage';
 import { DetailPageLayout } from '../../../components/layout';
 import { MarkdownContent, ToastContainer } from '../../../components/ui';
 import { useToast } from '../../../hooks/ui/useToast';
@@ -59,8 +60,8 @@ export const NoteDetailPage: React.FC = () => {
       setFetchError(null);
       const fetched = await apiService.getNote(Number(id));
       setNote(fetched);
-    } catch {
-      setFetchError('Failed to load note. Please try again.');
+    } catch (error) {
+      setFetchError(getApiErrorMessage(error, 'Failed to load note.'));
     } finally {
       setIsLoading(false);
     }
@@ -99,8 +100,8 @@ export const NoteDetailPage: React.FC = () => {
       });
       setNote(updated);
       setIsEditing(false);
-    } catch {
-      setSaveError('Failed to save. Please try again.');
+    } catch (error) {
+      setSaveError(getApiErrorMessage(error, 'Failed to save.'));
     } finally {
       setIsSaving(false);
     }

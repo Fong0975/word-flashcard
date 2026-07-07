@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 import { apiService } from '../../../lib/api';
+import { getApiErrorMessage } from '../../../lib/apiErrorMessage';
 import { Word, WordDefinition } from '../../../types/api';
 import { DetailPageLayout } from '../../../components/layout';
 import { ConfirmationDialog } from '../../../components/ui/ConfirmationDialog';
@@ -72,8 +73,8 @@ export const WordDetailPage: React.FC = () => {
       } else {
         setFetchError('Word not found');
       }
-    } catch {
-      setFetchError('Failed to load word. Please try again.');
+    } catch (error) {
+      setFetchError(getApiErrorMessage(error, 'Failed to load word.'));
     } finally {
       setIsLoading(false);
     }
