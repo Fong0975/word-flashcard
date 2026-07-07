@@ -43,11 +43,14 @@ export const QuestionQuizPage: React.FC = () => {
     [],
   );
 
-  const handleQuizComplete = (quizResults: QuestionQuizResult[]) => {
-    setNextAction(null);
-    setResults(quizResults);
-    setPageState('results');
-  };
+  const handleQuizComplete = useCallback(
+    (quizResults: QuestionQuizResult[]) => {
+      setNextAction(null);
+      setResults(quizResults);
+      setPageState('results');
+    },
+    [],
+  );
 
   const handleRetakeQuiz = () => {
     setNextAction(null);
