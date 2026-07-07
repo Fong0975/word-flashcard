@@ -1,11 +1,7 @@
 import React from 'react';
 
-import {
-  CambridgeApiResponse,
-  GroupedPronunciation,
-  CambridgeDefinition,
-  CambridgePronunciation,
-} from '../types';
+import { CambridgeApiResponse, CambridgeDefinition } from '../types';
+import { groupPronunciationsByPos } from '../utils/dictionaryFormatting';
 
 interface DictionaryLookupProps {
   wordText: string | null;
@@ -17,9 +13,6 @@ interface DictionaryLookupProps {
   onToggleCollapsed: () => void;
   onApplyPronunciation: (ukUrl: string, usUrl: string, pos?: string) => void;
   onApplyDefinition: (definition: CambridgeDefinition) => void;
-  groupPronunciationsByPos: (
-    pronunciations: CambridgePronunciation[],
-  ) => GroupedPronunciation[];
 }
 
 export const DictionaryLookup: React.FC<DictionaryLookupProps> = ({
@@ -32,7 +25,6 @@ export const DictionaryLookup: React.FC<DictionaryLookupProps> = ({
   onToggleCollapsed,
   onApplyPronunciation,
   onApplyDefinition,
-  groupPronunciationsByPos,
 }) => {
   if (!wordText) {
     return null;

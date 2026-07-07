@@ -181,7 +181,6 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
             onToggleCollapsed={dictionaryLogic.toggleCollapsed}
             onApplyPronunciation={handleApplyPronunciation}
             onApplyDefinition={handleApplyDefinition}
-            groupPronunciationsByPos={dictionaryLogic.groupPronunciationsByPos}
           />
 
           {/* Form Fields Section */}
