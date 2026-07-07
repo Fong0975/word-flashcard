@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { WordQuizResult } from '../../../types/api';
+import { getFamiliarityDisplayColors } from '../../shared/constants/familiarity';
 
 interface WordQuizResultsProps {
   results: WordQuizResult[];
@@ -8,39 +9,10 @@ interface WordQuizResultsProps {
   onBackToHome: () => void;
 }
 
-const getFamiliarityColor = (familiarity: string) => {
-  switch (familiarity.toLowerCase()) {
-    case 'green':
-      return {
-        bg: 'bg-green-100 dark:bg-green-900/20',
-        text: 'text-green-800 dark:text-green-200',
-        dot: 'bg-green-500',
-      };
-    case 'yellow':
-      return {
-        bg: 'bg-yellow-100 dark:bg-yellow-900/20',
-        text: 'text-yellow-800 dark:text-yellow-200',
-        dot: 'bg-yellow-500',
-      };
-    case 'red':
-      return {
-        bg: 'bg-red-100 dark:bg-red-900/20',
-        text: 'text-red-800 dark:text-red-200',
-        dot: 'bg-red-500',
-      };
-    default:
-      return {
-        bg: 'bg-gray-100 dark:bg-gray-900/20',
-        text: 'text-gray-800 dark:text-gray-200',
-        dot: 'bg-gray-500',
-      };
-  }
-};
-
 const FamiliarityBadge: React.FC<{ familiarity: string }> = ({
   familiarity,
 }) => {
-  const colors = getFamiliarityColor(familiarity);
+  const colors = getFamiliarityDisplayColors(familiarity);
 
   return (
     <span

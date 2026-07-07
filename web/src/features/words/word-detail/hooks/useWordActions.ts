@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 
 import { apiService } from '../../../../lib/api';
 import { Word } from '../../../../types/api';
+import { useDeleteConfirmation } from '../../../../hooks/ui/useDeleteConfirmation';
 import { WordActionsCallbacks } from '../types/word-detail';
 
 interface UseWordActionsProps {
@@ -18,7 +19,21 @@ export const useWordActions = ({
   onError,
 }: UseWordActionsProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const deleteConfirmation = useDeleteConfirmation({
+    entity: word,
+    onDelete: async w => {
+      await apiService.deleteWord(w.id);
+    },
+    getConfirmMessage: () => '',
+    onSuccess: () => {
+      onClose();
+      callbacks.onWordUpdated?.();
+    },
+    onError: onError
+      ? error => onError('Failed to delete word: ' + error.message)
+      : undefined,
+  });
 
   const handleEdit = useCallback(() => {
     setIsEditModalOpen(true);
@@ -36,44 +51,18 @@ export const useWordActions = ({
   }, [callbacks]);
 
   const handleDeleteWord = useCallback(() => {
-    setShowDeleteConfirm(true);
+    deleteConfirmation.showDeleteConfirm();
     callbacks.onDelete();
-  }, [callbacks]);
-
-  const handleDeleteWordConfirm = useCallback(async () => {
-    if (!word) {
-      return;
-    }
-
-    try {
-      await apiService.deleteWord(word.id);
-      onClose();
-      if (callbacks.onWordUpdated) {
-        callbacks.onWordUpdated();
-      }
-    } catch (error) {
-      if (onError) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
-        onError('Failed to delete word: ' + errorMessage);
-      }
-    } finally {
-      setShowDeleteConfirm(false);
-    }
-  }, [word, onClose, callbacks, onError]);
-
-  const handleDeleteWordCancel = useCallback(() => {
-    setShowDeleteConfirm(false);
-  }, []);
+  }, [deleteConfirmation, callbacks]);
 
   return {
     isEditModalOpen,
-    showDeleteConfirm,
+    showDeleteConfirm: deleteConfirmation.showConfirm,
     handleEdit,
     handleCloseEditModal,
     handleWordUpdated,
     handleDeleteWord,
-    handleDeleteWordConfirm,
-    handleDeleteWordCancel,
+    handleDeleteWordConfirm: deleteConfirmation.confirmDelete,
+    handleDeleteWordCancel: deleteConfirmation.cancelDelete,
   };
 };

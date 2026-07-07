@@ -1,10 +1,12 @@
 import React from 'react';
 
-interface ErrorMessageProps {
+interface FormErrorMessageProps {
   error: string | null;
 }
 
-export const ErrorMessage: React.FC<ErrorMessageProps> = ({ error }) => {
+export const FormErrorMessage: React.FC<FormErrorMessageProps> = ({
+  error,
+}) => {
   if (!error) {
     return null;
   }

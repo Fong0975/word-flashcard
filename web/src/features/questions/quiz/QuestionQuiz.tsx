@@ -7,6 +7,10 @@ import {
 } from '../../../types/api';
 import { apiService } from '../../../lib/api';
 import { MarkdownContent } from '../../../components/ui/MarkdownContent';
+import { calculateAccuracyRate } from '../question-detail/utils/accuracyCalculation';
+import { getAvailableOptions } from '../question-detail/utils/optionHelpers';
+import { QuizLoadingScreen } from '../../shared/components/QuizLoadingScreen';
+import { shuffleArray } from '../../shared/shuffle';
 
 const formatAccuracy = (
   countPractise: number,
@@ -15,7 +19,7 @@ const formatAccuracy = (
   if (countPractise === 0) {
     return 'N/A';
   }
-  return `${Math.round(((countPractise - countFailurePractise) / countPractise) * 100)}%`;
+  return `${calculateAccuracyRate(countPractise, countFailurePractise)}%`;
 };
 
 export interface NextActionProps {
@@ -129,24 +133,12 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
       return;
     }
 
-    const opts: Array<{ originalKey: string; value: string }> = [];
-    if (currentQuestion.option_a) {
-      opts.push({ originalKey: 'A', value: currentQuestion.option_a });
-    }
-    if (currentQuestion.option_b) {
-      opts.push({ originalKey: 'B', value: currentQuestion.option_b });
-    }
-    if (currentQuestion.option_c) {
-      opts.push({ originalKey: 'C', value: currentQuestion.option_c });
-    }
-    if (currentQuestion.option_d) {
-      opts.push({ originalKey: 'D', value: currentQuestion.option_d });
-    }
-
-    for (let i = opts.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [opts[i], opts[j]] = [opts[j], opts[i]];
-    }
+    const opts = shuffleArray(
+      getAvailableOptions(currentQuestion).map(option => ({
+        originalKey: option.key,
+        value: option.value,
+      })),
+    );
 
     const originalAnswer = currentQuestion.answer.toUpperCase();
     const labels = ['A', 'B', 'C', 'D'];
@@ -256,17 +248,7 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
   }
 
   if (state === 'loading') {
-    return (
-      <div className='mx-auto max-w-2xl py-12 text-center'>
-        <div className='mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-primary-500'></div>
-        <h3 className='mb-2 text-xl font-semibold text-gray-900 dark:text-white'>
-          Loading Quiz
-        </h3>
-        <p className='text-gray-600 dark:text-gray-300'>
-          Preparing your quiz questions...
-        </p>
-      </div>
-    );
+    return <QuizLoadingScreen />;
   }
 
   if (state === 'quiz' && currentQuestion && shuffledOptions.length > 0) {

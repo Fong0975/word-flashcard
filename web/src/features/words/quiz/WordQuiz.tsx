@@ -6,6 +6,9 @@ import {
   SearchOperation,
   SearchLogic,
 } from '../../../types/base';
+import { getFamiliarityColor } from '../../shared/constants/familiarity';
+import { QuizLoadingScreen } from '../../shared/components/QuizLoadingScreen';
+import { shuffleArray } from '../../shared/shuffle';
 import { apiService } from '../../../lib/api';
 import { MarkdownContent } from '../../../components/ui/MarkdownContent';
 import { PronunciationButton } from '../../../components/ui/PronunciationButton';
@@ -50,19 +53,6 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
   const isFirstStep = currentStep === 0;
   const isLastStep = words.length > 0 && currentStep === words.length * 2 - 1;
 
-  const getFamiliarityBarColor = (familiarity: string) => {
-    switch (familiarity.toLowerCase()) {
-      case 'green':
-        return 'bg-green-500 dark:bg-green-400';
-      case 'yellow':
-        return 'bg-yellow-500 dark:bg-yellow-400';
-      case 'red':
-        return 'bg-red-500 dark:bg-red-400';
-      default:
-        return 'bg-gray-400 dark:bg-gray-500';
-    }
-  };
-
   // Fetch random words for quiz
   useEffect(() => {
     const fetchQuizWords = async () => {
@@ -96,12 +86,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
               }),
             );
           const batches = await Promise.all(requests);
-          const combined = batches.flat();
-          for (let i = combined.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [combined[i], combined[j]] = [combined[j], combined[i]];
-          }
-          randomWords = combined;
+          randomWords = shuffleArray(batches.flat());
         } else {
           const allSelectedFamiliarity = selectedFamiliarity.filter(f =>
             [
@@ -275,17 +260,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
   }
 
   if (state === 'loading') {
-    return (
-      <div className='mx-auto max-w-2xl py-12 text-center'>
-        <div className='mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-primary-500'></div>
-        <h3 className='mb-2 text-xl font-semibold text-gray-900 dark:text-white'>
-          Loading Quiz
-        </h3>
-        <p className='text-gray-600 dark:text-gray-300'>
-          Preparing your quiz questions...
-        </p>
-      </div>
-    );
+    return <QuizLoadingScreen />;
   }
 
   if (state === 'quiz' && currentWord) {
@@ -373,7 +348,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
               {currentWord.familiarity && (
                 <div className='mb-2 text-center md:mb-4'>
                   <div
-                    className={`mx-auto h-2 w-40 rounded-full transition-colors duration-300 ${getFamiliarityBarColor(currentWord.familiarity)}`}
+                    className={`mx-auto h-2 w-40 rounded-full transition-colors duration-300 ${getFamiliarityColor(currentWord.familiarity)}`}
                   />
                 </div>
               )}
@@ -394,7 +369,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
               {currentWord.familiarity && (
                 <div className='mb-4 text-center'>
                   <div
-                    className={`mx-auto h-2 w-64 rounded-full transition-colors duration-300 ${getFamiliarityBarColor(currentWord.familiarity)}`}
+                    className={`mx-auto h-2 w-64 rounded-full transition-colors duration-300 ${getFamiliarityColor(currentWord.familiarity)}`}
                   />
                 </div>
               )}

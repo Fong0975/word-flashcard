@@ -2,6 +2,8 @@
 export { Modal } from './Modal';
 export { ActionButton } from './ActionButton';
 export { DropdownMenu } from './DropdownMenu';
+export { FormActions } from './FormActions';
+export { FormErrorMessage } from './FormErrorMessage';
 export { MarkdownContent } from './MarkdownContent';
 export type { MarkdownContentVariant } from './MarkdownContent';
 export { Pagination } from './Pagination';

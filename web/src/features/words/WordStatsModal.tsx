@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   PieChart,
   Pie,
@@ -14,8 +14,10 @@ import {
 } from 'recharts';
 
 import { Modal } from '../../components/ui/Modal';
+import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { apiService } from '../../lib/api';
 import { WordStatsResponse } from '../../types/api';
+import { useAsyncOnOpen } from '../shared/hooks/useAsyncOnOpen';
 
 interface WordStatsModalProps {
   isOpen: boolean;
@@ -34,23 +36,17 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
   isOpen,
   onClose,
 }) => {
-  const [stats, setStats] = useState<WordStatsResponse | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<ActiveTab>('familiarity');
 
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    apiService
-      .getWordStats()
-      .then(data => setStats(data))
-      .catch(() => setError('Failed to load word statistics.'))
-      .finally(() => setLoading(false));
-  }, [isOpen]);
+  const {
+    data: stats,
+    loading,
+    error,
+  } = useAsyncOnOpen<WordStatsResponse>({
+    isOpen,
+    fetcher: () => apiService.getWordStats(),
+    errorMessage: 'Failed to load word statistics.',
+  });
 
   const familiarityChartData = stats
     ? [
@@ -74,11 +70,7 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
       title='Word Statistics'
       maxWidth='md'
     >
-      {loading && (
-        <div className='flex h-48 items-center justify-center'>
-          <div className='h-8 w-8 animate-spin rounded-full border-b-2 border-primary-500'></div>
-        </div>
-      )}
+      {loading && <LoadingSpinner message='' />}
 
       {error && (
         <div className='flex h-48 items-center justify-center text-sm text-red-500'>

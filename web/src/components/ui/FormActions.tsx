@@ -2,25 +2,30 @@ import React from 'react';
 
 interface FormActionsProps {
   mode: 'create' | 'edit';
+  entityLabel: string;
   isSubmitting: boolean;
   isFormValid: boolean;
   onCancel: () => void;
   onSubmit: () => void;
+  className?: string;
 }
 
 export const FormActions: React.FC<FormActionsProps> = ({
   mode,
+  entityLabel,
   isSubmitting,
   isFormValid,
   onCancel,
   onSubmit,
+  className = 'flex justify-end space-x-3 pt-4',
 }) => {
-  const submitButtonText = mode === 'create' ? 'Add Word' : 'Update Word';
+  const submitButtonText =
+    mode === 'create' ? `Add ${entityLabel}` : `Update ${entityLabel}`;
   const submitButtonLoadingText =
     mode === 'create' ? 'Adding...' : 'Updating...';
 
   return (
-    <div className='flex justify-end space-x-3 pt-4'>
+    <div className={className}>
       <button
         type='button'
         onClick={onCancel}

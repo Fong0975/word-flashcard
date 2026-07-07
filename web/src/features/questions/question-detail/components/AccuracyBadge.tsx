@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { AccuracyBadgeProps } from '../types/question-detail';
-import { getAccuracyRateColor } from '../utils/accuracyCalculation';
+import { getAccuracyRateColor } from '../../../shared/constants/quiz';
 
 export const AccuracyBadge: React.FC<AccuracyBadgeProps> = ({
   accuracyRate,

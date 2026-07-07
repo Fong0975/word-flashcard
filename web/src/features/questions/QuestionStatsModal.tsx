@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   BarChart,
   Bar,
@@ -10,8 +10,10 @@ import {
 } from 'recharts';
 
 import { Modal } from '../../components/ui/Modal';
+import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { apiService } from '../../lib/api';
 import { QuestionStatsResponse } from '../../types/api';
+import { useAsyncOnOpen } from '../shared/hooks/useAsyncOnOpen';
 
 interface TooltipPayload {
   payload: { range: string; count: number };
@@ -65,22 +67,15 @@ export const QuestionStatsModal: React.FC<QuestionStatsModalProps> = ({
   isOpen,
   onClose,
 }) => {
-  const [stats, setStats] = useState<QuestionStatsResponse | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    apiService
-      .getQuestionStats()
-      .then(data => setStats(data))
-      .catch(() => setError('Failed to load question statistics.'))
-      .finally(() => setLoading(false));
-  }, [isOpen]);
+  const {
+    data: stats,
+    loading,
+    error,
+  } = useAsyncOnOpen<QuestionStatsResponse>({
+    isOpen,
+    fetcher: () => apiService.getQuestionStats(),
+    errorMessage: 'Failed to load question statistics.',
+  });
 
   const chartData = stats ? [...stats.accuracy_distribution].reverse() : [];
   const total = chartData.reduce((sum, d) => sum + d.count, 0);
@@ -92,11 +87,7 @@ export const QuestionStatsModal: React.FC<QuestionStatsModalProps> = ({
       title='Question Statistics'
       maxWidth='lg'
     >
-      {loading && (
-        <div className='flex h-48 items-center justify-center'>
-          <div className='h-8 w-8 animate-spin rounded-full border-b-2 border-primary-500'></div>
-        </div>
-      )}
+      {loading && <LoadingSpinner message='' />}
 
       {error && (
         <div className='flex h-48 items-center justify-center text-sm text-red-500'>

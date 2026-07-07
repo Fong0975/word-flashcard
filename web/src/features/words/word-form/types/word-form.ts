@@ -22,12 +22,6 @@ export interface WordFormData {
   reminder?: string;
 }
 
-export interface FamiliarityOption {
-  value: FamiliarityLevel;
-  label: string;
-  color: string;
-}
-
 export interface WordSearchState {
   suggestions: Word[];
   isLoading: boolean;

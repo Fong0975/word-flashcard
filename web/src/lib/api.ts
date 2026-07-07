@@ -519,31 +519,3 @@ class ApiService {
 
 // Export singleton instance
 export const apiService = new ApiService();
-
-// Export types for convenience
-export type {
-  Word,
-  WordDefinition,
-  CreateWordRequest,
-  UpdateWordRequest,
-  WordsRandomRequest,
-  Question,
-  CreateQuestionRequest,
-  UpdateQuestionRequest,
-  QuestionsRandomRequest,
-  Note,
-  CreateNoteRequest,
-  UpdateNoteRequest,
-  NotesListParams,
-  NotesSearchParams,
-  WordQuizConfig,
-  WordQuizResult,
-  QuestionQuizConfig,
-  QuestionQuizResult,
-} from '../types/api';
-
-export type {
-  SearchFilter,
-  ApiErrorResponse,
-  ApiRequestOptions,
-} from '../types/base';
