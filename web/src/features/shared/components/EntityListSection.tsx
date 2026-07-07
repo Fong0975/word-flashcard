@@ -82,7 +82,6 @@ export const EntityListSection = <T extends BaseEntity>({
           totalPages={totalPages}
           hasNext={hasNext}
           hasPrevious={hasPrevious}
-          itemsPerPage={itemsPerPage}
           onPageChange={onPageChange}
           onNext={onNext}
           onPrevious={onPrevious}
