@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 
 import { apiService } from '../../../../lib/api';
+import { getApiErrorMessage } from '../../../../lib/apiErrorMessage';
 import { WordDefinition } from '../../../../types/api';
 import { appendTemplateText } from '../../../../utils/textTemplates';
 import { DefinitionForm } from '../types';
@@ -220,8 +221,7 @@ export const useDefinitionForm = ({
       }
     } catch (error) {
       if (onError) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
+        const errorMessage = getApiErrorMessage(error);
         onError(`Failed to ${mode} definition: ${errorMessage}`);
       }
     } finally {

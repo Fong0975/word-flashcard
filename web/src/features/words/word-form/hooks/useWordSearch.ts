@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 
 import { apiService } from '../../../../lib/api';
+import { getApiErrorMessage } from '../../../../lib/apiErrorMessage';
 import { Word } from '../../../../types/api';
 import { WordSearchState } from '../types';
 import { createWordSearchFilter, filterSearchSuggestions } from '../utils';
@@ -61,8 +62,7 @@ export const useWordSearch = ({
         });
       } catch (err) {
         if (onError) {
-          const errorMessage =
-            err instanceof Error ? err.message : 'Unknown error';
+          const errorMessage = getApiErrorMessage(err);
           onError('Failed to search similar words: ' + errorMessage);
         }
         setSearchState({

@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 
 import { apiService } from '../../../../lib/api';
+import { getApiErrorMessage } from '../../../../lib/apiErrorMessage';
 import { Question } from '../../../../types/api';
 import { QuestionFormData, QuestionFormSubmitCallbacks } from '../types';
 
@@ -65,8 +66,10 @@ export const useQuestionSubmit = ({
           callbacks.onQuestionSaved(savedQuestion);
         }
       } catch (err: unknown) {
-        const errorMessage =
-          err instanceof Error ? err.message : `Failed to ${mode} question`;
+        const errorMessage = getApiErrorMessage(
+          err,
+          `Failed to ${mode} question`,
+        );
         setError(errorMessage);
       } finally {
         setIsSubmitting(false);

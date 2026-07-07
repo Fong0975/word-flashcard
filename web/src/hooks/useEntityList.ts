@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
-import { ApiError } from '../lib/api';
+import { getApiErrorMessage } from '../lib/apiErrorMessage';
 import { SearchFilter, BaseEntity } from '../types/base';
 
 /**
@@ -198,13 +198,10 @@ export const useEntityList = <T extends BaseEntity>(
           totalCount,
         }));
       } catch (error) {
-        let errorMessage = `Failed to fetch ${entityName}`;
-
-        if (error instanceof ApiError) {
-          errorMessage = error.message;
-        } else if (error instanceof Error) {
-          errorMessage = error.message;
-        }
+        const errorMessage = getApiErrorMessage(
+          error,
+          `Failed to fetch ${entityName}`,
+        );
 
         setState(prev => ({
           ...prev,

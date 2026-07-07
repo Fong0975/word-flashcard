@@ -2,6 +2,7 @@ import { useState, useEffect, Dispatch, SetStateAction } from 'react';
 
 import { Question, QuestionsRandomRequest } from '../../../../types/api';
 import { apiService } from '../../../../lib/api';
+import { getApiErrorMessage } from '../../../../lib/apiErrorMessage';
 
 export type QuestionQuizState = 'loading' | 'quiz' | 'completed';
 
@@ -52,10 +53,10 @@ export const useQuestionQuizData = ({
         setQuestions(fetchedQuestions);
         setState('quiz');
       } catch (error) {
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : 'Failed to load quiz questions';
+        const errorMessage = getApiErrorMessage(
+          error,
+          'Failed to load quiz questions',
+        );
         setError(errorMessage);
         if (onError) {
           onError('Failed to fetch quiz questions: ' + errorMessage);

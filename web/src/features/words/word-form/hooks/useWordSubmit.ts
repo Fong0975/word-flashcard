@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 
 import { apiService } from '../../../../lib/api';
+import { getApiErrorMessage } from '../../../../lib/apiErrorMessage';
 import { Word } from '../../../../types/api';
 import { WordFormData, WordFormSubmitCallbacks } from '../types';
 import { createExactWordSearchFilter } from '../utils';
@@ -127,8 +128,7 @@ export const useWordSubmit = ({
         // Handle newly created word logic
         await handleNewlyCreatedWord(newWordText);
       } catch (err: unknown) {
-        const errorMessage =
-          err instanceof Error ? err.message : `Failed to ${mode} word`;
+        const errorMessage = getApiErrorMessage(err, `Failed to ${mode} word`);
         setError(errorMessage);
       } finally {
         setIsSubmitting(false);
