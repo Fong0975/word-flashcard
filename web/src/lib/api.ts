@@ -39,6 +39,31 @@ export class ApiError extends Error {
   }
 }
 
+// Builds a `?limit=&offset=&sort=` query string from list/pagination params,
+// omitting any parameter that isn't provided.
+const buildListQueryString = (params: {
+  limit?: number;
+  offset?: number;
+  sort?: string;
+}): string => {
+  const searchParams = new URLSearchParams();
+
+  if (params.limit !== undefined) {
+    searchParams.append('limit', params.limit.toString());
+  }
+
+  if (params.offset !== undefined) {
+    searchParams.append('offset', params.offset.toString());
+  }
+
+  if (params.sort) {
+    searchParams.append('sort', params.sort);
+  }
+
+  const query = searchParams.toString();
+  return query ? `?${query}` : '';
+};
+
 // Base API service class
 class ApiService {
   private baseURL: string;
@@ -51,12 +76,14 @@ class ApiService {
     };
   }
 
-  // Generic request method
-  private async request<T>(
+  // Shared fetch logic for both the primary API and the dictionary API,
+  // which only differ in which base URL they hit.
+  private async requestFrom<T>(
+    baseURL: string,
     endpoint: string,
     options: RequestInit & ApiRequestOptions = {},
   ): Promise<T> {
-    const url = `${this.baseURL}${endpoint}`;
+    const url = `${baseURL}${endpoint}`;
 
     // Merge default options with provided options
     const requestOptions: RequestInit = {
@@ -126,79 +153,20 @@ class ApiService {
     }
   }
 
+  // Generic request method
+  private async request<T>(
+    endpoint: string,
+    options: RequestInit & ApiRequestOptions = {},
+  ): Promise<T> {
+    return this.requestFrom<T>(this.baseURL, endpoint, options);
+  }
+
   // Dictionary API request method (uses different base URL)
   private async dictionaryRequest<T>(
     endpoint: string,
     options: RequestInit & ApiRequestOptions = {},
   ): Promise<T> {
-    const url = `${API_CONFIG.dictionaryBaseURL}${endpoint}`;
-
-    // Merge default options with provided options
-    const requestOptions: RequestInit = {
-      ...this.defaultOptions,
-      ...options,
-      headers: {
-        ...this.defaultOptions.headers,
-        ...options.headers,
-      },
-    };
-
-    // Add timeout support
-    const timeout = options.timeout || API_CONFIG.timeout;
-    const controller = new AbortController();
-
-    // Use provided signal if available, otherwise use timeout signal
-    if (options.signal) {
-      requestOptions.signal = options.signal;
-    } else {
-      requestOptions.signal = controller.signal;
-      setTimeout(() => controller.abort(), timeout);
-    }
-
-    try {
-      const response = await fetch(url, requestOptions);
-
-      // Handle HTTP errors
-      if (!response.ok) {
-        let errorMessage: string;
-        try {
-          const errorData: ApiErrorResponse = await response.json();
-          errorMessage = errorData.error || response.statusText;
-        } catch {
-          errorMessage = response.statusText || 'Unknown error occurred';
-        }
-
-        throw new ApiError(
-          response.status,
-          response.statusText,
-          errorMessage,
-          response,
-        );
-      }
-
-      // Handle empty responses
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        return {} as T;
-      }
-
-      return await response.json();
-    } catch (error) {
-      // Handle fetch errors (network, timeout, etc.)
-      if (error instanceof ApiError) {
-        throw error;
-      }
-
-      if (error instanceof DOMException && error.name === 'AbortError') {
-        throw new ApiError(0, 'Request Timeout', 'Request timed out');
-      }
-
-      throw new ApiError(
-        0,
-        'Network Error',
-        error instanceof Error ? error.message : 'Unknown error',
-      );
-    }
+    return this.requestFrom<T>(API_CONFIG.dictionaryBaseURL, endpoint, options);
   }
 
   // GET request
@@ -255,21 +223,7 @@ class ApiService {
     params: WordsSearchParams = {},
     options?: ApiRequestOptions,
   ): Promise<Word[]> {
-    const searchParams = new URLSearchParams();
-
-    if (params.limit !== undefined) {
-      searchParams.append('limit', params.limit.toString());
-    }
-
-    if (params.offset !== undefined) {
-      searchParams.append('offset', params.offset.toString());
-    }
-
-    if (params.sort) {
-      searchParams.append('sort', params.sort);
-    }
-
-    const endpoint = `${API_ENDPOINTS.wordsSearch}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+    const endpoint = `${API_ENDPOINTS.wordsSearch}${buildListQueryString(params)}`;
 
     // If searchFilter is provided, send it in the request body
     // If no searchFilter (empty search), send empty body to get all words
@@ -355,21 +309,7 @@ class ApiService {
     params: QuestionsSearchParams = {},
     options?: ApiRequestOptions,
   ): Promise<Question[]> {
-    const searchParams = new URLSearchParams();
-
-    if (params.limit !== undefined) {
-      searchParams.append('limit', params.limit.toString());
-    }
-
-    if (params.offset !== undefined) {
-      searchParams.append('offset', params.offset.toString());
-    }
-
-    if (params.sort) {
-      searchParams.append('sort', params.sort);
-    }
-
-    const endpoint = `${API_ENDPOINTS.questions}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+    const endpoint = `${API_ENDPOINTS.questions}${buildListQueryString(params)}`;
 
     return this.get<Question[]>(endpoint, options);
   }
@@ -439,21 +379,7 @@ class ApiService {
     params: NotesListParams = {},
     options?: ApiRequestOptions,
   ): Promise<Note[]> {
-    const searchParams = new URLSearchParams();
-
-    if (params.limit !== undefined) {
-      searchParams.append('limit', params.limit.toString());
-    }
-
-    if (params.offset !== undefined) {
-      searchParams.append('offset', params.offset.toString());
-    }
-
-    if (params.sort) {
-      searchParams.append('sort', params.sort);
-    }
-
-    const endpoint = `${API_ENDPOINTS.notes}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+    const endpoint = `${API_ENDPOINTS.notes}${buildListQueryString(params)}`;
 
     return this.get<Note[]>(endpoint, options);
   }
@@ -462,17 +388,8 @@ class ApiService {
     params: NotesSearchParams = {},
     options?: ApiRequestOptions,
   ): Promise<Note[]> {
-    const searchParams = new URLSearchParams();
-
-    if (params.limit !== undefined) {
-      searchParams.append('limit', params.limit.toString());
-    }
-
-    if (params.offset !== undefined) {
-      searchParams.append('offset', params.offset.toString());
-    }
-
-    const endpoint = `${API_ENDPOINTS.notesSearch}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+    // Note: unlike the other list endpoints, this one does not forward `sort`.
+    const endpoint = `${API_ENDPOINTS.notesSearch}${buildListQueryString({ limit: params.limit, offset: params.offset })}`;
     const requestBody = params.searchFilter ? params.searchFilter : {};
 
     return this.post<Note[]>(endpoint, requestBody, options);
