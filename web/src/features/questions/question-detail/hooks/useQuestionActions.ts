@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 
 import { Question } from '../../../../types/api';
 import { apiService } from '../../../../lib/api';
+import { getApiErrorMessage } from '../../../../lib/apiErrorMessage';
 import { useDeleteConfirmation } from '../../../../hooks/ui/useDeleteConfirmation';
 import {
   UseQuestionActionsReturn,
@@ -34,7 +35,7 @@ export const useQuestionActions = ({
       callbacks.onQuestionUpdated?.();
     },
     onError: onError
-      ? error => onError(`Delete failed: ${error.message}`)
+      ? error => onError(`Delete failed: ${getApiErrorMessage(error)}`)
       : undefined,
   });
 
@@ -59,9 +60,7 @@ export const useQuestionActions = ({
       }
     } catch (error) {
       if (onError) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
-        onError('Failed to refresh question: ' + errorMessage);
+        onError('Failed to refresh question: ' + getApiErrorMessage(error));
       }
     }
   }, [question, callbacks, onError]);

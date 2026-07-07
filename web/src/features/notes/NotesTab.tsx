@@ -3,8 +3,11 @@ import { useNavigate } from 'react-router-dom';
 
 import { Note } from '../../types/api';
 import { apiService } from '../../lib/api';
+import { getApiErrorMessage } from '../../lib/apiErrorMessage';
 import { useNotes } from '../../hooks/useNotes';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { ToastContainer } from '../../components/ui';
+import { useToast } from '../../hooks/ui/useToast';
 
 import { NoteCard } from './NoteCard';
 
@@ -13,6 +16,7 @@ const ITEMS_PER_PAGE = 30;
 export const NotesTab: React.FC = () => {
   const navigate = useNavigate();
   const notesHook = useNotes({ itemsPerPage: ITEMS_PER_PAGE });
+  const { toasts, showError, removeToast } = useToast();
 
   const [orderedNotes, setOrderedNotes] = useState<Note[]>([]);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
@@ -45,13 +49,16 @@ export const NotesTab: React.FC = () => {
             apiService.updateNote(u.id, { sort_order: u.newSortOrder }),
           ),
         );
-      } catch {
+      } catch (error) {
         setOrderedNotes(notesHook.notes);
+        showError(
+          getApiErrorMessage(error, 'Failed to save the new note order.'),
+        );
       } finally {
         setIsReordering(false);
       }
     },
-    [notesHook.currentPage, notesHook.notes],
+    [notesHook.currentPage, notesHook.notes, showError],
   );
 
   const handleMoveUp = useCallback(
@@ -342,6 +349,8 @@ export const NotesTab: React.FC = () => {
           </button>
         </div>
       )}
+
+      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
     </div>
   );
 };

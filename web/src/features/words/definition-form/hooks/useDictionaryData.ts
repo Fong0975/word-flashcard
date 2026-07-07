@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 
 import { apiService } from '../../../../lib/api';
+import { getApiErrorMessage } from '../../../../lib/apiErrorMessage';
 import { useControllableState } from '../../../../hooks/shared/useControllableState';
 import {
   CambridgeApiResponse,
@@ -69,10 +70,10 @@ export const useDictionaryData = (
       setDictionaryData(data);
       setIsCollapsed(false); // Expand section after successful fetch
     } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : 'Failed to fetch dictionary data';
+      const errorMessage = getApiErrorMessage(
+        error,
+        'Failed to fetch dictionary data',
+      );
       setDictionaryError(errorMessage);
       if (onShowError) {
         onShowError('Error fetching dictionary data: ' + errorMessage);

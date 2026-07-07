@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { apiService } from '../../../lib/api';
+import { getApiErrorMessage } from '../../../lib/apiErrorMessage';
 import { DetailPageLayout } from '../../../components/layout';
 import { ToastContainer } from '../../../components/ui';
 import { useToast } from '../../../hooks/ui/useToast';
@@ -40,8 +41,8 @@ export const NoteCreatePage: React.FC = () => {
         content,
       });
       navigate(`/note/${created.id}`);
-    } catch {
-      setSaveError('Failed to create note. Please try again.');
+    } catch (error) {
+      setSaveError(getApiErrorMessage(error, 'Failed to create note.'));
       setIsSaving(false);
     }
   };

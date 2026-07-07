@@ -5,6 +5,7 @@ import { FamiliarityLevel } from '../../../types/base';
 import { QuizLoadingScreen } from '../../shared/components/QuizLoadingScreen';
 import { QuizErrorScreen } from '../../shared/components/QuizErrorScreen';
 import { apiService } from '../../../lib/api';
+import { getApiErrorMessage } from '../../../lib/apiErrorMessage';
 import {
   extractPronunciationUrls,
   isValidAudioUrl,
@@ -92,12 +93,10 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
         advance();
       }
     } catch (error) {
-      const errorMessage = 'Failed to update word. Please try again.';
+      const errorMessage = getApiErrorMessage(error, 'Failed to update word.');
       setError(errorMessage);
       if (onError) {
-        const detailedMessage =
-          error instanceof Error ? error.message : 'Unknown error';
-        onError('Failed to update word familiarity: ' + detailedMessage);
+        onError('Failed to update word familiarity: ' + errorMessage);
       }
     }
   };

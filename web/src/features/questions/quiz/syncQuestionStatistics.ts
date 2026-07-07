@@ -1,5 +1,6 @@
 import { QuestionQuizResult } from '../../../types/api';
 import { apiService } from '../../../lib/api';
+import { getApiErrorMessage } from '../../../lib/apiErrorMessage';
 
 /**
  * Persists the updated practice/failure counts for each answered question.
@@ -28,8 +29,7 @@ export const syncQuestionStatistics = async (
     }
   } catch (error) {
     if (onError) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage = getApiErrorMessage(error);
       onError('Failed to update question statistics: ' + errorMessage);
     }
     // Don't block the quiz completion on statistics update failure

@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 
 import { apiService } from '../../../../lib/api';
+import { getApiErrorMessage } from '../../../../lib/apiErrorMessage';
 import { Word } from '../../../../types/api';
 import { useDeleteConfirmation } from '../../../../hooks/ui/useDeleteConfirmation';
 import { WordActionsCallbacks } from '../types/word-detail';
@@ -31,7 +32,7 @@ export const useWordActions = ({
       callbacks.onWordUpdated?.();
     },
     onError: onError
-      ? error => onError('Failed to delete word: ' + error.message)
+      ? error => onError('Failed to delete word: ' + getApiErrorMessage(error))
       : undefined,
   });
 

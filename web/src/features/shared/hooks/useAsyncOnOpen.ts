@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 
+import { getApiErrorMessage } from '../../../lib/apiErrorMessage';
+
 interface UseAsyncOnOpenOptions<T> {
   isOpen: boolean;
   fetcher: () => Promise<T>;
@@ -33,7 +35,7 @@ export const useAsyncOnOpen = <T>({
     setError(null);
     fetcher()
       .then(result => setData(result))
-      .catch(() => setError(errorMessage))
+      .catch(err => setError(getApiErrorMessage(err, errorMessage)))
       .finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);

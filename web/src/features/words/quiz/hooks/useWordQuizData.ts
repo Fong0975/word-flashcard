@@ -7,6 +7,7 @@ import {
   SearchLogic,
 } from '../../../../types/base';
 import { apiService } from '../../../../lib/api';
+import { getApiErrorMessage } from '../../../../lib/apiErrorMessage';
 import { shuffleArray } from '../../../shared/shuffle';
 
 export type WordQuizState = 'loading' | 'quiz' | 'completed';
@@ -114,12 +115,13 @@ export const useWordQuizData = ({
         setWords(randomWords);
         setState('quiz');
       } catch (error) {
-        const errorMessage = 'Failed to load quiz words. Please try again.';
+        const errorMessage = getApiErrorMessage(
+          error,
+          'Failed to load quiz words.',
+        );
         setError(errorMessage);
         if (onError) {
-          const detailedMessage =
-            error instanceof Error ? error.message : 'Unknown error';
-          onError('Failed to fetch quiz words: ' + detailedMessage);
+          onError('Failed to fetch quiz words: ' + errorMessage);
         }
       }
     };
