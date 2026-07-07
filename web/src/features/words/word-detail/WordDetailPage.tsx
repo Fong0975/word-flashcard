@@ -89,19 +89,27 @@ export const WordDetailPage: React.FC = () => {
 
   const [showClearReminderConfirm, setShowClearReminderConfirm] =
     useState(false);
+  const [isClearingReminder, setIsClearingReminder] = useState(false);
 
   const handleClearReminder = useCallback(async () => {
     if (!word) {
       return;
     }
-    await apiService.updateWordFields(word.id, {
-      word: word.word,
-      familiarity: word.familiarity,
-      reminder: '',
-    });
-    setShowClearReminderConfirm(false);
-    fetchWord();
-  }, [word, fetchWord]);
+    try {
+      setIsClearingReminder(true);
+      await apiService.updateWordFields(word.id, {
+        word: word.word,
+        familiarity: word.familiarity,
+        reminder: '',
+      });
+      setShowClearReminderConfirm(false);
+      fetchWord();
+    } catch (error) {
+      showError('Failed to clear reminder: ' + getApiErrorMessage(error));
+    } finally {
+      setIsClearingReminder(false);
+    }
+  }, [word, fetchWord, showError]);
 
   const handleWordSaved = useCallback(
     (newWordText?: string) => {
@@ -271,6 +279,7 @@ export const WordDetailPage: React.FC = () => {
         onConfirm={handleClearReminder}
         onCancel={() => setShowClearReminderConfirm(false)}
         variant='warning'
+        isConfirming={isClearingReminder}
       />
 
       {/* Definition Form Modal for Adding */}
