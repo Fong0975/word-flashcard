@@ -4,10 +4,10 @@ import { Question } from '../../../../types/api';
 import { UseQuestionStatsReturn } from '../types/question-detail';
 import {
   calculateAccuracyRate,
-  getAccuracyRateColor,
   getAvailableOptions,
   formatQuestionForCopy,
 } from '../utils';
+import { getAccuracyRateColor } from '../../../shared/constants/quiz';
 
 interface UseQuestionStatsProps {
   question: Question | null;

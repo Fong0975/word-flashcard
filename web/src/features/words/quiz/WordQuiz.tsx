@@ -1,19 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
-import { Word, WordQuizResult, WordsRandomRequest } from '../../../types/api';
-import {
-  FamiliarityLevel,
-  SearchOperation,
-  SearchLogic,
-} from '../../../types/base';
+import { WordQuizResult } from '../../../types/api';
+import { FamiliarityLevel } from '../../../types/base';
+import { QuizLoadingScreen } from '../../shared/components/QuizLoadingScreen';
+import { QuizErrorScreen } from '../../shared/components/QuizErrorScreen';
 import { apiService } from '../../../lib/api';
-import { MarkdownContent } from '../../../components/ui/MarkdownContent';
-import { PronunciationButton } from '../../../components/ui/PronunciationButton';
 import {
   extractPronunciationUrls,
   isValidAudioUrl,
 } from '../../shared/phonetics';
-import { speakText } from '../../shared/speech';
+
+import { WordQuizNavHeader } from './components/WordQuizNavHeader';
+import { WordQuestionDisplay } from './components/WordQuestionDisplay';
+import { PronunciationControls } from './components/PronunciationControls';
+import { WordDefinitionsPanel } from './components/WordDefinitionsPanel';
+import { ReminderNoteInput } from './components/ReminderNoteInput';
+import { FamiliarityRatingButtons } from './components/FamiliarityRatingButtons';
+import { useWordQuizData } from './hooks/useWordQuizData';
+import { useReminderNote } from './hooks/useReminderNote';
+import { useWordQuizStep } from './hooks/useWordQuizStep';
 
 interface WordQuizProps {
   selectedFamiliarity: readonly FamiliarityLevel[];
@@ -24,8 +29,6 @@ interface WordQuizProps {
   onError?: (message: string) => void;
 }
 
-type WordQuizState = 'loading' | 'quiz' | 'completed';
-
 export const WordQuiz: React.FC<WordQuizProps> = ({
   selectedFamiliarity,
   questionCount,
@@ -34,143 +37,33 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
   onBackToHome,
   onError,
 }) => {
-  const [state, setState] = useState<WordQuizState>('loading');
-  const [words, setWords] = useState<Word[]>([]);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [decisions, setDecisions] = useState<Record<number, FamiliarityLevel>>(
-    {},
-  );
-  const [error, setError] = useState<string | null>(null);
-  const [reminderEnabled, setReminderEnabled] = useState(false);
-  const [reminderText, setReminderText] = useState('');
-
-  // Derived state
-  const currentWordIndex = Math.floor(currentStep / 2);
-  const showAnswer = currentStep % 2 === 1;
-  const isFirstStep = currentStep === 0;
-  const isLastStep = words.length > 0 && currentStep === words.length * 2 - 1;
-
-  const getFamiliarityBarColor = (familiarity: string) => {
-    switch (familiarity.toLowerCase()) {
-      case 'green':
-        return 'bg-green-500 dark:bg-green-400';
-      case 'yellow':
-        return 'bg-yellow-500 dark:bg-yellow-400';
-      case 'red':
-        return 'bg-red-500 dark:bg-red-400';
-      default:
-        return 'bg-gray-400 dark:bg-gray-500';
-    }
-  };
-
-  // Fetch random words for quiz
-  useEffect(() => {
-    const fetchQuizWords = async () => {
-      try {
-        setState('loading');
-        setError(null);
-
-        let randomWords: Word[];
-
-        if (perCategoryCounts) {
-          const levels = [
-            FamiliarityLevel.RED,
-            FamiliarityLevel.YELLOW,
-            FamiliarityLevel.GREEN,
-          ] as const;
-          const requests = levels
-            .filter(f => perCategoryCounts[f] > 0)
-            .map(f =>
-              apiService.getRandomWords({
-                count: perCategoryCounts[f],
-                filter: {
-                  conditions: [
-                    {
-                      key: 'familiarity',
-                      operator: SearchOperation.IN,
-                      value: JSON.stringify([f]),
-                    },
-                  ],
-                  logic: SearchLogic.OR,
-                },
-              }),
-            );
-          const batches = await Promise.all(requests);
-          const combined = batches.flat();
-          for (let i = combined.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [combined[i], combined[j]] = [combined[j], combined[i]];
-          }
-          randomWords = combined;
-        } else {
-          const allSelectedFamiliarity = selectedFamiliarity.filter(f =>
-            [
-              FamiliarityLevel.RED,
-              FamiliarityLevel.YELLOW,
-              FamiliarityLevel.GREEN,
-            ].includes(f),
-          );
-
-          const request: WordsRandomRequest = {
-            count: questionCount,
-            filter: {
-              conditions: [
-                {
-                  key: 'familiarity',
-                  operator: SearchOperation.IN,
-                  value: JSON.stringify(allSelectedFamiliarity),
-                },
-              ],
-              logic: SearchLogic.OR,
-            },
-          };
-
-          if (request.count <= 0) {
-            setError('Invalid question count.');
-            return;
-          }
-
-          randomWords = await apiService.getRandomWords(request);
-        }
-
-        if (randomWords.length === 0) {
-          setError(
-            'No questions available for quiz. Please add some questions first.',
-          );
-          return;
-        }
-
-        setWords(randomWords);
-        setState('quiz');
-      } catch (error) {
-        const errorMessage = 'Failed to load quiz words. Please try again.';
-        setError(errorMessage);
-        if (onError) {
-          const detailedMessage =
-            error instanceof Error ? error.message : 'Unknown error';
-          onError('Failed to fetch quiz words: ' + detailedMessage);
-        }
-      }
-    };
-
-    fetchQuizWords();
-  }, [selectedFamiliarity, questionCount, perCategoryCounts, onError]);
-
-  const buildAllResults = (
-    extraDecisions?: Record<number, FamiliarityLevel>,
-  ): WordQuizResult[] => {
-    const allDecisions = { ...decisions, ...extraDecisions };
-    return words.map((word, index) => ({
-      word,
-      oldFamiliarity: word.familiarity,
-      newFamiliarity: allDecisions[index] ?? word.familiarity,
-    }));
-  };
-
-  const resetReminder = () => {
-    setReminderEnabled(false);
-    setReminderText('');
-  };
+  const { state, setState, words, error, setError } = useWordQuizData({
+    selectedFamiliarity,
+    questionCount,
+    perCategoryCounts,
+    onError,
+  });
+  const {
+    currentWordIndex,
+    currentWord,
+    showAnswer,
+    isFirstStep,
+    isLastStep,
+    progress,
+    decisions,
+    recordDecision,
+    advance,
+    goBack,
+    buildAllResults,
+  } = useWordQuizStep(words);
+  const {
+    reminderEnabled,
+    reminderText,
+    setReminderEnabled,
+    setReminderText,
+    resetReminder,
+    getPendingReminder,
+  } = useReminderNote();
 
   const completeQuiz = (extraDecisions?: Record<number, FamiliarityLevel>) => {
     const allResults = buildAllResults(extraDecisions);
@@ -180,9 +73,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
 
   // Handle familiarity selection — calls API, records decision, advances step
   const handleFamiliaritySelect = async (newFamiliarity: FamiliarityLevel) => {
-    const currentWord = words[currentWordIndex];
-    const pendingReminder =
-      reminderEnabled && reminderText.trim() ? reminderText.trim() : undefined;
+    const pendingReminder = getPendingReminder();
 
     try {
       await apiService.updateWordFields(currentWord.id, {
@@ -192,17 +83,13 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
         ...(pendingReminder !== undefined ? { reminder: pendingReminder } : {}),
       });
 
-      const updatedDecisions = {
-        ...decisions,
-        [currentWordIndex]: newFamiliarity,
-      };
-      setDecisions(updatedDecisions);
+      recordDecision(currentWordIndex, newFamiliarity);
       resetReminder();
 
       if (isLastStep) {
         completeQuiz({ [currentWordIndex]: newFamiliarity });
       } else {
-        setCurrentStep(prev => prev + 1);
+        advance();
       }
     } catch (error) {
       const errorMessage = 'Failed to update word. Please try again.';
@@ -218,74 +105,39 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
   const handleNext = () => {
     if (!showAnswer) {
       // Question page → show answer
-      setCurrentStep(prev => prev + 1);
+      advance();
     } else if (isLastStep) {
       // Last answer page → treat as maintain, complete quiz
       completeQuiz();
     } else {
       // Answer page → record maintain if not yet decided, advance to next question
       if (decisions[currentWordIndex] === undefined) {
-        setDecisions(prev => ({
-          ...prev,
-          [currentWordIndex]: words[currentWordIndex].familiarity,
-        }));
+        recordDecision(currentWordIndex, currentWord.familiarity);
       }
       resetReminder();
-      setCurrentStep(prev => prev + 1);
+      advance();
     }
   };
 
   const handlePrev = () => {
     if (!isFirstStep) {
       resetReminder();
-      setCurrentStep(prev => prev - 1);
+      goBack();
     }
   };
 
-  const currentWord = words[currentWordIndex];
-  const progress =
-    words.length > 0
-      ? ((currentWordIndex + (showAnswer ? 1 : 0)) / words.length) * 100
-      : 0;
-
   if (error) {
     return (
-      <div className='flex flex-1 flex-col items-center justify-center text-center'>
-        <div className='mb-4 text-6xl'>❌</div>
-        <h3 className='mb-2 text-xl font-semibold text-gray-900 dark:text-white'>
-          Error
-        </h3>
-        <p className='mb-6 text-gray-600 dark:text-gray-300'>{error}</p>
-        <div className='flex justify-center gap-3'>
-          <button
-            onClick={() => setError(null)}
-            className='rounded-md bg-primary-500 px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-600'
-          >
-            Try Again
-          </button>
-          <button
-            onClick={onBackToHome}
-            className='rounded-md border border-gray-300 bg-white px-6 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
-          >
-            Back to Home
-          </button>
-        </div>
-      </div>
+      <QuizErrorScreen
+        error={error}
+        onRetry={() => setError(null)}
+        onBackToHome={onBackToHome}
+      />
     );
   }
 
   if (state === 'loading') {
-    return (
-      <div className='mx-auto max-w-2xl py-12 text-center'>
-        <div className='mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-primary-500'></div>
-        <h3 className='mb-2 text-xl font-semibold text-gray-900 dark:text-white'>
-          Loading Quiz
-        </h3>
-        <p className='text-gray-600 dark:text-gray-300'>
-          Preparing your quiz questions...
-        </p>
-      </div>
-    );
+    return <QuizLoadingScreen />;
   }
 
   if (state === 'quiz' && currentWord) {
@@ -299,190 +151,26 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
 
     return (
       <div className='flex min-h-0 flex-1 flex-col overflow-hidden'>
-        <div className='mb-6 flex-shrink-0'>
-          {/* Navigation + Progress Bar */}
-          <div className='flex items-center gap-3'>
-            {/* Prev button */}
-            <button
-              onClick={handlePrev}
-              disabled={isFirstStep}
-              aria-label='Previous'
-              className='flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-600 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
-            >
-              <svg
-                className='h-4 w-4'
-                fill='none'
-                viewBox='0 0 24 24'
-                strokeWidth='2'
-                stroke='currentColor'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  d='M15.75 19.5L8.25 12l7.5-7.5'
-                />
-              </svg>
-            </button>
-
-            {/* Progress info + bar */}
-            <div className='flex-1'>
-              <div className='mb-2 flex justify-between text-sm text-gray-600 dark:text-gray-400'>
-                <span>
-                  Question {currentWordIndex + 1} of {words.length}
-                </span>
-                <span>{Math.round(progress)}% Complete</span>
-              </div>
-              <div className='h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700'>
-                <div
-                  className='h-2 rounded-full bg-primary-500 transition-all duration-300'
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-            </div>
-
-            {/* Next button */}
-            <button
-              onClick={handleNext}
-              aria-label='Next'
-              className='flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-600 transition-colors hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
-            >
-              <svg
-                className='h-4 w-4'
-                fill='none'
-                viewBox='0 0 24 24'
-                strokeWidth='2'
-                stroke='currentColor'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  d='M8.25 4.5l7.5 7.5-7.5 7.5'
-                />
-              </svg>
-            </button>
-          </div>
-
-          {showAnswer && (
-            <div className='mb-2 mt-4 text-center md:mb-4 md:mt-8'>
-              {/* Centered Word Display */}
-              <h1 className='mb-4 text-4xl font-bold text-gray-900 dark:text-white md:text-4xl lg:text-6xl'>
-                {currentWord.word}
-              </h1>
-
-              {/* Familiarity Bar */}
-              {currentWord.familiarity && (
-                <div className='mb-2 text-center md:mb-4'>
-                  <div
-                    className={`mx-auto h-2 w-40 rounded-full transition-colors duration-300 ${getFamiliarityBarColor(currentWord.familiarity)}`}
-                  />
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+        <WordQuizNavHeader
+          currentWordIndex={currentWordIndex}
+          totalWords={words.length}
+          progress={progress}
+          isFirstStep={isFirstStep}
+          showAnswer={showAnswer}
+          currentWord={currentWord}
+          onPrev={handlePrev}
+          onNext={handleNext}
+        />
 
         {!showAnswer ? (
           // Stage 1: Word display only
           <div className='mx-auto flex w-full max-w-4xl flex-1 flex-col overflow-y-auto'>
-            {/* Centered Word Display */}
-            <div className='flex flex-1 flex-col items-center justify-center'>
-              <h1 className='mb-6 break-all text-center text-4xl font-bold text-gray-900 dark:text-white md:text-4xl lg:text-8xl'>
-                {currentWord.word}
-              </h1>
-
-              {/* Familiarity Bar */}
-              {currentWord.familiarity && (
-                <div className='mb-4 text-center'>
-                  <div
-                    className={`mx-auto h-2 w-64 rounded-full transition-colors duration-300 ${getFamiliarityBarColor(currentWord.familiarity)}`}
-                  />
-                </div>
-              )}
-
-              {/* Part of Speech */}
-              <div className='my-3'>
-                {Array.from(
-                  new Set(
-                    currentWord?.definitions
-                      ?.map(def => def.part_of_speech)
-                      ?.filter(Boolean),
-                  ),
-                ).map((pos, index) => (
-                  <span
-                    key={index}
-                    className='mx-1 inline-block rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                  >
-                    {pos}
-                  </span>
-                ))}
-              </div>
-
-              {/* Definition count */}
-              {currentWord.definitions &&
-                currentWord.definitions.length > 0 && (
-                  <div className='mb-2 flex justify-between text-sm text-gray-700 dark:text-gray-300'>
-                    Total {currentWord.definitions.length} definition
-                    {currentWord.definitions.length > 1 ? 's' : ''}
-                  </div>
-                )}
-              <p className='mb-8 text-xs text-gray-400 dark:text-gray-500'>
-                Practice #{currentWord.count_practise + 1}
-              </p>
-
-              {/* Pronunciation buttons */}
-              <div className='flex items-center justify-center space-x-4'>
-                {hasUkUrl ? (
-                  <PronunciationButton
-                    audioUrl={pronunciationUrls.uk!}
-                    accent='uk'
-                    size='md'
-                  />
-                ) : (
-                  <button
-                    onClick={() => speakText(currentWord.word, 'en-GB')}
-                    title='British pronunciation'
-                    className='inline-flex items-center space-x-1 rounded-md border border-dashed border-amber-400 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-700 transition-colors duration-200 hover:bg-amber-100 active:bg-amber-200 dark:border-amber-600 dark:bg-amber-900/20 dark:text-amber-400 dark:hover:bg-amber-900/40 dark:active:bg-amber-900/60'
-                  >
-                    <span className='text-xs' role='img' aria-label='UK accent'>
-                      🇬🇧
-                    </span>
-                    <svg
-                      className='h-4 w-4'
-                      fill='currentColor'
-                      viewBox='0 0 24 24'
-                    >
-                      <path d='M8 5v14l11-7z' />
-                    </svg>
-                    <span>UK</span>
-                  </button>
-                )}
-                {hasUsUrl ? (
-                  <PronunciationButton
-                    audioUrl={pronunciationUrls.us!}
-                    accent='us'
-                    size='md'
-                  />
-                ) : (
-                  <button
-                    onClick={() => speakText(currentWord.word, 'en-US')}
-                    title='American pronunciation'
-                    className='inline-flex items-center space-x-1 rounded-md border border-dashed border-amber-400 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-700 transition-colors duration-200 hover:bg-amber-100 active:bg-amber-200 dark:border-amber-600 dark:bg-amber-900/20 dark:text-amber-400 dark:hover:bg-amber-900/40 dark:active:bg-amber-900/60'
-                  >
-                    <span className='text-xs' role='img' aria-label='US accent'>
-                      🇺🇸
-                    </span>
-                    <svg
-                      className='h-4 w-4'
-                      fill='currentColor'
-                      viewBox='0 0 24 24'
-                    >
-                      <path d='M8 5v14l11-7z' />
-                    </svg>
-                    <span>US</span>
-                  </button>
-                )}
-              </div>
-            </div>
+            <WordQuestionDisplay
+              word={currentWord}
+              pronunciationUrls={pronunciationUrls}
+              hasUkUrl={hasUkUrl}
+              hasUsUrl={hasUsUrl}
+            />
 
             {/* Bottom Action */}
             <div className='flex-shrink-0 text-center'>
@@ -504,175 +192,25 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
                   Practice #{currentWord.count_practise + 1}
                 </p>
                 {/* Pronunciation buttons */}
-                <div className='mb-4 flex items-center justify-center space-x-4'>
-                  {hasUkUrl ? (
-                    <PronunciationButton
-                      audioUrl={pronunciationUrls.uk!}
-                      accent='uk'
-                      size='md'
-                    />
-                  ) : (
-                    <button
-                      onClick={() => speakText(currentWord.word, 'en-GB')}
-                      title='British pronunciation'
-                      className='inline-flex items-center space-x-1 rounded-md border border-dashed border-amber-400 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-700 transition-colors duration-200 hover:bg-amber-100 active:bg-amber-200 dark:border-amber-600 dark:bg-amber-900/20 dark:text-amber-400 dark:hover:bg-amber-900/40 dark:active:bg-amber-900/60'
-                    >
-                      <span
-                        className='text-xs'
-                        role='img'
-                        aria-label='UK accent'
-                      >
-                        🇬🇧
-                      </span>
-                      <svg
-                        className='h-4 w-4'
-                        fill='currentColor'
-                        viewBox='0 0 24 24'
-                      >
-                        <path d='M8 5v14l11-7z' />
-                      </svg>
-                      <span>UK</span>
-                    </button>
-                  )}
-                  {hasUsUrl ? (
-                    <PronunciationButton
-                      audioUrl={pronunciationUrls.us!}
-                      accent='us'
-                      size='md'
-                    />
-                  ) : (
-                    <button
-                      onClick={() => speakText(currentWord.word, 'en-US')}
-                      title='American pronunciation'
-                      className='inline-flex items-center space-x-1 rounded-md border border-dashed border-amber-400 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-700 transition-colors duration-200 hover:bg-amber-100 active:bg-amber-200 dark:border-amber-600 dark:bg-amber-900/20 dark:text-amber-400 dark:hover:bg-amber-900/40 dark:active:bg-amber-900/60'
-                    >
-                      <span
-                        className='text-xs'
-                        role='img'
-                        aria-label='US accent'
-                      >
-                        🇺🇸
-                      </span>
-                      <svg
-                        className='h-4 w-4'
-                        fill='currentColor'
-                        viewBox='0 0 24 24'
-                      >
-                        <path d='M8 5v14l11-7z' />
-                      </svg>
-                      <span>US</span>
-                    </button>
-                  )}
-                </div>
+                <PronunciationControls
+                  word={currentWord.word}
+                  pronunciationUrls={pronunciationUrls}
+                  hasUkUrl={hasUkUrl}
+                  hasUsUrl={hasUsUrl}
+                  className='mb-4 flex items-center justify-center space-x-4'
+                />
               </div>
 
               {/* Word Details */}
-              {currentWord.definitions &&
-                currentWord.definitions.length > 0 && (
-                  <div className='mb-8 rounded-lg bg-gray-50 p-6 dark:bg-gray-700'>
-                    <h3 className='mb-4 text-lg font-semibold text-gray-900 dark:text-white'>
-                      Definitions ({currentWord.definitions.length})
-                    </h3>
-                    <div className='space-y-4'>
-                      {currentWord.definitions.map((definition, index) => (
-                        <div key={definition.id} className='space-y-2'>
-                          {definition.part_of_speech && (
-                            <div className='flex-shrink-0'>
-                              {definition.part_of_speech
-                                .split(',')
-                                .filter(pos => pos.trim())
-                                .map((pos, posIndex) => (
-                                  <span
-                                    key={posIndex}
-                                    className='mr-1 inline-block rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                                  >
-                                    {pos.trim()}
-                                  </span>
-                                ))}
-                            </div>
-                          )}
-
-                          <div className='px-1'>
-                            {/* Definitions */}
-                            <div className='flex-1'>
-                              <p className='text-gray-800 dark:text-gray-200'>
-                                {definition.definition}
-                              </p>
-                            </div>
-
-                            {/* Example */}
-                            {definition.examples &&
-                              definition.examples.length > 0 && (
-                                <div className='mt-2'>
-                                  <h5 className='mb-2 text-sm font-medium text-gray-600 dark:text-gray-400'>
-                                    Examples:
-                                  </h5>
-                                  <ul className='space-y-1'>
-                                    {definition.examples.map(
-                                      (example, exampleIndex) => (
-                                        <li
-                                          key={exampleIndex}
-                                          className='border-l-2 border-gray-300 pl-4 text-sm italic text-gray-600 dark:border-gray-600 dark:text-gray-400'
-                                        >
-                                          {example}
-                                        </li>
-                                      ),
-                                    )}
-                                  </ul>
-                                </div>
-                              )}
-
-                            {/* Notes */}
-                            {definition.notes && (
-                              <div className='mt-2'>
-                                <h5 className='mb-1 text-sm font-medium text-gray-600 dark:text-gray-400'>
-                                  Notes:
-                                </h5>
-                                <MarkdownContent
-                                  content={definition.notes}
-                                  variant='boxed-yellow'
-                                  unescapeLiteralNewlines
-                                />
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+              <WordDefinitionsPanel definitions={currentWord.definitions} />
 
               {/* Reminder Note Section */}
-              <div className='mb-4 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-600 dark:bg-gray-700/50'>
-                <p className='mb-3 text-sm font-medium text-gray-700 dark:text-gray-300'>
-                  Have a note to remember? Set a reminder before rating.
-                </p>
-                <label className='mb-2 flex cursor-pointer items-center gap-2'>
-                  <input
-                    type='checkbox'
-                    checked={reminderEnabled}
-                    onChange={e => {
-                      setReminderEnabled(e.target.checked);
-                      if (!e.target.checked) {
-                        setReminderText('');
-                      }
-                    }}
-                    className='h-4 w-4 rounded border-gray-300 text-primary-500 focus:ring-primary-500 dark:border-gray-500'
-                  />
-                  <span className='text-sm text-gray-600 dark:text-gray-400'>
-                    Set a reminder note
-                  </span>
-                </label>
-                <input
-                  type='text'
-                  value={reminderText}
-                  onChange={e => setReminderText(e.target.value)}
-                  disabled={!reminderEnabled}
-                  placeholder='Enter reminder note...'
-                  maxLength={100}
-                  className='w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500 dark:disabled:bg-gray-700 dark:disabled:text-gray-500'
-                />
-              </div>
+              <ReminderNoteInput
+                enabled={reminderEnabled}
+                text={reminderText}
+                onEnabledChange={setReminderEnabled}
+                onTextChange={setReminderText}
+              />
 
               <div className='mb-6 text-center'>
                 <p className='text-gray-600 dark:text-gray-400 lg:text-lg'>
@@ -681,47 +219,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
               </div>
 
               {/* Familiarity Buttons */}
-              <div className='flex flex-col justify-center space-y-4'>
-                <button
-                  onClick={() => handleFamiliaritySelect(FamiliarityLevel.RED)}
-                  className='flex min-w-[150px] flex-col items-center rounded-lg border-2 border-red-200 bg-red-50 p-4 transition-colors hover:bg-red-100 dark:border-red-700 dark:bg-red-900/20 dark:hover:bg-red-900/30'
-                >
-                  <div className='mb-2 h-6 w-6 rounded-full bg-red-500'></div>
-                  <div className='text-center'>
-                    <div className='text-xs text-red-600 dark:text-red-400'>
-                      Unfamiliar
-                    </div>
-                  </div>
-                </button>
-
-                <button
-                  onClick={() =>
-                    handleFamiliaritySelect(FamiliarityLevel.YELLOW)
-                  }
-                  className='flex min-w-[150px] flex-col items-center rounded-lg border-2 border-yellow-200 bg-yellow-50 p-4 transition-colors hover:bg-yellow-100 dark:border-yellow-700 dark:bg-yellow-900/20 dark:hover:bg-yellow-900/30'
-                >
-                  <div className='mb-2 h-6 w-6 rounded-full bg-yellow-500'></div>
-                  <div className='text-center'>
-                    <div className='text-xs text-yellow-600 dark:text-yellow-400'>
-                      Somewhat Familiar
-                    </div>
-                  </div>
-                </button>
-
-                <button
-                  onClick={() =>
-                    handleFamiliaritySelect(FamiliarityLevel.GREEN)
-                  }
-                  className='flex min-w-[150px] flex-col items-center rounded-lg border-2 border-green-200 bg-green-50 p-4 transition-colors hover:bg-green-100 dark:border-green-700 dark:bg-green-900/20 dark:hover:bg-green-900/30'
-                >
-                  <div className='mb-2 h-6 w-6 rounded-full bg-green-500'></div>
-                  <div className='text-center'>
-                    <div className='text-xs text-green-600 dark:text-green-400'>
-                      Familiar
-                    </div>
-                  </div>
-                </button>
-              </div>
+              <FamiliarityRatingButtons onSelect={handleFamiliaritySelect} />
             </div>
           </div>
         )}

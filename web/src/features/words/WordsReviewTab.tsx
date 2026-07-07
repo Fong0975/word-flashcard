@@ -1,10 +1,4 @@
-import React, {
-  useMemo,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { useWords } from '../../hooks/useWords';
@@ -14,6 +8,8 @@ import {
 } from '../../hooks/shared/useModalManager';
 import { useToast } from '../../hooks/ui/useToast';
 import { EntityReviewTab } from '../shared/components/EntityReviewTab';
+import { useQuickFilters } from '../shared/hooks/useQuickFilters';
+import { useUrlSyncedEntityList } from '../shared/hooks/useUrlSyncedEntityList';
 import { ToastContainer } from '../../components/ui';
 import {
   QuizSetupModal,
@@ -58,34 +54,14 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
   className = '',
 }) => {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const modalManager = useModalManager();
   const { toasts, showError, showWarning, removeToast } = useToast();
   const [isStatsOpen, setIsStatsOpen] = useState(false);
 
-  // Active quick filter keys — restored from sessionStorage on mount.
-  const [activeFilters, setActiveFilters] = useState<string[]>(() => {
-    try {
-      const stored = sessionStorage.getItem(SESSION_QUICK_FILTERS_KEY);
-      return stored ? (JSON.parse(stored) as string[]) : [];
-    } catch {
-      return [];
-    }
-  });
-
-  const toggleFilter = useCallback((key: string) => {
-    setActiveFilters(prev => {
-      const next = prev.includes(key)
-        ? prev.filter(k => k !== key)
-        : [...prev, key];
-      if (next.length > 0) {
-        sessionStorage.setItem(SESSION_QUICK_FILTERS_KEY, JSON.stringify(next));
-      } else {
-        sessionStorage.removeItem(SESSION_QUICK_FILTERS_KEY);
-      }
-      return next;
-    });
-  }, []);
+  const { activeFilters, toggleFilter, filtersKey } = useQuickFilters(
+    SESSION_QUICK_FILTERS_KEY,
+  );
 
   // Read the persisted search term from sessionStorage once on mount (clears when browser closes).
   const initialSessionTerm = useRef(
@@ -97,7 +73,10 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
     return isNaN(p) || p < 1 ? 1 : p;
   }, [searchParams]);
 
-  const urlSort = useMemo(() => searchParams.get('sort') || '', [searchParams]);
+  const initialUrlSort = useMemo(
+    () => searchParams.get('sort') || '',
+    [searchParams],
+  );
 
   // Build extra filter conditions based on active quick filters
   const extraConditions = useMemo((): SearchCondition[] => {
@@ -131,159 +110,18 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
     initialPage: urlPage,
     initialSearchTerm: initialSessionTerm.current,
     extraConditions,
-    sort: urlSort,
+    sort: initialUrlSort,
   });
 
-  const setUrlPage = useCallback(
-    (page: number) => {
-      setSearchParams(
-        prev => {
-          const next = new URLSearchParams(prev);
-          if (page <= 1) {
-            next.delete('page');
-          } else {
-            next.set('page', page.toString());
-          }
-          return next;
-        },
-        { replace: true },
-      );
-    },
-    [setSearchParams],
-  );
-
-  const handleSortChange = useCallback(
-    (value: string) => {
-      setSearchParams(
-        prev => {
-          const next = new URLSearchParams(prev);
-          next.delete('page');
-          if (value) {
-            next.set('sort', value);
-          } else {
-            next.delete('sort');
-          }
-          return next;
-        },
-        { replace: true },
-      );
-    },
-    [setSearchParams],
-  );
-
-  // Keep a stable ref to fetchEntities to avoid stale closures in the effect below
-  const fetchEntitiesRef = useRef(wordsHook.fetchEntities);
-  fetchEntitiesRef.current = wordsHook.fetchEntities;
-
-  // Keep a ref to current page to check inside the effect without adding it as a dep
-  const currentPageRef = useRef(wordsHook.currentPage);
-  currentPageRef.current = wordsHook.currentPage;
-
-  // Sync URL → hook: when the URL page param changes externally (address bar, browser history),
-  // fetch the corresponding page in the hook.
-  useEffect(() => {
-    if (urlPage !== currentPageRef.current) {
-      fetchEntitiesRef.current(urlPage);
-    }
-  }, [urlPage]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Sync URL → hook: when the sort param changes, reset to page 1 and refetch.
-  const prevSortRef = useRef(urlSort);
-  useEffect(() => {
-    if (urlSort !== prevSortRef.current) {
-      prevSortRef.current = urlSort;
-      fetchEntitiesRef.current(1);
-    }
-  }, [urlSort]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Stable string representation of active filters for use as an effect dep
-  const activeFiltersKey = activeFilters.join(',');
-
-  // Re-fetch from page 1 when quick filter conditions change.
-  // Using a previousFiltersKeyRef instead of isFirstRenderRef to safely skip the
-  // initial run, because React 18 StrictMode preserves ref values across its
-  // mount→unmount→remount cycle, which caused isFirstRenderRef to be false on
-  // the second run and trigger a spurious reset to page 1.
-  const previousFiltersKeyRef = useRef(activeFiltersKey);
-  useEffect(() => {
-    if (activeFiltersKey === previousFiltersKeyRef.current) {
-      return;
-    }
-    previousFiltersKeyRef.current = activeFiltersKey;
-    setUrlPage(1);
-    fetchEntitiesRef.current(1);
-  }, [activeFiltersKey]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Wrapped pagination actions: update URL only; the effect above handles the actual fetch.
-  const wrappedGoToPage = useCallback(
-    async (page: number) => {
-      setUrlPage(page);
-    },
-    [setUrlPage],
-  );
-
-  const wrappedNextPage = useCallback(async () => {
-    if (wordsHook.hasNext) {
-      setUrlPage(urlPage + 1);
-    }
-  }, [wordsHook.hasNext, urlPage, setUrlPage]);
-
-  const wrappedPreviousPage = useCallback(async () => {
-    if (wordsHook.hasPrevious) {
-      setUrlPage(urlPage - 1);
-    }
-  }, [wordsHook.hasPrevious, urlPage, setUrlPage]);
-
-  const wrappedGoToFirst = useCallback(async () => {
-    setUrlPage(1);
-  }, [setUrlPage]);
-
-  const wrappedGoToLast = useCallback(async () => {
-    setUrlPage(wordsHook.totalPages);
-  }, [wordsHook.totalPages, setUrlPage]);
-
-  // When searching, clear the page param so results start from the first page,
-  // and persist the search term in sessionStorage so it can be restored on back-navigation.
-  const wrappedSetSearchTerm = useCallback(
-    (term: string) => {
-      if (term) {
-        sessionStorage.setItem(SESSION_SEARCH_KEY, term);
-      } else {
-        sessionStorage.removeItem(SESSION_SEARCH_KEY);
-      }
-      setSearchParams(
-        prev => {
-          const next = new URLSearchParams(prev);
-          next.delete('page');
-          return next;
-        },
-        { replace: true },
-      );
-      wordsHook.setSearchTerm(term);
-    },
-    [setSearchParams, wordsHook.setSearchTerm], // eslint-disable-line react-hooks/exhaustive-deps
-  );
-
-  const patchedWordsHook = useMemo(
-    () => ({
-      ...wordsHook,
-      goToPage: wrappedGoToPage,
-      nextPage: wrappedNextPage,
-      previousPage: wrappedPreviousPage,
-      goToFirst: wrappedGoToFirst,
-      goToLast: wrappedGoToLast,
-      setSearchTerm: wrappedSetSearchTerm,
-    }),
-    [
-      wordsHook,
-      wrappedGoToPage,
-      wrappedNextPage,
-      wrappedPreviousPage,
-      wrappedGoToFirst,
-      wrappedGoToLast,
-      wrappedSetSearchTerm,
-    ],
-  );
+  const {
+    patchedHook: patchedWordsHook,
+    urlSort,
+    handleSortChange,
+  } = useUrlSyncedEntityList({
+    entityListHook: wordsHook,
+    sessionSearchKey: SESSION_SEARCH_KEY,
+    filtersKey,
+  });
 
   const handleNew = () => {
     modalManager.openModal(MODAL_NAMES.ADD);

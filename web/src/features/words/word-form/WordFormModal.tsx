@@ -1,6 +1,8 @@
 import React, { useEffect, useCallback } from 'react';
 
 import { Modal } from '../../../components/ui/Modal';
+import { FormActions } from '../../../components/ui/FormActions';
+import { FormErrorMessage } from '../../../components/ui/FormErrorMessage';
 import { Word } from '../../../types/api';
 
 import { WordFormModalProps } from './types';
@@ -9,8 +11,6 @@ import {
   WordInput,
   SearchSuggestions,
   FamiliaritySelector,
-  ErrorMessage,
-  FormActions,
 } from './components';
 
 export const WordFormModal: React.FC<WordFormModalProps> = ({
@@ -171,11 +171,12 @@ export const WordFormModal: React.FC<WordFormModalProps> = ({
 
           <div className='space-y-3 pt-6'>
             {/* Error Message */}
-            <ErrorMessage error={submitLogic.error} />
+            <FormErrorMessage error={submitLogic.error} />
 
             {/* Action Buttons */}
             <FormActions
               mode={mode}
+              entityLabel='Word'
               isSubmitting={submitLogic.isSubmitting}
               isFormValid={formLogic.isValid}
               onCancel={handleClose}

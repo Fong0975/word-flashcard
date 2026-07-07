@@ -1,6 +1,11 @@
 import React from 'react';
 
 import { QuestionQuizResult } from '../../../types/api';
+import {
+  ACCURACY_THRESHOLDS,
+  getScoreColor,
+} from '../../shared/constants/quiz';
+import { calculateAccuracyRate } from '../question-detail/utils/accuracyCalculation';
 
 interface QuestionQuizResultsProps {
   results: QuestionQuizResult[];
@@ -20,21 +25,11 @@ export const QuestionQuizResults: React.FC<QuestionQuizResultsProps> = ({
       ? Math.round((correctAnswers / totalQuestions) * 100)
       : 0;
 
-  const getScoreColor = (percentage: number) => {
-    if (percentage >= 80) {
-      return 'text-green-600 dark:text-green-400';
-    }
-    if (percentage >= 60) {
-      return 'text-yellow-600 dark:text-yellow-400';
-    }
-    return 'text-red-600 dark:text-red-400';
-  };
-
   const getScoreBadgeColor = (percentage: number) => {
-    if (percentage >= 80) {
+    if (percentage >= ACCURACY_THRESHOLDS.HIGH) {
       return 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200 border-green-200 dark:border-green-700';
     }
-    if (percentage >= 60) {
+    if (percentage >= ACCURACY_THRESHOLDS.MEDIUM) {
       return 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 border-yellow-200 dark:border-yellow-700';
     }
     return 'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200 border-red-200 dark:border-red-700';
@@ -79,9 +74,9 @@ export const QuestionQuizResults: React.FC<QuestionQuizResultsProps> = ({
       {/* Header */}
       <div className='mb-8 text-center'>
         <div className='mb-4 text-6xl'>
-          {accuracyPercentage >= 80
+          {accuracyPercentage >= ACCURACY_THRESHOLDS.HIGH
             ? '🎉'
-            : accuracyPercentage >= 60
+            : accuracyPercentage >= ACCURACY_THRESHOLDS.MEDIUM
               ? '👍'
               : '📚'}
         </div>
@@ -206,11 +201,9 @@ export const QuestionQuizResults: React.FC<QuestionQuizResultsProps> = ({
                       {result.updatedStats.countPractise} practised &middot;{' '}
                       {result.updatedStats.countFailurePractise} incorrect
                       &middot;{' '}
-                      {Math.round(
-                        ((result.updatedStats.countPractise -
-                          result.updatedStats.countFailurePractise) /
-                          result.updatedStats.countPractise) *
-                          100,
+                      {calculateAccuracyRate(
+                        result.updatedStats.countPractise,
+                        result.updatedStats.countFailurePractise,
                       )}
                       % accuracy
                     </p>

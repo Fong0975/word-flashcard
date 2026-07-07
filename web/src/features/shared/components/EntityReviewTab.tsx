@@ -1,11 +1,9 @@
-import React, { ReactNode, useEffect, useRef, useState } from 'react';
+import React, { ReactNode } from 'react';
 
-import { Pagination } from '../../../components/ui/Pagination';
 import { LoadingSpinner } from '../../../components/ui/LoadingSpinner';
 import { ErrorMessage } from '../../../components/ui/ErrorMessage';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { ToastContainer } from '../../../components/ui';
-import { useToast } from '../../../hooks/ui/useToast';
 import {
   EntityListHook,
   BaseEntity,
@@ -13,6 +11,12 @@ import {
   EntityReviewActions,
   BaseComponentProps,
 } from '../../../types';
+import { useDebouncedSearchInput } from '../hooks/useDebouncedSearchInput';
+import { useRefreshAction } from '../hooks/useRefreshAction';
+
+import { ReviewTabActionButtons } from './ReviewTabActionButtons';
+import { EntityReviewSearchBar } from './EntityReviewSearchBar';
+import { EntityListSection } from './EntityListSection';
 
 interface EntityReviewTabProps<
   T extends BaseEntity,
@@ -26,9 +30,6 @@ interface EntityReviewTabProps<
   readonly toolbarContent?: ReactNode;
   readonly onTotalCountClick?: () => void;
 }
-
-// Delay before a search term change is propagated to entityListHook/actions.onSearch.
-const SEARCH_DEBOUNCE_MS = 300;
 
 /**
  * Generic EntityReviewTab component
@@ -71,9 +72,6 @@ export const EntityReviewTab = <T extends BaseEntity>({
   onTotalCountClick,
   className = '',
 }: EntityReviewTabProps<T>) => {
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const { toasts, showSuccess, showError, removeToast } = useToast();
-
   const {
     entities,
     loading,
@@ -103,89 +101,25 @@ export const EntityReviewTab = <T extends BaseEntity>({
 
   const emptyStateConfig = config.emptyStateConfig || defaultEmptyState;
 
-  // Local, immediately-updated display value for the search input. Kept separate from
-  // searchTerm so that a controlled re-render doesn't overwrite the DOM value mid-IME
-  // composition (iOS Zhuyin/Pinyin aborts composition if `value` is reprogrammatically
-  // reset while the candidate window is still open).
-  const [inputValue, setInputValue] = useState(searchTerm);
-  const isComposingRef = useRef(false);
-  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Keep the input in sync when searchTerm changes from outside this component
-  // (e.g. the clear button, or restoring a persisted search term on mount).
-  useEffect(() => {
-    setInputValue(searchTerm);
-  }, [searchTerm]);
-
-  useEffect(() => {
-    return () => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
+  const {
+    inputValue,
+    handleChange,
+    handleCompositionStart,
+    handleCompositionEnd,
+    clearSearch,
+  } = useDebouncedSearchInput({
+    searchTerm,
+    onCommit: term => {
+      setSearchTerm(term);
+      if (actions.onSearch) {
+        actions.onSearch(term);
       }
-    };
-  }, []);
+    },
+  });
 
-  const commitSearch = (term: string) => {
-    setSearchTerm(term);
-    if (actions.onSearch) {
-      actions.onSearch(term);
-    }
-  };
-
-  const scheduleSearch = (term: string) => {
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
-    }
-    debounceTimerRef.current = setTimeout(() => {
-      commitSearch(term);
-    }, SEARCH_DEBOUNCE_MS);
-  };
-
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const term = event.target.value;
-    setInputValue(term);
-
-    // While an IME composition is in progress, the value is not final yet
-    // (e.g. raw Zhuyin/Pinyin keys) — don't search or touch searchTerm.
-    if (isComposingRef.current) {
-      return;
-    }
-
-    scheduleSearch(term);
-  };
-
-  const handleCompositionStart = () => {
-    isComposingRef.current = true;
-  };
-
-  const handleCompositionEnd = (
-    event: React.CompositionEvent<HTMLInputElement>,
-  ) => {
-    isComposingRef.current = false;
-    const term = event.currentTarget.value;
-    setInputValue(term);
-    scheduleSearch(term);
-  };
-
-  const handleRefresh = async () => {
-    if (isRefreshing) {
-      return;
-    }
-
-    try {
-      setIsRefreshing(true);
-
-      if (actions.onRefresh) {
-        await actions.onRefresh();
-      }
-
-      showSuccess('Refresh successful!');
-    } catch (error) {
-      showError('Refresh failed, please try again later.');
-    } finally {
-      setIsRefreshing(false);
-    }
-  };
+  const { isRefreshing, handleRefresh, toasts, removeToast } = useRefreshAction(
+    actions.onRefresh,
+  );
 
   // Show loading state
   if (loading && entities.length === 0 && !searchTerm) {
@@ -213,83 +147,15 @@ export const EntityReviewTab = <T extends BaseEntity>({
           Manage and review your {config.entityNamePlural.toLowerCase()}
         </p>
 
-        {/* Action Buttons */}
-        <div className='mt-4 flex items-center justify-end space-x-3'>
-          {/* Quiz Button */}
-          {config.enableQuiz && entities.length > 0 && actions.onQuizSetup && (
-            <button
-              onClick={() => actions.onQuizSetup?.()}
-              className='inline-flex items-center rounded-md bg-blue-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
-            >
-              <svg
-                className='mr-2 h-4 w-4'
-                fill='none'
-                stroke='currentColor'
-                viewBox='0 0 24 24'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth='2'
-                  d='M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z'
-                />
-              </svg>
-              Quiz
-            </button>
+        <ReviewTabActionButtons
+          showQuiz={Boolean(
+            config.enableQuiz && entities.length > 0 && actions.onQuizSetup,
           )}
-
-          {/* Refresh Button */}
-          {actions.onRefresh && (
-            <button
-              onClick={handleRefresh}
-              disabled={isRefreshing}
-              className='inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700'
-              title='Refresh to get latest data'
-            >
-              {isRefreshing ? (
-                <div className='mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-current'></div>
-              ) : (
-                <svg
-                  className='mr-2 h-4 w-4'
-                  fill='none'
-                  stroke='currentColor'
-                  viewBox='0 0 24 24'
-                >
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth='2'
-                    d='M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15'
-                  />
-                </svg>
-              )}
-              {isRefreshing ? 'Refreshing...' : 'Refresh'}
-            </button>
-          )}
-
-          {/* Add Button */}
-          {actions.onNew && (
-            <button
-              onClick={() => actions.onNew?.()}
-              className='inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-800 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700'
-            >
-              <svg
-                className='mr-2 h-4 w-4'
-                fill='none'
-                stroke='currentColor'
-                viewBox='0 0 24 24'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth='2'
-                  d='M12 4v16m8-8H4'
-                />
-              </svg>
-              Add
-            </button>
-          )}
-        </div>
+          onQuizSetup={actions.onQuizSetup}
+          onRefresh={actions.onRefresh ? handleRefresh : undefined}
+          isRefreshing={isRefreshing}
+          onNew={actions.onNew}
+        />
       </div>
 
       {/* Toolbar (e.g. sort controls) */}
@@ -297,69 +163,18 @@ export const EntityReviewTab = <T extends BaseEntity>({
 
       {/* Search */}
       {config.enableSearch && (
-        <div className='mb-6'>
-          <div className='relative'>
-            <div className='pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3'>
-              <svg
-                className='h-5 w-5 text-gray-400'
-                fill='none'
-                viewBox='0 0 24 24'
-                strokeWidth='2'
-                stroke='currentColor'
-                aria-hidden='true'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'
-                />
-              </svg>
-            </div>
-            <input
-              type='text'
-              value={inputValue}
-              onChange={handleSearchChange}
-              onCompositionStart={handleCompositionStart}
-              onCompositionEnd={handleCompositionEnd}
-              className='block w-full rounded-md border border-gray-300 bg-white py-2 pl-10 pr-8 leading-5 text-gray-900 placeholder-gray-500 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 sm:text-sm'
-              placeholder={
-                config.searchPlaceholder ||
-                `Search ${config.entityNamePlural.toLowerCase()}...`
-              }
-            />
-            {inputValue && (
-              <button
-                type='button'
-                onClick={() => {
-                  if (debounceTimerRef.current) {
-                    clearTimeout(debounceTimerRef.current);
-                  }
-                  setInputValue('');
-                  commitSearch('');
-                }}
-                className='absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
-                aria-label='Clear search'
-              >
-                <svg
-                  className='h-4 w-4'
-                  fill='none'
-                  viewBox='0 0 24 24'
-                  strokeWidth='2'
-                  stroke='currentColor'
-                >
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    d='M6 18L18 6M6 6l12 12'
-                  />
-                </svg>
-              </button>
-            )}
-          </div>
-          {quickFiltersContent && (
-            <div className='mt-2'>{quickFiltersContent}</div>
-          )}
-        </div>
+        <EntityReviewSearchBar
+          value={inputValue}
+          onChange={handleChange}
+          onCompositionStart={handleCompositionStart}
+          onCompositionEnd={handleCompositionEnd}
+          onClear={clearSearch}
+          placeholder={
+            config.searchPlaceholder ||
+            `Search ${config.entityNamePlural.toLowerCase()}...`
+          }
+          quickFiltersContent={quickFiltersContent}
+        />
       )}
 
       {/* Error State */}
@@ -397,61 +212,24 @@ export const EntityReviewTab = <T extends BaseEntity>({
 
       {/* Entity List */}
       {entities.length > 0 && (
-        <div>
-          {totalCount > 0 && (
-            <div className='mb-2 flex justify-end'>
-              {onTotalCountClick ? (
-                <button
-                  onClick={onTotalCountClick}
-                  className='text-xs text-gray-400 underline-offset-2 hover:text-gray-600 hover:underline dark:text-gray-500 dark:hover:text-gray-300'
-                >
-                  {totalCount} {config.entityNamePlural.toLowerCase()} total
-                </button>
-              ) : (
-                <span className='text-xs text-gray-400 dark:text-gray-500'>
-                  {totalCount} {config.entityNamePlural.toLowerCase()} total
-                </span>
-              )}
-            </div>
-          )}
-          <div className='space-y-3'>
-            {entities.map((entity, index) => (
-              <div key={entity.id}>
-                {renderCard(
-                  entity,
-                  (currentPage - 1) * itemsPerPage + index + 1,
-                )}
-              </div>
-            ))}
-          </div>
-
-          {loading && (
-            <div className='flex items-center justify-center rounded-lg bg-white/80 py-4 backdrop-blur-sm dark:bg-gray-900/80'>
-              <div className='h-6 w-6 animate-spin rounded-full border-b-2 border-primary-500'></div>
-              <span className='ml-2 text-sm text-gray-600 dark:text-gray-400'>
-                Loading...
-              </span>
-            </div>
-          )}
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className='mt-8 flex justify-center'>
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                hasNext={hasNext}
-                hasPrevious={hasPrevious}
-                itemsPerPage={itemsPerPage}
-                onPageChange={goToPage}
-                onNext={nextPage}
-                onPrevious={previousPage}
-                onFirst={goToFirst}
-                onLast={goToLast}
-              />
-            </div>
-          )}
-        </div>
+        <EntityListSection
+          entities={entities}
+          renderCard={renderCard}
+          currentPage={currentPage}
+          itemsPerPage={itemsPerPage}
+          totalCount={totalCount}
+          onTotalCountClick={onTotalCountClick}
+          entityNamePlural={config.entityNamePlural}
+          loading={loading}
+          totalPages={totalPages}
+          hasNext={hasNext}
+          hasPrevious={hasPrevious}
+          onPageChange={goToPage}
+          onNext={nextPage}
+          onPrevious={previousPage}
+          onFirst={goToFirst}
+          onLast={goToLast}
+        />
       )}
 
       {/* Additional Content (Modals, etc.) */}

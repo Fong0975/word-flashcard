@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { FamiliarityBarProps } from '../types/word-detail';
-import { getFamiliarityBarColor } from '../utils/familiarity';
+import { getFamiliarityColor } from '../../../shared/constants/familiarity';
 
 export const FamiliarityBar: React.FC<FamiliarityBarProps> = ({
   familiarity,
@@ -13,7 +13,7 @@ export const FamiliarityBar: React.FC<FamiliarityBarProps> = ({
   return (
     <div className='mb-4 text-center'>
       <div
-        className={`mx-auto h-2 w-24 rounded-full transition-colors duration-300 ${getFamiliarityBarColor(familiarity)}`}
+        className={`mx-auto h-2 w-24 rounded-full transition-colors duration-300 ${getFamiliarityColor(familiarity)}`}
       />
     </div>
   );

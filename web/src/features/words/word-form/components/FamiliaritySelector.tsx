@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { FamiliarityLevel } from '../../../../types/base';
-import { FAMILIARITY_OPTIONS } from '../utils/constants';
+import { FAMILIARITY_OPTIONS } from '../../../shared/constants/familiarity';
 
 interface FamiliaritySelectorProps {
   value: FamiliarityLevel;

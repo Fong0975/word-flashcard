@@ -2,6 +2,8 @@ import React from 'react';
 
 import { Modal } from '../../../components/ui/Modal';
 import { CopyButton } from '../../../components/ui/CopyButton';
+import { FormActions } from '../../../components/ui/FormActions';
+import { FormErrorMessage } from '../../../components/ui/FormErrorMessage';
 import { ToastContainer } from '../../../components/ui';
 import { useToast } from '../../../hooks/ui/useToast';
 import { useTemplateButtons } from '../../../hooks/shared';
@@ -16,8 +18,6 @@ import {
   AnswerSelector,
   ReferenceInput,
   NotesInput,
-  ErrorMessage,
-  FormActions,
 } from './components';
 import { QuestionFormSubmitCallbacks } from './types/question-form';
 
@@ -156,7 +156,7 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
                 onAppendTemplate={appendToNotes}
               />
 
-              <ErrorMessage error={error} />
+              <FormErrorMessage error={error} />
             </div>
           </form>
         </div>
@@ -165,10 +165,12 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
         <div className='flex-shrink-0 px-6 pb-4 pt-0'>
           <FormActions
             mode={mode}
+            entityLabel='Question'
             isSubmitting={isSubmitting}
             isFormValid={isValid}
             onCancel={handleClose}
             onSubmit={() => handleSubmit(formData)}
+            className='flex justify-end space-x-3 pb-2 pt-4'
           />
         </div>
       </div>

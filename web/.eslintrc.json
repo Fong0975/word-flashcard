@@ -37,6 +37,15 @@
     "tailwindcss/no-custom-classname": "warn",
     "tailwindcss/no-contradicting-classname": "error"
   },
+  "overrides": [
+    {
+      "files": ["src/**/*.{ts,tsx}"],
+      "excludedFiles": ["src/lib/api.ts"],
+      "rules": {
+        "max-lines": ["warn", { "max": 380, "skipBlankLines": false, "skipComments": false }]
+      }
+    }
+  ],
   "settings": {
     "tailwindcss": {
       "config": "./tailwind.config.js"

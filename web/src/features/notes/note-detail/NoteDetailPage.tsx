@@ -6,6 +6,7 @@ import { apiService } from '../../../lib/api';
 import { DetailPageLayout } from '../../../components/layout';
 import { MarkdownContent, ToastContainer } from '../../../components/ui';
 import { useToast } from '../../../hooks/ui/useToast';
+import { useDeleteConfirmation } from '../../../hooks/ui/useDeleteConfirmation';
 import { useTemplateButtons } from '../../../hooks/shared';
 import { appendTemplateText } from '../../../utils/textTemplates';
 import { MarkdownEditor } from '../components/MarkdownEditor';
@@ -37,9 +38,6 @@ export const NoteDetailPage: React.FC = () => {
   const [editContent, setEditContent] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
 
   const { toasts, showWarning, removeToast } = useToast();
   const { templateButtonsConfig } = useTemplateButtons({
@@ -108,20 +106,16 @@ export const NoteDetailPage: React.FC = () => {
     }
   };
 
-  const handleDelete = async () => {
-    if (!note) {
-      return;
-    }
-
-    try {
-      setIsDeleting(true);
-      await apiService.deleteNote(note.id);
+  const deleteConfirmation = useDeleteConfirmation({
+    entity: note,
+    onDelete: async n => {
+      await apiService.deleteNote(n.id);
+    },
+    getConfirmMessage: n => `Delete "${n.title}"? This cannot be undone.`,
+    onSuccess: () => {
       navigate('/?tab=notes');
-    } catch {
-      setIsDeleting(false);
-      setShowDeleteConfirm(false);
-    }
-  };
+    },
+  });
 
   if (isLoading) {
     return (
@@ -174,7 +168,7 @@ export const NoteDetailPage: React.FC = () => {
           </button>
           <button
             type='button'
-            onClick={() => setShowDeleteConfirm(true)}
+            onClick={deleteConfirmation.showDeleteConfirm}
             className='rounded-md border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20'
           >
             Delete
@@ -199,7 +193,7 @@ export const NoteDetailPage: React.FC = () => {
 
   const viewBody = (
     <>
-      {showDeleteConfirm && (
+      {deleteConfirmation.showConfirm && (
         <div className='mb-4 rounded-md border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20'>
           <p className='mb-3 text-sm text-red-700 dark:text-red-300'>
             Delete "<strong>{note.title}</strong>"? This cannot be undone.
@@ -207,16 +201,16 @@ export const NoteDetailPage: React.FC = () => {
           <div className='flex gap-2'>
             <button
               type='button'
-              onClick={handleDelete}
-              disabled={isDeleting}
+              onClick={deleteConfirmation.confirmDelete}
+              disabled={deleteConfirmation.isDeleting}
               className='rounded-md bg-red-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50'
             >
-              {isDeleting ? 'Deleting...' : 'Delete'}
+              {deleteConfirmation.isDeleting ? 'Deleting...' : 'Delete'}
             </button>
             <button
               type='button'
-              onClick={() => setShowDeleteConfirm(false)}
-              disabled={isDeleting}
+              onClick={deleteConfirmation.cancelDelete}
+              disabled={deleteConfirmation.isDeleting}
               className='rounded-md border border-gray-300 px-4 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700'
             >
               Cancel

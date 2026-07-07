@@ -1,13 +1,16 @@
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 
 import { apiService } from '../../../../lib/api';
+import { useControllableState } from '../../../../hooks/shared/useControllableState';
 import {
   CambridgeApiResponse,
-  CambridgePronunciation,
   CambridgeDefinition,
-  GroupedPronunciation,
   DefinitionForm,
 } from '../types';
+import {
+  formatPronunciationSuccessMessage,
+  formatDefinitionSuccessMessage,
+} from '../utils/dictionaryFormatting';
 
 export interface ExternalDictionaryState {
   dictionaryData: CambridgeApiResponse | null;
@@ -26,32 +29,29 @@ export const useDictionaryData = (
   onShowError?: (message: string) => void,
   externalState?: ExternalDictionaryState,
 ) => {
-  // Use external state if provided, otherwise use internal state
-  const [internalDictionaryData, setInternalDictionaryData] =
-    useState<CambridgeApiResponse | null>(null);
-  const [internalIsLoadingDictionary, setInternalIsLoadingDictionary] =
-    useState(false);
-  const [internalDictionaryError, setInternalDictionaryError] = useState<
+  const [dictionaryData, setDictionaryData] =
+    useControllableState<CambridgeApiResponse | null>(
+      externalState?.dictionaryData,
+      externalState?.setDictionaryData,
+      null,
+    );
+
+  const [isLoadingDictionary, setIsLoadingDictionary] =
+    useControllableState<boolean>(
+      externalState?.isLoadingDictionary,
+      externalState?.setIsLoadingDictionary,
+      false,
+    );
+
+  const [dictionaryError, setDictionaryError] = useControllableState<
     string | null
-  >(null);
-  const [internalIsCollapsed, setInternalIsCollapsed] = useState(true);
+  >(externalState?.dictionaryError, externalState?.setDictionaryError, null);
 
-  const dictionaryData =
-    externalState?.dictionaryData ?? internalDictionaryData;
-  const isLoadingDictionary =
-    externalState?.isLoadingDictionary ?? internalIsLoadingDictionary;
-  const dictionaryError =
-    externalState?.dictionaryError ?? internalDictionaryError;
-  const isCollapsed = externalState?.isCollapsed ?? internalIsCollapsed;
-
-  const setDictionaryData =
-    externalState?.setDictionaryData ?? setInternalDictionaryData;
-  const setIsLoadingDictionary =
-    externalState?.setIsLoadingDictionary ?? setInternalIsLoadingDictionary;
-  const setDictionaryError =
-    externalState?.setDictionaryError ?? setInternalDictionaryError;
-  const setIsCollapsed =
-    externalState?.setIsCollapsed ?? setInternalIsCollapsed;
+  const [isCollapsed, setIsCollapsed] = useControllableState<boolean>(
+    externalState?.isCollapsed,
+    externalState?.setIsCollapsed,
+    true,
+  );
 
   // Fetch Cambridge Dictionary data
   const fetchDictionaryData = useCallback(async () => {
@@ -89,40 +89,6 @@ export const useDictionaryData = (
     setIsCollapsed,
   ]);
 
-  // Helper function to group pronunciations by position
-  const groupPronunciationsByPos = useCallback(
-    (pronunciations: CambridgePronunciation[]): GroupedPronunciation[] => {
-      const groups = pronunciations.reduce(
-        (acc, pron) => {
-          const pos = pron.pos || 'general';
-          if (!acc[pos]) {
-            acc[pos] = { uk: null, us: null };
-          }
-          if (pron.lang === 'uk') {
-            acc[pos].uk = pron;
-          } else if (pron.lang === 'us') {
-            acc[pos].us = pron;
-          }
-          return acc;
-        },
-        {} as Record<
-          string,
-          {
-            uk: CambridgePronunciation | null;
-            us: CambridgePronunciation | null;
-          }
-        >,
-      );
-
-      return Object.entries(groups).map(([pos, group]) => ({
-        pos,
-        uk: group.uk,
-        us: group.us,
-      }));
-    },
-    [],
-  );
-
   // Helper function to apply pronunciation data to form
   const applyPronunciation = useCallback(
     (
@@ -140,29 +106,8 @@ export const useDictionaryData = (
         });
       }
 
-      // Show success message
-      const appliedUrls = [];
-      if (ukUrl) {
-        appliedUrls.push('UK');
-      }
-      if (usUrl) {
-        appliedUrls.push('US');
-      }
-
-      let successText = '';
-      if (appliedUrls.length > 0) {
-        const urlText = appliedUrls.join(' and ');
-        successText = `${urlText} pronunciation URL${appliedUrls.length > 1 ? 's' : ''}`;
-        if (pos && pos !== 'general') {
-          successText += ` (${pos})`;
-        }
-        successText += ' applied successfully!';
-      } else {
-        successText = 'Pronunciation data applied successfully!';
-      }
-
       if (onShowSuccess) {
-        onShowSuccess(successText);
+        onShowSuccess(formatPronunciationSuccessMessage(ukUrl, usUrl, pos));
       }
     },
     [onShowSuccess],
@@ -186,20 +131,10 @@ export const useDictionaryData = (
         });
       }
 
-      // Show success message
-      const itemsApplied = [];
-      if (definition.pos) {
-        itemsApplied.push('part of speech');
-      }
-      itemsApplied.push('definition');
-      if (examples.length > 0) {
-        itemsApplied.push(
-          `${examples.length} example${examples.length > 1 ? 's' : ''}`,
-        );
-      }
-
       if (onShowSuccess) {
-        onShowSuccess(`Applied ${itemsApplied.join(', ')} successfully!`);
+        onShowSuccess(
+          formatDefinitionSuccessMessage(definition, examples.length),
+        );
       }
     },
     [onShowSuccess],
@@ -230,8 +165,5 @@ export const useDictionaryData = (
     applyDefinition,
     resetDictionaryData,
     toggleCollapsed,
-
-    // Utilities
-    groupPronunciationsByPos,
   };
 };
