@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, useEffect, useRef, useState } from 'react';
 
 import { Pagination } from '../../../components/ui/Pagination';
 import { LoadingSpinner } from '../../../components/ui/LoadingSpinner';
@@ -26,6 +26,9 @@ interface EntityReviewTabProps<
   readonly toolbarContent?: ReactNode;
   readonly onTotalCountClick?: () => void;
 }
+
+// Delay before a search term change is propagated to entityListHook/actions.onSearch.
+const SEARCH_DEBOUNCE_MS = 300;
 
 /**
  * Generic EntityReviewTab component
@@ -100,12 +103,68 @@ export const EntityReviewTab = <T extends BaseEntity>({
 
   const emptyStateConfig = config.emptyStateConfig || defaultEmptyState;
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const term = event.target.value;
+  // Local, immediately-updated display value for the search input. Kept separate from
+  // searchTerm so that a controlled re-render doesn't overwrite the DOM value mid-IME
+  // composition (iOS Zhuyin/Pinyin aborts composition if `value` is reprogrammatically
+  // reset while the candidate window is still open).
+  const [inputValue, setInputValue] = useState(searchTerm);
+  const isComposingRef = useRef(false);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Keep the input in sync when searchTerm changes from outside this component
+  // (e.g. the clear button, or restoring a persisted search term on mount).
+  useEffect(() => {
+    setInputValue(searchTerm);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
+
+  const commitSearch = (term: string) => {
     setSearchTerm(term);
     if (actions.onSearch) {
       actions.onSearch(term);
     }
+  };
+
+  const scheduleSearch = (term: string) => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+    debounceTimerRef.current = setTimeout(() => {
+      commitSearch(term);
+    }, SEARCH_DEBOUNCE_MS);
+  };
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const term = event.target.value;
+    setInputValue(term);
+
+    // While an IME composition is in progress, the value is not final yet
+    // (e.g. raw Zhuyin/Pinyin keys) — don't search or touch searchTerm.
+    if (isComposingRef.current) {
+      return;
+    }
+
+    scheduleSearch(term);
+  };
+
+  const handleCompositionStart = () => {
+    isComposingRef.current = true;
+  };
+
+  const handleCompositionEnd = (
+    event: React.CompositionEvent<HTMLInputElement>,
+  ) => {
+    isComposingRef.current = false;
+    const term = event.currentTarget.value;
+    setInputValue(term);
+    scheduleSearch(term);
   };
 
   const handleRefresh = async () => {
@@ -258,22 +317,25 @@ export const EntityReviewTab = <T extends BaseEntity>({
             </div>
             <input
               type='text'
-              value={searchTerm}
+              value={inputValue}
               onChange={handleSearchChange}
+              onCompositionStart={handleCompositionStart}
+              onCompositionEnd={handleCompositionEnd}
               className='block w-full rounded-md border border-gray-300 bg-white py-2 pl-10 pr-8 leading-5 text-gray-900 placeholder-gray-500 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 sm:text-sm'
               placeholder={
                 config.searchPlaceholder ||
                 `Search ${config.entityNamePlural.toLowerCase()}...`
               }
             />
-            {searchTerm && (
+            {inputValue && (
               <button
                 type='button'
                 onClick={() => {
-                  setSearchTerm('');
-                  if (actions.onSearch) {
-                    actions.onSearch('');
+                  if (debounceTimerRef.current) {
+                    clearTimeout(debounceTimerRef.current);
                   }
+                  setInputValue('');
+                  commitSearch('');
                 }}
                 className='absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
                 aria-label='Clear search'
