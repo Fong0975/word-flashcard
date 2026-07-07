@@ -40,7 +40,7 @@ export const NoteDetailPage: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  const { toasts, showWarning, removeToast } = useToast();
+  const { toasts, showWarning, showError, removeToast } = useToast();
   const { templateButtonsConfig } = useTemplateButtons({
     configFileName: 'noteContentButtonsConfig.json',
     onWarning: showWarning,
@@ -115,6 +115,9 @@ export const NoteDetailPage: React.FC = () => {
     getConfirmMessage: n => `Delete "${n.title}"? This cannot be undone.`,
     onSuccess: () => {
       navigate('/?tab=notes');
+    },
+    onError: error => {
+      showError('Failed to delete note: ' + getApiErrorMessage(error));
     },
   });
 

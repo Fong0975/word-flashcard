@@ -6,6 +6,8 @@ import { getApiErrorMessage } from '../../../lib/apiErrorMessage';
 import { Word, WordDefinition } from '../../../types/api';
 import { DetailPageLayout } from '../../../components/layout';
 import { ConfirmationDialog } from '../../../components/ui/ConfirmationDialog';
+import { ToastContainer } from '../../../components/ui';
+import { useToast } from '../../../hooks/ui/useToast';
 import { WordFormModal } from '../word-form';
 import { DefinitionFormModal } from '../definition-form';
 import { createExactWordSearchFilter } from '../word-form/utils';
@@ -21,6 +23,7 @@ import { WordDeleteConfirmation } from './components/WordDeleteConfirmation';
 export const WordDetailPage: React.FC = () => {
   const { wordText } = useParams<{ wordText: string }>();
   const navigate = useNavigate();
+  const { toasts, showError, removeToast } = useToast();
 
   const [word, setWord] = useState<Word | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -115,6 +118,7 @@ export const WordDetailPage: React.FC = () => {
     word,
     callbacks: { onEdit: () => {}, onDelete: () => {} },
     onClose: () => navigate('/'),
+    onError: showError,
   });
 
   const definitionActions = useDefinitionActions({
@@ -127,6 +131,7 @@ export const WordDetailPage: React.FC = () => {
       onDelete: () => {},
       onWordUpdated: fetchWord,
     },
+    onError: showError,
   });
 
   const handleAddDefinition = () => {
@@ -293,6 +298,8 @@ export const WordDetailPage: React.FC = () => {
         shouldResetDictionaryOnClose={false}
         externalDictionaryState={sharedDictionaryState}
       />
+
+      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
     </>
   );
 };

@@ -7,6 +7,8 @@ import { Question } from '../../../types/api';
 import { DetailPageLayout } from '../../../components/layout';
 import { QuestionFormModal } from '../question-form/QuestionFormModal';
 import { ConfirmationDialog } from '../../../components/ui/ConfirmationDialog';
+import { ToastContainer } from '../../../components/ui';
+import { useToast } from '../../../hooks/ui/useToast';
 
 import { useQuestionActions } from './hooks/useQuestionActions';
 import { useQuestionStats } from './hooks/useQuestionStats';
@@ -20,6 +22,7 @@ import {
 export const QuestionDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { toasts, showError, removeToast } = useToast();
 
   const [question, setQuestion] = useState<Question | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -55,6 +58,7 @@ export const QuestionDetailPage: React.FC = () => {
       onClose: () => navigate('/'),
       onQuestionRefreshed: (updated: Question) => setQuestion(updated),
     },
+    onError: showError,
   });
 
   if (isLoading) {
@@ -146,6 +150,8 @@ export const QuestionDetailPage: React.FC = () => {
         onConfirm={actions.deleteConfirmation.confirmDelete}
         onCancel={actions.deleteConfirmation.cancelDelete}
       />
+
+      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
     </>
   );
 };

@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 
 import { apiService } from '../../../../lib/api';
+import { getApiErrorMessage } from '../../../../lib/apiErrorMessage';
 import { WordDefinition } from '../../../../types/api';
 import { DefinitionActionsCallbacks } from '../types/word-detail';
 
@@ -33,9 +34,7 @@ export const useDefinitionActions = ({
         }
       } catch (error) {
         if (onError) {
-          const errorMessage =
-            error instanceof Error ? error.message : 'Unknown error';
-          onError('Failed to delete definition: ' + errorMessage);
+          onError('Failed to delete definition: ' + getApiErrorMessage(error));
         }
       }
     },
