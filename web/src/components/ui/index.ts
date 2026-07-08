@@ -6,6 +6,7 @@ export { FormActions } from './FormActions';
 export { FormErrorMessage } from './FormErrorMessage';
 export { MarkdownContent } from './MarkdownContent';
 export type { MarkdownContentVariant } from './MarkdownContent';
+export { MarkdownEditorField } from './markdown-editor/MarkdownEditorField';
 export { Pagination } from './Pagination';
 export { PronunciationButton } from './PronunciationButton';
 export { TemplateButtonRow } from './TemplateButtonRow';
