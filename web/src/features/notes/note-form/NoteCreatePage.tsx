@@ -4,11 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { apiService } from '../../../lib/api';
 import { getApiErrorMessage } from '../../../lib/apiErrorMessage';
 import { DetailPageLayout } from '../../../components/layout';
-import { ToastContainer } from '../../../components/ui';
+import { MarkdownEditorField, ToastContainer } from '../../../components/ui';
 import { useToast } from '../../../hooks/ui/useToast';
 import { useTemplateButtons } from '../../../hooks/shared';
 import { appendTemplateText } from '../../../utils/textTemplates';
-import { MarkdownEditor } from '../components/MarkdownEditor';
 
 export const NoteCreatePage: React.FC = () => {
   const navigate = useNavigate();
@@ -60,10 +59,12 @@ export const NoteCreatePage: React.FC = () => {
 
   const body = (
     <div className='flex min-h-0 flex-1 flex-col gap-3'>
-      <MarkdownEditor
+      <MarkdownEditorField
         value={content}
         onChange={setContent}
-        placeholder='Write your note in Markdown...'
+        placeholder='Write your note...'
+        heightMode='flex'
+        fontMono
         rows={20}
         templateButtons={templateButtonsConfig}
         onAppendTemplate={appendToContent}

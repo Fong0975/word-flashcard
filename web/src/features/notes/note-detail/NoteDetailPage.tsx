@@ -5,12 +5,15 @@ import { Note } from '../../../types/api';
 import { apiService } from '../../../lib/api';
 import { getApiErrorMessage } from '../../../lib/apiErrorMessage';
 import { DetailPageLayout } from '../../../components/layout';
-import { MarkdownContent, ToastContainer } from '../../../components/ui';
+import {
+  MarkdownContent,
+  MarkdownEditorField,
+  ToastContainer,
+} from '../../../components/ui';
 import { useToast } from '../../../hooks/ui/useToast';
 import { useDeleteConfirmation } from '../../../hooks/ui/useDeleteConfirmation';
 import { useTemplateButtons } from '../../../hooks/shared';
 import { appendTemplateText } from '../../../utils/textTemplates';
-import { MarkdownEditor } from '../components/MarkdownEditor';
 
 const formatDate = (dateStr: string | null): string => {
   if (!dateStr) {
@@ -235,10 +238,12 @@ export const NoteDetailPage: React.FC = () => {
 
   const editBody = (
     <div className='flex min-h-0 flex-1 flex-col gap-3'>
-      <MarkdownEditor
+      <MarkdownEditorField
         value={editContent}
         onChange={setEditContent}
-        placeholder='Write your note in Markdown...'
+        placeholder='Write your note...'
+        heightMode='flex'
+        fontMono
         rows={20}
         templateButtons={templateButtonsConfig}
         onAppendTemplate={appendToEditContent}

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 
-import { MarkdownContent, TemplateButtonRow } from '../../../../components/ui';
+import { MarkdownEditorField } from '../../../../components/ui';
 import { TemplateButton } from '../../../../types/components';
 import { DefinitionForm } from '../types';
 
@@ -28,8 +28,6 @@ export const FormFields: React.FC<FormFieldsProps> = ({
   noteButtonsConfig,
   handlers,
 }) => {
-  const [isNotesPreview, setIsNotesPreview] = useState(false);
-
   return (
     <div className='space-y-6'>
       {/* Part of Speech - Required */}
@@ -149,75 +147,16 @@ export const FormFields: React.FC<FormFieldsProps> = ({
 
       {/* Notes - Optional */}
       <div>
-        <label className='mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300'>
-          Notes (Optional)
-        </label>
-
-        {/* Quick note templates buttons - always visible, grayed out in preview mode */}
-        <TemplateButtonRow
-          buttons={noteButtonsConfig}
-          onSelect={handlers.appendToNotes}
-          disabled={isNotesPreview}
-          tooltip={
-            isNotesPreview ? 'Switch to Edit mode to use templates' : undefined
-          }
+        <MarkdownEditorField
+          value={formData.notes}
+          onChange={handlers.handleNotesChange}
+          id='definition-notes'
+          label='Notes (Optional)'
+          placeholder='Enter additional notes...'
+          unescapeLiteralNewlines
+          templateButtons={noteButtonsConfig}
+          onAppendTemplate={handlers.appendToNotes}
         />
-
-        {/* Edit/Preview toggle above the content area */}
-        <div className='mb-1 flex justify-end'>
-          <div className='flex rounded-md border border-gray-300 text-xs dark:border-gray-600'>
-            <button
-              type='button'
-              onClick={() => setIsNotesPreview(false)}
-              className={`rounded-l-md px-3 py-1 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 ${
-                !isNotesPreview
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
-              }`}
-            >
-              Edit
-            </button>
-            <button
-              type='button'
-              onClick={() => setIsNotesPreview(true)}
-              className={`rounded-r-md border-l border-gray-300 px-3 py-1 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 dark:border-gray-600 ${
-                isNotesPreview
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
-              }`}
-            >
-              Preview
-            </button>
-          </div>
-        </div>
-
-        <div className='mb-1'>
-          {isNotesPreview ? (
-            <div className='h-52 overflow-y-auto rounded-md border border-gray-300 px-3 py-2 dark:border-gray-600'>
-              {formData.notes.trim() ? (
-                <MarkdownContent
-                  content={formData.notes}
-                  unescapeLiteralNewlines
-                />
-              ) : (
-                <p className='text-sm text-gray-400 dark:text-gray-500'>
-                  Nothing to preview.
-                </p>
-              )}
-            </div>
-          ) : (
-            <textarea
-              value={formData.notes}
-              onChange={e => handlers.handleNotesChange(e.target.value)}
-              rows={8}
-              className='block h-52 w-full resize-none rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
-              placeholder='Additional notes in Markdown format&#10;&#10;Example:&#10;# Heading&#10;**Bold text**&#10;- List item&#10;&#10;Use actual line breaks for new lines.'
-            />
-          )}
-        </div>
-        <p className='text-xs text-gray-500 dark:text-gray-400'>
-          Supports Markdown formatting. Use actual line breaks for new lines.
-        </p>
       </div>
 
       {/* Phonetics - Optional */}
