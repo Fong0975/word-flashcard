@@ -13,6 +13,8 @@ const (
 	ErrCodeValidationError ErrorCode = "validation_error"
 	// ErrCodeNotFound marks a request for a resource that does not exist.
 	ErrCodeNotFound ErrorCode = "not_found"
+	// ErrCodeConflict marks a request that would violate a uniqueness constraint (e.g. duplicate name/title).
+	ErrCodeConflict ErrorCode = "conflict"
 	// ErrCodeInternalError marks an unexpected server-side failure (database, data integrity, etc.).
 	// The response message must stay generic; details belong in the server log only.
 	ErrCodeInternalError ErrorCode = "internal_error"

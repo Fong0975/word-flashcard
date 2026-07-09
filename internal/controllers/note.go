@@ -212,6 +212,7 @@ func (nc *NoteController) GetNote(c *gin.Context) {
 // @Param note body models.Note true "Note data to create"
 // @Success 200 {object} models.Note "Note created successfully"
 // @Failure 400 {object} models.ErrorResponse "Bad request - Invalid request body"
+// @Failure 409 {object} models.ErrorResponse "Conflict - A note with this title already exists"
 // @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to insert data into database"
 // @Router /api/notes [post]
 func (nc *NoteController) CreateNote(c *gin.Context) {
@@ -229,7 +230,11 @@ func (nc *NoteController) CreateNote(c *gin.Context) {
 	// ================ 2. Insert data into database ================
 	noteID, err := nc.notePeer.Insert(noteData.ToDataModel())
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to insert data into database", models.ErrCodeInternalError, err, c)
+		respondDatabaseWriteError(
+			"Failed to insert data into database",
+			"A note with this title already exists",
+			err, c,
+		)
 		return
 	}
 
@@ -258,6 +263,7 @@ func (nc *NoteController) CreateNote(c *gin.Context) {
 // @Success 200 {object} models.Note "Note updated successfully"
 // @Failure 400 {object} models.ErrorResponse "Bad request - Invalid note ID or request body"
 // @Failure 404 {object} models.ErrorResponse "Not found - Note not found"
+// @Failure 409 {object} models.ErrorResponse "Conflict - A note with this title already exists"
 // @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to update data in database"
 // @Router /api/notes/{id} [put]
 func (nc *NoteController) UpdateNote(c *gin.Context) {
@@ -286,7 +292,11 @@ func (nc *NoteController) UpdateNote(c *gin.Context) {
 	where := squirrel.Eq{schema.NOTE_ID: noteID}
 	effected, err := nc.notePeer.Update(noteModel, where)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to update data in database", models.ErrCodeInternalError, err, c)
+		respondDatabaseWriteError(
+			"Failed to update data in database",
+			"A note with this title already exists",
+			err, c,
+		)
 		return
 	} else if effected == 0 {
 		ResponseError(http.StatusNotFound, "Note not found", models.ErrCodeNotFound, nil, c)

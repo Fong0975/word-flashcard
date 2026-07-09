@@ -264,6 +264,7 @@ func (wc *WordController) RandomWords(c *gin.Context) {
 // @Param word body models.Word true "Word data to create"
 // @Success 200 {object} models.Word "Word created successfully"
 // @Failure 400 {object} models.ErrorResponse "Bad request - Invalid request body"
+// @Failure 409 {object} models.ErrorResponse "Conflict - A word with this text already exists"
 // @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to insert data into database"
 // @Router /api/words [post]
 func (wc *WordController) CreateWord(c *gin.Context) {
@@ -281,7 +282,11 @@ func (wc *WordController) CreateWord(c *gin.Context) {
 	// Insert word
 	wordID, err := wc.wordPeer.Insert(wordModel)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to insert data into database", models.ErrCodeInternalError, err, c)
+		respondDatabaseWriteError(
+			"Failed to insert data into database",
+			"A word with this text already exists",
+			err, c,
+		)
 		return
 	}
 
@@ -359,6 +364,7 @@ func (wc *WordController) CreateWordDefinition(c *gin.Context) {
 // @Success 200 {object} models.Word "Word updated successfully"
 // @Failure 400 {object} models.ErrorResponse "Bad request - Invalid word ID or request body"
 // @Failure 404 {object} models.ErrorResponse "Not found - Word not found"
+// @Failure 409 {object} models.ErrorResponse "Conflict - A word with this text already exists"
 // @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to update data in database"
 // @Router /api/words/{id} [put]
 func (wc *WordController) UpdateWord(c *gin.Context) {
@@ -402,7 +408,11 @@ func (wc *WordController) UpdateWord(c *gin.Context) {
 	// ================ 4. Update data in database ================
 	effected, err := wc.wordPeer.Update(wordModel, where)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to update data in database", models.ErrCodeInternalError, err, c)
+		respondDatabaseWriteError(
+			"Failed to update data in database",
+			"A word with this text already exists",
+			err, c,
+		)
 		return
 	} else if effected == 0 {
 		ResponseError(http.StatusNotFound, "Word not found", models.ErrCodeNotFound, nil, c)

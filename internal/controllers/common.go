@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	"word-flashcard/internal/models"
+	"word-flashcard/utils/database"
 
 	"github.com/gin-gonic/gin/binding"
 
@@ -179,4 +180,16 @@ func respondInvalidBody(err error, c *gin.Context) {
 		return
 	}
 	ResponseError(http.StatusBadRequest, "Invalid request body", models.ErrCodeInvalidRequest, err, c)
+}
+
+// respondDatabaseWriteError sends the appropriate error response for a failed
+// insert/update. If err is a UNIQUE constraint violation, it's safe to tell the
+// client exactly what happened (409, conflictMessage); any other failure stays
+// generic (500, message, internal_error) since it may reflect internal detail.
+func respondDatabaseWriteError(message string, conflictMessage string, err error, c *gin.Context) {
+	if database.IsDuplicateEntryError(err) {
+		ResponseError(http.StatusConflict, conflictMessage, models.ErrCodeConflict, err, c)
+		return
+	}
+	ResponseError(http.StatusInternalServerError, message, models.ErrCodeInternalError, err, c)
 }
