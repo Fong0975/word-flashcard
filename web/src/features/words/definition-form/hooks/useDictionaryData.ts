@@ -1,7 +1,10 @@
 import { useCallback } from 'react';
 
 import { apiService } from '../../../../lib/api';
-import { getApiErrorMessage } from '../../../../lib/apiErrorMessage';
+import {
+  getApiErrorMessage,
+  getApiErrorCode,
+} from '../../../../lib/apiErrorMessage';
 import { useControllableState } from '../../../../hooks/shared/useControllableState';
 import {
   CambridgeApiResponse,
@@ -70,10 +73,16 @@ export const useDictionaryData = (
       setDictionaryData(data);
       setIsCollapsed(false); // Expand section after successful fetch
     } catch (error) {
-      const errorMessage = getApiErrorMessage(
+      const baseMessage = getApiErrorMessage(
         error,
         'Failed to fetch dictionary data',
       );
+      // Upstream (Cambridge) outages are unlikely to resolve by retrying immediately,
+      // so nudge the user toward filling in the definition manually instead.
+      const errorMessage =
+        getApiErrorCode(error) === 'upstream_unavailable'
+          ? `${baseMessage} You can still fill in the definition manually.`
+          : baseMessage;
       setDictionaryError(errorMessage);
       if (onShowError) {
         onShowError('Error fetching dictionary data: ' + errorMessage);
