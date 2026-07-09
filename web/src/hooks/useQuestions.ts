@@ -12,7 +12,7 @@ export interface UseQuestionsState {
 }
 
 export interface UseQuestionsActions {
-  fetchQuestions: (page?: number) => Promise<void>;
+  fetchQuestions: (page?: number) => Promise<string | undefined>;
 }
 
 export interface UseQuestionsOptions {

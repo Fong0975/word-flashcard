@@ -104,14 +104,3 @@ export const useModalScrollManager = (isOpen: boolean) => {
     };
   }, []);
 };
-
-/**
- * Development utility to check current modal count
- * Only available in development mode
- */
-export const getModalCount = () => {
-  if (process.env.NODE_ENV === 'development') {
-    return modalCount;
-  }
-  return 0;
-};

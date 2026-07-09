@@ -91,6 +91,7 @@ export type ApiErrorCode =
   | 'invalid_request'
   | 'validation_error'
   | 'not_found'
+  | 'conflict'
   | 'internal_error'
   | 'upstream_unavailable';
 

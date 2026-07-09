@@ -99,24 +99,3 @@ export const getFamiliarityDisplayColors = (
       } as const;
   }
 };
-
-/**
- * Validate if a string is a valid familiarity level
- */
-export const isValidFamiliarityLevel = (
-  value: unknown,
-): value is FamiliarityLevel => {
-  return (
-    typeof value === 'string' &&
-    Object.values(FamiliarityLevel).includes(value as FamiliarityLevel)
-  );
-};
-
-/**
- * Get familiarity option by value
- */
-export const getFamiliarityOption = (
-  familiarity: FamiliarityLevel,
-): FamiliarityOption | undefined => {
-  return FAMILIARITY_OPTIONS.find(option => option.value === familiarity);
-};
