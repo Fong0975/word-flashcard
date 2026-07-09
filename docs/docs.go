@@ -54,13 +54,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad request - Invalid URL format or missing word parameter",
+                        "description": "Bad request - Missing word parameter",
                         "schema": {
                             "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
-                    "500": {
-                        "description": "Internal server error - Word not found, API error, or JSON encoding failure",
+                    "404": {
+                        "description": "Not found - Word not found in the dictionary",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad gateway - Dictionary service unavailable",
                         "schema": {
                             "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
@@ -112,12 +118,9 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Failed to read version file",
+                        "description": "Internal server error - VERSION file not found or unreadable",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -773,6 +776,44 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "description": "Delete a specific question",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "questions"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Question ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Question deleted successfully"
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid question ID",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to delete data from database",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    }
+                }
             }
         },
         "/api/words": {
@@ -1289,6 +1330,23 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "models.ErrorCode": {
+            "type": "string",
+            "enum": [
+                "invalid_request",
+                "validation_error",
+                "not_found",
+                "internal_error",
+                "upstream_unavailable"
+            ],
+            "x-enum-varnames": [
+                "ErrCodeInvalidRequest",
+                "ErrCodeValidationError",
+                "ErrCodeNotFound",
+                "ErrCodeInternalError",
+                "ErrCodeUpstreamUnavailable"
+            ]
+        },
         "word-flashcard_internal_models.AccuracyBucket": {
             "type": "object",
             "properties": {
@@ -1334,6 +1392,9 @@ const docTemplate = `{
         "word-flashcard_internal_models.ErrorResponse": {
             "type": "object",
             "properties": {
+                "code": {
+                    "$ref": "#/definitions/models.ErrorCode"
+                },
                 "error": {
                     "type": "string"
                 }

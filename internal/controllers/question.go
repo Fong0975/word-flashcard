@@ -296,9 +296,9 @@ func (qc *QuestionController) UpdateQuestions(c *gin.Context) {
 // @Produce json
 // @Param id path int true "Question ID"
 // @Success 204 "Question deleted successfully"
-// @Failure 400 {object} models.ErrorResponse "Bad request - Invalid definition ID"
+// @Failure 400 {object} models.ErrorResponse "Bad request - Invalid question ID"
 // @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to delete data from database"
-// @Router /api/questions/definition/{id} [delete]
+// @Router /api/questions/{id} [delete]
 func (qc *QuestionController) DeleteQuestions(c *gin.Context) {
 	// ================ 1. Parse request parameter ================
 	// Get question ID from URL parameter

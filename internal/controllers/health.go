@@ -62,7 +62,7 @@ func (hc *HealthController) HealthCheck(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.InformationResponse "Application information"
-// @Failure 500 {object} models.ErrorResponse "Failed to read version file"
+// @Failure 500 {object} models.ErrorResponse "Internal server error - VERSION file not found or unreadable"
 // @Router /api/information [get]
 func (hc *HealthController) InformationCheck(c *gin.Context) {
 	versionPath, err := findVersionFile()
