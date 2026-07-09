@@ -53,6 +53,11 @@ dist/
 coverage/
 .nyc_output/
 jest/
+ctrf/
+*.test.ts
+*.test.tsx
+*.test.js
+*.test.jsx
 
 # TypeScript cache
 *.tsbuildinfo

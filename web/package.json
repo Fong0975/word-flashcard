@@ -24,6 +24,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:ci": "react-scripts test --watchAll=false --coverage",
+    "test:ctrf": "react-scripts test --watchAll=false --coverage --reporters=default --reporters=jest-ctrf-json-reporter",
     "eject": "react-scripts eject",
     "lint": "eslint src --ext .ts,.tsx,.js,.jsx",
     "lint:fix": "eslint src --ext .ts,.tsx,.js,.jsx --fix",
@@ -52,13 +54,32 @@
     "uuid": "^11.1.1"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/jest": "^30.0.0",
     "autoprefixer": "^10.4.24",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
     "eslint-plugin-tailwindcss": "^3.18.2",
+    "jest-ctrf-json-reporter": "0.0.9",
     "postcss": "^8.5.15",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "tailwindcss": "^3.4.15"
+  },
+  "jest": {
+    "moduleNameMapper": {
+      "^react-router-dom$": "<rootDir>/node_modules/react-router-dom/dist/index.js",
+      "^react-router/dom$": "<rootDir>/node_modules/react-router/dist/development/dom-export.js",
+      "^unist-util-visit-parents/do-not-use-color$": "<rootDir>/node_modules/unist-util-visit-parents/lib/color.js",
+      "^#minpath$": "<rootDir>/node_modules/vfile/lib/minpath.browser.js",
+      "^#minproc$": "<rootDir>/node_modules/vfile/lib/minproc.browser.js",
+      "^#minurl$": "<rootDir>/node_modules/vfile/lib/minurl.browser.js"
+    },
+    "transformIgnorePatterns": [
+      "[/\\\\]node_modules[/\\\\](?!(react-markdown|remark-.*|rehype-.*|mdast-util-.*|hast-util-.*|micromark.*|unist-util-.*|unified|vfile.*|hastscript|bail|trough|zwitch|devlop|ccount|longest-streak|markdown-table|stringify-entities|trim-lines|property-information|space-separated-tokens|comma-separated-tokens|web-namespaces|html-void-elements|html-url-attributes|html-entities|decode-named-character-reference|character-entities.*|character-reference-invalid|parse-entities|is-alphabetical|is-alphanumerical|is-decimal|is-hexadecimal|estree-util-is-identifier-name|entities|parse5|escape-string-regexp|is-plain-obj)[/\\\\]).+\\.(js|jsx|mjs|cjs|ts|tsx)$",
+      "^.+\\.module\\.(css|sass|scss)$"
+    ]
   }
 }

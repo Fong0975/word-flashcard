@@ -138,6 +138,10 @@ DB_PORT=3306
 DB_USER=root
 DB_PASSWORD=your_password
 DB_NAME=word_flashcard
+
+# Service Environment
+# - Set to `true` to seed the database with demo data on startup
+DEV_MODE=false
 ```
 
 > **MySQL Charset Requirement**: The database must use `utf8mb4` character set to support full Unicode content (including emoji and multi-byte characters). Use the following SQL when creating the database:
@@ -259,7 +263,8 @@ npm run format:diff
 
 ### Testing
 
-Run unit tests for the entire project:
+#### Backend
+
 ```bash
 # Run all tests with verbose output
 go test ./... -v
@@ -275,6 +280,23 @@ go test ./... -cover
 # Generate detailed coverage report
 go test ./... -coverprofile=coverage.out
 go tool cover -html=coverage.out -o coverage.html
+```
+
+#### Frontend
+
+```bash
+# Navigate to the web directory
+cd web
+
+# Run tests in interactive watch mode
+npm test
+
+# Run all tests once with a coverage report (used in CI)
+npm run test:ci
+
+# Run all tests once and additionally generate a CTRF JSON report
+# (used by the Frontend Unit Tests GitHub Actions workflow to post results on pull requests)
+npm run test:ctrf
 ```
 
 ### Building the Application

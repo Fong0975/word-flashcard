@@ -66,6 +66,7 @@ export const Modal: React.FC<ModalProps> = ({
         className='fixed inset-0 bg-black bg-opacity-50 transition-opacity'
         onClick={disableBackdropClose ? undefined : onClose}
         aria-hidden='true'
+        data-testid='modal-backdrop'
       />
 
       {/* Modal container */}
