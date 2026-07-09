@@ -22,10 +22,3 @@ export const speakText = (
 
   return true;
 };
-
-/**
- * Checks whether the Web Speech API is supported in the current browser.
- */
-export const isSpeechSupported = (): boolean => {
-  return typeof window !== 'undefined' && 'speechSynthesis' in window;
-};

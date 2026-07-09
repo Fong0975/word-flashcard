@@ -41,10 +41,6 @@ export interface AnswerSectionProps {
   question: Question;
 }
 
-export interface QuestionFooterProps {
-  question: Question;
-}
-
 // Helper type for formatted options
 export interface QuestionOption {
   key: string;
