@@ -197,6 +197,8 @@ export const useEntityList = <T extends BaseEntity>(
           hasPrevious,
           totalCount,
         }));
+
+        return undefined;
       } catch (error) {
         const errorMessage = getApiErrorMessage(
           error,
@@ -210,6 +212,13 @@ export const useEntityList = <T extends BaseEntity>(
           entities: [],
           totalCount: 0,
         }));
+
+        // Returned (not thrown) so callers like nextPage/goToPage can keep
+        // relying on the `error` state without needing a try/catch; `refresh`
+        // below is the one caller that turns this back into a rejection, so
+        // callers that specifically await a manual refresh (e.g. the retry
+        // button's success/failure toast) can distinguish the outcome.
+        return errorMessage;
       }
     },
     [
@@ -256,7 +265,14 @@ export const useEntityList = <T extends BaseEntity>(
   }, [state.currentPage, state.totalPages, state.loading, fetchEntities]);
 
   const refresh = useCallback(async () => {
-    await fetchEntities(state.currentPage);
+    const errorMessage = await fetchEntities(state.currentPage);
+    if (errorMessage) {
+      // Unlike fetchEntities (which only records the failure in `error` state
+      // so pagination callers don't need a try/catch), a manual refresh has a
+      // caller (useRefreshAction) that shows a success/failure toast and needs
+      // a rejection to tell the two apart.
+      throw new Error(errorMessage);
+    }
   }, [state.currentPage, fetchEntities]);
 
   const clearError = useCallback(() => {

@@ -175,7 +175,10 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({
 
   // Refresh the list; if a new question was created, navigate to its detail page.
   const handleQuestionAdded = (newQuestion?: Question) => {
-    questionsHook.refresh();
+    // The `error` state (rendered by EntityReviewTab) already surfaces a
+    // failed reload; refresh() can reject (see useEntityList.refresh), so
+    // this is caught to avoid an unhandled promise rejection.
+    questionsHook.refresh().catch(() => {});
     if (newQuestion) {
       navigate(`/question/${newQuestion.id}`);
     }

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { getApiErrorMessage } from '../../../lib/apiErrorMessage';
 import { useToast, UseToastReturn } from '../../../hooks/ui/useToast';
 
 interface UseRefreshActionReturn {
@@ -33,7 +34,9 @@ export const useRefreshAction = (
 
       showSuccess('Refresh successful!');
     } catch (error) {
-      showError('Refresh failed, please try again later.');
+      showError(
+        getApiErrorMessage(error, 'Refresh failed, please try again later.'),
+      );
     } finally {
       setIsRefreshing(false);
     }

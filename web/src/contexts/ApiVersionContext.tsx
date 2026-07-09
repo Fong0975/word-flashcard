@@ -30,7 +30,11 @@ export const ApiVersionProvider: React.FC<{ children: React.ReactNode }> = ({
         sessionStorage.setItem(SESSION_KEY, version);
         setApiVersion(version);
       })
-      .catch(() => {});
+      .catch(error => {
+        // Non-critical: only affects the version number shown in the footer.
+        // eslint-disable-next-line no-console
+        console.error('Failed to fetch API version:', error);
+      });
   }, [apiVersion]);
 
   return (
