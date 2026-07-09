@@ -33,20 +33,12 @@ export interface AccuracyBadgeProps {
   accuracyRate: number;
 }
 
-export interface ReferenceSectionProps {
-  reference: string;
-}
-
 export interface AnswerSectionProps {
   isExpanded: boolean;
   onToggle: () => void;
   answer: string;
   explanation?: string;
   question: Question;
-}
-
-export interface CorrectAnswerProps {
-  answer: string;
 }
 
 export interface QuestionFooterProps {

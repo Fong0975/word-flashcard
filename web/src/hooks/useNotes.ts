@@ -12,7 +12,7 @@ export interface UseNotesState {
 }
 
 export interface UseNotesActions {
-  fetchNotes: (page?: number) => Promise<void>;
+  fetchNotes: (page?: number) => Promise<string | undefined>;
 }
 
 export interface UseNotesOptions {

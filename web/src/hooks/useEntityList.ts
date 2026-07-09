@@ -59,7 +59,7 @@ export interface UseEntityListState<T> {
 // Generic actions interface
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface UseEntityListActions<T> {
-  fetchEntities: (page?: number) => Promise<void>;
+  fetchEntities: (page?: number) => Promise<string | undefined>;
   nextPage: () => Promise<void>;
   previousPage: () => Promise<void>;
   goToPage: (page: number) => Promise<void>;

@@ -30,7 +30,7 @@ export interface EntityListState<TEntity extends BaseEntity> {
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface EntityListActions<TEntity extends BaseEntity> {
-  readonly fetchEntities: (page?: number) => Promise<void>;
+  readonly fetchEntities: (page?: number) => Promise<string | undefined>;
   readonly nextPage: () => Promise<void>;
   readonly previousPage: () => Promise<void>;
   readonly goToPage: (page: number) => Promise<void>;

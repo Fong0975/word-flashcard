@@ -18,7 +18,7 @@ export interface UseWordsState {
 }
 
 export interface UseWordsActions {
-  fetchWords: (page?: number) => Promise<void>;
+  fetchWords: (page?: number) => Promise<string | undefined>;
 }
 
 export interface UseWordsOptions {
