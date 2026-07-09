@@ -29,7 +29,7 @@ func setMiddleware(router *gin.Engine) {
 	// Add global middleware
 	router.Use(middleware.LoggingMiddleware())
 	router.Use(middleware.CORSMiddleware())
-	router.Use(gin.Recovery())
+	router.Use(middleware.RecoveryMiddleware())
 }
 
 // setupSwaggerRoutes configures Swagger documentation routes
