@@ -50,7 +50,7 @@ func (nc *NoteController) ListNotes(c *gin.Context) {
 	// ================ 1. Parse pagination parameters ================
 	limit, offset, err := parseLimitAndOffsetFromPath(c)
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid limit/offset parameter", err, c)
+		ResponseError(http.StatusBadRequest, "Invalid limit/offset parameter", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 	limitPtr := uint64(limit)
@@ -59,11 +59,11 @@ func (nc *NoteController) ListNotes(c *gin.Context) {
 	// ================ 2. Parse and validate sort parameters ================
 	sortParam, err := models.ParseSortParam(c.Query("sort"))
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid sort parameter", err, c)
+		ResponseError(http.StatusBadRequest, "Invalid sort parameter", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 	if err := sortParam.Validate(noteSortableColumns); err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid sort parameter", err, c)
+		ResponseError(http.StatusBadRequest, "Invalid sort parameter", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 
@@ -79,7 +79,7 @@ func (nc *NoteController) ListNotes(c *gin.Context) {
 	// ================ 3. Fetch data from database ================
 	notes, err := nc.notePeer.Select([]*string{}, nil, orderByClauses, &limitPtr, &offsetPtr)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", err, c)
+		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", models.ErrCodeInternalError, err, c)
 		return
 	}
 
@@ -107,14 +107,14 @@ func (nc *NoteController) SearchNotes(c *gin.Context) {
 	// ================ 1. Get search filter from request ================
 	var searchReq models.SearchFilter
 	if err := ParseRequestBody(&searchReq, c); err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid request body", err, c)
+		ResponseError(http.StatusBadRequest, "Invalid request body", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 
 	// ================ 2. Parse pagination parameters ================
 	limit, offset, err := parseLimitAndOffsetFromPath(c)
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid limit/offset parameter", err, c)
+		ResponseError(http.StatusBadRequest, "Invalid limit/offset parameter", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 	limitPtr := uint64(limit)
@@ -123,11 +123,11 @@ func (nc *NoteController) SearchNotes(c *gin.Context) {
 	// ================ 3. Parse and validate sort parameters ================
 	sortParam, err := models.ParseSortParam(c.Query("sort"))
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid sort parameter", err, c)
+		ResponseError(http.StatusBadRequest, "Invalid sort parameter", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 	if err := sortParam.Validate(noteSortableColumns); err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid sort parameter", err, c)
+		ResponseError(http.StatusBadRequest, "Invalid sort parameter", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 
@@ -143,14 +143,14 @@ func (nc *NoteController) SearchNotes(c *gin.Context) {
 	// ================ 4. Convert filter to SQL condition ================
 	where, err := searchReq.ToSqlizer()
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid search filter", err, c)
+		ResponseError(http.StatusBadRequest, "Invalid search filter", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 
 	// ================ 5. Fetch data from database ================
 	notes, err := nc.notePeer.Select([]*string{}, where, orderByClauses, &limitPtr, &offsetPtr)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", err, c)
+		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", models.ErrCodeInternalError, err, c)
 		return
 	}
 
@@ -177,7 +177,7 @@ func (nc *NoteController) GetNote(c *gin.Context) {
 	// ================ 1. Parse request parameter ================
 	noteID, err := parseIDFromPath(c, "id")
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid note ID.", err, c)
+		ResponseError(http.StatusBadRequest, "Invalid note ID.", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 
@@ -185,11 +185,11 @@ func (nc *NoteController) GetNote(c *gin.Context) {
 	where := squirrel.Eq{schema.NOTE_ID: noteID}
 	notes, err := nc.notePeer.Select([]*string{}, where, nil, nil, nil)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", err, c)
+		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", models.ErrCodeInternalError, err, c)
 		return
 	} else if len(notes) != 1 {
 		errMsg := fmt.Sprintf("Failed to fetch data from database. %d records match, not equal to 1", len(notes))
-		ResponseError(http.StatusInternalServerError, errMsg, nil, c)
+		ResponseError(http.StatusInternalServerError, errMsg, models.ErrCodeInternalError, nil, c)
 		return
 	}
 
@@ -214,18 +214,18 @@ func (nc *NoteController) CreateNote(c *gin.Context) {
 	// ================ 1. Parse request body ================
 	var noteData models.Note
 	if err := ParseRequestBody(&noteData, c); err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid request body", err, c)
+		ResponseError(http.StatusBadRequest, "Invalid request body", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 	if err := nc.validateNoteFields(&noteData, false); err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid request body", err, c)
+		ResponseError(http.StatusBadRequest, "Invalid request body", models.ErrCodeValidationError, err, c)
 		return
 	}
 
 	// ================ 2. Insert data into database ================
 	noteID, err := nc.notePeer.Insert(noteData.ToDataModel())
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to insert data into database", err, c)
+		ResponseError(http.StatusInternalServerError, "Failed to insert data into database", models.ErrCodeInternalError, err, c)
 		return
 	}
 
@@ -233,7 +233,7 @@ func (nc *NoteController) CreateNote(c *gin.Context) {
 	where := squirrel.Eq{schema.NOTE_ID: noteID}
 	notes, err := nc.notePeer.Select([]*string{}, where, nil, nil, nil)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Inserted but failed to fetch data from database", err, c)
+		ResponseError(http.StatusInternalServerError, "Inserted but failed to fetch data from database", models.ErrCodeInternalError, err, c)
 		return
 	}
 
@@ -259,17 +259,17 @@ func (nc *NoteController) UpdateNote(c *gin.Context) {
 	// ================ 1. Parse request parameter & body ================
 	noteID, err := parseIDFromPath(c, "id")
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid note ID.", err, c)
+		ResponseError(http.StatusBadRequest, "Invalid note ID.", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 
 	var noteData models.Note
 	if err := ParseRequestBody(&noteData, c); err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid request body", err, c)
+		ResponseError(http.StatusBadRequest, "Invalid request body", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 	if err := nc.validateNoteFields(&noteData, true); err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid request body", err, c)
+		ResponseError(http.StatusBadRequest, "Invalid request body", models.ErrCodeValidationError, err, c)
 		return
 	}
 
@@ -280,14 +280,14 @@ func (nc *NoteController) UpdateNote(c *gin.Context) {
 	// ================ 3. Update data in database ================
 	where := squirrel.Eq{schema.NOTE_ID: noteID}
 	if effected, err := nc.notePeer.Update(noteModel, where); err != nil || effected == 0 {
-		ResponseError(http.StatusInternalServerError, "Failed to update data in database", err, c)
+		ResponseError(http.StatusInternalServerError, "Failed to update data in database", models.ErrCodeInternalError, err, c)
 		return
 	}
 
 	// ================ 4. Query updated data ================
 	notes, err := nc.notePeer.Select([]*string{}, where, nil, nil, nil)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Updated but failed to fetch data from database", err, c)
+		ResponseError(http.StatusInternalServerError, "Updated but failed to fetch data from database", models.ErrCodeInternalError, err, c)
 		return
 	}
 
@@ -310,14 +310,14 @@ func (nc *NoteController) DeleteNote(c *gin.Context) {
 	// ================ 1. Parse request parameter ================
 	noteID, err := parseIDFromPath(c, "id")
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid note ID.", err, c)
+		ResponseError(http.StatusBadRequest, "Invalid note ID.", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 
 	// ================ 2. Delete data from database ================
 	where := squirrel.Eq{schema.NOTE_ID: noteID}
 	if effected, err := nc.notePeer.Delete(where); err != nil || effected == 0 {
-		ResponseError(http.StatusInternalServerError, "Failed to delete data from database", err, c)
+		ResponseError(http.StatusInternalServerError, "Failed to delete data from database", models.ErrCodeInternalError, err, c)
 		return
 	}
 
@@ -336,7 +336,7 @@ func (nc *NoteController) CountNotes(c *gin.Context) {
 	// ================ 1. Fetch count from database ================
 	count, err := nc.notePeer.Count()
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to count notes in database", err, c)
+		ResponseError(http.StatusInternalServerError, "Failed to count notes in database", models.ErrCodeInternalError, err, c)
 		return
 	}
 

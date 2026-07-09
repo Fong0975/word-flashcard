@@ -9,11 +9,6 @@ import (
 	"github.com/Masterminds/squirrel"
 )
 
-// ErrorResponse represents a standard error response structure for all APIs
-type ErrorResponse struct {
-	Error string `json:"error"`
-}
-
 // SearchCondition represents a single search condition (key-operator-value).
 // Value is optional for null/empty operators (is_null, is_not_null, is_empty, is_not_empty)
 // and required for all other operators.

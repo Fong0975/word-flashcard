@@ -7,6 +7,8 @@ import (
 	"log/slog"
 	"strconv"
 
+	"word-flashcard/internal/models"
+
 	"github.com/gin-gonic/gin/binding"
 
 	"github.com/gin-gonic/gin"
@@ -136,9 +138,11 @@ func ResponseSuccess(statusCode int, data any, c *gin.Context) {
 }
 
 // ResponseError sends an error response and logs the error details.
-func ResponseError(statusCode int, message string, err error, c *gin.Context) {
+// message is safe to show to the client; err (the underlying cause, which may
+// contain internal detail) is only ever written to the log, never to the response body.
+func ResponseError(statusCode int, message string, code models.ErrorCode, err error, c *gin.Context) {
 	// Set the response
-	c.JSON(statusCode, gin.H{"error": message})
+	c.JSON(statusCode, models.ErrorResponse{Error: message, Code: code})
 	// Log the error
-	slog.Error("API error response.", "path", c.Request.RequestURI, "status", statusCode, "message", message, "error", err)
+	slog.Error("API error response.", "path", c.Request.RequestURI, "status", statusCode, "message", message, "code", code, "error", err)
 }
