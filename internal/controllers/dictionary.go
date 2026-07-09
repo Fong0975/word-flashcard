@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -15,6 +16,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
+
+// errWordNotFound marks a lookup for a word the upstream Cambridge dictionary
+// service does not have, as opposed to the service being unreachable or failing.
+var errWordNotFound = errors.New("word not found")
 
 // DictionaryController handles dictionary-related requests
 type DictionaryController struct {
@@ -45,15 +50,16 @@ func NewDictionaryController() *DictionaryController {
 // @Produce json
 // @Param word path string true "Word to search for"
 // @Success 200 {object} models.DictionaryResponse "Dictionary definition found successfully"
-// @Failure 400 {object} models.ErrorResponse "Bad request - Invalid URL format or missing word parameter"
-// @Failure 500 {object} models.ErrorResponse "Internal server error - Word not found, API error, or JSON encoding failure"
+// @Failure 400 {object} models.ErrorResponse "Bad request - Missing word parameter"
+// @Failure 404 {object} models.ErrorResponse "Not found - Word not found in the dictionary"
+// @Failure 502 {object} models.ErrorResponse "Bad gateway - Dictionary service unavailable"
 // @Router /api/dictionary/{word} [get]
 func (dc *DictionaryController) SearchWord(c *gin.Context) {
 	word := c.Param("word")
 
 	// Validate word parameter
 	if word == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Word parameter is required"})
+		ResponseError(http.StatusBadRequest, "Word parameter is required", models.ErrCodeInvalidRequest, nil, c)
 		return
 	}
 
@@ -69,7 +75,11 @@ func (dc *DictionaryController) SearchWord(c *gin.Context) {
 	// Fetch word data from Cambridge dictionary API
 	response, err := dc.fetchWordDataFromCambridgeAPI(word)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Error fetching word data: %v", err)})
+		if errors.Is(err, errWordNotFound) {
+			ResponseError(http.StatusNotFound, fmt.Sprintf("Word '%s' not found", word), models.ErrCodeNotFound, err, c)
+			return
+		}
+		ResponseError(http.StatusBadGateway, "Dictionary service is currently unavailable", models.ErrCodeUpstreamUnavailable, err, c)
 		return
 	}
 
@@ -156,7 +166,7 @@ func (dc *DictionaryController) fetchWordDataFromCambridgeAPI(word string) (*mod
 	defer resp.Body.Close()
 
 	if resp.StatusCode == 404 {
-		return nil, fmt.Errorf("word '%s' not found", word)
+		return nil, fmt.Errorf("%w: %s", errWordNotFound, word)
 	}
 
 	if resp.StatusCode != http.StatusOK {

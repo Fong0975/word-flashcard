@@ -2,7 +2,9 @@ package routers
 
 import (
 	"net/http"
+	"word-flashcard/internal/controllers"
 	"word-flashcard/internal/middleware"
+	"word-flashcard/internal/models"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -20,6 +22,8 @@ func SetupRouter() (*gin.Engine, error) {
 	SetupAPIRoutes(router)
 	// Swagger routes
 	setupSwaggerRoutes(router)
+	// Unmatched route/method handlers
+	setupErrorHandlers(router)
 
 	return router, nil
 }
@@ -29,7 +33,7 @@ func setMiddleware(router *gin.Engine) {
 	// Add global middleware
 	router.Use(middleware.LoggingMiddleware())
 	router.Use(middleware.CORSMiddleware())
-	router.Use(gin.Recovery())
+	router.Use(middleware.RecoveryMiddleware())
 }
 
 // setupSwaggerRoutes configures Swagger documentation routes
@@ -41,4 +45,19 @@ func setupSwaggerRoutes(router *gin.Engine) {
 
 	// Swagger UI endpoint with wildcard handler
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+}
+
+// setupErrorHandlers makes unmatched routes/methods respond with the same
+// {"error", "code"} JSON shape used everywhere else, instead of gin's default
+// plain-text 404/405.
+func setupErrorHandlers(router *gin.Engine) {
+	// gin only invokes NoMethod (instead of falling back to NoRoute) when this is enabled.
+	router.HandleMethodNotAllowed = true
+
+	router.NoRoute(func(c *gin.Context) {
+		controllers.ResponseError(http.StatusNotFound, "Route not found", models.ErrCodeNotFound, nil, c)
+	})
+	router.NoMethod(func(c *gin.Context) {
+		controllers.ResponseError(http.StatusMethodNotAllowed, "Method not allowed", models.ErrCodeInvalidRequest, nil, c)
+	})
 }

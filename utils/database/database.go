@@ -38,6 +38,12 @@ func (e *DatabaseError) Error() string {
 	return fmt.Sprintf("database %s error: %v", e.Operation, e.Err)
 }
 
+// Unwrap exposes the underlying driver error so callers can use errors.As/errors.Is
+// (e.g. IsDuplicateEntryError) to inspect it through a wrapped DatabaseError.
+func (e *DatabaseError) Unwrap() error {
+	return e.Err
+}
+
 // NewDatabaseError creates a new database error
 func NewDatabaseError(operation string, err error) *DatabaseError {
 	return &DatabaseError{

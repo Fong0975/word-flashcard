@@ -132,7 +132,10 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
   };
 
   const handleWordAdded = () => {
-    wordsHook.refresh();
+    // The `error` state (rendered by EntityReviewTab) already surfaces a
+    // failed reload; refresh() can reject (see useEntityList.refresh), so
+    // this is caught to avoid an unhandled promise rejection.
+    wordsHook.refresh().catch(() => {});
   };
 
   const handleQuizSetup = () => {
@@ -237,7 +240,7 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
             index={index}
             word={word}
             className='transition-transform duration-200 hover:scale-[1.02]'
-            onWordUpdated={wordsHook.refresh}
+            onWordUpdated={() => wordsHook.refresh().catch(() => {})}
           />
         )}
         additionalContent={

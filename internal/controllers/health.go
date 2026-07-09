@@ -62,20 +62,20 @@ func (hc *HealthController) HealthCheck(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.InformationResponse "Application information"
-// @Failure 500 {object} map[string]string "Failed to read version file"
+// @Failure 500 {object} models.ErrorResponse "Internal server error - VERSION file not found or unreadable"
 // @Router /api/information [get]
 func (hc *HealthController) InformationCheck(c *gin.Context) {
 	versionPath, err := findVersionFile()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "version file not found"})
+		ResponseError(http.StatusInternalServerError, "version file not found", models.ErrCodeInternalError, err, c)
 		return
 	}
 	data, err := os.ReadFile(versionPath)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to read version file"})
+		ResponseError(http.StatusInternalServerError, "failed to read version file", models.ErrCodeInternalError, err, c)
 		return
 	}
-	c.JSON(http.StatusOK, models.InformationResponse{
+	ResponseSuccess(http.StatusOK, models.InformationResponse{
 		Version: strings.TrimSpace(string(data)),
-	})
+	}, c)
 }

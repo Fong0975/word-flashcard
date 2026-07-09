@@ -1,5 +1,21 @@
 basePath: /
 definitions:
+  models.ErrorCode:
+    enum:
+    - invalid_request
+    - validation_error
+    - not_found
+    - conflict
+    - internal_error
+    - upstream_unavailable
+    type: string
+    x-enum-varnames:
+    - ErrCodeInvalidRequest
+    - ErrCodeValidationError
+    - ErrCodeNotFound
+    - ErrCodeConflict
+    - ErrCodeInternalError
+    - ErrCodeUpstreamUnavailable
   word-flashcard_internal_models.AccuracyBucket:
     properties:
       count:
@@ -29,6 +45,8 @@ definitions:
     type: object
   word-flashcard_internal_models.ErrorResponse:
     properties:
+      code:
+        $ref: '#/definitions/models.ErrorCode'
       error:
         type: string
     type: object
@@ -247,12 +265,15 @@ paths:
           schema:
             $ref: '#/definitions/word-flashcard_internal_models.DictionaryResponse'
         "400":
-          description: Bad request - Invalid URL format or missing word parameter
+          description: Bad request - Missing word parameter
           schema:
             $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
-        "500":
-          description: Internal server error - Word not found, API error, or JSON
-            encoding failure
+        "404":
+          description: Not found - Word not found in the dictionary
+          schema:
+            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+        "502":
+          description: Bad gateway - Dictionary service unavailable
           schema:
             $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
       summary: Search dictionary for word definition
@@ -286,11 +307,9 @@ paths:
           schema:
             $ref: '#/definitions/word-flashcard_internal_models.InformationResponse'
         "500":
-          description: Failed to read version file
+          description: Internal server error - VERSION file not found or unreadable
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
       summary: Application information endpoint
       tags:
       - health
@@ -352,6 +371,10 @@ paths:
           description: Bad request - Invalid request body
           schema:
             $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+        "409":
+          description: Conflict - A note with this title already exists
+          schema:
+            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
         "500":
           description: Internal server error - Failed to insert data into database
           schema:
@@ -372,6 +395,10 @@ paths:
           description: Note deleted successfully
         "400":
           description: Bad request - Invalid note ID
+          schema:
+            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+        "404":
+          description: Not found - Note not found
           schema:
             $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
         "500":
@@ -397,6 +424,10 @@ paths:
             $ref: '#/definitions/word-flashcard_internal_models.Note'
         "400":
           description: Bad request - Invalid note ID
+          schema:
+            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+        "404":
+          description: Not found - Note not found
           schema:
             $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
         "500":
@@ -430,6 +461,14 @@ paths:
             $ref: '#/definitions/word-flashcard_internal_models.Note'
         "400":
           description: Bad request - Invalid note ID or request body
+          schema:
+            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+        "404":
+          description: Not found - Note not found
+          schema:
+            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+        "409":
+          description: Conflict - A note with this title already exists
           schema:
             $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
         "500":
@@ -569,6 +608,35 @@ paths:
       tags:
       - questions
   /api/questions/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a specific question
+      parameters:
+      - description: Question ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Question deleted successfully
+        "400":
+          description: Bad request - Invalid question ID
+          schema:
+            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+        "404":
+          description: Not found - Question not found
+          schema:
+            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+        "500":
+          description: Internal server error - Failed to delete data from database
+          schema:
+            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+      tags:
+      - questions
     get:
       consumes:
       - application/json
@@ -588,6 +656,10 @@ paths:
             $ref: '#/definitions/word-flashcard_internal_models.Question'
         "400":
           description: Bad request - Invalid query parameters
+          schema:
+            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+        "404":
+          description: Not found - Question not found
           schema:
             $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
         "500":
@@ -621,6 +693,10 @@ paths:
             $ref: '#/definitions/word-flashcard_internal_models.Question'
         "400":
           description: Bad request - Invalid question ID or request body
+          schema:
+            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+        "404":
+          description: Not found - Question not found
           schema:
             $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
         "500":
@@ -779,6 +855,10 @@ paths:
           description: Bad request - Invalid request body
           schema:
             $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+        "409":
+          description: Conflict - A word with this text already exists
+          schema:
+            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
         "500":
           description: Internal server error - Failed to insert data into database
           schema:
@@ -803,6 +883,10 @@ paths:
           description: Word deleted successfully
         "400":
           description: Bad request - Invalid word ID
+          schema:
+            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+        "404":
+          description: Not found - Word not found
           schema:
             $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
         "500":
@@ -836,6 +920,14 @@ paths:
             $ref: '#/definitions/word-flashcard_internal_models.Word'
         "400":
           description: Bad request - Invalid word ID or request body
+          schema:
+            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+        "404":
+          description: Not found - Word not found
+          schema:
+            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+        "409":
+          description: Conflict - A word with this text already exists
           schema:
             $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
         "500":
@@ -895,6 +987,10 @@ paths:
           description: Word definition deleted successfully
         "400":
           description: Bad request - Invalid definition ID
+          schema:
+            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+        "404":
+          description: Not found - Word definition not found
           schema:
             $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
         "500":
@@ -961,6 +1057,10 @@ paths:
             $ref: '#/definitions/word-flashcard_internal_models.Word'
         "400":
           description: Bad request - Invalid definition ID or request body
+          schema:
+            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+        "404":
+          description: Not found - Word definition not found
           schema:
             $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
         "500":

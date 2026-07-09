@@ -54,13 +54,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad request - Invalid URL format or missing word parameter",
+                        "description": "Bad request - Missing word parameter",
                         "schema": {
                             "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
-                    "500": {
-                        "description": "Internal server error - Word not found, API error, or JSON encoding failure",
+                    "404": {
+                        "description": "Not found - Word not found in the dictionary",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad gateway - Dictionary service unavailable",
                         "schema": {
                             "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
@@ -112,12 +118,9 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Failed to read version file",
+                        "description": "Internal server error - VERSION file not found or unreadable",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -207,6 +210,12 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad request - Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict - A note with this title already exists",
                         "schema": {
                             "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
@@ -346,6 +355,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
+                    "404": {
+                        "description": "Not found - Note not found",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal server error - Failed to fetch data from database",
                         "schema": {
@@ -396,6 +411,18 @@ const docTemplate = `{
                             "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
+                    "404": {
+                        "description": "Not found - Note not found",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict - A note with this title already exists",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal server error - Failed to update data in database",
                         "schema": {
@@ -424,6 +451,12 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad request - Invalid note ID",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found - Note not found",
                         "schema": {
                             "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
@@ -716,6 +749,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
+                    "404": {
+                        "description": "Not found - Question not found",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal server error - Failed to fetch data from database",
                         "schema": {
@@ -766,8 +805,58 @@ const docTemplate = `{
                             "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
+                    "404": {
+                        "description": "Not found - Question not found",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal server error - Failed to update data in database",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a specific question",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "questions"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Question ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Question deleted successfully"
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid question ID",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found - Question not found",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to delete data from database",
                         "schema": {
                             "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
@@ -856,6 +945,12 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad request - Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict - A word with this text already exists",
                         "schema": {
                             "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
@@ -961,6 +1056,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
+                    "404": {
+                        "description": "Not found - Word definition not found",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal server error - Failed to update data in database",
                         "schema": {
@@ -1045,6 +1146,12 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad request - Invalid definition ID",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found - Word definition not found",
                         "schema": {
                             "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
@@ -1240,6 +1347,18 @@ const docTemplate = `{
                             "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
+                    "404": {
+                        "description": "Not found - Word not found",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict - A word with this text already exists",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal server error - Failed to update data in database",
                         "schema": {
@@ -1278,6 +1397,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
+                    "404": {
+                        "description": "Not found - Word not found",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal server error - Failed to delete data from database",
                         "schema": {
@@ -1289,6 +1414,25 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "models.ErrorCode": {
+            "type": "string",
+            "enum": [
+                "invalid_request",
+                "validation_error",
+                "not_found",
+                "conflict",
+                "internal_error",
+                "upstream_unavailable"
+            ],
+            "x-enum-varnames": [
+                "ErrCodeInvalidRequest",
+                "ErrCodeValidationError",
+                "ErrCodeNotFound",
+                "ErrCodeConflict",
+                "ErrCodeInternalError",
+                "ErrCodeUpstreamUnavailable"
+            ]
+        },
         "word-flashcard_internal_models.AccuracyBucket": {
             "type": "object",
             "properties": {
@@ -1334,6 +1478,9 @@ const docTemplate = `{
         "word-flashcard_internal_models.ErrorResponse": {
             "type": "object",
             "properties": {
+                "code": {
+                    "$ref": "#/definitions/models.ErrorCode"
+                },
                 "error": {
                     "type": "string"
                 }

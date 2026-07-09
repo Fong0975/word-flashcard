@@ -60,7 +60,7 @@ func (qc *QuestionController) ListQuestions(c *gin.Context) {
 	// ================ 1. Parse pagination parameters ================
 	limit, offset, err := parseLimitAndOffsetFromPath(c)
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid limit/offset parameter", err, c)
+		ResponseError(http.StatusBadRequest, "Invalid limit/offset parameter", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 
@@ -71,11 +71,11 @@ func (qc *QuestionController) ListQuestions(c *gin.Context) {
 	// ================ 2. Parse and validate sort parameters ================
 	sortParam, err := models.ParseSortParam(c.Query("sort"))
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid sort parameter", err, c)
+		ResponseError(http.StatusBadRequest, "Invalid sort parameter", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 	if err := sortParam.Validate(questionSortableColumns); err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid sort parameter", err, c)
+		ResponseError(http.StatusBadRequest, "Invalid sort parameter", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 
@@ -92,7 +92,7 @@ func (qc *QuestionController) ListQuestions(c *gin.Context) {
 	// ================ 3. Fetch data from database ================
 	questions, err := qc.questionPeer.Select([]*string{}, nil, orderByClauses, &limitPtr, &offsetPtr)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", err, c)
+		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", models.ErrCodeInternalError, err, c)
 		return
 	}
 
@@ -111,6 +111,7 @@ func (qc *QuestionController) ListQuestions(c *gin.Context) {
 // @Param id path int true "Question ID"
 // @Success 200 {object} models.Question "A question retrieved successfully"
 // @Failure 400 {object} models.ErrorResponse "Bad request - Invalid query parameters"
+// @Failure 404 {object} models.ErrorResponse "Not found - Question not found"
 // @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to fetch data from database"
 // @Router /api/questions/{id} [get]
 func (qc *QuestionController) GetQuestions(c *gin.Context) {
@@ -118,7 +119,7 @@ func (qc *QuestionController) GetQuestions(c *gin.Context) {
 	// Get question ID from URL parameter
 	questionID, err := parseIDFromPath(c, "id")
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid question ID.", err, c)
+		ResponseError(http.StatusBadRequest, "Invalid question ID.", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 
@@ -128,11 +129,14 @@ func (qc *QuestionController) GetQuestions(c *gin.Context) {
 	orderBy := fmt.Sprintf("%s DESC", schema.COMMON_CREATED_AT)
 	questions, err := qc.questionPeer.Select([]*string{}, where, []*string{&orderBy}, nil, nil)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", err, c)
+		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", models.ErrCodeInternalError, err, c)
+		return
+	} else if len(questions) == 0 {
+		ResponseError(http.StatusNotFound, "Question not found", models.ErrCodeNotFound, nil, c)
 		return
 	} else if len(questions) != 1 {
 		errMsg := fmt.Sprintf("Failed to fetch data from database. %d records match, not equal to 1", len(questions))
-		ResponseError(http.StatusInternalServerError, errMsg, nil, c)
+		ResponseError(http.StatusInternalServerError, errMsg, models.ErrCodeInternalError, nil, c)
 		return
 	}
 
@@ -159,10 +163,10 @@ func (qc *QuestionController) RandomQuestions(c *gin.Context) {
 	var randomReq models.QuestionRandomRequest
 	err := ParseRequestBody(&randomReq, c)
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid request body", err, c)
+		ResponseError(http.StatusBadRequest, "Invalid request body", models.ErrCodeInvalidRequest, err, c)
 		return
 	} else if randomReq.Count <= 0 || randomReq.Count > 1000 {
-		ResponseError(http.StatusBadRequest, "Invalid request body - count", nil, c)
+		ResponseError(http.StatusBadRequest, "Invalid request body - count", models.ErrCodeValidationError, nil, c)
 		return
 	}
 
@@ -170,7 +174,7 @@ func (qc *QuestionController) RandomQuestions(c *gin.Context) {
 	// Use weighted bucket sampling: unpractised (50%) > high-failure-rate (30%) > high-success-rate (20%)
 	questions, err := qc.fetchRandomQuestionsWeighted(randomReq.Count, randomReq.ExcludeRecentDays)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", err, c)
+		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", models.ErrCodeInternalError, err, c)
 		return
 	}
 
@@ -199,10 +203,10 @@ func (qc *QuestionController) CreateQuestions(c *gin.Context) {
 	var questionData models.Question
 	err := ParseRequestBody(&questionData, c)
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid request body", err, c)
+		ResponseError(http.StatusBadRequest, "Invalid request body", models.ErrCodeInvalidRequest, err, c)
 		return
 	} else if err := qc.validateQuestionFields(&questionData, false); err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid request body", err, c)
+		ResponseError(http.StatusBadRequest, err.Error(), models.ErrCodeValidationError, err, c)
 		return
 	}
 
@@ -212,7 +216,7 @@ func (qc *QuestionController) CreateQuestions(c *gin.Context) {
 	// ================ 3. Insert data into database ================
 	questionID, err := qc.questionPeer.Insert(questionModel)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to insert data into database", err, c)
+		ResponseError(http.StatusInternalServerError, "Failed to insert data into database", models.ErrCodeInternalError, err, c)
 		return
 	}
 
@@ -221,7 +225,7 @@ func (qc *QuestionController) CreateQuestions(c *gin.Context) {
 	orderBy := fmt.Sprintf("%s DESC", schema.COMMON_CREATED_AT)
 	questions, err := qc.questionPeer.Select([]*string{}, where, []*string{&orderBy}, nil, nil)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Inserted but failed to fetch data from database", err, c)
+		ResponseError(http.StatusInternalServerError, "Inserted but failed to fetch data from database", models.ErrCodeInternalError, err, c)
 		return
 	}
 
@@ -241,6 +245,7 @@ func (qc *QuestionController) CreateQuestions(c *gin.Context) {
 // @Param question body models.Question true "Question data to update"
 // @Success 200 {object} models.Question "Question updated successfully"
 // @Failure 400 {object} models.ErrorResponse "Bad request - Invalid question ID or request body"
+// @Failure 404 {object} models.ErrorResponse "Not found - Question not found"
 // @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to update data in database"
 // @Router /api/questions/{id} [put]
 func (qc *QuestionController) UpdateQuestions(c *gin.Context) {
@@ -248,17 +253,17 @@ func (qc *QuestionController) UpdateQuestions(c *gin.Context) {
 	// Get question ID from URL parameter
 	questionID, err := parseIDFromPath(c, "id")
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid question ID.", err, c)
+		ResponseError(http.StatusBadRequest, "Invalid question ID.", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 
 	var questionData models.Question
 	err = ParseRequestBody(&questionData, c)
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid request body", err, c)
+		ResponseError(http.StatusBadRequest, "Invalid request body", models.ErrCodeInvalidRequest, err, c)
 		return
 	} else if err := qc.validateQuestionFields(&questionData, true); err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid request body", err, c)
+		ResponseError(http.StatusBadRequest, err.Error(), models.ErrCodeValidationError, err, c)
 		return
 	}
 
@@ -268,8 +273,12 @@ func (qc *QuestionController) UpdateQuestions(c *gin.Context) {
 
 	// ================ 3. Update data in database ================
 	where := squirrel.Eq{schema.QUESTION_ID: questionID}
-	if effected, err := qc.questionPeer.Update(questionModel, where); err != nil || effected == 0 {
-		ResponseError(http.StatusInternalServerError, "Failed to update data in database", err, c)
+	effected, err := qc.questionPeer.Update(questionModel, where)
+	if err != nil {
+		ResponseError(http.StatusInternalServerError, "Failed to update data in database", models.ErrCodeInternalError, err, c)
+		return
+	} else if effected == 0 {
+		ResponseError(http.StatusNotFound, "Question not found", models.ErrCodeNotFound, nil, c)
 		return
 	}
 
@@ -278,7 +287,7 @@ func (qc *QuestionController) UpdateQuestions(c *gin.Context) {
 	orderBy := fmt.Sprintf("%s DESC", schema.COMMON_UPDATED_AT)
 	questions, err := qc.questionPeer.Select([]*string{}, whereQuery, []*string{&orderBy}, nil, nil)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Inserted but failed to fetch data from database", err, c)
+		ResponseError(http.StatusInternalServerError, "Inserted but failed to fetch data from database", models.ErrCodeInternalError, err, c)
 		return
 	}
 
@@ -296,22 +305,27 @@ func (qc *QuestionController) UpdateQuestions(c *gin.Context) {
 // @Produce json
 // @Param id path int true "Question ID"
 // @Success 204 "Question deleted successfully"
-// @Failure 400 {object} models.ErrorResponse "Bad request - Invalid definition ID"
+// @Failure 400 {object} models.ErrorResponse "Bad request - Invalid question ID"
+// @Failure 404 {object} models.ErrorResponse "Not found - Question not found"
 // @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to delete data from database"
-// @Router /api/questions/definition/{id} [delete]
+// @Router /api/questions/{id} [delete]
 func (qc *QuestionController) DeleteQuestions(c *gin.Context) {
 	// ================ 1. Parse request parameter ================
 	// Get question ID from URL parameter
 	questionID, err := parseIDFromPath(c, "id")
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid question ID.", err, c)
+		ResponseError(http.StatusBadRequest, "Invalid question ID.", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 
 	// ================ 2. Delete data from database ================
 	where := squirrel.Eq{schema.QUESTION_ID: questionID}
-	if effected, err := qc.questionPeer.Delete(where); err != nil || effected == 0 {
-		ResponseError(http.StatusInternalServerError, "Failed to delete data from database", err, c)
+	effected, err := qc.questionPeer.Delete(where)
+	if err != nil {
+		ResponseError(http.StatusInternalServerError, "Failed to delete data from database", models.ErrCodeInternalError, err, c)
+		return
+	} else if effected == 0 {
+		ResponseError(http.StatusNotFound, "Question not found", models.ErrCodeNotFound, nil, c)
 		return
 	}
 
@@ -331,7 +345,7 @@ func (qc *QuestionController) CountQuestions(c *gin.Context) {
 	// ================ 1. Fetch data from database ================
 	count, err := qc.questionPeer.Count()
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to count questions in database", err, c)
+		ResponseError(http.StatusInternalServerError, "Failed to count questions in database", models.ErrCodeInternalError, err, c)
 		return
 	}
 
@@ -352,7 +366,7 @@ func (qc *QuestionController) StatsQuestions(c *gin.Context) {
 	cfpCol := schema.QUESTION_COUNT_FAILURE_PRACTISE
 	questions, err := qc.questionPeer.Select([]*string{&cpCol, &cfpCol}, nil, nil, nil, nil)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to fetch questions", err, c)
+		ResponseError(http.StatusInternalServerError, "Failed to fetch questions", models.ErrCodeInternalError, err, c)
 		return
 	}
 

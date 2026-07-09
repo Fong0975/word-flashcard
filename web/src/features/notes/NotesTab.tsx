@@ -141,7 +141,7 @@ export const NotesTab: React.FC = () => {
         <p className='mb-4 text-red-500 dark:text-red-400'>{notesHook.error}</p>
         <button
           type='button'
-          onClick={notesHook.refresh}
+          onClick={() => notesHook.refresh().catch(() => {})}
           className='rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700'
         >
           Retry
@@ -167,7 +167,7 @@ export const NotesTab: React.FC = () => {
         <div className='flex gap-2'>
           <button
             type='button'
-            onClick={notesHook.refresh}
+            onClick={() => notesHook.refresh().catch(() => {})}
             disabled={notesHook.loading}
             className='flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700'
           >

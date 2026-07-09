@@ -1,3 +1,5 @@
+import { ApiErrorCode } from '../types/base';
+
 import { ApiError } from './api';
 
 // Distinguishes a failed connection to the backend (network failure or timeout,
@@ -20,4 +22,16 @@ export const getApiErrorMessage = (
   }
 
   return fallbackMessage;
+};
+
+// Returns the backend-classified error category (see `models.ErrorCode` on the
+// API side), or undefined for network failures (status 0) and non-ApiError
+// values. Lets callers branch on failure type (e.g. show a distinct state for
+// `upstream_unavailable` dictionary lookups) without string-matching messages.
+export const getApiErrorCode = (error: unknown): ApiErrorCode | undefined => {
+  if (error instanceof ApiError && error.status !== 0) {
+    return error.code;
+  }
+
+  return undefined;
 };
