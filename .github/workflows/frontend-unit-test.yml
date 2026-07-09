@@ -1,0 +1,99 @@
+name: Frontend Unit Tests
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'web/**/*.ts'
+      - 'web/**/*.tsx'
+      - 'web/**/*.js'
+      - 'web/**/*.jsx'
+      - '.github/workflows/frontend-unit-test.yml'
+      - '!web/package.json'
+      - '!web/package-lock.json'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'web/**/*.ts'
+      - 'web/**/*.tsx'
+      - 'web/**/*.js'
+      - 'web/**/*.jsx'
+      - 'web/package.json'
+      - 'web/package-lock.json'
+      - '.github/workflows/frontend-unit-test.yml'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  test:
+    name: Run Frontend Unit Tests
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+
+    steps:
+    # Set pending status for manual triggers only
+    - name: Set Pending Status
+      if: github.event_name == 'workflow_dispatch'
+      run: |
+        curl -X POST \
+        -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+        -H "Accept: application/vnd.github.v3+json" \
+        https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
+        -d '{
+          "state": "pending",
+          "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+          "description": "Frontend unit tests in progress...",
+          "context": "Frontend Unit Tests (Manual)"
+        }'
+
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: 'web/package-lock.json'
+
+    - name: Install dependencies
+      run: |
+        cd web
+        npm ci
+
+    - name: Run unit tests and generate CTRF report
+      run: |
+        cd web
+        mkdir -p ctrf
+        npm run test:ctrf
+
+    - name: Publish Test Summary Results
+      uses: ctrf-io/github-test-reporter@v1
+      if: always()
+      with:
+        report-path: 'web/ctrf/ctrf-report.json'
+        github-report: true
+        pull-request-report: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    # Update final status for manual triggers only
+    - name: Update Final Status
+      if: always() && github.event_name == 'workflow_dispatch'
+      run: |
+        # Determine state based on job status
+        STATE="${{ job.status == 'success' && 'success' || 'failure' }}"
+
+        curl -X POST \
+        -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+        -H "Accept: application/vnd.github.v3+json" \
+        https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
+        -d "{
+          \"state\": \"$STATE\",
+          \"target_url\": \"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\",
+          \"description\": \"Frontend unit tests completed\",
+          \"context\": \"Frontend Unit Tests (Manual)\"
+        }"
