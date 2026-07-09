@@ -167,7 +167,7 @@ func (wc *WordController) SearchWords(c *gin.Context) {
 	// ================ 5. Separate conditions by table ================
 	wordsFilter, wordDefsFilter, err := parseSearchConditionsByTable(&searchReq)
 	if err != nil {
-		ResponseError(http.StatusBadRequest, fmt.Sprintf("Invalid filter: %s", err.Error()), models.ErrCodeInvalidRequest, err, c)
+		ResponseError(http.StatusBadRequest, "Invalid filter", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 

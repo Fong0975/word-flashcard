@@ -177,12 +177,13 @@ func (s *dictionaryControllerTestSuite) TestSearchWordNotFound() {
 	// Execute the request through the gin router
 	s.router.ServeHTTP(recorder, req)
 
-	// Verify that the endpoint responds with 500 Internal Server Error
-	s.Equal(http.StatusInternalServerError, recorder.Code, "Word not found should respond with 500")
+	// Verify that the endpoint responds with 404 Not Found
+	s.Equal(http.StatusNotFound, recorder.Code, "Word not found should respond with 404")
 
 	// Verify error response format
-	var response gin.H
+	var response models.ErrorResponse
 	err := json.Unmarshal(recorder.Body.Bytes(), &response)
 	s.NoError(err, "Error response should be valid JSON")
-	s.Contains(response["error"], "Error fetching word data", "Error message should contain 'Error fetching word data'")
+	s.Contains(response.Error, "not found", "Error message should mention the word was not found")
+	s.Equal(models.ErrCodeNotFound, response.Code, "Error code should be not_found")
 }
