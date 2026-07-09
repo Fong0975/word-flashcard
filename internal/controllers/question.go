@@ -111,6 +111,7 @@ func (qc *QuestionController) ListQuestions(c *gin.Context) {
 // @Param id path int true "Question ID"
 // @Success 200 {object} models.Question "A question retrieved successfully"
 // @Failure 400 {object} models.ErrorResponse "Bad request - Invalid query parameters"
+// @Failure 404 {object} models.ErrorResponse "Not found - Question not found"
 // @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to fetch data from database"
 // @Router /api/questions/{id} [get]
 func (qc *QuestionController) GetQuestions(c *gin.Context) {
@@ -129,6 +130,9 @@ func (qc *QuestionController) GetQuestions(c *gin.Context) {
 	questions, err := qc.questionPeer.Select([]*string{}, where, []*string{&orderBy}, nil, nil)
 	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", models.ErrCodeInternalError, err, c)
+		return
+	} else if len(questions) == 0 {
+		ResponseError(http.StatusNotFound, "Question not found", models.ErrCodeNotFound, nil, c)
 		return
 	} else if len(questions) != 1 {
 		errMsg := fmt.Sprintf("Failed to fetch data from database. %d records match, not equal to 1", len(questions))
@@ -241,6 +245,7 @@ func (qc *QuestionController) CreateQuestions(c *gin.Context) {
 // @Param question body models.Question true "Question data to update"
 // @Success 200 {object} models.Question "Question updated successfully"
 // @Failure 400 {object} models.ErrorResponse "Bad request - Invalid question ID or request body"
+// @Failure 404 {object} models.ErrorResponse "Not found - Question not found"
 // @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to update data in database"
 // @Router /api/questions/{id} [put]
 func (qc *QuestionController) UpdateQuestions(c *gin.Context) {
@@ -268,8 +273,12 @@ func (qc *QuestionController) UpdateQuestions(c *gin.Context) {
 
 	// ================ 3. Update data in database ================
 	where := squirrel.Eq{schema.QUESTION_ID: questionID}
-	if effected, err := qc.questionPeer.Update(questionModel, where); err != nil || effected == 0 {
+	effected, err := qc.questionPeer.Update(questionModel, where)
+	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Failed to update data in database", models.ErrCodeInternalError, err, c)
+		return
+	} else if effected == 0 {
+		ResponseError(http.StatusNotFound, "Question not found", models.ErrCodeNotFound, nil, c)
 		return
 	}
 
@@ -297,6 +306,7 @@ func (qc *QuestionController) UpdateQuestions(c *gin.Context) {
 // @Param id path int true "Question ID"
 // @Success 204 "Question deleted successfully"
 // @Failure 400 {object} models.ErrorResponse "Bad request - Invalid question ID"
+// @Failure 404 {object} models.ErrorResponse "Not found - Question not found"
 // @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to delete data from database"
 // @Router /api/questions/{id} [delete]
 func (qc *QuestionController) DeleteQuestions(c *gin.Context) {
@@ -310,8 +320,12 @@ func (qc *QuestionController) DeleteQuestions(c *gin.Context) {
 
 	// ================ 2. Delete data from database ================
 	where := squirrel.Eq{schema.QUESTION_ID: questionID}
-	if effected, err := qc.questionPeer.Delete(where); err != nil || effected == 0 {
+	effected, err := qc.questionPeer.Delete(where)
+	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Failed to delete data from database", models.ErrCodeInternalError, err, c)
+		return
+	} else if effected == 0 {
+		ResponseError(http.StatusNotFound, "Question not found", models.ErrCodeNotFound, nil, c)
 		return
 	}
 

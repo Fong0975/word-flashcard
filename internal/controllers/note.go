@@ -171,6 +171,7 @@ func (nc *NoteController) SearchNotes(c *gin.Context) {
 // @Param id path int true "Note ID"
 // @Success 200 {object} models.Note "Note retrieved successfully"
 // @Failure 400 {object} models.ErrorResponse "Bad request - Invalid note ID"
+// @Failure 404 {object} models.ErrorResponse "Not found - Note not found"
 // @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to fetch data from database"
 // @Router /api/notes/{id} [get]
 func (nc *NoteController) GetNote(c *gin.Context) {
@@ -186,6 +187,9 @@ func (nc *NoteController) GetNote(c *gin.Context) {
 	notes, err := nc.notePeer.Select([]*string{}, where, nil, nil, nil)
 	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", models.ErrCodeInternalError, err, c)
+		return
+	} else if len(notes) == 0 {
+		ResponseError(http.StatusNotFound, "Note not found", models.ErrCodeNotFound, nil, c)
 		return
 	} else if len(notes) != 1 {
 		errMsg := fmt.Sprintf("Failed to fetch data from database. %d records match, not equal to 1", len(notes))
@@ -253,6 +257,7 @@ func (nc *NoteController) CreateNote(c *gin.Context) {
 // @Param note body models.Note true "Note data to update"
 // @Success 200 {object} models.Note "Note updated successfully"
 // @Failure 400 {object} models.ErrorResponse "Bad request - Invalid note ID or request body"
+// @Failure 404 {object} models.ErrorResponse "Not found - Note not found"
 // @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to update data in database"
 // @Router /api/notes/{id} [put]
 func (nc *NoteController) UpdateNote(c *gin.Context) {
@@ -279,8 +284,12 @@ func (nc *NoteController) UpdateNote(c *gin.Context) {
 
 	// ================ 3. Update data in database ================
 	where := squirrel.Eq{schema.NOTE_ID: noteID}
-	if effected, err := nc.notePeer.Update(noteModel, where); err != nil || effected == 0 {
+	effected, err := nc.notePeer.Update(noteModel, where)
+	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Failed to update data in database", models.ErrCodeInternalError, err, c)
+		return
+	} else if effected == 0 {
+		ResponseError(http.StatusNotFound, "Note not found", models.ErrCodeNotFound, nil, c)
 		return
 	}
 
@@ -304,6 +313,7 @@ func (nc *NoteController) UpdateNote(c *gin.Context) {
 // @Param id path int true "Note ID"
 // @Success 204 "Note deleted successfully"
 // @Failure 400 {object} models.ErrorResponse "Bad request - Invalid note ID"
+// @Failure 404 {object} models.ErrorResponse "Not found - Note not found"
 // @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to delete data from database"
 // @Router /api/notes/{id} [delete]
 func (nc *NoteController) DeleteNote(c *gin.Context) {
@@ -316,8 +326,12 @@ func (nc *NoteController) DeleteNote(c *gin.Context) {
 
 	// ================ 2. Delete data from database ================
 	where := squirrel.Eq{schema.NOTE_ID: noteID}
-	if effected, err := nc.notePeer.Delete(where); err != nil || effected == 0 {
+	effected, err := nc.notePeer.Delete(where)
+	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Failed to delete data from database", models.ErrCodeInternalError, err, c)
+		return
+	} else if effected == 0 {
+		ResponseError(http.StatusNotFound, "Note not found", models.ErrCodeNotFound, nil, c)
 		return
 	}
 

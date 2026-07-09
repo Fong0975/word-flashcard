@@ -358,6 +358,7 @@ func (wc *WordController) CreateWordDefinition(c *gin.Context) {
 // @Param word body models.Word true "Word data to update"
 // @Success 200 {object} models.Word "Word updated successfully"
 // @Failure 400 {object} models.ErrorResponse "Bad request - Invalid word ID or request body"
+// @Failure 404 {object} models.ErrorResponse "Not found - Word not found"
 // @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to update data in database"
 // @Router /api/words/{id} [put]
 func (wc *WordController) UpdateWord(c *gin.Context) {
@@ -383,8 +384,11 @@ func (wc *WordController) UpdateWord(c *gin.Context) {
 	where := squirrel.Eq{schema.WORD_ID: wordID}
 	if wordData.IncrementCountPractise {
 		currentWords, err := wc.wordPeer.Select([]*string{}, where, nil, nil, nil)
-		if err != nil || len(currentWords) == 0 {
+		if err != nil {
 			ResponseError(http.StatusInternalServerError, "Failed to fetch current word data", models.ErrCodeInternalError, err, c)
+			return
+		} else if len(currentWords) == 0 {
+			ResponseError(http.StatusNotFound, "Word not found", models.ErrCodeNotFound, nil, c)
 			return
 		}
 		currentCount := 0
@@ -396,8 +400,12 @@ func (wc *WordController) UpdateWord(c *gin.Context) {
 	}
 
 	// ================ 4. Update data in database ================
-	if effected, err := wc.wordPeer.Update(wordModel, where); err != nil || effected == 0 {
+	effected, err := wc.wordPeer.Update(wordModel, where)
+	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Failed to update data in database", models.ErrCodeInternalError, err, c)
+		return
+	} else if effected == 0 {
+		ResponseError(http.StatusNotFound, "Word not found", models.ErrCodeNotFound, nil, c)
 		return
 	}
 
@@ -423,6 +431,7 @@ func (wc *WordController) UpdateWord(c *gin.Context) {
 // @Param definition body models.WordDefinition true "Definition data to update"
 // @Success 200 {object} models.Word "Word definition updated successfully"
 // @Failure 400 {object} models.ErrorResponse "Bad request - Invalid definition ID or request body"
+// @Failure 404 {object} models.ErrorResponse "Not found - Word definition not found"
 // @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to update data in database"
 // @Router /api/words/definition/{id} [put]
 func (wc *WordController) UpdateWordDefinition(c *gin.Context) {
@@ -447,8 +456,12 @@ func (wc *WordController) UpdateWordDefinition(c *gin.Context) {
 
 	// ================ 3. Update data in database ================
 	where := squirrel.Eq{schema.WORD_DEFINITIONS_ID: wordDefID}
-	if effected, err := wc.wordDefinitionPeer.Update(wordDefsModel, where); err != nil || effected == 0 {
+	effected, err := wc.wordDefinitionPeer.Update(wordDefsModel, where)
+	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Failed to update data in database", models.ErrCodeInternalError, err, c)
+		return
+	} else if effected == 0 {
+		ResponseError(http.StatusNotFound, "Word definition not found", models.ErrCodeNotFound, nil, c)
 		return
 	}
 
@@ -482,6 +495,7 @@ func (wc *WordController) UpdateWordDefinition(c *gin.Context) {
 // @Param id path int true "Word ID"
 // @Success 204 "Word deleted successfully"
 // @Failure 400 {object} models.ErrorResponse "Bad request - Invalid word ID"
+// @Failure 404 {object} models.ErrorResponse "Not found - Word not found"
 // @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to delete data from database"
 // @Router /api/words/{id} [delete]
 func (wc *WordController) DeleteWord(c *gin.Context) {
@@ -512,8 +526,12 @@ func (wc *WordController) DeleteWord(c *gin.Context) {
 
 	// Delete the word
 	where := squirrel.Eq{schema.WORD_ID: wordID}
-	if effected, err := wc.wordPeer.Delete(where); err != nil || effected == 0 {
+	effected, err := wc.wordPeer.Delete(where)
+	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Failed to delete data from database", models.ErrCodeInternalError, err, c)
+		return
+	} else if effected == 0 {
+		ResponseError(http.StatusNotFound, "Word not found", models.ErrCodeNotFound, nil, c)
 		return
 	}
 
@@ -529,6 +547,7 @@ func (wc *WordController) DeleteWord(c *gin.Context) {
 // @Param id path int true "Word definition ID"
 // @Success 204 "Word definition deleted successfully"
 // @Failure 400 {object} models.ErrorResponse "Bad request - Invalid definition ID"
+// @Failure 404 {object} models.ErrorResponse "Not found - Word definition not found"
 // @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to delete data from database"
 // @Router /api/words/definition/{id} [delete]
 func (wc *WordController) DeleteWordDefinition(c *gin.Context) {
@@ -542,8 +561,12 @@ func (wc *WordController) DeleteWordDefinition(c *gin.Context) {
 
 	// ================ 2. Delete data from database ================
 	where := squirrel.Eq{schema.WORD_DEFINITIONS_ID: wordDefID}
-	if effected, err := wc.wordDefinitionPeer.Delete(where); err != nil || effected == 0 {
+	effected, err := wc.wordDefinitionPeer.Delete(where)
+	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Failed to delete data from database", models.ErrCodeInternalError, err, c)
+		return
+	} else if effected == 0 {
+		ResponseError(http.StatusNotFound, "Word definition not found", models.ErrCodeNotFound, nil, c)
 		return
 	}
 
