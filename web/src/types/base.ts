@@ -83,12 +83,24 @@ export interface PaginationParams {
 // ===== API TYPES =====
 
 /**
+ * Machine-readable error categories returned by the backend, mirroring
+ * `models.ErrorCode` in the Go API. Lets the UI branch on failure type
+ * without depending on the (human-readable) message text.
+ */
+export type ApiErrorCode =
+  | 'invalid_request'
+  | 'validation_error'
+  | 'not_found'
+  | 'internal_error'
+  | 'upstream_unavailable';
+
+/**
  * API error response
  */
 export interface ApiErrorResponse {
   readonly error: string;
   readonly message?: string;
-  readonly code?: string;
+  readonly code?: ApiErrorCode;
   readonly details?: Record<string, unknown>;
 }
 

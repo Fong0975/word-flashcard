@@ -20,6 +20,7 @@ import {
 } from '../types/api';
 import {
   SearchFilter,
+  ApiErrorCode,
   ApiErrorResponse,
   ApiRequestOptions,
 } from '../types/base';
@@ -33,6 +34,7 @@ export class ApiError extends Error {
     public statusText: string,
     message: string,
     public response?: unknown,
+    public code?: ApiErrorCode,
   ) {
     super(message);
     this.name = 'ApiError';
@@ -113,9 +115,11 @@ class ApiService {
       // Handle HTTP errors
       if (!response.ok) {
         let errorMessage: string;
+        let errorCode: ApiErrorCode | undefined;
         try {
           const errorData: ApiErrorResponse = await response.json();
           errorMessage = errorData.error || response.statusText;
+          errorCode = errorData.code;
         } catch {
           errorMessage = response.statusText || 'Unknown error occurred';
         }
@@ -125,6 +129,7 @@ class ApiService {
           response.statusText,
           errorMessage,
           response,
+          errorCode,
         );
       }
 
