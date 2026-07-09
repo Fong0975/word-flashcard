@@ -218,7 +218,7 @@ func (nc *NoteController) CreateNote(c *gin.Context) {
 		return
 	}
 	if err := nc.validateNoteFields(&noteData, false); err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid request body", models.ErrCodeValidationError, err, c)
+		ResponseError(http.StatusBadRequest, err.Error(), models.ErrCodeValidationError, err, c)
 		return
 	}
 
@@ -269,7 +269,7 @@ func (nc *NoteController) UpdateNote(c *gin.Context) {
 		return
 	}
 	if err := nc.validateNoteFields(&noteData, true); err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid request body", models.ErrCodeValidationError, err, c)
+		ResponseError(http.StatusBadRequest, err.Error(), models.ErrCodeValidationError, err, c)
 		return
 	}
 

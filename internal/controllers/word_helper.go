@@ -26,7 +26,7 @@ func (wc *WordController) parseAndValidateWordRequest(c *gin.Context, isUpdate b
 	if err != nil {
 		return nil, err
 	} else if err := validateWordFields(&wordData, isUpdate); err != nil {
-		return nil, err
+		return nil, newValidationError(err)
 	}
 
 	return &wordData, nil
@@ -38,7 +38,7 @@ func (wc *WordController) parseAndValidateWordDefinitionRequest(c *gin.Context, 
 	if err := ParseRequestBody(&wordDefinitionData, c); err != nil {
 		return nil, err
 	} else if err := validateWordDefinitionFields(wordDefinitionData, isUpdate); err != nil {
-		return nil, err
+		return nil, newValidationError(err)
 	}
 
 	return &wordDefinitionData, nil

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"log/slog"
+	"net/http"
 	"strconv"
 
 	"word-flashcard/internal/models"
@@ -145,4 +146,37 @@ func ResponseError(statusCode int, message string, code models.ErrorCode, err er
 	c.JSON(statusCode, models.ErrorResponse{Error: message, Code: code})
 	// Log the error
 	slog.Error("API error response.", "path", c.Request.RequestURI, "status", statusCode, "message", message, "code", code, "error", err)
+}
+
+// validationError marks an error as a field-level validation failure, as opposed
+// to a request-body parsing failure. Validators in this package only ever
+// describe the shape of the caller's own input (e.g. "familiarity is invalid"),
+// so unlike most internal errors, its message is safe to return to the client.
+type validationError struct {
+	err error
+}
+
+func (v *validationError) Error() string { return v.err.Error() }
+func (v *validationError) Unwrap() error { return v.err }
+
+// newValidationError wraps a field-validation error so respondInvalidBody can
+// recognize it and surface its message instead of a generic one.
+func newValidationError(err error) error {
+	if err == nil {
+		return nil
+	}
+	return &validationError{err: err}
+}
+
+// respondInvalidBody sends a 400 response for a request-body failure. If err
+// was produced by a field validator (see newValidationError), its message is
+// safe to show as-is and the response is tagged validation_error; otherwise
+// (e.g. malformed JSON) a generic message is used, tagged invalid_request.
+func respondInvalidBody(err error, c *gin.Context) {
+	var vErr *validationError
+	if errors.As(err, &vErr) {
+		ResponseError(http.StatusBadRequest, vErr.Error(), models.ErrCodeValidationError, err, c)
+		return
+	}
+	ResponseError(http.StatusBadRequest, "Invalid request body", models.ErrCodeInvalidRequest, err, c)
 }

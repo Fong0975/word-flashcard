@@ -270,7 +270,7 @@ func (wc *WordController) CreateWord(c *gin.Context) {
 	// ================ 1. Parse request body ================
 	wordData, err := wc.parseAndValidateWordRequest(c, false)
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid request body", models.ErrCodeInvalidRequest, err, c)
+		respondInvalidBody(err, c)
 		return
 	}
 
@@ -321,7 +321,7 @@ func (wc *WordController) CreateWordDefinition(c *gin.Context) {
 	// Request body
 	wordDefinitionData, err := wc.parseAndValidateWordDefinitionRequest(c, false)
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid request body", models.ErrCodeInvalidRequest, err, c)
+		respondInvalidBody(err, c)
 		return
 	}
 
@@ -371,7 +371,7 @@ func (wc *WordController) UpdateWord(c *gin.Context) {
 
 	wordData, err := wc.parseAndValidateWordRequest(c, true)
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid request body", models.ErrCodeInvalidRequest, err, c)
+		respondInvalidBody(err, c)
 		return
 	}
 
@@ -437,7 +437,7 @@ func (wc *WordController) UpdateWordDefinition(c *gin.Context) {
 	// Request body
 	wordDefinitionData, err := wc.parseAndValidateWordDefinitionRequest(c, true)
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid request body", models.ErrCodeInvalidRequest, err, c)
+		respondInvalidBody(err, c)
 		return
 	}
 

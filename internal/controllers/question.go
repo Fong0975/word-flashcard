@@ -202,7 +202,7 @@ func (qc *QuestionController) CreateQuestions(c *gin.Context) {
 		ResponseError(http.StatusBadRequest, "Invalid request body", models.ErrCodeInvalidRequest, err, c)
 		return
 	} else if err := qc.validateQuestionFields(&questionData, false); err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid request body", models.ErrCodeValidationError, err, c)
+		ResponseError(http.StatusBadRequest, err.Error(), models.ErrCodeValidationError, err, c)
 		return
 	}
 
@@ -258,7 +258,7 @@ func (qc *QuestionController) UpdateQuestions(c *gin.Context) {
 		ResponseError(http.StatusBadRequest, "Invalid request body", models.ErrCodeInvalidRequest, err, c)
 		return
 	} else if err := qc.validateQuestionFields(&questionData, true); err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid request body", models.ErrCodeValidationError, err, c)
+		ResponseError(http.StatusBadRequest, err.Error(), models.ErrCodeValidationError, err, c)
 		return
 	}
 
