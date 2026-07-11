@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"time"
 	"word-flashcard/data/peers"
 	"word-flashcard/data/schema"
 	"word-flashcard/internal/models"
@@ -271,7 +272,13 @@ func (qc *QuestionController) UpdateQuestions(c *gin.Context) {
 	questionModel := questionData.ToDataModel()
 	questionModel.Id = nil // To prevent updating the ID field
 
-	// ================ 3. Update data in database ================
+	// ================ 3. Conditionally stamp last_answered_at ================
+	if questionData.Practiced {
+		now := time.Now()
+		questionModel.LastAnsweredAt = &now
+	}
+
+	// ================ 4. Update data in database ================
 	where := squirrel.Eq{schema.QUESTION_ID: questionID}
 	effected, err := qc.questionPeer.Update(questionModel, where)
 	if err != nil {
@@ -282,7 +289,7 @@ func (qc *QuestionController) UpdateQuestions(c *gin.Context) {
 		return
 	}
 
-	// ================ 4. Query inserted data ================
+	// ================ 5. Query inserted data ================
 	whereQuery := squirrel.Eq{schema.QUESTION_ID: questionID}
 	orderBy := fmt.Sprintf("%s DESC", schema.COMMON_UPDATED_AT)
 	questions, err := qc.questionPeer.Select([]*string{}, whereQuery, []*string{&orderBy}, nil, nil)
@@ -291,10 +298,10 @@ func (qc *QuestionController) UpdateQuestions(c *gin.Context) {
 		return
 	}
 
-	// ================ 5. Transform data to API model ================
+	// ================ 6. Transform data to API model ================
 	questionEntity := new(models.Question).FromDataModel(questions[0])
 
-	// ================ 6. Send response ================
+	// ================ 7. Send response ================
 	ResponseSuccess(http.StatusOK, questionEntity, c)
 }
 

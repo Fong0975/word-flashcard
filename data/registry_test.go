@@ -27,7 +27,7 @@ func TestRegisterAllTables(t *testing.T) {
 			"id", "word_id", "part_of_speech", "definition", "phonetics", "examples", "notes", "created_at", "updated_at",
 		},
 		"questions": {
-			"id", "question", "option_a", "option_b", "option_c", "option_d", "answer", "reference", "notes", "count_practise", "count_failure_practise", "created_at", "updated_at",
+			"id", "question", "option_a", "option_b", "option_c", "option_d", "answer", "reference", "notes", "count_practise", "count_failure_practise", "last_answered_at", "created_at", "updated_at",
 		},
 		"notes": {
 			"id", "title", "content", "sort_order", "created_at", "updated_at",

@@ -58,6 +58,7 @@ describe('syncQuestionStatistics', () => {
       reference: '',
       count_practise: 1,
       count_failure_practise: 0,
+      practiced: true,
     });
   });
 

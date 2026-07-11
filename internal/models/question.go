@@ -19,6 +19,7 @@ type Question struct {
 	Notes                *string `json:"notes"`
 	CountPractise        *int    `json:"count_practise"`
 	CountFailurePractise *int    `json:"count_failure_practise"`
+	Practiced            bool    `json:"practiced,omitempty"`
 }
 
 // FromDataModel converts a data model Question to the API model Question

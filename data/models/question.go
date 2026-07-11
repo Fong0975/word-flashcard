@@ -15,6 +15,7 @@ type Question struct {
 	Notes                *string    `db:"notes" json:"notes"`
 	CountPractise        *int       `db:"count_practise" json:"count_practise"`
 	CountFailurePractise *int       `db:"count_failure_practise" json:"count_failure_practise"`
+	LastAnsweredAt       *time.Time `db:"last_answered_at" json:"last_answered_at"`
 	CreatedAt            *time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt            *time.Time `db:"updated_at" json:"updated_at"`
 }

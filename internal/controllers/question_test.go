@@ -155,7 +155,9 @@ func (suite *QuestionControllerTestSuite) TestCreateQuestions() {
 	assert.Equal(suite.T(), string(expectedQuestionJSON), w.Body.String())
 }
 
-// TestUpdateQuestions tests the UpdateQuestions handler
+// TestUpdateQuestions tests the UpdateQuestions handler. A plain edit (no
+// "practiced" field) must leave last_answered_at untouched, since it's not a
+// completed practice attempt.
 func (suite *QuestionControllerTestSuite) TestUpdateQuestions() {
 	testID := 1
 	where := squirrel.Eq{schema.QUESTION_ID: testID}
@@ -165,7 +167,7 @@ func (suite *QuestionControllerTestSuite) TestUpdateQuestions() {
 	// Mock mockQuestionPeer methods as needed
 	suite.mockQuestionPeer.EXPECT().
 		Update(mock.MatchedBy(func(question *dbModels.Question) bool {
-			return question.Answer != nil && *question.Answer == "D"
+			return question.Answer != nil && *question.Answer == "D" && question.LastAnsweredAt == nil
 		}), where).
 		Return(int64(testID), nil).Times(1)
 	suite.mockQuestionPeer.EXPECT().
@@ -188,6 +190,32 @@ func (suite *QuestionControllerTestSuite) TestUpdateQuestions() {
 	expected, err := json.Marshal(expectedQuestion)
 	assert.NoError(suite.T(), err)
 	assert.Equal(suite.T(), string(expected), w.Body.String())
+}
+
+// TestUpdateQuestionsWithPracticedSetsLastAnsweredAt tests that sending
+// "practiced": true (as the quiz-completion sync does) stamps last_answered_at.
+func (suite *QuestionControllerTestSuite) TestUpdateQuestionsWithPracticedSetsLastAnsweredAt() {
+	testID := 1
+	where := squirrel.Eq{schema.QUESTION_ID: testID}
+	dbQuestion := getSampleQuestions()[0]
+
+	suite.mockQuestionPeer.EXPECT().
+		Update(mock.MatchedBy(func(question *dbModels.Question) bool {
+			return question.LastAnsweredAt != nil && time.Since(*question.LastAnsweredAt) < time.Minute
+		}), where).
+		Return(int64(testID), nil).Times(1)
+	suite.mockQuestionPeer.EXPECT().
+		Select(mock.Anything, where, mock.Anything, mock.Anything, mock.Anything).
+		Return([]*dbModels.Question{dbQuestion}, nil).Times(1)
+
+	w := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(w)
+	requestBody := "{\"answer\": \"A\", \"count_practise\": 1, \"count_failure_practise\": 0, \"practiced\": true}"
+	ctx.Request = httptest.NewRequest(http.MethodPut, "/api/questions/1", io.NopCloser(bytes.NewReader([]byte(requestBody))))
+	ctx.Params = gin.Params{gin.Param{Key: "id", Value: "1"}}
+	suite.controller.UpdateQuestions(ctx)
+
+	assert.Equal(suite.T(), http.StatusOK, w.Code)
 }
 
 // TestDeleteQuestions tests the DeleteQuestions handler
