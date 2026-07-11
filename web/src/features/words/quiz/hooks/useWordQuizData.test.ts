@@ -1,11 +1,7 @@
 import { renderHook, waitFor } from '@testing-library/react';
 
 import { Word } from '../../../../types/api';
-import {
-  FamiliarityLevel,
-  SearchOperation,
-  SearchLogic,
-} from '../../../../types/base';
+import { FamiliarityLevel } from '../../../../types/base';
 import { apiService } from '../../../../lib/api';
 
 import { useWordQuizData } from './useWordQuizData';
@@ -53,19 +49,7 @@ describe('useWordQuizData', () => {
       await waitFor(() =>
         expect(getRandomWordsSpy).toHaveBeenCalledWith({
           count: 10,
-          filter: {
-            conditions: [
-              {
-                key: 'familiarity',
-                operator: SearchOperation.IN,
-                value: JSON.stringify([
-                  FamiliarityLevel.RED,
-                  FamiliarityLevel.GREEN,
-                ]),
-              },
-            ],
-            logic: SearchLogic.OR,
-          },
+          familiarity_levels: [FamiliarityLevel.RED, FamiliarityLevel.GREEN],
         }),
       );
     });
@@ -132,7 +116,7 @@ describe('useWordQuizData', () => {
   });
 
   describe('per-category mode', () => {
-    it('issues one request per category with a positive count', async () => {
+    it('issues a single request with the per-category counts and their sum', async () => {
       const getRandomWordsSpy = jest
         .spyOn(apiService, 'getRandomWords')
         .mockResolvedValue([buildWord(1)]);
@@ -147,22 +131,16 @@ describe('useWordQuizData', () => {
         }),
       );
 
-      await waitFor(() => expect(getRandomWordsSpy).toHaveBeenCalledTimes(2));
-      expect(getRandomWordsSpy).toHaveBeenCalledWith(
-        expect.objectContaining({ count: 3 }),
-      );
-      expect(getRandomWordsSpy).toHaveBeenCalledWith(
-        expect.objectContaining({ count: 2 }),
-      );
+      await waitFor(() => expect(getRandomWordsSpy).toHaveBeenCalledTimes(1));
+      expect(getRandomWordsSpy).toHaveBeenCalledWith({
+        count: 5,
+        per_category_counts: perCategoryCounts,
+      });
     });
 
-    it('combines the results from every category', async () => {
-      const redWords = [buildWord(1)];
-      const greenWords = [buildWord(2), buildWord(3)];
-      jest
-        .spyOn(apiService, 'getRandomWords')
-        .mockResolvedValueOnce(redWords)
-        .mockResolvedValueOnce(greenWords);
+    it('uses the words returned by the backend', async () => {
+      const words = [buildWord(1), buildWord(2), buildWord(3)];
+      jest.spyOn(apiService, 'getRandomWords').mockResolvedValue(words);
       const selectedFamiliarity: FamiliarityLevel[] = [];
       const perCategoryCounts = { red: 1, yellow: 0, green: 2 };
 

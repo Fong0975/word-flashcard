@@ -1,14 +1,9 @@
 import { useState, useEffect, Dispatch, SetStateAction } from 'react';
 
 import { Word, WordsRandomRequest } from '../../../../types/api';
-import {
-  FamiliarityLevel,
-  SearchOperation,
-  SearchLogic,
-} from '../../../../types/base';
+import { FamiliarityLevel } from '../../../../types/base';
 import { apiService } from '../../../../lib/api';
 import { getApiErrorMessage } from '../../../../lib/apiErrorMessage';
-import { shuffleArray } from '../../../shared/shuffle';
 
 export type WordQuizState = 'loading' | 'quiz' | 'completed';
 
@@ -47,33 +42,22 @@ export const useWordQuizData = ({
         setState('loading');
         setError(null);
 
-        let randomWords: Word[];
+        let request: WordsRandomRequest;
 
         if (perCategoryCounts) {
-          const levels = [
-            FamiliarityLevel.RED,
-            FamiliarityLevel.YELLOW,
-            FamiliarityLevel.GREEN,
-          ] as const;
-          const requests = levels
-            .filter(f => perCategoryCounts[f] > 0)
-            .map(f =>
-              apiService.getRandomWords({
-                count: perCategoryCounts[f],
-                filter: {
-                  conditions: [
-                    {
-                      key: 'familiarity',
-                      operator: SearchOperation.IN,
-                      value: JSON.stringify([f]),
-                    },
-                  ],
-                  logic: SearchLogic.OR,
-                },
-              }),
+          const total =
+            perCategoryCounts[FamiliarityLevel.RED] +
+            perCategoryCounts[FamiliarityLevel.YELLOW] +
+            perCategoryCounts[FamiliarityLevel.GREEN];
+
+          if (total <= 0) {
+            setError(
+              'No questions available for quiz. Please add some questions first.',
             );
-          const batches = await Promise.all(requests);
-          randomWords = shuffleArray(batches.flat());
+            return;
+          }
+
+          request = { count: total, per_category_counts: perCategoryCounts };
         } else {
           const allSelectedFamiliarity = selectedFamiliarity.filter(f =>
             [
@@ -83,27 +67,18 @@ export const useWordQuizData = ({
             ].includes(f),
           );
 
-          const request: WordsRandomRequest = {
-            count: questionCount,
-            filter: {
-              conditions: [
-                {
-                  key: 'familiarity',
-                  operator: SearchOperation.IN,
-                  value: JSON.stringify(allSelectedFamiliarity),
-                },
-              ],
-              logic: SearchLogic.OR,
-            },
-          };
-
-          if (request.count <= 0) {
+          if (questionCount <= 0) {
             setError('Invalid question count.');
             return;
           }
 
-          randomWords = await apiService.getRandomWords(request);
+          request = {
+            count: questionCount,
+            familiarity_levels: allSelectedFamiliarity,
+          };
         }
+
+        const randomWords = await apiService.getRandomWords(request);
 
         if (randomWords.length === 0) {
           setError(

@@ -169,18 +169,14 @@ export interface NotesSearchParams extends PaginationParams {
 }
 
 /**
- * Random words filter
- */
-export interface WordsRandomFilter extends SearchFilter {
-  // Inherits conditions and logic from SearchFilter
-}
-
-/**
- * Random words request
+ * Random words request used by the Word Quiz. Supply either
+ * familiarityLevels (quota is split across levels using a weighted 7:5:3
+ * ratio) or perCategoryCounts (exact quota per level).
  */
 export interface WordsRandomRequest {
   readonly count: number;
-  readonly filter?: WordsRandomFilter;
+  readonly familiarity_levels?: readonly FamiliarityLevel[];
+  readonly per_category_counts?: Readonly<Record<FamiliarityLevel, number>>;
 }
 
 /**
