@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"time"
 	"word-flashcard/data/peers"
 	"word-flashcard/data/schema"
 	"word-flashcard/internal/models"
@@ -403,6 +404,9 @@ func (wc *WordController) UpdateWord(c *gin.Context) {
 		}
 		newCount := currentCount + 1
 		wordModel.CountPractise = &newCount
+
+		now := time.Now()
+		wordModel.LastPracticedAt = &now
 	}
 
 	// ================ 4. Update data in database ================
