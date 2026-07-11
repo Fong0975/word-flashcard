@@ -25,6 +25,7 @@ export const syncQuestionStatistics = async (
         reference: question.reference,
         count_practise: result.updatedStats.countPractise,
         count_failure_practise: result.updatedStats.countFailurePractise,
+        practiced: true,
       });
     }
   } catch (error) {

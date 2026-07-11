@@ -111,6 +111,7 @@ export interface UpdateQuestionRequest {
   readonly reference: string;
   readonly count_practise?: number;
   readonly count_failure_practise?: number;
+  readonly practiced?: boolean;
 }
 
 // ===== SEARCH AND FILTER TYPES =====

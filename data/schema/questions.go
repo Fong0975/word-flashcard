@@ -15,6 +15,7 @@ const (
 	QUESTION_NOTES                  = "notes"
 	QUESTION_COUNT_PRACTISE         = "count_practise"
 	QUESTION_COUNT_FAILURE_PRACTISE = "count_failure_practise"
+	QUESTION_LAST_ANSWERED_AT       = "last_answered_at"
 )
 
 // QuestionsTable defines the questions table structure
@@ -80,6 +81,11 @@ func QuestionsTable() *domain.TableDefinition {
 				Type:    domain.IntType,
 				NotNull: true,
 				Default: "0",
+			},
+			{
+				Name:    QUESTION_LAST_ANSWERED_AT,
+				Type:    domain.TimestampType,
+				NotNull: false,
 			},
 			{
 				Name:    COMMON_CREATED_AT,

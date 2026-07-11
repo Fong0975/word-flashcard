@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"testing"
 	"word-flashcard/data/mocks"
@@ -335,8 +336,11 @@ func (suite *QuestionHelperTestSuite) TestFetchRandomQuestionsWeighted() {
 	//   quota2 = 5*3/10 = 1 (high-failure-rate)
 	//   quota3 = 5-2-1  = 2 (high-success-rate)
 	// Buckets are fetched in reverse priority order (bucket3 → bucket2 → bucket1)
-	// so underflow cascades upward to harder buckets. Each bucket fills its quota
-	// exactly here so no cascade occurs.
+	// so underflow cascades upward to harder buckets. Buckets 2 and 3 are now
+	// fetched via fetchQuestionsRecencyWeighted, whose first (never-answered)
+	// sub-query uses the same RAND-order/limit shape as before; each bucket's
+	// quota is fully met by that sub-query here, so the oldest-first fallback
+	// sub-query never fires and no cascade occurs.
 	mockPeer := mocks.NewMockQuestionPeer(suite.T())
 	controller := NewQuestionController(mockPeer)
 	sampleQuestions := getSampleQuestions()
@@ -369,4 +373,73 @@ func (suite *QuestionHelperTestSuite) TestFetchRandomQuestionsWeighted() {
 	// Verify the result contains all expected questions (order varies due to shuffle)
 	assert.NoError(suite.T(), err)
 	assert.ElementsMatch(suite.T(), sampleQuestions, result)
+}
+
+// TestFetchQuestionsRecencyWeighted tests the fetchQuestionsRecencyWeighted helper
+func (suite *QuestionHelperTestSuite) TestFetchQuestionsRecencyWeighted() {
+	baseWhere := squirrel.Gt{schema.QUESTION_COUNT_PRACTISE: 0}
+
+	suite.Run("non-positive quota returns empty without querying", func() {
+		mockPeer := mocks.NewMockQuestionPeer(suite.T())
+		controller := NewQuestionController(mockPeer)
+
+		result, err := controller.fetchQuestionsRecencyWeighted(baseWhere, 0)
+
+		assert.NoError(suite.T(), err)
+		assert.Empty(suite.T(), result)
+	})
+
+	suite.Run("never-answered group alone fills the quota", func() {
+		mockPeer := mocks.NewMockQuestionPeer(suite.T())
+		controller := NewQuestionController(mockPeer)
+		sampleQuestions := getSampleQuestions()
+
+		noTimestampWhere := squirrel.And{baseWhere, squirrel.Eq{schema.QUESTION_LAST_ANSWERED_AT: nil}}
+		limit := uint64(2)
+		randomOrderMatcher := mock.MatchedBy(func(orderBy []*string) bool {
+			return len(orderBy) == 1 && orderBy[0] != nil && *orderBy[0] == database.TERM_MAPPING_FUNC_RANDOM
+		})
+
+		mockPeer.EXPECT().
+			Select(mock.Anything, noTimestampWhere, randomOrderMatcher, &limit, (*uint64)(nil)).
+			Return([]*dbModels.Question{sampleQuestions[0], sampleQuestions[1]}, nil).Times(1)
+
+		result, err := controller.fetchQuestionsRecencyWeighted(baseWhere, 2)
+
+		assert.NoError(suite.T(), err)
+		assert.ElementsMatch(suite.T(), []*dbModels.Question{sampleQuestions[0], sampleQuestions[1]}, result)
+	})
+
+	suite.Run("shortfall cascades from never-answered into oldest-answered-first", func() {
+		mockPeer := mocks.NewMockQuestionPeer(suite.T())
+		controller := NewQuestionController(mockPeer)
+		sampleQuestions := getSampleQuestions()
+
+		noTimestampWhere := squirrel.And{baseWhere, squirrel.Eq{schema.QUESTION_LAST_ANSWERED_AT: nil}}
+		oldestWhere := squirrel.And{baseWhere, squirrel.NotEq{schema.QUESTION_LAST_ANSWERED_AT: nil}}
+		quotaLimit := uint64(3)
+		remainingLimit := uint64(2)
+		randomOrderMatcher := mock.MatchedBy(func(orderBy []*string) bool {
+			return len(orderBy) == 1 && orderBy[0] != nil && *orderBy[0] == database.TERM_MAPPING_FUNC_RANDOM
+		})
+		oldestFirstMatcher := mock.MatchedBy(func(orderBy []*string) bool {
+			return len(orderBy) == 1 && orderBy[0] != nil && *orderBy[0] == fmt.Sprintf("%s ASC", schema.QUESTION_LAST_ANSWERED_AT)
+		})
+
+		mockPeer.EXPECT().
+			Select(mock.Anything, noTimestampWhere, randomOrderMatcher, &quotaLimit, (*uint64)(nil)).
+			Return([]*dbModels.Question{sampleQuestions[0]}, nil).Times(1)
+		mockPeer.EXPECT().
+			Select(mock.Anything, oldestWhere, oldestFirstMatcher, &remainingLimit, (*uint64)(nil)).
+			Return([]*dbModels.Question{sampleQuestions[1], sampleQuestions[2]}, nil).Times(1)
+
+		result, err := controller.fetchQuestionsRecencyWeighted(baseWhere, 3)
+
+		assert.NoError(suite.T(), err)
+		assert.ElementsMatch(
+			suite.T(),
+			[]*dbModels.Question{sampleQuestions[0], sampleQuestions[1], sampleQuestions[2]},
+			result,
+		)
+	})
 }

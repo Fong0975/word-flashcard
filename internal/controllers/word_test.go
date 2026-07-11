@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"sort"
 	"testing"
 	"time"
 	"word-flashcard/data/mocks"
@@ -130,7 +131,6 @@ func (suite *WordControllerTestSuite) TestRandomWords() {
 			squirrel.Eq{schema.WORD_LAST_PRACTISED_AT: nil},
 		},
 	}
-	whereDefinitionID := squirrel.Eq{schema.WORD_DEFINITIONS_WORD_ID: []int{2, 4}}
 
 	limitPtr := uint64(2)
 	suite.mockWordPeer.EXPECT().
@@ -139,8 +139,20 @@ func (suite *WordControllerTestSuite) TestRandomWords() {
 			return b
 		}), &limitPtr, (*uint64)(nil)).
 		Return([]*dbModels.Word{getSampleWords()[1], getSampleWords()[3]}, nil).Times(1)
+
+	// fetchRandomWordsWeighted shuffles its result, so the word IDs used to
+	// query definitions may arrive in either order; match on the set, not order.
+	wordIDSetMatcher := mock.MatchedBy(func(where squirrel.Eq) bool {
+		ids, ok := where[schema.WORD_DEFINITIONS_WORD_ID].([]int)
+		if !ok {
+			return false
+		}
+		sorted := append([]int{}, ids...)
+		sort.Ints(sorted)
+		return len(sorted) == 2 && sorted[0] == 2 && sorted[1] == 4
+	})
 	suite.mockWordDefinitionPeer.EXPECT().
-		Select(mock.Anything, whereDefinitionID, mock.Anything, mock.Anything, mock.Anything).
+		Select(mock.Anything, wordIDSetMatcher, mock.Anything, mock.Anything, mock.Anything).
 		Return([]*dbModels.WordDefinition{getSampleWordDefinitions()[1], getSampleWordDefinitions()[3]}, nil).Times(1)
 
 	// Create a test HTTP request and call the handler
@@ -152,10 +164,12 @@ func (suite *WordControllerTestSuite) TestRandomWords() {
 
 	// Verify the response status code
 	assert.Equal(suite.T(), http.StatusOK, w.Code)
-	// Verify the response body
-	expectedWords, err := json.Marshal([]*models.Word{getExpectedWords()[1], getExpectedWords()[3]})
+	// Verify the response body contains the expected words, regardless of shuffle order
+	var actualWords []*models.Word
+	err := json.Unmarshal(w.Body.Bytes(), &actualWords)
 	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), string(expectedWords), w.Body.String())
+	expectedWords := []*models.Word{getExpectedWords()[1], getExpectedWords()[3]}
+	assert.ElementsMatch(suite.T(), expectedWords, actualWords)
 }
 
 // TestRandomWordsWithPerCategoryCounts tests the RandomWords handler when the
