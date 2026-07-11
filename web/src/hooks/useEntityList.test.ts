@@ -1,6 +1,6 @@
 import { renderHook, waitFor, act } from '@testing-library/react';
 
-import { BaseEntity } from '../types/base';
+import { BaseEntity, SearchLogic } from '../types/base';
 
 import { useEntityList, ApiServiceConfig, SearchConfig } from './useEntityList';
 
@@ -219,7 +219,7 @@ describe('useEntityList', () => {
     const entities = [buildEntity(1, 'apple')];
     const fetchList = jest.fn().mockResolvedValue(entities);
     const getCount = jest.fn().mockResolvedValue({ count: 1 });
-    const searchFilter = { conditions: [], logic: 'OR' as const };
+    const searchFilter = { conditions: [], logic: SearchLogic.OR };
 
     const serverSearchConfig: SearchConfig<TestEntity> = {
       type: 'server',
