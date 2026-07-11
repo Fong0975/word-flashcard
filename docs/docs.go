@@ -602,46 +602,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/questions/definition/{id}": {
-            "delete": {
-                "description": "Delete a specific question",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "questions"
-                ],
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Question ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "Question deleted successfully"
-                    },
-                    "400": {
-                        "description": "Bad request - Invalid definition ID",
-                        "schema": {
-                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error - Failed to delete data from database",
-                        "schema": {
-                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/api/questions/random": {
             "post": {
                 "description": "Randomly obtain the required number of questions",
@@ -1167,7 +1127,7 @@ const docTemplate = `{
         },
         "/api/words/random": {
             "post": {
-                "description": "Get random words using specified filter criteria",
+                "description": "Get random words for a quiz, weighted by familiarity ratio (familiarity_levels) or exact quota (per_category_counts); prioritizes never-practiced then longest-idle words",
                 "consumes": [
                     "application/json"
                 ],
@@ -1179,12 +1139,12 @@ const docTemplate = `{
                 ],
                 "parameters": [
                     {
-                        "description": "Random filter criteria including count and optional filter",
-                        "name": "randomFilter",
+                        "description": "Random request criteria including count and either familiarity_levels or per_category_counts",
+                        "name": "randomRequest",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/word-flashcard_internal_models.RandomFilter"
+                            "$ref": "#/definitions/models.WordRandomRequest"
                         }
                     }
                 ],
@@ -1414,24 +1374,84 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "models.ErrorCode": {
-            "type": "string",
-            "enum": [
-                "invalid_request",
-                "validation_error",
-                "not_found",
-                "conflict",
-                "internal_error",
-                "upstream_unavailable"
+        "models.RandomFilter": {
+            "type": "object",
+            "required": [
+                "count"
             ],
-            "x-enum-varnames": [
-                "ErrCodeInvalidRequest",
-                "ErrCodeValidationError",
-                "ErrCodeNotFound",
-                "ErrCodeConflict",
-                "ErrCodeInternalError",
-                "ErrCodeUpstreamUnavailable"
-            ]
+            "properties": {
+                "count": {
+                    "type": "integer",
+                    "maximum": 1000,
+                    "minimum": 1
+                },
+                "filter": {
+                    "$ref": "#/definitions/word-flashcard_docker_internal_models.SearchFilter"
+                }
+            }
+        },
+        "models.WordRandomRequest": {
+            "type": "object",
+            "required": [
+                "count"
+            ],
+            "properties": {
+                "count": {
+                    "type": "integer",
+                    "maximum": 1000,
+                    "minimum": 1
+                },
+                "familiarity_levels": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "per_category_counts": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "word-flashcard_docker_internal_models.SearchCondition": {
+            "type": "object",
+            "required": [
+                "key",
+                "operator"
+            ],
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "operator": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "word-flashcard_docker_internal_models.SearchFilter": {
+            "type": "object",
+            "required": [
+                "conditions",
+                "logic"
+            ],
+            "properties": {
+                "conditions": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/word-flashcard_docker_internal_models.SearchCondition"
+                    }
+                },
+                "logic": {
+                    "description": "\"AND\" or \"OR\"",
+                    "type": "string"
+                }
+            }
         },
         "word-flashcard_internal_models.AccuracyBucket": {
             "type": "object",
@@ -1475,11 +1495,30 @@ const docTemplate = `{
                 }
             }
         },
+        "word-flashcard_internal_models.ErrorCode": {
+            "type": "string",
+            "enum": [
+                "invalid_request",
+                "validation_error",
+                "not_found",
+                "conflict",
+                "internal_error",
+                "upstream_unavailable"
+            ],
+            "x-enum-varnames": [
+                "ErrCodeInvalidRequest",
+                "ErrCodeValidationError",
+                "ErrCodeNotFound",
+                "ErrCodeConflict",
+                "ErrCodeInternalError",
+                "ErrCodeUpstreamUnavailable"
+            ]
+        },
         "word-flashcard_internal_models.ErrorResponse": {
             "type": "object",
             "properties": {
                 "code": {
-                    "$ref": "#/definitions/models.ErrorCode"
+                    "$ref": "#/definitions/word-flashcard_internal_models.ErrorCode"
                 },
                 "error": {
                     "type": "string"
@@ -1620,22 +1659,6 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/word-flashcard_internal_models.AccuracyBucket"
                     }
-                }
-            }
-        },
-        "word-flashcard_internal_models.RandomFilter": {
-            "type": "object",
-            "required": [
-                "count"
-            ],
-            "properties": {
-                "count": {
-                    "type": "integer",
-                    "maximum": 1000,
-                    "minimum": 1
-                },
-                "filter": {
-                    "$ref": "#/definitions/word-flashcard_internal_models.SearchFilter"
                 }
             }
         },

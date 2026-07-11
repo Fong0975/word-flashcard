@@ -1,21 +1,59 @@
 basePath: /
 definitions:
-  models.ErrorCode:
-    enum:
-    - invalid_request
-    - validation_error
-    - not_found
-    - conflict
-    - internal_error
-    - upstream_unavailable
-    type: string
-    x-enum-varnames:
-    - ErrCodeInvalidRequest
-    - ErrCodeValidationError
-    - ErrCodeNotFound
-    - ErrCodeConflict
-    - ErrCodeInternalError
-    - ErrCodeUpstreamUnavailable
+  models.RandomFilter:
+    properties:
+      count:
+        maximum: 1000
+        minimum: 1
+        type: integer
+      filter:
+        $ref: '#/definitions/word-flashcard_docker_internal_models.SearchFilter'
+    required:
+    - count
+    type: object
+  models.WordRandomRequest:
+    properties:
+      count:
+        maximum: 1000
+        minimum: 1
+        type: integer
+      familiarity_levels:
+        items:
+          type: string
+        type: array
+      per_category_counts:
+        additionalProperties:
+          type: integer
+        type: object
+    required:
+    - count
+    type: object
+  word-flashcard_docker_internal_models.SearchCondition:
+    properties:
+      key:
+        type: string
+      operator:
+        type: string
+      value:
+        type: string
+    required:
+    - key
+    - operator
+    type: object
+  word-flashcard_docker_internal_models.SearchFilter:
+    properties:
+      conditions:
+        items:
+          $ref: '#/definitions/word-flashcard_docker_internal_models.SearchCondition'
+        minItems: 1
+        type: array
+      logic:
+        description: '"AND" or "OR"'
+        type: string
+    required:
+    - conditions
+    - logic
+    type: object
   word-flashcard_internal_models.AccuracyBucket:
     properties:
       count:
@@ -43,10 +81,26 @@ definitions:
           $ref: '#/definitions/word-flashcard_internal_models.PhoneticInfo'
         type: array
     type: object
+  word-flashcard_internal_models.ErrorCode:
+    enum:
+    - invalid_request
+    - validation_error
+    - not_found
+    - conflict
+    - internal_error
+    - upstream_unavailable
+    type: string
+    x-enum-varnames:
+    - ErrCodeInvalidRequest
+    - ErrCodeValidationError
+    - ErrCodeNotFound
+    - ErrCodeConflict
+    - ErrCodeInternalError
+    - ErrCodeUpstreamUnavailable
   word-flashcard_internal_models.ErrorResponse:
     properties:
       code:
-        $ref: '#/definitions/models.ErrorCode'
+        $ref: '#/definitions/word-flashcard_internal_models.ErrorCode'
       error:
         type: string
     type: object
@@ -138,17 +192,6 @@ definitions:
         items:
           $ref: '#/definitions/word-flashcard_internal_models.AccuracyBucket'
         type: array
-    type: object
-  word-flashcard_internal_models.RandomFilter:
-    properties:
-      count:
-        maximum: 1000
-        minimum: 1
-        type: integer
-      filter:
-        $ref: '#/definitions/word-flashcard_internal_models.SearchFilter'
-    required:
-    - count
     type: object
   word-flashcard_internal_models.SearchCondition:
     properties:
@@ -726,32 +769,6 @@ paths:
             $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
       tags:
       - questions
-  /api/questions/definition/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete a specific question
-      parameters:
-      - description: Question ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: Question deleted successfully
-        "400":
-          description: Bad request - Invalid definition ID
-          schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
-        "500":
-          description: Internal server error - Failed to delete data from database
-          schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
-      tags:
-      - questions
   /api/questions/random:
     post:
       consumes:
@@ -1073,14 +1090,17 @@ paths:
     post:
       consumes:
       - application/json
-      description: Get random words using specified filter criteria
+      description: Get random words for a quiz, weighted by familiarity ratio (familiarity_levels)
+        or exact quota (per_category_counts); prioritizes never-practiced then longest-idle
+        words
       parameters:
-      - description: Random filter criteria including count and optional filter
+      - description: Random request criteria including count and either familiarity_levels
+          or per_category_counts
         in: body
-        name: randomFilter
+        name: randomRequest
         required: true
         schema:
-          $ref: '#/definitions/word-flashcard_internal_models.RandomFilter'
+          $ref: '#/definitions/models.WordRandomRequest'
       produces:
       - application/json
       responses:
