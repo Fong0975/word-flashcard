@@ -7,7 +7,6 @@ import (
 	"word-flashcard/data/peers"
 	"word-flashcard/data/schema"
 	"word-flashcard/internal/models"
-	"word-flashcard/utils/database"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/gin-gonic/gin"
@@ -202,19 +201,19 @@ func (wc *WordController) SearchWords(c *gin.Context) {
 	ResponseSuccess(http.StatusOK, wordEntities, c)
 }
 
-// RandomWords @Summary Get random words with filters
-// @Description Get random words using specified filter criteria
+// RandomWords @Summary Get random words weighted by familiarity and practice recency
+// @Description Get random words for a quiz, weighted by familiarity ratio (familiarity_levels) or exact quota (per_category_counts); prioritizes never-practiced then longest-idle words
 // @Tags words
 // @Accept json
 // @Produce json
-// @Param randomFilter body models.RandomFilter true "Random filter criteria including count and optional filter"
+// @Param randomRequest body models.WordRandomRequest true "Random request criteria including count and either familiarity_levels or per_category_counts"
 // @Success 200 {array} models.Word "Random words retrieved successfully"
 // @Failure 400 {object} models.ErrorResponse "Bad request - Invalid request body or count parameter"
 // @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to fetch data from database"
 // @Router /api/words/random [post]
 func (wc *WordController) RandomWords(c *gin.Context) {
-	// ============== 1. Get random filter from request ================
-	var randomReq models.RandomFilter
+	// ============== 1. Get random request from body ================
+	var randomReq models.WordRandomRequest
 	err := ParseRequestBody(&randomReq, c)
 	if err != nil {
 		ResponseError(http.StatusBadRequest, "Invalid request body", models.ErrCodeInvalidRequest, err, c)
@@ -227,33 +226,36 @@ func (wc *WordController) RandomWords(c *gin.Context) {
 		return
 	}
 
-	// Convert count to uint64 for database layer
-	limitPtr := uint64(randomReq.Count)
-
-	// ================ 2. Build where condition ================
-	var where squirrel.Sqlizer
-	if randomReq.Filter != nil {
-		var err error
-		where, err = randomReq.Filter.ToSqlizer()
-		if err != nil {
-			ResponseError(http.StatusBadRequest, "Invalid filter", models.ErrCodeInvalidRequest, err, c)
-			return
-		}
+	// ================ 2. Determine per-level quotas ================
+	var quotas map[string]int
+	if len(randomReq.PerCategoryCounts) > 0 {
+		quotas = randomReq.PerCategoryCounts
+	} else if len(randomReq.FamiliarityLevels) > 0 {
+		quotas = computeLevelQuotas(randomReq.Count, randomReq.FamiliarityLevels)
+	} else {
+		ResponseError(http.StatusBadRequest, "Either familiarity_levels or per_category_counts is required", models.ErrCodeValidationError, nil, c)
+		return
 	}
 
-	// ================ 3. Fetch data from database ================
-	// Use database-agnostic random function pattern
-	orderBy := database.TERM_MAPPING_FUNC_RANDOM
-	wordEntities, err := wc.fetchWordsWithDefinitions([]*string{}, where, []*string{&orderBy}, &limitPtr, nil)
+	// ================ 3. Fetch weighted random words ================
+	words, err := wc.fetchRandomWordsWeighted(quotas)
 	if err != nil {
 		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", models.ErrCodeInternalError, err, c)
 		return
 	}
+
+	// ================ 4. Attach definitions and build response ================
+	wordsDefs, err := wc.fetchWordDefinitionsForWords(words)
+	if err != nil {
+		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", models.ErrCodeInternalError, err, c)
+		return
+	}
+	wordEntities := wc.transformToWordEntities(words, wordsDefs)
 	if len(wordEntities) == 0 {
 		wordEntities = []*models.Word{}
 	}
 
-	// ================ 4. Send response ================
+	// ================ 5. Send response ================
 	ResponseSuccess(http.StatusOK, wordEntities, c)
 }
 

@@ -135,8 +135,19 @@ func (wd *WordDefinition) ToDataModel() *models.WordDefinition {
 	}
 }
 
-// RandomFilter represents the request structure for random word selection
-type RandomFilter struct {
-	Count  int           `json:"count" binding:"required,min=1,max=1000"`
-	Filter *SearchFilter `json:"filter,omitempty"`
+// WordRandomRequest represents the request structure for random word selection
+// used by the Word Quiz. Exactly one of FamiliarityLevels or PerCategoryCounts
+// is expected to be supplied:
+//   - FamiliarityLevels: the backend splits Count across these levels using a
+//     weighted 7:5:3 (red:yellow:green) ratio, renormalized to whichever
+//     levels are present (see computeLevelQuotas).
+//   - PerCategoryCounts: the caller specifies the exact quota per level
+//     directly, bypassing the weighted ratio.
+//
+// Within whichever levels end up with a quota, words that have never been
+// practiced are prioritized, followed by words practiced longest ago.
+type WordRandomRequest struct {
+	Count             int            `json:"count" binding:"required,min=1,max=1000"`
+	FamiliarityLevels []string       `json:"familiarity_levels,omitempty"`
+	PerCategoryCounts map[string]int `json:"per_category_counts,omitempty"`
 }

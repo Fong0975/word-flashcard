@@ -118,10 +118,18 @@ func (suite *WordControllerTestSuite) TestSearchWords() {
 	assert.Equal(suite.T(), string(expectedWord), w.Body.String())
 }
 
-// TestRandomWords tests the RandomWords handler
+// TestRandomWords tests the RandomWords handler with familiarity_levels, which
+// computes a single-level quota (the whole count, since only one level is
+// requested) and fetches it via the never-practiced-first weighted bucket.
 func (suite *WordControllerTestSuite) TestRandomWords() {
 	// Mock wordPeer & wordDefinitionPeer methods as needed
-	whereWord := squirrel.Eq{schema.WORD_FAMILIARITY: "yellow"}
+	whereWord := squirrel.And{
+		squirrel.Eq{schema.WORD_FAMILIARITY: "yellow"},
+		squirrel.Or{
+			squirrel.Eq{schema.WORD_COUNT_PRACTISE: 0},
+			squirrel.Eq{schema.WORD_LAST_PRACTISED_AT: nil},
+		},
+	}
 	whereDefinitionID := squirrel.Eq{schema.WORD_DEFINITIONS_WORD_ID: []int{2, 4}}
 
 	limitPtr := uint64(2)
@@ -138,8 +146,8 @@ func (suite *WordControllerTestSuite) TestRandomWords() {
 	// Create a test HTTP request and call the handler
 	w := httptest.NewRecorder()
 	ctx, _ := gin.CreateTestContext(w)
-	requestFilter := "{\"count\": 2, \"filter\": { \"conditions\": [ { \"key\": \"familiarity\", \"operator\": \"eq\", \"value\": \"yellow\" } ], \"logic\": \"AND\"}}"
-	ctx.Request = httptest.NewRequest(http.MethodPost, "/api/words/random", io.NopCloser(bytes.NewReader([]byte(requestFilter))))
+	requestBody := "{\"count\": 2, \"familiarity_levels\": [\"yellow\"]}"
+	ctx.Request = httptest.NewRequest(http.MethodPost, "/api/words/random", io.NopCloser(bytes.NewReader([]byte(requestBody))))
 	suite.wc.RandomWords(ctx)
 
 	// Verify the response status code
@@ -148,6 +156,53 @@ func (suite *WordControllerTestSuite) TestRandomWords() {
 	expectedWords, err := json.Marshal([]*models.Word{getExpectedWords()[1], getExpectedWords()[3]})
 	assert.NoError(suite.T(), err)
 	assert.Equal(suite.T(), string(expectedWords), w.Body.String())
+}
+
+// TestRandomWordsWithPerCategoryCounts tests the RandomWords handler when the
+// caller supplies exact per-level quotas directly instead of familiarity_levels.
+func (suite *WordControllerTestSuite) TestRandomWordsWithPerCategoryCounts() {
+	whereWord := squirrel.And{
+		squirrel.Eq{schema.WORD_FAMILIARITY: "green"},
+		squirrel.Or{
+			squirrel.Eq{schema.WORD_COUNT_PRACTISE: 0},
+			squirrel.Eq{schema.WORD_LAST_PRACTISED_AT: nil},
+		},
+	}
+	whereDefinitionID := squirrel.Eq{schema.WORD_DEFINITIONS_WORD_ID: []int{1}}
+
+	limitPtr := uint64(1)
+	suite.mockWordPeer.EXPECT().
+		Select(mock.Anything, whereWord, mock.MatchedBy(func(orderBy []*string) bool {
+			b := len(orderBy) == 1 && orderBy[0] != nil && *orderBy[0] == database.TERM_MAPPING_FUNC_RANDOM
+			return b
+		}), &limitPtr, (*uint64)(nil)).
+		Return([]*dbModels.Word{getSampleWords()[0]}, nil).Times(1)
+	suite.mockWordDefinitionPeer.EXPECT().
+		Select(mock.Anything, whereDefinitionID, mock.Anything, mock.Anything, mock.Anything).
+		Return([]*dbModels.WordDefinition{getSampleWordDefinitions()[0]}, nil).Times(1)
+
+	w := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(w)
+	requestBody := "{\"count\": 1, \"per_category_counts\": {\"green\": 1}}"
+	ctx.Request = httptest.NewRequest(http.MethodPost, "/api/words/random", io.NopCloser(bytes.NewReader([]byte(requestBody))))
+	suite.wc.RandomWords(ctx)
+
+	assert.Equal(suite.T(), http.StatusOK, w.Code)
+	expectedWords, err := json.Marshal([]*models.Word{getExpectedWords()[0]})
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), string(expectedWords), w.Body.String())
+}
+
+// TestRandomWordsMissingLevelsOrCounts tests that RandomWords rejects a
+// request that supplies neither familiarity_levels nor per_category_counts.
+func (suite *WordControllerTestSuite) TestRandomWordsMissingLevelsOrCounts() {
+	w := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(w)
+	requestBody := "{\"count\": 2}"
+	ctx.Request = httptest.NewRequest(http.MethodPost, "/api/words/random", io.NopCloser(bytes.NewReader([]byte(requestBody))))
+	suite.wc.RandomWords(ctx)
+
+	assert.Equal(suite.T(), http.StatusBadRequest, w.Code)
 }
 
 // TestCreateWord tests the CreateWord handler
