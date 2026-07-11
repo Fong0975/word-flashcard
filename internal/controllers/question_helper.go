@@ -86,6 +86,10 @@ func (qc *QuestionController) validateQuestionFields(question *models.Question, 
 
 // fetchRandomQuestionsWeighted retrieves questions using weighted bucket sampling.
 // Target ratio is 5:3:2 (unpractised : high-failure-rate : high-success-rate).
+// Within the high-failure and high-success buckets, questions that have never
+// been answered (since last_answered_at tracking began) are prioritized, then
+// the ones answered longest ago — see fetchQuestionsRecencyWeighted. The
+// unpractised bucket has no recency concept, so it stays plain random.
 //
 // Phase 1: buckets are fetched in reverse priority order with the date filter applied,
 // so recent questions are avoided and underflow cascades upward to harder buckets.
@@ -116,13 +120,13 @@ func (qc *QuestionController) fetchRandomQuestionsWeighted(count int, excludeRec
 	}, excludeBefore)
 
 	// Phase 1: fetch lowest-priority bucket first; underflow cascades up to harder buckets
-	bucket3, err := qc.fetchQuestionBucket(bucket3Where, quota3)
+	bucket3, err := qc.fetchQuestionsRecencyWeighted(bucket3Where, quota3)
 	if err != nil {
 		return nil, err
 	}
 	quota2 += quota3 - len(bucket3)
 
-	bucket2, err := qc.fetchQuestionBucket(bucket2Where, quota2)
+	bucket2, err := qc.fetchQuestionsRecencyWeighted(bucket2Where, quota2)
 	if err != nil {
 		return nil, err
 	}
@@ -178,6 +182,42 @@ func (qc *QuestionController) fetchQuestionBucket(where squirrel.Sqlizer, limit 
 	limitPtr := uint64(limit)
 	orderBy := database.TERM_MAPPING_FUNC_RANDOM
 	return qc.questionPeer.Select([]*string{}, where, []*string{&orderBy}, &limitPtr, nil)
+}
+
+// fetchQuestionsRecencyWeighted retrieves up to quota questions matching where,
+// prioritizing questions with no last_answered_at yet (covers both legacy rows
+// from before this tracking existed and questions never answered), then filling
+// any remaining quota with the questions answered longest ago. These two groups
+// exhaustively partition the input where condition, so no same-bucket fallback
+// is needed here — any unmet quota is a genuine shortage within this bucket,
+// left for the caller to cascade into another bucket.
+func (qc *QuestionController) fetchQuestionsRecencyWeighted(where squirrel.Sqlizer, quota int) ([]*dbModels.Question, error) {
+	if quota <= 0 {
+		return []*dbModels.Question{}, nil
+	}
+
+	noTimestampWhere := squirrel.And{where, squirrel.Eq{schema.QUESTION_LAST_ANSWERED_AT: nil}}
+	limit := uint64(quota)
+	randomOrderBy := database.TERM_MAPPING_FUNC_RANDOM
+	noTimestamp, err := qc.questionPeer.Select([]*string{}, noTimestampWhere, []*string{&randomOrderBy}, &limit, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	remaining := quota - len(noTimestamp)
+	if remaining <= 0 {
+		return noTimestamp, nil
+	}
+
+	oldestWhere := squirrel.And{where, squirrel.NotEq{schema.QUESTION_LAST_ANSWERED_AT: nil}}
+	remainingLimit := uint64(remaining)
+	oldestFirst := fmt.Sprintf("%s ASC", schema.QUESTION_LAST_ANSWERED_AT)
+	oldest, err := qc.questionPeer.Select([]*string{}, oldestWhere, []*string{&oldestFirst}, &remainingLimit, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return append(noTimestamp, oldest...), nil
 }
 
 // validateStringField Verify the string field is empty and its length
