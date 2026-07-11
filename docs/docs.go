@@ -1627,6 +1627,9 @@ const docTemplate = `{
                 "option_d": {
                     "type": "string"
                 },
+                "practiced": {
+                    "type": "boolean"
+                },
                 "question": {
                     "type": "string"
                 },
