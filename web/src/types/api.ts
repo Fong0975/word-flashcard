@@ -238,6 +238,7 @@ export interface WordStatsResponse {
 export interface AccuracyBucket {
   readonly range: string;
   readonly count: number;
+  readonly practice_count_breakdown: readonly PracticeCountBucket[];
 }
 
 export interface QuestionStatsResponse {

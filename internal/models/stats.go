@@ -19,10 +19,12 @@ type WordStats struct {
 	PracticeCountDistribution []PracticeCountBucket       `json:"practice_count_distribution"`
 }
 
-// AccuracyBucket holds the question count for a given accuracy range
+// AccuracyBucket holds the question count for a given accuracy range, along
+// with a breakdown of those questions by how many times they were practiced.
 type AccuracyBucket struct {
-	Range string `json:"range"`
-	Count int    `json:"count"`
+	Range                  string                `json:"range"`
+	Count                  int                   `json:"count"`
+	PracticeCountBreakdown []PracticeCountBucket `json:"practice_count_breakdown"`
 }
 
 // QuestionStats is the response for the question statistics endpoint

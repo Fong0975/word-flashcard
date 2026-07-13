@@ -6,6 +6,7 @@ import (
 	"time"
 	"word-flashcard/data/peers"
 	"word-flashcard/data/schema"
+	"word-flashcard/internal/controllers/common"
 	"word-flashcard/internal/models"
 
 	"github.com/Masterminds/squirrel"
@@ -361,7 +362,7 @@ func (qc *QuestionController) CountQuestions(c *gin.Context) {
 }
 
 // StatsQuestions @Summary Get question statistics
-// @Description Get question count distribution by accuracy rate in 10% intervals
+// @Description Get question count distribution by accuracy rate in 10% intervals, each bucket further broken down by practice count
 // @Tags questions
 // @Produce json
 // @Success 200 {object} models.QuestionStats "Question accuracy distribution"
@@ -394,9 +395,14 @@ func (qc *QuestionController) StatsQuestions(c *gin.Context) {
 		{Range: "N/A", Count: 0},
 	}
 
+	// practiceCounts[i] collects the practice count of every question that
+	// fell into buckets[i], so it can be broken down further below.
+	practiceCounts := make([][]int, len(buckets))
+
 	for _, q := range questions {
 		if q.CountPractise == nil || *q.CountPractise == 0 {
 			buckets[12].Count++
+			practiceCounts[12] = append(practiceCounts[12], 0)
 			continue
 		}
 		successCount := *q.CountPractise
@@ -408,35 +414,41 @@ func (qc *QuestionController) StatsQuestions(c *gin.Context) {
 		}
 		accuracy := successCount * 100 / *q.CountPractise
 
+		idx := 11
 		switch {
 		case accuracy == 100:
-			buckets[0].Count++
+			idx = 0
 		case accuracy >= 91:
-			buckets[1].Count++
+			idx = 1
 		case accuracy >= 81:
-			buckets[2].Count++
+			idx = 2
 		case accuracy >= 71:
-			buckets[3].Count++
+			idx = 3
 		case accuracy >= 61:
-			buckets[4].Count++
+			idx = 4
 		case accuracy >= 51:
-			buckets[5].Count++
+			idx = 5
 		case accuracy >= 41:
-			buckets[6].Count++
+			idx = 6
 		case accuracy >= 31:
-			buckets[7].Count++
+			idx = 7
 		case accuracy >= 21:
-			buckets[8].Count++
+			idx = 8
 		case accuracy >= 11:
-			buckets[9].Count++
+			idx = 9
 		case accuracy >= 1:
-			buckets[10].Count++
-		default:
-			buckets[11].Count++
+			idx = 10
 		}
+		buckets[idx].Count++
+		practiceCounts[idx] = append(practiceCounts[idx], *q.CountPractise)
 	}
 
-	// ================ 3. Send response ================
+	// ================ 3. Break each accuracy bucket down by practice count ================
+	for i := range buckets {
+		buckets[i].PracticeCountBreakdown = common.BuildPracticeCountBuckets(practiceCounts[i])
+	}
+
+	// ================ 4. Send response ================
 	ResponseSuccess(http.StatusOK, models.QuestionStats{
 		AccuracyDistribution: buckets,
 	}, c)

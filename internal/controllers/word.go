@@ -6,6 +6,7 @@ import (
 	"time"
 	"word-flashcard/data/peers"
 	"word-flashcard/data/schema"
+	"word-flashcard/internal/controllers/common"
 	"word-flashcard/internal/models"
 
 	"github.com/Masterminds/squirrel"
@@ -661,7 +662,7 @@ func (wc *WordController) StatsWords(c *gin.Context) {
 	}
 
 	// ================ 3. Bucket words by practice count ================
-	practiceBuckets := buildPracticeCountBuckets(counts)
+	practiceBuckets := common.BuildPracticeCountBuckets(counts)
 
 	// ================ 4. Send response ================
 	ResponseSuccess(http.StatusOK, models.WordStats{
