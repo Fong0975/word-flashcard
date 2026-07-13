@@ -17,6 +17,7 @@ import {
   OptionsDisplay,
   PracticeStats,
   AnswerSection,
+  QuestionHistorySection,
 } from './components';
 
 export const QuestionDetailPage: React.FC = () => {
@@ -126,6 +127,8 @@ export const QuestionDetailPage: React.FC = () => {
               explanation={question.notes}
               question={question}
             />
+
+            <QuestionHistorySection question={question} />
           </div>
         }
       />

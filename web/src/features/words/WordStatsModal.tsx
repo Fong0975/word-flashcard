@@ -8,6 +8,8 @@ import {
   ResponsiveContainer,
   BarChart,
   Bar,
+  Line,
+  ComposedChart,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -16,7 +18,7 @@ import {
 import { Modal } from '../../components/ui/Modal';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { apiService } from '../../lib/api';
-import { WordStatsResponse } from '../../types/api';
+import { WordStatsResponse, WordTrendPoint } from '../../types/api';
 import { useAsyncOnOpen } from '../shared/hooks/useAsyncOnOpen';
 
 interface WordStatsModalProps {
@@ -24,7 +26,10 @@ interface WordStatsModalProps {
   onClose: () => void;
 }
 
-type ActiveTab = 'familiarity' | 'practice';
+type ActiveTab = 'familiarity' | 'practice' | 'trend';
+
+const formatShortDate = (iso: string): string =>
+  new Date(iso).toLocaleDateString();
 
 const FAMILIARITY_COLORS = {
   Unfamiliar: '#ef4444',
@@ -47,6 +52,20 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
     fetcher: () => apiService.getWordStats(),
     errorMessage: 'Failed to load word statistics.',
   });
+
+  const {
+    data: trend,
+    loading: trendLoading,
+    error: trendError,
+  } = useAsyncOnOpen<WordTrendPoint[]>({
+    isOpen,
+    fetcher: () => apiService.getWordsTrend(30),
+    errorMessage: 'Failed to load practice trend.',
+  });
+
+  const hasTrendActivity = trend
+    ? trend.some(point => point.practice_count > 0)
+    : false;
 
   const familiarityChartData = stats
     ? [
@@ -97,13 +116,24 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
               <button
                 type='button'
                 onClick={() => setActiveTab('practice')}
-                className={`rounded-r-md border-l border-gray-300 px-4 py-1.5 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 dark:border-gray-600 ${
+                className={`border-l border-gray-300 px-4 py-1.5 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 dark:border-gray-600 ${
                   activeTab === 'practice'
                     ? 'bg-blue-600 text-white'
                     : 'bg-white text-gray-600 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
                 }`}
               >
                 Practice Count
+              </button>
+              <button
+                type='button'
+                onClick={() => setActiveTab('trend')}
+                className={`rounded-r-md border-l border-gray-300 px-4 py-1.5 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 dark:border-gray-600 ${
+                  activeTab === 'trend'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-white text-gray-600 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                }`}
+              >
+                Trend
               </button>
             </div>
           </div>
@@ -207,6 +237,80 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
               <p className='mt-2 text-center text-xs text-gray-400 dark:text-gray-500'>
                 Times practiced (per word)
               </p>
+            </>
+          )}
+
+          {/* Trend tab */}
+          {activeTab === 'trend' && (
+            <>
+              {trendLoading && <LoadingSpinner message='Loading trend...' />}
+
+              {trendError && (
+                <div className='flex h-48 items-center justify-center text-sm text-red-500'>
+                  {trendError}
+                </div>
+              )}
+
+              {!trendLoading && !trendError && trend && !hasTrendActivity && (
+                <p className='py-4 text-center text-sm text-gray-500 dark:text-gray-400'>
+                  No recent practice activity.
+                </p>
+              )}
+
+              {!trendLoading && !trendError && trend && hasTrendActivity && (
+                <ResponsiveContainer width='100%' height={220}>
+                  <ComposedChart data={[...trend]}>
+                    <CartesianGrid
+                      strokeDasharray='3 3'
+                      stroke='currentColor'
+                      className='opacity-10'
+                    />
+                    <XAxis
+                      dataKey='date'
+                      tick={{ fontSize: 10 }}
+                      tickFormatter={formatShortDate}
+                    />
+                    <YAxis
+                      yAxisId='left'
+                      allowDecimals={false}
+                      tick={{ fontSize: 11 }}
+                    />
+                    <YAxis
+                      yAxisId='right'
+                      orientation='right'
+                      domain={[0, 100]}
+                      tick={{ fontSize: 11 }}
+                      tickFormatter={v => `${v}%`}
+                    />
+                    <Tooltip
+                      labelFormatter={value => formatShortDate(value as string)}
+                      contentStyle={{ fontSize: '12px' }}
+                    />
+                    <Legend wrapperStyle={{ fontSize: '12px' }} />
+                    <Bar
+                      yAxisId='left'
+                      dataKey='practice_count'
+                      fill='#6366f1'
+                      name='Practices'
+                      radius={[2, 2, 0, 0]}
+                    />
+                    <Line
+                      yAxisId='right'
+                      dataKey='improvement_rate'
+                      stroke='#22c55e'
+                      dot={false}
+                      name='Improvement %'
+                    />
+                    <Line
+                      yAxisId='right'
+                      dataKey='avg_familiarity_score'
+                      stroke='#3b82f6'
+                      dot={false}
+                      name='Avg Familiarity %'
+                    />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              )}
             </>
           )}
         </>

@@ -1,6 +1,7 @@
 // UI components exports
 export { Modal } from './Modal';
 export { ActionButton } from './ActionButton';
+export { CollapsibleSection } from './CollapsibleSection';
 export { DropdownMenu } from './DropdownMenu';
 export { FormActions } from './FormActions';
 export { FormErrorMessage } from './FormErrorMessage';

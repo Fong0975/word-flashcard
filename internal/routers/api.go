@@ -20,19 +20,19 @@ type ControllerDependencies struct {
 // SetupAPIRoutes configures all API routes with default controllers
 func SetupAPIRoutes(router *gin.Engine) {
 	// Initialize default controllers
-	wordPeer, wordDefinitionsPeer, err := controllers.GetReelPeers()
+	wordPeer, wordDefinitionsPeer, wordPracticeLogPeer, err := controllers.GetReelPeers()
 	if err != nil {
 		slog.Error("Failed to initialize Word controller", "error", err)
 		return
 	}
-	wordController := controllers.NewWordController(wordPeer, wordDefinitionsPeer)
+	wordController := controllers.NewWordController(wordPeer, wordDefinitionsPeer, wordPracticeLogPeer)
 
-	questionPeer, err := controllers.GetReelQuestionPeer()
+	questionPeer, questionAnswerLogPeer, err := controllers.GetReelQuestionPeers()
 	if err != nil {
 		slog.Error("Failed to initialize Question controller", "error", err)
 		return
 	}
-	questionController := controllers.NewQuestionController(questionPeer)
+	questionController := controllers.NewQuestionController(questionPeer, questionAnswerLogPeer)
 
 	notePeer, err := controllers.GetReelNotePeer()
 	if err != nil {
@@ -76,6 +76,8 @@ func SetupAPIRoutesWithDependencies(router *gin.Engine, deps *ControllerDependen
 	apiGroup.DELETE("/words/:id", deps.WordController.DeleteWord)
 	apiGroup.POST("/words/count", deps.WordController.CountWords)
 	apiGroup.GET("/words/stats", deps.WordController.StatsWords)
+	apiGroup.GET("/words/trend", deps.WordController.GetWordsTrend)
+	apiGroup.GET("/words/:id/logs", deps.WordController.GetWordLogs)
 	apiGroup.POST("/words/definition/:id", deps.WordController.CreateWordDefinition)
 	apiGroup.PUT("/words/definition/:id", deps.WordController.UpdateWordDefinition)
 	apiGroup.DELETE("/words/definition/:id", deps.WordController.DeleteWordDefinition)
@@ -89,6 +91,8 @@ func SetupAPIRoutesWithDependencies(router *gin.Engine, deps *ControllerDependen
 	apiGroup.DELETE("/questions/:id", deps.QuestionController.DeleteQuestions)
 	apiGroup.GET("/questions/count", deps.QuestionController.CountQuestions)
 	apiGroup.GET("/questions/stats", deps.QuestionController.StatsQuestions)
+	apiGroup.GET("/questions/trend", deps.QuestionController.GetQuestionsTrend)
+	apiGroup.GET("/questions/:id/logs", deps.QuestionController.GetQuestionLogs)
 
 	// Note routes
 	apiGroup.GET("/notes", deps.NoteController.ListNotes)

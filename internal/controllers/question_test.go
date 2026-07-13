@@ -3,6 +3,7 @@ package controllers
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -11,6 +12,7 @@ import (
 	"word-flashcard/data/mocks"
 	dbModels "word-flashcard/data/models"
 	"word-flashcard/data/schema"
+	"word-flashcard/internal/controllers/common"
 	"word-flashcard/internal/models"
 	"word-flashcard/utils"
 	"word-flashcard/utils/database"
@@ -24,8 +26,9 @@ import (
 
 type QuestionControllerTestSuite struct {
 	suite.Suite
-	controller       *QuestionController
-	mockQuestionPeer *mocks.MockQuestionPeer
+	controller                *QuestionController
+	mockQuestionPeer          *mocks.MockQuestionPeer
+	mockQuestionAnswerLogPeer *mocks.MockQuestionAnswerLogPeer
 }
 
 // TestQuestionControllerTestSuite runs the QuestionControllerTestSuite
@@ -36,7 +39,8 @@ func TestQuestionControllerTestSuite(t *testing.T) {
 // SetupTest sets up the test environment before each test
 func (suite *QuestionControllerTestSuite) SetupTest() {
 	suite.mockQuestionPeer = mocks.NewMockQuestionPeer(suite.T())
-	suite.controller = NewQuestionController(suite.mockQuestionPeer)
+	suite.mockQuestionAnswerLogPeer = mocks.NewMockQuestionAnswerLogPeer(suite.T())
+	suite.controller = NewQuestionController(suite.mockQuestionPeer, suite.mockQuestionAnswerLogPeer)
 }
 
 // TestListQuestions tests the ListQuestions handler
@@ -218,6 +222,99 @@ func (suite *QuestionControllerTestSuite) TestUpdateQuestionsWithPracticedSetsLa
 	assert.Equal(suite.T(), http.StatusOK, w.Code)
 }
 
+// TestUpdateQuestionsWithSelectedOptionLogsCorrectAnswer tests that sending
+// "selected_option" matching the true answer logs an is_correct=true record,
+// keyed by the question's own option lettering (not any shuffled display order).
+func (suite *QuestionControllerTestSuite) TestUpdateQuestionsWithSelectedOptionLogsCorrectAnswer() {
+	testID := 1
+	where := squirrel.Eq{schema.QUESTION_ID: testID}
+	dbQuestion := getSampleQuestions()[0]
+
+	suite.mockQuestionPeer.EXPECT().
+		Update(mock.Anything, where).
+		Return(int64(testID), nil).Times(1)
+	suite.mockQuestionPeer.EXPECT().
+		Select(mock.Anything, where, mock.Anything, mock.Anything, mock.Anything).
+		Return([]*dbModels.Question{dbQuestion}, nil).Times(1)
+	suite.mockQuestionAnswerLogPeer.EXPECT().
+		Insert(mock.MatchedBy(func(log *dbModels.QuestionAnswerLog) bool {
+			isQuestionID := log.QuestionId != nil && *log.QuestionId == testID
+			isSelectedOption := log.SelectedOption != nil && *log.SelectedOption == "A"
+			isCorrect := log.IsCorrect != nil && *log.IsCorrect
+			return isQuestionID && isSelectedOption && isCorrect
+		})).
+		Return(int64(1), nil).Times(1)
+
+	w := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(w)
+	requestBody := "{\"answer\": \"A\", \"selected_option\": \"a\", \"practiced\": true}"
+	ctx.Request = httptest.NewRequest(http.MethodPut, "/api/questions/1", io.NopCloser(bytes.NewReader([]byte(requestBody))))
+	ctx.Params = gin.Params{gin.Param{Key: "id", Value: "1"}}
+	suite.controller.UpdateQuestions(ctx)
+
+	assert.Equal(suite.T(), http.StatusOK, w.Code)
+}
+
+// TestUpdateQuestionsWithSelectedOptionLogsIncorrectAnswer tests that a
+// selected_option different from the true answer logs an is_correct=false record.
+func (suite *QuestionControllerTestSuite) TestUpdateQuestionsWithSelectedOptionLogsIncorrectAnswer() {
+	testID := 1
+	where := squirrel.Eq{schema.QUESTION_ID: testID}
+	dbQuestion := getSampleQuestions()[0]
+
+	suite.mockQuestionPeer.EXPECT().
+		Update(mock.Anything, where).
+		Return(int64(testID), nil).Times(1)
+	suite.mockQuestionPeer.EXPECT().
+		Select(mock.Anything, where, mock.Anything, mock.Anything, mock.Anything).
+		Return([]*dbModels.Question{dbQuestion}, nil).Times(1)
+	suite.mockQuestionAnswerLogPeer.EXPECT().
+		Insert(mock.MatchedBy(func(log *dbModels.QuestionAnswerLog) bool {
+			isSelectedOption := log.SelectedOption != nil && *log.SelectedOption == "B"
+			isCorrect := log.IsCorrect != nil && !*log.IsCorrect
+			return isSelectedOption && isCorrect
+		})).
+		Return(int64(1), nil).Times(1)
+
+	w := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(w)
+	requestBody := "{\"answer\": \"A\", \"selected_option\": \"B\", \"practiced\": true}"
+	ctx.Request = httptest.NewRequest(http.MethodPut, "/api/questions/1", io.NopCloser(bytes.NewReader([]byte(requestBody))))
+	ctx.Params = gin.Params{gin.Param{Key: "id", Value: "1"}}
+	suite.controller.UpdateQuestions(ctx)
+
+	assert.Equal(suite.T(), http.StatusOK, w.Code)
+}
+
+// TestUpdateQuestionsLogInsertFailureStillReturnsSuccess tests that an
+// answer log insert failure is best-effort: the question update already
+// committed, so the handler must still respond with 200 rather than
+// surfacing a 500 for a write that already succeeded.
+func (suite *QuestionControllerTestSuite) TestUpdateQuestionsLogInsertFailureStillReturnsSuccess() {
+	testID := 1
+	where := squirrel.Eq{schema.QUESTION_ID: testID}
+	dbQuestion := getSampleQuestions()[0]
+
+	suite.mockQuestionPeer.EXPECT().
+		Update(mock.Anything, where).
+		Return(int64(testID), nil).Times(1)
+	suite.mockQuestionPeer.EXPECT().
+		Select(mock.Anything, where, mock.Anything, mock.Anything, mock.Anything).
+		Return([]*dbModels.Question{dbQuestion}, nil).Times(1)
+	suite.mockQuestionAnswerLogPeer.EXPECT().
+		Insert(mock.Anything).
+		Return(int64(0), fmt.Errorf("insert failed")).Times(1)
+
+	w := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(w)
+	requestBody := "{\"answer\": \"A\", \"selected_option\": \"A\", \"practiced\": true}"
+	ctx.Request = httptest.NewRequest(http.MethodPut, "/api/questions/1", io.NopCloser(bytes.NewReader([]byte(requestBody))))
+	ctx.Params = gin.Params{gin.Param{Key: "id", Value: "1"}}
+	suite.controller.UpdateQuestions(ctx)
+
+	assert.Equal(suite.T(), http.StatusOK, w.Code)
+}
+
 // TestDeleteQuestions tests the DeleteQuestions handler
 func (suite *QuestionControllerTestSuite) TestDeleteQuestions() {
 	testID := 1
@@ -326,6 +423,100 @@ func (suite *QuestionControllerTestSuite) TestStatsQuestions() {
 	expectedJSON, err := json.Marshal(expected)
 	assert.NoError(suite.T(), err)
 	assert.Equal(suite.T(), string(expectedJSON), w.Body.String())
+}
+
+// TestGetQuestionLogs tests the GetQuestionLogs handler
+func (suite *QuestionControllerTestSuite) TestGetQuestionLogs() {
+	testID := 1
+	where := squirrel.Eq{schema.QUESTION_ANSWER_LOG_QUESTION_ID: testID}
+	limitPtr := uint64(15)
+
+	suite.mockQuestionAnswerLogPeer.EXPECT().
+		Select(mock.Anything, where, mock.Anything, &limitPtr, (*uint64)(nil)).
+		Return(getSampleQuestionAnswerLogs(), nil).Times(1)
+
+	// Create a test HTTP request and call the handler
+	w := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(w)
+	ctx.Request = httptest.NewRequest(http.MethodGet, "/api/questions/1/logs", nil)
+	ctx.Params = gin.Params{gin.Param{Key: "id", Value: "1"}}
+	suite.controller.GetQuestionLogs(ctx)
+
+	// Verify the response status code
+	assert.Equal(suite.T(), http.StatusOK, w.Code)
+	// Verify the response body
+	expected, err := json.Marshal(getExpectedQuestionAnswerLogEntries())
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), string(expected), w.Body.String())
+}
+
+// TestGetQuestionsTrend tests the GetQuestionsTrend handler. It uses a small
+// 3-day window so the expected zero-filled output is easy to hand-compute:
+// 3 logs on the oldest day of the window (2 correct, 1 incorrect) →
+// accuracy_rate = round1(2*100/3) = 66.7, the other two days stay zero-filled.
+func (suite *QuestionControllerTestSuite) TestGetQuestionsTrend() {
+	testID := 1
+	now := time.Now()
+	dateKeys := common.DailyDateKeys(3, now)
+	oldestDay, err := time.Parse("2006-01-02", dateKeys[0])
+	assert.NoError(suite.T(), err)
+	logTime := oldestDay.Add(12 * time.Hour)
+
+	id1, id2, id3 := 1, 2, 3
+	optA, optB, optC := "A", "B", "C"
+	isTrue, isFalse := true, false
+	logs := []*dbModels.QuestionAnswerLog{
+		{Id: &id1, QuestionId: &testID, SelectedOption: &optA, IsCorrect: &isTrue, CreatedAt: &logTime},
+		{Id: &id2, QuestionId: &testID, SelectedOption: &optB, IsCorrect: &isTrue, CreatedAt: &logTime},
+		{Id: &id3, QuestionId: &testID, SelectedOption: &optC, IsCorrect: &isFalse, CreatedAt: &logTime},
+	}
+
+	suite.mockQuestionAnswerLogPeer.EXPECT().
+		Select(mock.Anything, mock.Anything, ([]*string)(nil), (*uint64)(nil), (*uint64)(nil)).
+		Return(logs, nil).Times(1)
+
+	// Create a test HTTP request and call the handler
+	w := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(w)
+	ctx.Request = httptest.NewRequest(http.MethodGet, "/api/questions/trend?days=3", nil)
+	suite.controller.GetQuestionsTrend(ctx)
+
+	// Verify the response status code
+	assert.Equal(suite.T(), http.StatusOK, w.Code)
+	// Verify the response body
+	expected := []models.QuestionTrendPoint{
+		{Date: dateKeys[0], PracticeCount: 3, AccuracyRate: 66.7},
+		{Date: dateKeys[1], PracticeCount: 0, AccuracyRate: 0},
+		{Date: dateKeys[2], PracticeCount: 0, AccuracyRate: 0},
+	}
+	expectedJSON, marshalErr := json.Marshal(expected)
+	assert.NoError(suite.T(), marshalErr)
+	assert.Equal(suite.T(), string(expectedJSON), w.Body.String())
+}
+
+// getSampleQuestionAnswerLogs returns sample QuestionAnswerLog rows for testing
+func getSampleQuestionAnswerLogs() []*dbModels.QuestionAnswerLog {
+	logTime := time.Date(2024, 1, 1, 10, 30, 0, 0, time.UTC)
+
+	id1, id2 := 1, 2
+	questionID := 1
+	optA, optB := "A", "B"
+	isTrue, isFalse := true, false
+
+	return []*dbModels.QuestionAnswerLog{
+		{Id: &id1, QuestionId: &questionID, SelectedOption: &optA, IsCorrect: &isTrue, CreatedAt: &logTime},
+		{Id: &id2, QuestionId: &questionID, SelectedOption: &optB, IsCorrect: &isFalse, CreatedAt: &logTime},
+	}
+}
+
+// getExpectedQuestionAnswerLogEntries returns the expected API response for getSampleQuestionAnswerLogs
+func getExpectedQuestionAnswerLogEntries() []models.QuestionAnswerLogEntry {
+	logTime := time.Date(2024, 1, 1, 10, 30, 0, 0, time.UTC)
+
+	return []models.QuestionAnswerLogEntry{
+		{ID: 1, SelectedOption: "A", IsCorrect: true, CreatedAt: logTime},
+		{ID: 2, SelectedOption: "B", IsCorrect: false, CreatedAt: logTime},
+	}
 }
 
 // getSampleQuestions return sample Question for testing

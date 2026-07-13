@@ -672,6 +672,48 @@
                 }
             }
         },
+        "/api/questions/trend": {
+            "get": {
+                "description": "Get daily practice count / accuracy rate across all questions over the last N days, zero-filled for days with no activity",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "questions"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Number of days to include (default: 30, max: 90)",
+                        "name": "days",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Daily trend points, ascending by date",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.QuestionTrendPoint"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid days parameter",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to fetch data from database",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/questions/{id}": {
             "get": {
                 "description": "Get the question by its ID",
@@ -814,6 +856,55 @@
                     },
                     "500": {
                         "description": "Internal server error - Failed to delete data from database",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/questions/{id}/logs": {
+            "get": {
+                "description": "Get the most recent answer log entries for a question, most recent first",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "questions"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Question ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Maximum number of entries to return (default: 15, max: 50)",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Recent answer log entries",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.QuestionAnswerLogEntry"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid question ID or limit parameter",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to fetch data from database",
                         "schema": {
                             "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
@@ -1261,6 +1352,48 @@
                 }
             }
         },
+        "/api/words/trend": {
+            "get": {
+                "description": "Get daily practice count / improvement rate / average familiarity score across all words over the last N days, zero-filled for days with no activity",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "words"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Number of days to include (default: 30, max: 90)",
+                        "name": "days",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Daily trend points, ascending by date",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.WordTrendPoint"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid days parameter",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to fetch data from database",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/words/{id}": {
             "put": {
                 "description": "Update an existing word's properties like familiarity level",
@@ -1368,9 +1501,123 @@
                     }
                 }
             }
+        },
+        "/api/words/{id}/logs": {
+            "get": {
+                "description": "Get the most recent practice log entries for a word, most recent first",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "words"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Word ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Maximum number of entries to return (default: 10, max: 50)",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Recent practice log entries",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.WordPracticeLogEntry"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid word ID or limit parameter",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to fetch data from database",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "models.QuestionAnswerLogEntry": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_correct": {
+                    "type": "boolean"
+                },
+                "selected_option": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.QuestionTrendPoint": {
+            "type": "object",
+            "properties": {
+                "accuracy_rate": {
+                    "type": "number"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "practice_count": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.WordPracticeLogEntry": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "familiarity": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "previous_familiarity": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.WordTrendPoint": {
+            "type": "object",
+            "properties": {
+                "avg_familiarity_score": {
+                    "type": "number"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "improvement_rate": {
+                    "type": "number"
+                },
+                "practice_count": {
+                    "type": "integer"
+                }
+            }
+        },
         "word-flashcard_internal_models.AccuracyBucket": {
             "type": "object",
             "properties": {
@@ -1558,6 +1805,9 @@
                     "type": "string"
                 },
                 "reference": {
+                    "type": "string"
+                },
+                "selected_option": {
                     "type": "string"
                 }
             }

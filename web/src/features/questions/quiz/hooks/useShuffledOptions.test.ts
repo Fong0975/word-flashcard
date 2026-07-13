@@ -30,10 +30,10 @@ describe('useShuffledOptions', () => {
     const { result } = renderHook(() => useShuffledOptions(question));
 
     expect(result.current.shuffledOptions).toEqual([
-      { key: 'A', value: '3' },
-      { key: 'B', value: '5' },
-      { key: 'C', value: '6' },
-      { key: 'D', value: '4' },
+      { key: 'A', value: '3', originalKey: 'B' },
+      { key: 'B', value: '5', originalKey: 'C' },
+      { key: 'C', value: '6', originalKey: 'D' },
+      { key: 'D', value: '4', originalKey: 'A' },
     ]);
     expect(result.current.shuffledAnswer).toBe('D');
   });
@@ -44,10 +44,10 @@ describe('useShuffledOptions', () => {
     const { result } = renderHook(() => useShuffledOptions(question));
 
     expect(result.current.shuffledOptions).toEqual([
-      { key: 'A', value: '4' },
-      { key: 'B', value: '3' },
-      { key: 'C', value: '5' },
-      { key: 'D', value: '6' },
+      { key: 'A', value: '4', originalKey: 'A' },
+      { key: 'B', value: '3', originalKey: 'B' },
+      { key: 'C', value: '5', originalKey: 'C' },
+      { key: 'D', value: '6', originalKey: 'D' },
     ]);
     expect(result.current.shuffledAnswer).toBe('A');
   });

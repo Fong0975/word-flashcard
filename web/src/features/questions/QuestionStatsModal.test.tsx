@@ -1,9 +1,19 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
-import { QuestionStatsResponse } from '../../types/api';
+import { QuestionStatsResponse, QuestionTrendPoint } from '../../types/api';
 import { apiService } from '../../lib/api';
 
 import { CustomTooltip, QuestionStatsModal } from './QuestionStatsModal';
+
+const buildTrendPoint = (
+  overrides: Partial<QuestionTrendPoint> = {},
+): QuestionTrendPoint => ({
+  date: '2026-07-10',
+  practice_count: 0,
+  accuracy_rate: 0,
+  ...overrides,
+});
 
 describe('QuestionStatsModal', () => {
   let consoleErrorSpy: jest.SpyInstance;
@@ -54,6 +64,78 @@ describe('QuestionStatsModal', () => {
     expect(screen.getByText('50–79%')).toBeInTheDocument();
     expect(screen.getByText('0–49%')).toBeInTheDocument();
     expect(screen.getByText('N/A')).toBeInTheDocument();
+  });
+
+  it('switches to the trend tab and renders the chart when there is activity', async () => {
+    const user = userEvent.setup();
+    jest.spyOn(apiService, 'getQuestionStats').mockResolvedValue({
+      accuracy_distribution: [],
+    });
+    jest.spyOn(apiService, 'getQuestionsTrend').mockResolvedValue([
+      buildTrendPoint({
+        date: '2026-07-09',
+        practice_count: 2,
+        accuracy_rate: 50,
+      }),
+      buildTrendPoint({
+        date: '2026-07-10',
+        practice_count: 3,
+        accuracy_rate: 66.7,
+      }),
+    ]);
+
+    render(<QuestionStatsModal isOpen onClose={jest.fn()} />);
+    await screen.findByText('Accuracy distribution — 0 questions total');
+
+    await user.click(screen.getByRole('button', { name: 'Trend' }));
+
+    // recharts' ResponsiveContainer never measures a real size under jsdom,
+    // so its children (Bar/Line/Legend) don't render text nodes here; assert
+    // the component reached the "has activity" branch instead of asserting
+    // on chart-internal text.
+    expect(
+      screen.queryByText('No recent answer activity.'),
+    ).not.toBeInTheDocument();
+    expect(apiService.getQuestionsTrend).toHaveBeenCalledWith(30);
+  });
+
+  it('shows the empty state on the trend tab when there is no answer activity', async () => {
+    const user = userEvent.setup();
+    jest.spyOn(apiService, 'getQuestionStats').mockResolvedValue({
+      accuracy_distribution: [],
+    });
+    jest
+      .spyOn(apiService, 'getQuestionsTrend')
+      .mockResolvedValue([
+        buildTrendPoint(),
+        buildTrendPoint({ date: '2026-07-11' }),
+      ]);
+
+    render(<QuestionStatsModal isOpen onClose={jest.fn()} />);
+    await screen.findByText('Accuracy distribution — 0 questions total');
+
+    await user.click(screen.getByRole('button', { name: 'Trend' }));
+
+    expect(
+      await screen.findByText('No recent answer activity.'),
+    ).toBeInTheDocument();
+  });
+
+  it('shows an error message on the trend tab when the trend request fails', async () => {
+    const user = userEvent.setup();
+    jest.spyOn(apiService, 'getQuestionStats').mockResolvedValue({
+      accuracy_distribution: [],
+    });
+    jest
+      .spyOn(apiService, 'getQuestionsTrend')
+      .mockRejectedValue(new Error('trend network down'));
+
+    render(<QuestionStatsModal isOpen onClose={jest.fn()} />);
+    await screen.findByText('Accuracy distribution — 0 questions total');
+
+    await user.click(screen.getByRole('button', { name: 'Trend' }));
+
+    expect(await screen.findByText('trend network down')).toBeInTheDocument();
   });
 });
 

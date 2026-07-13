@@ -2,8 +2,11 @@ package controllers
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
+	"strings"
 	"time"
+	dbModels "word-flashcard/data/models"
 	"word-flashcard/data/peers"
 	"word-flashcard/data/schema"
 	"word-flashcard/internal/controllers/common"
@@ -26,24 +29,31 @@ var questionSortableColumns = []string{
 
 // QuestionController handles question-related requests
 type QuestionController struct {
-	questionPeer peers.QuestionPeerInterface
+	questionPeer          peers.QuestionPeerInterface
+	questionAnswerLogPeer peers.QuestionAnswerLogPeerInterface
 }
 
 // NewQuestionController creates a new QuestionController instance
-func NewQuestionController(questionPeer peers.QuestionPeerInterface) *QuestionController {
+func NewQuestionController(questionPeer peers.QuestionPeerInterface, questionAnswerLogPeer peers.QuestionAnswerLogPeerInterface) *QuestionController {
 	return &QuestionController{
-		questionPeer: questionPeer,
+		questionPeer:          questionPeer,
+		questionAnswerLogPeer: questionAnswerLogPeer,
 	}
 }
 
-// GetReelQuestionPeer returns the real database peers
-func GetReelQuestionPeer() (peers.QuestionPeerInterface, error) {
+// GetReelQuestionPeers returns the real database peers
+func GetReelQuestionPeers() (peers.QuestionPeerInterface, peers.QuestionAnswerLogPeerInterface, error) {
 	questionPeer, err := peers.NewQuestionPeer()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return questionPeer, nil
+	questionAnswerLogPeer, err := peers.NewQuestionAnswerLogPeer()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return questionPeer, questionAnswerLogPeer, nil
 }
 
 // ListQuestions @Summary List all questions with pagination
@@ -290,7 +300,26 @@ func (qc *QuestionController) UpdateQuestions(c *gin.Context) {
 		return
 	}
 
-	// ================ 5. Query inserted data ================
+	// ================ 5. Log the answered option, if the quiz reported one ================
+	// selected_option always refers to the question's own option_a-d ordering,
+	// not the shuffled order the quiz displayed it in.
+	// Best-effort: the question's own update already succeeded above, so a
+	// logging failure here must not turn into a user-facing error for an
+	// update that already committed.
+	if questionData.SelectedOption != nil {
+		selectedOption := strings.ToUpper(*questionData.SelectedOption)
+		isCorrect := questionModel.Answer != nil && selectedOption == *questionModel.Answer
+		answerLog := &dbModels.QuestionAnswerLog{
+			QuestionId:     &questionID,
+			SelectedOption: &selectedOption,
+			IsCorrect:      &isCorrect,
+		}
+		if _, err := qc.questionAnswerLogPeer.Insert(answerLog); err != nil {
+			slog.Error("Failed to log question answer", "question_id", questionID, "error", err)
+		}
+	}
+
+	// ================ 6. Query inserted data ================
 	whereQuery := squirrel.Eq{schema.QUESTION_ID: questionID}
 	orderBy := fmt.Sprintf("%s DESC", schema.COMMON_UPDATED_AT)
 	questions, err := qc.questionPeer.Select([]*string{}, whereQuery, []*string{&orderBy}, nil, nil)
@@ -299,10 +328,10 @@ func (qc *QuestionController) UpdateQuestions(c *gin.Context) {
 		return
 	}
 
-	// ================ 6. Transform data to API model ================
+	// ================ 7. Transform data to API model ================
 	questionEntity := new(models.Question).FromDataModel(questions[0])
 
-	// ================ 7. Send response ================
+	// ================ 8. Send response ================
 	ResponseSuccess(http.StatusOK, questionEntity, c)
 }
 
@@ -452,4 +481,79 @@ func (qc *QuestionController) StatsQuestions(c *gin.Context) {
 	ResponseSuccess(http.StatusOK, models.QuestionStats{
 		AccuracyDistribution: buckets,
 	}, c)
+}
+
+// GetQuestionLogs @Summary Get recent answer log entries for a question
+// @Description Get the most recent answer log entries for a question, most recent first
+// @Tags questions
+// @Produce json
+// @Param id path int true "Question ID"
+// @Param limit query int false "Maximum number of entries to return (default: 15, max: 50)"
+// @Success 200 {array} models.QuestionAnswerLogEntry "Recent answer log entries"
+// @Failure 400 {object} models.ErrorResponse "Bad request - Invalid question ID or limit parameter"
+// @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to fetch data from database"
+// @Router /api/questions/{id}/logs [get]
+func (qc *QuestionController) GetQuestionLogs(c *gin.Context) {
+	// ================ 1. Parse request parameters ================
+	questionID, err := parseIDFromPath(c, "id")
+	if err != nil {
+		ResponseError(http.StatusBadRequest, "Invalid question ID.", models.ErrCodeInvalidRequest, err, c)
+		return
+	}
+
+	limit, err := ParseIntQueryParam(c, "limit", 15)
+	if err != nil || limit < 1 || limit > 50 {
+		ResponseError(http.StatusBadRequest, "Invalid limit parameter", models.ErrCodeInvalidRequest, err, c)
+		return
+	}
+	limitPtr := uint64(limit)
+
+	// ================ 2. Fetch data from database ================
+	where := squirrel.Eq{schema.QUESTION_ANSWER_LOG_QUESTION_ID: questionID}
+	orderBy := fmt.Sprintf("%s DESC", schema.COMMON_CREATED_AT)
+	logs, err := qc.questionAnswerLogPeer.Select([]*string{}, where, []*string{&orderBy}, &limitPtr, nil)
+	if err != nil {
+		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", models.ErrCodeInternalError, err, c)
+		return
+	}
+
+	// ================ 3. Transform data to API model ================
+	entries := qc.toQuestionAnswerLogEntries(logs)
+
+	// ================ 4. Send response ================
+	ResponseSuccess(http.StatusOK, entries, c)
+}
+
+// GetQuestionsTrend @Summary Get daily answer trend across all questions
+// @Description Get daily practice count / accuracy rate across all questions over the last N days, zero-filled for days with no activity
+// @Tags questions
+// @Produce json
+// @Param days query int false "Number of days to include (default: 30, max: 90)"
+// @Success 200 {array} models.QuestionTrendPoint "Daily trend points, ascending by date"
+// @Failure 400 {object} models.ErrorResponse "Bad request - Invalid days parameter"
+// @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to fetch data from database"
+// @Router /api/questions/trend [get]
+func (qc *QuestionController) GetQuestionsTrend(c *gin.Context) {
+	// ================ 1. Parse request parameters ================
+	days, err := ParseIntQueryParam(c, "days", 30)
+	if err != nil || days < 1 || days > 90 {
+		ResponseError(http.StatusBadRequest, "Invalid days parameter", models.ErrCodeInvalidRequest, err, c)
+		return
+	}
+
+	// ================ 2. Fetch data from database ================
+	now := time.Now()
+	since := now.AddDate(0, 0, -(days - 1))
+	where := squirrel.GtOrEq{schema.COMMON_CREATED_AT: since}
+	logs, err := qc.questionAnswerLogPeer.Select([]*string{}, where, nil, nil, nil)
+	if err != nil {
+		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", models.ErrCodeInternalError, err, c)
+		return
+	}
+
+	// ================ 3. Aggregate into zero-filled daily trend points ================
+	points := qc.buildQuestionTrendPoints(logs, days, now)
+
+	// ================ 4. Send response ================
+	ResponseSuccess(http.StatusOK, points, c)
 }

@@ -3,6 +3,7 @@ package controllers
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -26,9 +27,10 @@ import (
 // WordControllerTestSuite is a test suite for Word controller functions
 type WordControllerTestSuite struct {
 	suite.Suite
-	wc                     *WordController
-	mockWordPeer           *mocks.MockWordPeer
-	mockWordDefinitionPeer *mocks.MockWordDefinitionsPeer
+	wc                      *WordController
+	mockWordPeer            *mocks.MockWordPeer
+	mockWordDefinitionPeer  *mocks.MockWordDefinitionsPeer
+	mockWordPracticeLogPeer *mocks.MockWordPracticeLogPeer
 }
 
 // TestWordControllerTestSuite runs the WordControllerTestSuite
@@ -40,8 +42,9 @@ func TestWordControllerTestSuite(t *testing.T) {
 func (suite *WordControllerTestSuite) SetupTest() {
 	suite.mockWordPeer = mocks.NewMockWordPeer(suite.T())
 	suite.mockWordDefinitionPeer = mocks.NewMockWordDefinitionsPeer(suite.T())
+	suite.mockWordPracticeLogPeer = mocks.NewMockWordPracticeLogPeer(suite.T())
 
-	suite.wc = NewWordController(suite.mockWordPeer, suite.mockWordDefinitionPeer)
+	suite.wc = NewWordController(suite.mockWordPeer, suite.mockWordDefinitionPeer, suite.mockWordPracticeLogPeer)
 }
 
 // TestListWords tests the ListWords handler
@@ -343,6 +346,16 @@ func (suite *WordControllerTestSuite) TestUpdateWord() {
 		Select(mock.Anything, whereDefinitionID, mock.Anything, mock.Anything, mock.Anything).
 		Return([]*dbModels.WordDefinition{getSampleWordDefinitions()[0]}, nil).Once()
 
+	// Practice log: verify it records the familiarity transition (green -> yellow).
+	suite.mockWordPracticeLogPeer.EXPECT().
+		Insert(mock.MatchedBy(func(log *dbModels.WordPracticeLog) bool {
+			isWordID := log.WordId != nil && *log.WordId == testWordID
+			isFamiliarity := log.Familiarity != nil && *log.Familiarity == "yellow"
+			isPreviousFamiliarity := log.PreviousFamiliarity != nil && *log.PreviousFamiliarity == "green"
+			return isWordID && isFamiliarity && isPreviousFamiliarity
+		})).
+		Return(int64(1), nil).Once()
+
 	// Create a test HTTP request and call the handler
 	w := httptest.NewRecorder()
 	ctx, _ := gin.CreateTestContext(w)
@@ -360,6 +373,55 @@ func (suite *WordControllerTestSuite) TestUpdateWord() {
 	expectedWord, err := json.Marshal(expectedWordObj)
 	assert.NoError(suite.T(), err)
 	assert.Equal(suite.T(), string(expectedWord), w.Body.String())
+}
+
+// TestUpdateWordLogInsertFailureStillReturnsSuccess tests that a practice
+// log insert failure is best-effort: the word update already committed, so
+// the handler must still respond with 200 rather than surfacing a 500 for
+// a write that already succeeded.
+func (suite *WordControllerTestSuite) TestUpdateWordLogInsertFailureStillReturnsSuccess() {
+	testWordID := 1
+	whereWord := squirrel.Eq{schema.WORD_ID: testWordID}
+	whereDefinitionID := squirrel.Eq{schema.WORD_DEFINITIONS_WORD_ID: []int{testWordID}}
+
+	existingCount := 5
+	updatedCount := existingCount + 1
+
+	wordBeforeUpdate := getSampleWords()[0]
+	wordBeforeUpdate.CountPractise = &existingCount
+
+	dbWord := getSampleWords()[0]
+	dbWord.Familiarity = utils.StrPtr("yellow")
+	dbWord.CountPractise = &updatedCount
+
+	suite.mockWordPeer.EXPECT().
+		Select(mock.Anything, whereWord, mock.Anything, mock.Anything, mock.Anything).
+		Return([]*dbModels.Word{wordBeforeUpdate}, nil).Once()
+
+	suite.mockWordPeer.EXPECT().
+		Update(mock.Anything, whereWord).
+		Return(int64(1), nil).Once()
+
+	suite.mockWordPeer.EXPECT().
+		Select(mock.Anything, whereWord, mock.Anything, mock.Anything, mock.Anything).
+		Return([]*dbModels.Word{dbWord}, nil).Once()
+
+	suite.mockWordDefinitionPeer.EXPECT().
+		Select(mock.Anything, whereDefinitionID, mock.Anything, mock.Anything, mock.Anything).
+		Return([]*dbModels.WordDefinition{getSampleWordDefinitions()[0]}, nil).Once()
+
+	suite.mockWordPracticeLogPeer.EXPECT().
+		Insert(mock.Anything).
+		Return(int64(0), fmt.Errorf("insert failed")).Once()
+
+	w := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(w)
+	requestBody := "{\"familiarity\": \"yellow\", \"increment_count_practise\": true}"
+	ctx.Request = httptest.NewRequest(http.MethodPut, "/api/words/1", io.NopCloser(bytes.NewReader([]byte(requestBody))))
+	ctx.Params = gin.Params{gin.Param{Key: "id", Value: "1"}}
+	suite.wc.UpdateWord(ctx)
+
+	assert.Equal(suite.T(), http.StatusOK, w.Code)
 }
 
 // TestUpdateWordWithoutIncrementDoesNotSetLastPracticedAt tests that a plain
@@ -495,6 +557,109 @@ func (suite *WordControllerTestSuite) TestStatsWords() {
 	expectedJSON, err := json.Marshal(expected)
 	assert.NoError(suite.T(), err)
 	assert.Equal(suite.T(), string(expectedJSON), w.Body.String())
+}
+
+// TestGetWordLogs tests the GetWordLogs handler
+func (suite *WordControllerTestSuite) TestGetWordLogs() {
+	testWordID := 1
+	where := squirrel.Eq{schema.WORD_PRACTICE_LOG_WORD_ID: testWordID}
+	limitPtr := uint64(10)
+
+	logID1, logID2 := 1, 2
+	green, yellow, red := "green", "yellow", "red"
+	createdAt1 := time.Date(2026, 7, 10, 9, 0, 0, 0, time.UTC)
+	createdAt2 := time.Date(2026, 7, 9, 15, 30, 0, 0, time.UTC)
+
+	sampleLogs := []*dbModels.WordPracticeLog{
+		{Id: &logID1, WordId: &testWordID, Familiarity: &green, PreviousFamiliarity: &yellow, CreatedAt: &createdAt1},
+		{Id: &logID2, WordId: &testWordID, Familiarity: &yellow, PreviousFamiliarity: &red, CreatedAt: &createdAt2},
+	}
+
+	suite.mockWordPracticeLogPeer.EXPECT().
+		Select(mock.Anything, where, mock.MatchedBy(func(orderBy []*string) bool {
+			return len(orderBy) == 1 && orderBy[0] != nil && *orderBy[0] == "created_at DESC"
+		}), &limitPtr, (*uint64)(nil)).
+		Return(sampleLogs, nil).Times(1)
+
+	w := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(w)
+	ctx.Request = httptest.NewRequest(http.MethodGet, "/api/words/1/logs", nil)
+	ctx.Params = gin.Params{gin.Param{Key: "id", Value: "1"}}
+	suite.wc.GetWordLogs(ctx)
+
+	assert.Equal(suite.T(), http.StatusOK, w.Code)
+	expected := []models.WordPracticeLogEntry{
+		{ID: 1, Familiarity: "green", PreviousFamiliarity: "yellow", CreatedAt: createdAt1},
+		{ID: 2, Familiarity: "yellow", PreviousFamiliarity: "red", CreatedAt: createdAt2},
+	}
+	expectedJSON, err := json.Marshal(expected)
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), string(expectedJSON), w.Body.String())
+}
+
+// TestGetWordLogsInvalidLimit tests that GetWordLogs rejects a limit outside 1-50.
+func (suite *WordControllerTestSuite) TestGetWordLogsInvalidLimit() {
+	w := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(w)
+	ctx.Request = httptest.NewRequest(http.MethodGet, "/api/words/1/logs?limit=51", nil)
+	ctx.Params = gin.Params{gin.Param{Key: "id", Value: "1"}}
+	suite.wc.GetWordLogs(ctx)
+
+	assert.Equal(suite.T(), http.StatusBadRequest, w.Code)
+}
+
+// TestGetWordsTrend tests the GetWordsTrend handler, using a 3-day window
+// (?days=3) so the zero-filled and populated days are easy to hand-compute:
+// today has two red->green log entries (fully improved, avg score 100), the
+// previous day has one yellow->yellow entry (no improvement, avg score 50),
+// and the day before that has no entries at all (zero-filled).
+func (suite *WordControllerTestSuite) TestGetWordsTrend() {
+	testWordID := 1
+	now := time.Now()
+	today := time.Date(now.Year(), now.Month(), now.Day(), 12, 0, 0, 0, now.Location())
+	yesterday := today.AddDate(0, 0, -1)
+
+	todayKey := today.Format("2006-01-02")
+	yesterdayKey := yesterday.Format("2006-01-02")
+	twoDaysAgoKey := today.AddDate(0, 0, -2).Format("2006-01-02")
+
+	logID1, logID2, logID3 := 1, 2, 3
+	green, yellow, red := "green", "yellow", "red"
+
+	sampleLogs := []*dbModels.WordPracticeLog{
+		{Id: &logID1, WordId: &testWordID, Familiarity: &green, PreviousFamiliarity: &red, CreatedAt: &today},
+		{Id: &logID2, WordId: &testWordID, Familiarity: &green, PreviousFamiliarity: &red, CreatedAt: &today},
+		{Id: &logID3, WordId: &testWordID, Familiarity: &yellow, PreviousFamiliarity: &yellow, CreatedAt: &yesterday},
+	}
+
+	suite.mockWordPracticeLogPeer.EXPECT().
+		Select(mock.Anything, mock.Anything, ([]*string)(nil), (*uint64)(nil), (*uint64)(nil)).
+		Return(sampleLogs, nil).Times(1)
+
+	w := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(w)
+	ctx.Request = httptest.NewRequest(http.MethodGet, "/api/words/trend?days=3", nil)
+	suite.wc.GetWordsTrend(ctx)
+
+	assert.Equal(suite.T(), http.StatusOK, w.Code)
+	expected := []models.WordTrendPoint{
+		{Date: twoDaysAgoKey, PracticeCount: 0, ImprovementRate: 0, AvgFamiliarityScore: 0},
+		{Date: yesterdayKey, PracticeCount: 1, ImprovementRate: 0, AvgFamiliarityScore: 50},
+		{Date: todayKey, PracticeCount: 2, ImprovementRate: 100, AvgFamiliarityScore: 100},
+	}
+	expectedJSON, err := json.Marshal(expected)
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), string(expectedJSON), w.Body.String())
+}
+
+// TestGetWordsTrendInvalidDays tests that GetWordsTrend rejects a days value outside 1-90.
+func (suite *WordControllerTestSuite) TestGetWordsTrendInvalidDays() {
+	w := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(w)
+	ctx.Request = httptest.NewRequest(http.MethodGet, "/api/words/trend?days=91", nil)
+	suite.wc.GetWordsTrend(ctx)
+
+	assert.Equal(suite.T(), http.StatusBadRequest, w.Code)
 }
 
 // TestCountWords tests the CountWords handler

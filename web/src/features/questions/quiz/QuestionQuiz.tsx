@@ -3,13 +3,14 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { QuestionQuizResult } from '../../../types/api';
 import { calculateAccuracyRate } from '../question-detail/utils/accuracyCalculation';
 import { QuizLoadingScreen } from '../../shared/components/QuizLoadingScreen';
+import { apiService } from '../../../lib/api';
+import { getApiErrorMessage } from '../../../lib/apiErrorMessage';
 
 import { OptionsSelectionList } from './components/OptionsSelectionList';
 import { AnswerReviewList } from './components/AnswerReviewList';
 import { ReferenceAndExplanation } from './components/ReferenceAndExplanation';
 import { useQuestionQuizData } from './hooks/useQuestionQuizData';
 import { useShuffledOptions } from './hooks/useShuffledOptions';
-import { syncQuestionStatistics } from './syncQuestionStatistics';
 
 const formatAccuracy = (
   countPractise: number,
@@ -54,7 +55,7 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
   onError,
   onNextAction,
 }) => {
-  const { state, setState, questions, error } = useQuestionQuizData({
+  const { state, setState, questions, error, setError } = useQuestionQuizData({
     questionCount,
     onError,
   });
@@ -74,52 +75,84 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
     setSelectedAnswer(answer);
   };
 
-  const handleSubmitAnswer = useCallback(() => {
+  const handleSubmitAnswer = useCallback(async () => {
     if (!currentQuestion || selectedAnswer === null) {
       return;
     }
 
     const isCorrect = selectedAnswer === shuffledAnswer;
-
-    const newResult: QuestionQuizResult = {
-      question: currentQuestion,
-      userAnswer: selectedAnswer,
-      isCorrect,
-      updatedStats: {
-        countPractise: currentQuestion.count_practise + 1,
-        countFailurePractise: isCorrect
-          ? currentQuestion.count_failure_practise
-          : currentQuestion.count_failure_practise + 1,
-      },
+    const updatedStats = {
+      countPractise: currentQuestion.count_practise + 1,
+      countFailurePractise: isCorrect
+        ? currentQuestion.count_failure_practise
+        : currentQuestion.count_failure_practise + 1,
     };
+    // selected_option must map back to the question's true option_a-d
+    // lettering, not the shuffled position shown during the quiz.
+    const selectedOption = shuffledOptions.find(
+      option => option.key === selectedAnswer,
+    )?.originalKey;
 
-    setResults(prev => [...prev, newResult]);
-    setShowAnswer(true);
-  }, [currentQuestion, selectedAnswer, shuffledAnswer]);
+    try {
+      await apiService.updateQuestion(currentQuestion.id, {
+        question: currentQuestion.question,
+        answer: currentQuestion.answer,
+        option_a: currentQuestion.option_a,
+        option_b: currentQuestion.option_b || '',
+        option_c: currentQuestion.option_c || '',
+        option_d: currentQuestion.option_d || '',
+        notes: currentQuestion.notes,
+        reference: currentQuestion.reference,
+        count_practise: updatedStats.countPractise,
+        count_failure_practise: updatedStats.countFailurePractise,
+        practiced: true,
+        selected_option: selectedOption,
+      });
 
-  const handleNextQuestion = useCallback(async () => {
+      const newResult: QuestionQuizResult = {
+        question: currentQuestion,
+        userAnswer: selectedAnswer,
+        isCorrect,
+        updatedStats,
+      };
+
+      setResults(prev => [...prev, newResult]);
+      setShowAnswer(true);
+    } catch (error) {
+      const errorMessage = getApiErrorMessage(
+        error,
+        'Failed to update question statistics.',
+      );
+      setError(errorMessage);
+      if (onError) {
+        onError('Failed to update question statistics: ' + errorMessage);
+      }
+    }
+  }, [
+    currentQuestion,
+    selectedAnswer,
+    shuffledAnswer,
+    shuffledOptions,
+    setError,
+    onError,
+  ]);
+
+  const handleNextQuestion = useCallback(() => {
     if (currentQuestionIndex < questions.length - 1) {
       // Move to next question
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       setShowAnswer(false);
       setSelectedAnswer(null);
     } else {
-      // Quiz completed - update statistics first
-      const finalResults = [...results];
-
-      // Update question statistics in background
-      syncQuestionStatistics(finalResults, onError);
-
-      // Complete quiz
+      // Quiz completed
       setState('completed');
-      onQuizComplete(finalResults);
+      onQuizComplete(results);
     }
   }, [
     currentQuestionIndex,
     questions.length,
     results,
     onQuizComplete,
-    onError,
     setState,
   ]);
 

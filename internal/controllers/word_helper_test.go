@@ -23,9 +23,10 @@ import (
 // WordHelperTestSuite is a test suite for Word helper functions
 type WordHelperTestSuite struct {
 	suite.Suite
-	wc                     *WordController
-	mockWordPeer           *mocks.MockWordPeer
-	mockWordDefinitionPeer *mocks.MockWordDefinitionsPeer
+	wc                      *WordController
+	mockWordPeer            *mocks.MockWordPeer
+	mockWordDefinitionPeer  *mocks.MockWordDefinitionsPeer
+	mockWordPracticeLogPeer *mocks.MockWordPracticeLogPeer
 }
 
 // TestWordHelperTestSuite runs the WordHelperTestSuite
@@ -37,7 +38,8 @@ func TestWordHelperTestSuite(t *testing.T) {
 func (suite *WordHelperTestSuite) SetupTest() {
 	suite.mockWordPeer = mocks.NewMockWordPeer(suite.T())
 	suite.mockWordDefinitionPeer = mocks.NewMockWordDefinitionsPeer(suite.T())
-	suite.wc = NewWordController(suite.mockWordPeer, suite.mockWordDefinitionPeer)
+	suite.mockWordPracticeLogPeer = mocks.NewMockWordPracticeLogPeer(suite.T())
+	suite.wc = NewWordController(suite.mockWordPeer, suite.mockWordDefinitionPeer, suite.mockWordPracticeLogPeer)
 }
 
 // ====================================================================================

@@ -112,6 +112,7 @@ export interface UpdateQuestionRequest {
   readonly count_practise?: number;
   readonly count_failure_practise?: number;
   readonly practiced?: boolean;
+  readonly selected_option?: string;
 }
 
 // ===== SEARCH AND FILTER TYPES =====
@@ -243,4 +244,31 @@ export interface AccuracyBucket {
 
 export interface QuestionStatsResponse {
   readonly accuracy_distribution: readonly AccuracyBucket[];
+}
+
+export interface WordPracticeLogEntry {
+  readonly id: number;
+  readonly familiarity: FamiliarityLevel;
+  readonly previous_familiarity: FamiliarityLevel;
+  readonly created_at: string;
+}
+
+export interface WordTrendPoint {
+  readonly date: string;
+  readonly practice_count: number;
+  readonly improvement_rate: number;
+  readonly avg_familiarity_score: number;
+}
+
+export interface QuestionAnswerLogEntry {
+  readonly id: number;
+  readonly selected_option: string;
+  readonly is_correct: boolean;
+  readonly created_at: string;
+}
+
+export interface QuestionTrendPoint {
+  readonly date: string;
+  readonly practice_count: number;
+  readonly accuracy_rate: number;
 }

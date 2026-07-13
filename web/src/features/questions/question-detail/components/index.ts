@@ -5,3 +5,4 @@ export { OptionItem } from './OptionItem';
 export { PracticeStats } from './PracticeStats';
 export { AccuracyBadge } from './AccuracyBadge';
 export { AnswerSection } from './AnswerSection';
+export { QuestionHistorySection } from './QuestionHistorySection';

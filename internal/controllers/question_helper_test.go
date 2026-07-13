@@ -32,7 +32,8 @@ func TestQuestionHelperTestSuite(t *testing.T) {
 // SetupTest sets up the test environment before each test
 func (suite *QuestionHelperTestSuite) SetupTest() {
 	mockQuestionPeer := mocks.NewMockQuestionPeer(suite.T())
-	suite.controller = NewQuestionController(mockQuestionPeer)
+	mockQuestionAnswerLogPeer := mocks.NewMockQuestionAnswerLogPeer(suite.T())
+	suite.controller = NewQuestionController(mockQuestionPeer, mockQuestionAnswerLogPeer)
 }
 
 // TestConvertToEntities tests the convertToEntities function
@@ -306,7 +307,7 @@ func (suite *QuestionHelperTestSuite) TestValidateQuestionFields() {
 func (suite *QuestionHelperTestSuite) TestFetchQuestionBucket() {
 	// Setup fresh mock with Select expectation
 	mockPeer := mocks.NewMockQuestionPeer(suite.T())
-	controller := NewQuestionController(mockPeer)
+	controller := NewQuestionController(mockPeer, mocks.NewMockQuestionAnswerLogPeer(suite.T()))
 
 	where := squirrel.Eq{schema.QUESTION_COUNT_PRACTISE: 0}
 	limit := uint64(2)
@@ -342,7 +343,7 @@ func (suite *QuestionHelperTestSuite) TestFetchRandomQuestionsWeighted() {
 	// quota is fully met by that sub-query here, so the oldest-first fallback
 	// sub-query never fires and no cascade occurs.
 	mockPeer := mocks.NewMockQuestionPeer(suite.T())
-	controller := NewQuestionController(mockPeer)
+	controller := NewQuestionController(mockPeer, mocks.NewMockQuestionAnswerLogPeer(suite.T()))
 	sampleQuestions := getSampleQuestions()
 
 	randomOrderMatcher := mock.MatchedBy(func(orderBy []*string) bool {
@@ -381,7 +382,7 @@ func (suite *QuestionHelperTestSuite) TestFetchQuestionsRecencyWeighted() {
 
 	suite.Run("non-positive quota returns empty without querying", func() {
 		mockPeer := mocks.NewMockQuestionPeer(suite.T())
-		controller := NewQuestionController(mockPeer)
+		controller := NewQuestionController(mockPeer, mocks.NewMockQuestionAnswerLogPeer(suite.T()))
 
 		result, err := controller.fetchQuestionsRecencyWeighted(baseWhere, 0)
 
@@ -391,7 +392,7 @@ func (suite *QuestionHelperTestSuite) TestFetchQuestionsRecencyWeighted() {
 
 	suite.Run("never-answered group alone fills the quota", func() {
 		mockPeer := mocks.NewMockQuestionPeer(suite.T())
-		controller := NewQuestionController(mockPeer)
+		controller := NewQuestionController(mockPeer, mocks.NewMockQuestionAnswerLogPeer(suite.T()))
 		sampleQuestions := getSampleQuestions()
 
 		noTimestampWhere := squirrel.And{baseWhere, squirrel.Eq{schema.QUESTION_LAST_ANSWERED_AT: nil}}
@@ -412,7 +413,7 @@ func (suite *QuestionHelperTestSuite) TestFetchQuestionsRecencyWeighted() {
 
 	suite.Run("shortfall cascades from never-answered into oldest-answered-first", func() {
 		mockPeer := mocks.NewMockQuestionPeer(suite.T())
-		controller := NewQuestionController(mockPeer)
+		controller := NewQuestionController(mockPeer, mocks.NewMockQuestionAnswerLogPeer(suite.T()))
 		sampleQuestions := getSampleQuestions()
 
 		noTimestampWhere := squirrel.And{baseWhere, squirrel.Eq{schema.QUESTION_LAST_ANSWERED_AT: nil}}

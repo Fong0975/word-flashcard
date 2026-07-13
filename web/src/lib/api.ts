@@ -6,12 +6,16 @@ import {
   WordsSearchParams,
   WordsRandomRequest,
   WordStatsResponse,
+  WordPracticeLogEntry,
+  WordTrendPoint,
   Question,
   CreateQuestionRequest,
   UpdateQuestionRequest,
   QuestionsSearchParams,
   QuestionsRandomRequest,
   QuestionStatsResponse,
+  QuestionAnswerLogEntry,
+  QuestionTrendPoint,
   Note,
   CreateNoteRequest,
   UpdateNoteRequest,
@@ -370,11 +374,57 @@ class ApiService {
     return this.get<WordStatsResponse>(API_ENDPOINTS.wordsStats, options);
   }
 
+  async getWordLogs(
+    id: number,
+    limit?: number,
+    options?: ApiRequestOptions,
+  ): Promise<WordPracticeLogEntry[]> {
+    const query = limit !== undefined ? `?limit=${limit}` : '';
+    return this.get<WordPracticeLogEntry[]>(
+      `${API_ENDPOINTS.wordLogs(id)}${query}`,
+      options,
+    );
+  }
+
+  async getWordsTrend(
+    days?: number,
+    options?: ApiRequestOptions,
+  ): Promise<WordTrendPoint[]> {
+    const query = days !== undefined ? `?days=${days}` : '';
+    return this.get<WordTrendPoint[]>(
+      `${API_ENDPOINTS.wordsTrend}${query}`,
+      options,
+    );
+  }
+
   async getQuestionStats(
     options?: ApiRequestOptions,
   ): Promise<QuestionStatsResponse> {
     return this.get<QuestionStatsResponse>(
       API_ENDPOINTS.questionsStats,
+      options,
+    );
+  }
+
+  async getQuestionLogs(
+    id: number,
+    limit?: number,
+    options?: ApiRequestOptions,
+  ): Promise<QuestionAnswerLogEntry[]> {
+    const query = limit !== undefined ? `?limit=${limit}` : '';
+    return this.get<QuestionAnswerLogEntry[]>(
+      `${API_ENDPOINTS.questionLogs(id)}${query}`,
+      options,
+    );
+  }
+
+  async getQuestionsTrend(
+    days?: number,
+    options?: ApiRequestOptions,
+  ): Promise<QuestionTrendPoint[]> {
+    const query = days !== undefined ? `?days=${days}` : '';
+    return this.get<QuestionTrendPoint[]>(
+      `${API_ENDPOINTS.questionsTrend}${query}`,
       options,
     );
   }

@@ -40,7 +40,7 @@ export const useShuffledOptions = (
       if (opt.originalKey === originalAnswer) {
         newAnswer = newKey;
       }
-      return { key: newKey, value: opt.value };
+      return { key: newKey, value: opt.value, originalKey: opt.originalKey };
     });
 
     setShuffledOptions(relabeled);
