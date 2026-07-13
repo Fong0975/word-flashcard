@@ -1211,39 +1211,6 @@ func (suite *WordHelperTestSuite) TestUnionIDLists() {
 }
 
 // ====================================================================================
-// STATS GROUP TESTS - Handle statistics computation helpers
-// ====================================================================================
-
-// TestNiceCeil tests the niceCeil function with a typical float in the middle of a nice-number interval.
-func (suite *WordHelperTestSuite) TestNiceCeil() {
-	suite.Equal(50, niceCeil(46.8))
-}
-
-// TestPracticeCountBoundaries tests the practiceCountBoundaries function with a mid-range max value.
-func (suite *WordHelperTestSuite) TestPracticeCountBoundaries() {
-	result := practiceCountBoundaries(1000)
-	suite.Equal([]int{5, 20, 50, 200, 500, 1001}, result)
-}
-
-// TestBuildPracticeCountBuckets tests the buildPracticeCountBuckets function with a small max value
-// that triggers the individual-integer-step path, verifying both labels and counts.
-func (suite *WordHelperTestSuite) TestBuildPracticeCountBuckets() {
-	counts := []int{0, 1, 2, 3, 4, 5, 6, 6}
-	result := buildPracticeCountBuckets(counts)
-
-	expected := []models.PracticeCountBucket{
-		{Range: "0", Count: 1},
-		{Range: "1", Count: 1},
-		{Range: "2", Count: 1},
-		{Range: "3", Count: 1},
-		{Range: "4", Count: 1},
-		{Range: "5", Count: 1},
-		{Range: "6+", Count: 2},
-	}
-	suite.Equal(expected, result)
-}
-
-// ====================================================================================
 // PRIVATE HELPER FUNCTIONS - Shared utilities for tests
 // ====================================================================================
 

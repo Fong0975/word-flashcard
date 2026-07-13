@@ -1,63 +1,13 @@
 basePath: /
 definitions:
-  models.RandomFilter:
-    properties:
-      count:
-        maximum: 1000
-        minimum: 1
-        type: integer
-      filter:
-        $ref: '#/definitions/word-flashcard_docker_internal_models.SearchFilter'
-    required:
-    - count
-    type: object
-  models.WordRandomRequest:
-    properties:
-      count:
-        maximum: 1000
-        minimum: 1
-        type: integer
-      familiarity_levels:
-        items:
-          type: string
-        type: array
-      per_category_counts:
-        additionalProperties:
-          type: integer
-        type: object
-    required:
-    - count
-    type: object
-  word-flashcard_docker_internal_models.SearchCondition:
-    properties:
-      key:
-        type: string
-      operator:
-        type: string
-      value:
-        type: string
-    required:
-    - key
-    - operator
-    type: object
-  word-flashcard_docker_internal_models.SearchFilter:
-    properties:
-      conditions:
-        items:
-          $ref: '#/definitions/word-flashcard_docker_internal_models.SearchCondition'
-        minItems: 1
-        type: array
-      logic:
-        description: '"AND" or "OR"'
-        type: string
-    required:
-    - conditions
-    - logic
-    type: object
   word-flashcard_internal_models.AccuracyBucket:
     properties:
       count:
         type: integer
+      practice_count_breakdown:
+        items:
+          $ref: '#/definitions/word-flashcard_internal_models.PracticeCountBucket'
+        type: array
       range:
         type: string
     type: object
@@ -266,6 +216,23 @@ definitions:
         type: integer
       yellow:
         type: integer
+    type: object
+  word-flashcard_internal_models.WordRandomRequest:
+    properties:
+      count:
+        maximum: 1000
+        minimum: 1
+        type: integer
+      familiarity_levels:
+        items:
+          type: string
+        type: array
+      per_category_counts:
+        additionalProperties:
+          type: integer
+        type: object
+    required:
+    - count
     type: object
   word-flashcard_internal_models.WordStats:
     properties:
@@ -804,7 +771,8 @@ paths:
       - questions
   /api/questions/stats:
     get:
-      description: Get question count distribution by accuracy rate in 10% intervals
+      description: Get question count distribution by accuracy rate in 10% intervals,
+        each bucket further broken down by practice count
       produces:
       - application/json
       responses:
@@ -1102,7 +1070,7 @@ paths:
         name: randomRequest
         required: true
         schema:
-          $ref: '#/definitions/models.WordRandomRequest'
+          $ref: '#/definitions/word-flashcard_internal_models.WordRandomRequest'
       produces:
       - application/json
       responses:

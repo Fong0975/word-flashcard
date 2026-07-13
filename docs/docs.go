@@ -652,7 +652,7 @@ const docTemplate = `{
         },
         "/api/questions/stats": {
             "get": {
-                "description": "Get question count distribution by accuracy rate in 10% intervals",
+                "description": "Get question count distribution by accuracy rate in 10% intervals, each bucket further broken down by practice count",
                 "produces": [
                     "application/json"
                 ],
@@ -1144,7 +1144,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.WordRandomRequest"
+                            "$ref": "#/definitions/word-flashcard_internal_models.WordRandomRequest"
                         }
                     }
                 ],
@@ -1374,90 +1374,17 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "models.RandomFilter": {
-            "type": "object",
-            "required": [
-                "count"
-            ],
-            "properties": {
-                "count": {
-                    "type": "integer",
-                    "maximum": 1000,
-                    "minimum": 1
-                },
-                "filter": {
-                    "$ref": "#/definitions/word-flashcard_docker_internal_models.SearchFilter"
-                }
-            }
-        },
-        "models.WordRandomRequest": {
-            "type": "object",
-            "required": [
-                "count"
-            ],
-            "properties": {
-                "count": {
-                    "type": "integer",
-                    "maximum": 1000,
-                    "minimum": 1
-                },
-                "familiarity_levels": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "per_category_counts": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "integer"
-                    }
-                }
-            }
-        },
-        "word-flashcard_docker_internal_models.SearchCondition": {
-            "type": "object",
-            "required": [
-                "key",
-                "operator"
-            ],
-            "properties": {
-                "key": {
-                    "type": "string"
-                },
-                "operator": {
-                    "type": "string"
-                },
-                "value": {
-                    "type": "string"
-                }
-            }
-        },
-        "word-flashcard_docker_internal_models.SearchFilter": {
-            "type": "object",
-            "required": [
-                "conditions",
-                "logic"
-            ],
-            "properties": {
-                "conditions": {
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                        "$ref": "#/definitions/word-flashcard_docker_internal_models.SearchCondition"
-                    }
-                },
-                "logic": {
-                    "description": "\"AND\" or \"OR\"",
-                    "type": "string"
-                }
-            }
-        },
         "word-flashcard_internal_models.AccuracyBucket": {
             "type": "object",
             "properties": {
                 "count": {
                     "type": "integer"
+                },
+                "practice_count_breakdown": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/word-flashcard_internal_models.PracticeCountBucket"
+                    }
                 },
                 "range": {
                     "type": "string"
@@ -1770,6 +1697,31 @@ const docTemplate = `{
                 },
                 "yellow": {
                     "type": "integer"
+                }
+            }
+        },
+        "word-flashcard_internal_models.WordRandomRequest": {
+            "type": "object",
+            "required": [
+                "count"
+            ],
+            "properties": {
+                "count": {
+                    "type": "integer",
+                    "maximum": 1000,
+                    "minimum": 1
+                },
+                "familiarity_levels": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "per_category_counts": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
                 }
             }
         },

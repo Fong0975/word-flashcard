@@ -12,14 +12,18 @@ import {
 import { Modal } from '../../components/ui/Modal';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { apiService } from '../../lib/api';
-import { QuestionStatsResponse } from '../../types/api';
+import { PracticeCountBucket, QuestionStatsResponse } from '../../types/api';
 import { useAsyncOnOpen } from '../shared/hooks/useAsyncOnOpen';
 
 interface TooltipPayload {
-  payload: { range: string; count: number };
+  payload: {
+    range: string;
+    count: number;
+    practice_count_breakdown: readonly PracticeCountBucket[];
+  };
 }
 
-const CustomTooltip = ({
+export const CustomTooltip = ({
   active,
   payload,
 }: {
@@ -29,10 +33,27 @@ const CustomTooltip = ({
   if (!active || !payload?.length) {
     return null;
   }
-  const { range, count } = payload[0].payload;
+  const { range, count, practice_count_breakdown } = payload[0].payload;
+  const breakdown = practice_count_breakdown.filter(bucket => bucket.count > 0);
+
   return (
     <div className='rounded border border-gray-200 bg-white px-2 py-1 text-xs shadow dark:border-gray-600 dark:bg-gray-800 dark:text-white'>
-      {range}: {count} questions
+      <div>
+        {range}: {count} questions
+      </div>
+      {breakdown.length > 0 && (
+        <div className='mt-1 border-t border-gray-200 pt-1 dark:border-gray-600'>
+          <div className='text-gray-500 dark:text-gray-400'>
+            By practice count:
+          </div>
+          {breakdown.map(bucket => (
+            <div key={bucket.range} className='flex justify-between gap-3'>
+              <span>{bucket.range}</span>
+              <span>{bucket.count}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
