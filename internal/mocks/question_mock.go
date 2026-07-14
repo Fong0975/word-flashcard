@@ -85,3 +85,21 @@ func (m *MockQuestionController) StatsQuestions(c *gin.Context) {
 		"status":     "ok",
 	})
 }
+
+// GetQuestionLogs mock implementation
+func (m *MockQuestionController) GetQuestionLogs(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"method":     "GetQuestionLogs",
+		"controller": "QuestionController",
+		"status":     "ok",
+	})
+}
+
+// GetQuestionsTrend mock implementation
+func (m *MockQuestionController) GetQuestionsTrend(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"method":     "GetQuestionsTrend",
+		"controller": "QuestionController",
+		"status":     "ok",
+	})
+}

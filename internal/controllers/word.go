@@ -2,8 +2,10 @@ package controllers
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
 	"time"
+	dbModels "word-flashcard/data/models"
 	"word-flashcard/data/peers"
 	"word-flashcard/data/schema"
 	"word-flashcard/internal/controllers/common"
@@ -24,31 +26,38 @@ var wordSortableColumns = []string{
 
 // WordController handles word-related requests
 type WordController struct {
-	wordPeer           peers.WordPeerInterface
-	wordDefinitionPeer peers.WordDefinitionsPeerInterface
+	wordPeer            peers.WordPeerInterface
+	wordDefinitionPeer  peers.WordDefinitionsPeerInterface
+	wordPracticeLogPeer peers.WordPracticeLogPeerInterface
 }
 
 // NewWordController creates a new WordController instance
-func NewWordController(wordPeer peers.WordPeerInterface, wordDefinition peers.WordDefinitionsPeerInterface) *WordController {
+func NewWordController(wordPeer peers.WordPeerInterface, wordDefinition peers.WordDefinitionsPeerInterface, wordPracticeLogPeer peers.WordPracticeLogPeerInterface) *WordController {
 	return &WordController{
-		wordPeer:           wordPeer,
-		wordDefinitionPeer: wordDefinition,
+		wordPeer:            wordPeer,
+		wordDefinitionPeer:  wordDefinition,
+		wordPracticeLogPeer: wordPracticeLogPeer,
 	}
 }
 
 // GetReelPeers returns the real database peers
-func GetReelPeers() (peers.WordPeerInterface, peers.WordDefinitionsPeerInterface, error) {
+func GetReelPeers() (peers.WordPeerInterface, peers.WordDefinitionsPeerInterface, peers.WordPracticeLogPeerInterface, error) {
 	wordPeer, err := peers.NewWordPeer()
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	wordDefinitionPeer, err := peers.NewWordDefinitionsPeer()
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
-	return wordPeer, wordDefinitionPeer, nil
+	wordPracticeLogPeer, err := peers.NewWordPracticeLogPeer()
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	return wordPeer, wordDefinitionPeer, wordPracticeLogPeer, nil
 }
 
 // ListWords @Summary List all words with pagination
@@ -392,6 +401,7 @@ func (wc *WordController) UpdateWord(c *gin.Context) {
 
 	// ================ 3. Conditionally increment count_practise ================
 	where := squirrel.Eq{schema.WORD_ID: wordID}
+	var previousFamiliarity *string
 	if wordData.IncrementCountPractise {
 		currentWords, err := wc.wordPeer.Select([]*string{}, where, nil, nil, nil)
 		if err != nil {
@@ -407,6 +417,7 @@ func (wc *WordController) UpdateWord(c *gin.Context) {
 		}
 		newCount := currentCount + 1
 		wordModel.CountPractise = &newCount
+		previousFamiliarity = currentWords[0].Familiarity
 
 		now := time.Now()
 		wordModel.LastPracticedAt = &now
@@ -426,7 +437,22 @@ func (wc *WordController) UpdateWord(c *gin.Context) {
 		return
 	}
 
-	// ================ 5. Query updated data ================
+	// ================ 5. Log the familiarity change from this practice ================
+	// Best-effort: the word's own update already succeeded above, so a
+	// logging failure here must not turn into a user-facing error for an
+	// update that already committed.
+	if wordData.IncrementCountPractise {
+		practiceLog := &dbModels.WordPracticeLog{
+			WordId:              &wordID,
+			Familiarity:         wordModel.Familiarity,
+			PreviousFamiliarity: previousFamiliarity,
+		}
+		if _, err := wc.wordPracticeLogPeer.Insert(practiceLog); err != nil {
+			slog.Error("Failed to log word practice", "word_id", wordID, "error", err)
+		}
+	}
+
+	// ================ 6. Query updated data ================
 	whereQuery := squirrel.Eq{schema.WORD_ID: wordID}
 	orderBy := fmt.Sprintf("%s DESC", schema.WORD_ID)
 	wordEntities, err := wc.fetchWordsWithDefinitions([]*string{}, whereQuery, []*string{&orderBy}, nil, nil)
@@ -435,7 +461,7 @@ func (wc *WordController) UpdateWord(c *gin.Context) {
 		return
 	}
 
-	// ================ 6. Send response ================
+	// ================ 7. Send response ================
 	ResponseSuccess(http.StatusOK, wordEntities[0], c)
 }
 
@@ -673,4 +699,67 @@ func (wc *WordController) StatsWords(c *gin.Context) {
 		},
 		PracticeCountDistribution: practiceBuckets,
 	}, c)
+}
+
+// GetWordLogs @Summary Get recent practice log entries for a word
+// @Description Get the most recent practice log entries for a word, most recent first
+// @Tags words
+// @Produce json
+// @Param id path int true "Word ID"
+// @Param limit query int false "Maximum number of entries to return (default: 10, max: 50)"
+// @Success 200 {array} models.WordPracticeLogEntry "Recent practice log entries"
+// @Failure 400 {object} models.ErrorResponse "Bad request - Invalid word ID or limit parameter"
+// @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to fetch data from database"
+// @Router /api/words/{id}/logs [get]
+func (wc *WordController) GetWordLogs(c *gin.Context) {
+	wordID, err := parseIDFromPath(c, "id")
+	if err != nil {
+		ResponseError(http.StatusBadRequest, "Invalid word ID.", models.ErrCodeInvalidRequest, err, c)
+		return
+	}
+
+	limit, err := ParseIntQueryParam(c, "limit", 10)
+	if err != nil || limit < 1 || limit > 50 {
+		ResponseError(http.StatusBadRequest, "Invalid limit parameter", models.ErrCodeInvalidRequest, err, c)
+		return
+	}
+	limitPtr := uint64(limit)
+
+	where := squirrel.Eq{schema.WORD_PRACTICE_LOG_WORD_ID: wordID}
+	orderBy := fmt.Sprintf("%s DESC", schema.COMMON_CREATED_AT)
+	logs, err := wc.wordPracticeLogPeer.Select([]*string{}, where, []*string{&orderBy}, &limitPtr, nil)
+	if err != nil {
+		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", models.ErrCodeInternalError, err, c)
+		return
+	}
+
+	ResponseSuccess(http.StatusOK, wc.toWordPracticeLogEntries(logs), c)
+}
+
+// GetWordsTrend @Summary Get daily practice trend across all words
+// @Description Get daily practice count / improvement rate / average familiarity score across all words over the last N days, zero-filled for days with no activity
+// @Tags words
+// @Produce json
+// @Param days query int false "Number of days to include (default: 30, max: 90)"
+// @Success 200 {array} models.WordTrendPoint "Daily trend points, ascending by date"
+// @Failure 400 {object} models.ErrorResponse "Bad request - Invalid days parameter"
+// @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to fetch data from database"
+// @Router /api/words/trend [get]
+func (wc *WordController) GetWordsTrend(c *gin.Context) {
+	days, err := ParseIntQueryParam(c, "days", 30)
+	if err != nil || days < 1 || days > 90 {
+		ResponseError(http.StatusBadRequest, "Invalid days parameter", models.ErrCodeInvalidRequest, err, c)
+		return
+	}
+
+	now := time.Now()
+	since := now.AddDate(0, 0, -(days - 1))
+	where := squirrel.GtOrEq{schema.COMMON_CREATED_AT: since}
+	logs, err := wc.wordPracticeLogPeer.Select([]*string{}, where, nil, nil, nil)
+	if err != nil {
+		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", models.ErrCodeInternalError, err, c)
+		return
+	}
+
+	ResponseSuccess(http.StatusOK, wc.buildWordTrendPoints(logs, days, now), c)
 }

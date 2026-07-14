@@ -19,6 +19,7 @@ import { useDefinitionActions } from './hooks/useDefinitionActions';
 import { WordHeader } from './components/WordHeader';
 import { DefinitionsList } from './components/DefinitionsList';
 import { WordDeleteConfirmation } from './components/WordDeleteConfirmation';
+import { WordHistorySection } from './components/WordHistorySection';
 
 export const WordDetailPage: React.FC = () => {
   const { wordText } = useParams<{ wordText: string }>();
@@ -247,6 +248,9 @@ export const WordDetailPage: React.FC = () => {
               onDelete={definitionActions.handleDeleteDefinition}
               onAddNew={handleAddDefinition}
             />
+            <div className='mt-6'>
+              <WordHistorySection word={word} />
+            </div>
           </>
         }
       />

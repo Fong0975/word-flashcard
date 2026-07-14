@@ -86,6 +86,8 @@ func (s *apiRoutesTestSuite) TestAPIRouteMappings() {
 		{"DELETE", "/api/words/definition/1", "WordController.DeleteWordDefinition", "DeleteWordDefinition", "WordController"},
 		{"POST", "/api/words/count", "WordController.CountWords", "CountWords", "WordController"},
 		{"GET", "/api/words/stats", "WordController.StatsWords", "StatsWords", "WordController"},
+		{"GET", "/api/words/trend", "WordController.GetWordsTrend", "GetWordsTrend", "WordController"},
+		{"GET", "/api/words/1/logs", "WordController.GetWordLogs", "GetWordLogs", "WordController"},
 		// Questions
 		{"GET", "/api/questions", "QuestionController.ListQuestions", "ListQuestions", "QuestionController"},
 		{"GET", "/api/questions/1", "QuestionController.GetQuestions", "GetQuestions", "QuestionController"},
@@ -95,6 +97,8 @@ func (s *apiRoutesTestSuite) TestAPIRouteMappings() {
 		{"DELETE", "/api/questions/1", "QuestionController.DeleteQuestions", "DeleteQuestions", "QuestionController"},
 		{"GET", "/api/questions/count", "QuestionController.CountQuestions", "CountQuestions", "QuestionController"},
 		{"GET", "/api/questions/stats", "QuestionController.StatsQuestions", "StatsQuestions", "QuestionController"},
+		{"GET", "/api/questions/trend", "QuestionController.GetQuestionsTrend", "GetQuestionsTrend", "QuestionController"},
+		{"GET", "/api/questions/1/logs", "QuestionController.GetQuestionLogs", "GetQuestionLogs", "QuestionController"},
 		// Notes
 		{"GET", "/api/notes", "NoteController.ListNotes", "ListNotes", "NoteController"},
 		{"POST", "/api/notes/search", "NoteController.SearchNotes", "SearchNotes", "NoteController"},

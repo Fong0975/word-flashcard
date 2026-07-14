@@ -2,6 +2,7 @@ package common
 
 import (
 	"testing"
+	"time"
 	"word-flashcard/internal/models"
 
 	"github.com/stretchr/testify/suite"
@@ -44,4 +45,22 @@ func (suite *StatsTestSuite) TestBuildPracticeCountBuckets() {
 		{Range: "6+", Count: 2},
 	}
 	suite.Equal(expected, result)
+}
+
+// TestDailyDateKeys tests DailyDateKeys with a fixed now, verifying the keys
+// are ascending and end at now's calendar day.
+func (suite *StatsTestSuite) TestDailyDateKeys() {
+	now := time.Date(2026, 7, 14, 15, 30, 0, 0, time.UTC)
+	result := DailyDateKeys(3, now)
+
+	expected := []string{"2026-07-12", "2026-07-13", "2026-07-14"}
+	suite.Equal(expected, result)
+}
+
+// TestRound1 tests Round1 across a fractional value, an already-round value,
+// and a negative value.
+func (suite *StatsTestSuite) TestRound1() {
+	suite.Equal(33.3, Round1(33.333))
+	suite.Equal(10.0, Round1(10.0))
+	suite.Equal(-2.5, Round1(-2.46))
 }

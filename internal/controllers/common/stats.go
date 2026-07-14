@@ -6,6 +6,7 @@ package common
 import (
 	"fmt"
 	"math"
+	"time"
 
 	"word-flashcard/internal/models"
 )
@@ -118,3 +119,18 @@ func BuildPracticeCountBuckets(counts []int) []models.PracticeCountBucket {
 
 	return buckets
 }
+
+// DailyDateKeys returns `days` ascending "YYYY-MM-DD" date keys, the most
+// recent one being now's calendar day, so trend endpoints can zero-fill days
+// with no activity instead of omitting them from the response.
+func DailyDateKeys(days int, now time.Time) []string {
+	keys := make([]string, days)
+	for i := days - 1; i >= 0; i-- {
+		keys[days-1-i] = now.AddDate(0, 0, -i).Format("2006-01-02")
+	}
+	return keys
+}
+
+// Round1 rounds f to 1 decimal place, used to keep trend/average values
+// stable and readable across controller responses.
+func Round1(f float64) float64 { return math.Round(f*10) / 10 }

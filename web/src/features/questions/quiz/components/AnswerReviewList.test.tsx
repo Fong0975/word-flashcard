@@ -3,8 +3,8 @@ import { render, screen } from '@testing-library/react';
 import { AnswerReviewList } from './AnswerReviewList';
 
 const options = [
-  { key: 'A', value: '4' },
-  { key: 'B', value: '3' },
+  { key: 'A', value: '4', originalKey: 'A' },
+  { key: 'B', value: '3', originalKey: 'B' },
 ];
 
 describe('AnswerReviewList', () => {
