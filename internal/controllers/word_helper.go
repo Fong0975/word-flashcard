@@ -3,6 +3,7 @@ package controllers
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"math/rand"
 	"slices"
 	"strings"
@@ -276,6 +277,11 @@ func (wc *WordController) fetchWordsBucketWeighted(level string, quota int) ([]*
 // from lower-priority levels up into higher-priority ones, then shuffles the
 // combined result so words aren't grouped by level or practice recency.
 func (wc *WordController) fetchRandomWordsWeighted(quotasByLevel map[string]int) ([]*dbModels.Word, error) {
+	requested := 0
+	for _, quota := range quotasByLevel {
+		requested += quota
+	}
+
 	var active []string
 	for _, level := range familiarityCascadeOrder {
 		if quotasByLevel[level] > 0 {
@@ -291,6 +297,7 @@ func (wc *WordController) fetchRandomWordsWeighted(quotasByLevel map[string]int)
 		if err != nil {
 			return nil, err
 		}
+		slog.Debug("Random word bucket fetched.", "level", level, "expected", quota, "actual", len(words))
 		carry = quota - len(words)
 		combined = append(combined, words...)
 	}
@@ -298,6 +305,12 @@ func (wc *WordController) fetchRandomWordsWeighted(quotasByLevel map[string]int)
 	rand.Shuffle(len(combined), func(i, j int) {
 		combined[i], combined[j] = combined[j], combined[i]
 	})
+
+	if carry > 0 {
+		slog.Debug("Random word selection short of requested count; no fallback bucket available.", "requested", requested, "returned", len(combined), "shortfall", carry)
+	} else {
+		slog.Debug("Random words selected.", "requested", requested, "returned", len(combined))
+	}
 
 	return combined, nil
 }
