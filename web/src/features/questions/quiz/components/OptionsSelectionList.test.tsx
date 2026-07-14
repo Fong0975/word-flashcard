@@ -4,8 +4,8 @@ import userEvent from '@testing-library/user-event';
 import { OptionsSelectionList } from './OptionsSelectionList';
 
 const options = [
-  { key: 'A', value: '4' },
-  { key: 'B', value: '3' },
+  { key: 'A', value: '4', originalKey: 'A' },
+  { key: 'B', value: '3', originalKey: 'B' },
 ];
 
 describe('OptionsSelectionList', () => {
