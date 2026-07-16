@@ -1,4 +1,4 @@
-package controllers
+package dictionary
 
 import (
 	"encoding/json"
@@ -8,130 +8,18 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"sync"
 	"time"
 	"unicode"
 
-	"word-flashcard/internal/controllers/common"
 	"word-flashcard/internal/models"
-
-	"github.com/gin-gonic/gin"
 )
 
 // errWordNotFound marks a lookup for a word the upstream Cambridge dictionary
 // service does not have, as opposed to the service being unreachable or failing.
 var errWordNotFound = errors.New("word not found")
 
-// DictionaryController handles dictionary-related requests
-type DictionaryController struct {
-	cache      map[string]CacheEntry
-	cacheMutex sync.RWMutex
-	cacheTTL   time.Duration
-}
-
-// CacheEntry represents a cached dictionary response
-type CacheEntry struct {
-	Data      interface{}
-	Timestamp time.Time
-}
-
-// NewDictionaryController creates a new DictionaryController instance
-func NewDictionaryController() *DictionaryController {
-	return &DictionaryController{
-		cache:    make(map[string]CacheEntry),
-		cacheTTL: 30 * time.Minute,
-	}
-}
-
-// SearchWord handles dictionary lookup requests
-// @Summary Search dictionary for word definition
-// @Description Get dictionary definition and pronunciation for a given word from Cambridge Dictionary API
-// @Tags dictionary
-// @Accept json
-// @Produce json
-// @Param word path string true "Word to search for"
-// @Success 200 {object} models.DictionaryResponse "Dictionary definition found successfully"
-// @Failure 400 {object} models.ErrorResponse "Bad request - Missing word parameter"
-// @Failure 404 {object} models.ErrorResponse "Not found - Word not found in the dictionary"
-// @Failure 502 {object} models.ErrorResponse "Bad gateway - Dictionary service unavailable"
-// @Router /api/dictionary/{word} [get]
-func (dc *DictionaryController) SearchWord(c *gin.Context) {
-	word := c.Param("word")
-
-	// Validate word parameter
-	if word == "" {
-		common.ResponseError(http.StatusBadRequest, "Word parameter is required", models.ErrCodeInvalidRequest, nil, c)
-		return
-	}
-
-	// Check cache first
-	cacheKey := fmt.Sprintf("dict_%s", strings.ReplaceAll(word, " ", "_"))
-	if cached := dc.getFromCache(cacheKey); cached != nil {
-		if response, ok := cached.(models.DictionaryResponse); ok {
-			c.JSON(http.StatusOK, response)
-			return
-		}
-	}
-
-	// Fetch word data from Cambridge dictionary API
-	response, err := dc.fetchWordDataFromCambridgeAPI(word)
-	if err != nil {
-		if errors.Is(err, errWordNotFound) {
-			common.ResponseError(http.StatusNotFound, fmt.Sprintf("Word '%s' not found", word), models.ErrCodeNotFound, err, c)
-			return
-		}
-		common.ResponseError(http.StatusBadGateway, "Dictionary service is currently unavailable", models.ErrCodeUpstreamUnavailable, err, c)
-		return
-	}
-
-	// Cache the result
-	dc.setCache(cacheKey, *response)
-
-	// Return response
-	c.JSON(http.StatusOK, response)
-}
-
-// getFromCache retrieves data from the cache
-func (dc *DictionaryController) getFromCache(key string) interface{} {
-	dc.cacheMutex.RLock()
-	defer dc.cacheMutex.RUnlock()
-
-	entry, exists := dc.cache[key]
-	if !exists {
-		return nil
-	}
-
-	if time.Since(entry.Timestamp) > dc.cacheTTL {
-		delete(dc.cache, key)
-		return nil
-	}
-
-	return entry.Data
-}
-
-// setCache stores data in the cache
-func (dc *DictionaryController) setCache(key string, data interface{}) {
-	dc.cacheMutex.Lock()
-	defer dc.cacheMutex.Unlock()
-
-	dc.cache[key] = CacheEntry{
-		Data:      data,
-		Timestamp: time.Now(),
-	}
-
-	// Clean up old cache entries if cache size exceeds 1000
-	if len(dc.cache) > 1000 {
-		now := time.Now()
-		for k, v := range dc.cache {
-			if now.Sub(v.Timestamp) > dc.cacheTTL {
-				delete(dc.cache, k)
-			}
-		}
-	}
-}
-
 // fetchWordDataFromCambridgeAPI fetches word data from the Cambridge dictionary API
-func (dc *DictionaryController) fetchWordDataFromCambridgeAPI(word string) (*models.DictionaryResponse, error) {
+func (dc *Controller) fetchWordDataFromCambridgeAPI(word string) (*models.DictionaryResponse, error) {
 	// Validate and clean the input word
 	word = strings.TrimSpace(word)
 	if word == "" {
@@ -192,7 +80,7 @@ func (dc *DictionaryController) fetchWordDataFromCambridgeAPI(word string) (*mod
 }
 
 // convertCambridgeToOurFormat converts Cambridge dictionary API response to our simplified format
-func (dc *DictionaryController) convertCambridgeToOurFormat(
+func (dc *Controller) convertCambridgeToOurFormat(
 	cambridgeResponse models.CambridgeResponse,
 ) *models.DictionaryResponse {
 	var phonetics []models.PhoneticInfo
