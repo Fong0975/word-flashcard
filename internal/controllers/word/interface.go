@@ -1,11 +1,11 @@
-package controllers
+package word
 
 import (
 	"github.com/gin-gonic/gin"
 )
 
-// WordControllerInterface defines the interface for word controller
-type WordControllerInterface interface {
+// ControllerInterface defines the interface for word controller
+type ControllerInterface interface {
 	ListWords(c *gin.Context)
 	SearchWords(c *gin.Context)
 	RandomWords(c *gin.Context)
