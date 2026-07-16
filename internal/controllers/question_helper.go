@@ -29,45 +29,45 @@ func (qc *QuestionController) convertToEntities(questions []*dbModels.Question) 
 // validateQuestionFields validates the content of the requested question
 func (qc *QuestionController) validateQuestionFields(question *models.Question, isUpdate bool) error {
 	// question: VARCHAR(1024), NOT NULL
-	if err := validateStringField(question.Question, isUpdate, "question", 1024, false); err != nil {
+	if err := common.ValidateStringField(question.Question, isUpdate, "question", 1024, false); err != nil {
 		return err
 	}
 
 	// option_a: VARCHAR(255), NOT NULL
-	if err := validateStringField(question.OptionA, isUpdate, "option_a", 255, false); err != nil {
+	if err := common.ValidateStringField(question.OptionA, isUpdate, "option_a", 255, false); err != nil {
 		return err
 	}
 
 	// option_b: VARCHAR(255), Allow NULL
-	if err := validateStringField(question.OptionB, isUpdate, "option_b", 255, true); err != nil {
+	if err := common.ValidateStringField(question.OptionB, isUpdate, "option_b", 255, true); err != nil {
 		return err
 	}
 
 	// option_c: VARCHAR(255), Allow NULL
-	if err := validateStringField(question.OptionC, isUpdate, "option_c", 255, true); err != nil {
+	if err := common.ValidateStringField(question.OptionC, isUpdate, "option_c", 255, true); err != nil {
 		return err
 	}
 
 	// option_d: VARCHAR(255), Allow NULL
-	if err := validateStringField(question.OptionD, isUpdate, "option_d", 255, true); err != nil {
+	if err := common.ValidateStringField(question.OptionD, isUpdate, "option_d", 255, true); err != nil {
 		return err
 	}
 
 	// answer: VARCHAR(5), NOT NULL
 	listAnswer := []string{"A", "B", "C", "D"}
-	if err := validateStringField(question.Answer, isUpdate, "answer", 5, false); err != nil {
+	if err := common.ValidateStringField(question.Answer, isUpdate, "answer", 5, false); err != nil {
 		return err
 	} else if question.Answer != nil && !slices.Contains(listAnswer, strings.ToUpper(*question.Answer)) {
 		return common.NewFieldError("answer is invalid", "value", *question.Answer, "allowed", strings.Join(listAnswer, ","))
 	}
 
 	// reference: VARCHAR(255), Allow NULL
-	if err := validateStringField(question.Reference, isUpdate, "reference", 255, true); err != nil {
+	if err := common.ValidateStringField(question.Reference, isUpdate, "reference", 255, true); err != nil {
 		return err
 	}
 
 	// notes: TEXT, Allow NULL
-	if err := validateStringField(question.Notes, isUpdate, "notes", 21845, true); err != nil {
+	if err := common.ValidateStringField(question.Notes, isUpdate, "notes", 21845, true); err != nil {
 		return err
 	}
 
@@ -309,15 +309,4 @@ func (qc *QuestionController) buildQuestionTrendPoints(logs []*dbModels.Question
 		}
 	}
 	return points
-}
-
-// validateStringField Verify the string field is empty and its length
-func validateStringField(field *string, isUpdate bool, name string, length int, nullable bool) error {
-	if !nullable && !isUpdate && (field == nil || *field == "") {
-		return common.NewFieldError(name+" is invalid", "reason", "required field missing")
-	} else if field != nil && len(*field) > length {
-		return common.NewFieldError(name+" is invalid", "reason", "exceeds max length", "length", len(*field), "max", length)
-	}
-
-	return nil
 }

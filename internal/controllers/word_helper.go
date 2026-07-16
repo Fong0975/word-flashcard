@@ -445,10 +445,8 @@ func (wc *WordController) transformToWordEntities(words []*dbModels.Word, wordsD
 // validateWordFields validates word entity fields including business rules and constraints
 func validateWordFields(wordData *models.Word, isUpdate bool) error {
 	// Validate word field: VARCHAR(255), NOT NULL for creation
-	if !isUpdate && (wordData.Word == nil || *wordData.Word == "") {
-		return common.NewFieldError("word is invalid", "reason", "required field missing")
-	} else if wordData.Word != nil && len(*wordData.Word) > 255 {
-		return common.NewFieldError("word is invalid", "reason", "exceeds max length", "length", len(*wordData.Word), "max", 255)
+	if err := common.ValidateStringField(wordData.Word, isUpdate, "word", 255, false); err != nil {
+		return err
 	}
 
 	// Validate familiarity enum values
@@ -458,27 +456,19 @@ func validateWordFields(wordData *models.Word, isUpdate bool) error {
 	}
 
 	// Validate reminder field: VARCHAR(100), nullable
-	if wordData.Reminder != nil && len(*wordData.Reminder) > 100 {
-		return common.NewFieldError("reminder is invalid", "reason", "exceeds max length", "length", len(*wordData.Reminder), "max", 100)
-	}
-
-	return nil
+	return common.ValidateStringField(wordData.Reminder, isUpdate, "reminder", 100, true)
 }
 
 // validateWordDefinitionFields validates word definition entity fields including constraints
 func validateWordDefinitionFields(definition models.WordDefinition, isUpdate bool) error {
 	// Validate part_of_speech field: VARCHAR(50), required for creation
-	if !isUpdate && (definition.PartOfSpeech == nil || *definition.PartOfSpeech == "") {
-		return common.NewFieldError("part_of_speech is invalid", "reason", "required field missing")
-	} else if definition.PartOfSpeech != nil && len(*definition.PartOfSpeech) > 50 {
-		return common.NewFieldError("part_of_speech is invalid", "reason", "exceeds max length", "length", len(*definition.PartOfSpeech), "max", 50)
+	if err := common.ValidateStringField(definition.PartOfSpeech, isUpdate, "part_of_speech", 50, false); err != nil {
+		return err
 	}
 
 	// Validate definition field: TEXT, NOT NULL for creation
-	if !isUpdate && (definition.Definition == nil || *definition.Definition == "") {
-		return common.NewFieldError("definition is invalid", "reason", "required field missing")
-	} else if definition.Definition != nil && len(*definition.Definition) > 21845 {
-		return common.NewFieldError("definition is invalid", "reason", "exceeds max length", "length", len(*definition.Definition), "max", 21845)
+	if err := common.ValidateStringField(definition.Definition, isUpdate, "definition", 21845, false); err != nil {
+		return err
 	}
 
 	// Validate phonetics field: TEXT, nullable
