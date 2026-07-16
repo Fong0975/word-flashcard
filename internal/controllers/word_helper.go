@@ -297,7 +297,7 @@ func (wc *WordController) fetchRandomWordsWeighted(quotasByLevel map[string]int)
 		if err != nil {
 			return nil, err
 		}
-		slog.Debug("Random word bucket fetched.", "level", level, "expected", quota, "actual", len(words))
+		logRandomSelectionResult("Random word bucket fetched.", quota, len(words), "level", level, "expected", quota, "actual", len(words))
 		carry = quota - len(words)
 		combined = append(combined, words...)
 	}
@@ -307,7 +307,7 @@ func (wc *WordController) fetchRandomWordsWeighted(quotasByLevel map[string]int)
 	})
 
 	if carry > 0 {
-		slog.Debug("Random word selection short of requested count; no fallback bucket available.", "requested", requested, "returned", len(combined), "shortfall", carry)
+		slog.Warn("Random word selection short of requested count; no fallback bucket available.", "requested", requested, "returned", len(combined), "shortfall", carry)
 	} else {
 		slog.Debug("Random words selected.", "requested", requested, "returned", len(combined))
 	}

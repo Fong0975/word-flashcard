@@ -3,7 +3,6 @@ package controllers
 import (
 	"errors"
 	"fmt"
-	"log/slog"
 	"math/rand"
 	"slices"
 	"strings"
@@ -106,8 +105,9 @@ func (qc *QuestionController) validateQuestionFields(question *models.Question, 
 // selected, ignoring the date filter. This ensures the total returned equals count
 // as long as the total question pool is large enough.
 //
-// TODO: bucket/fallback logs below are temporarily at Warn level for local observation.
-// Revert to Debug once tracked in a GitHub issue.
+// Bucket/fallback/summary counts below are logged via logRandomSelectionResult,
+// which stays at Debug when the actual count matches what was expected and
+// escalates to Warn on a shortfall.
 func (qc *QuestionController) fetchRandomQuestionsWeighted(count int, excludeRecentDays *int) ([]*dbModels.Question, error) {
 	var excludeBefore *time.Time
 	if excludeRecentDays != nil && *excludeRecentDays > 0 {
@@ -134,21 +134,21 @@ func (qc *QuestionController) fetchRandomQuestionsWeighted(count int, excludeRec
 	if err != nil {
 		return nil, err
 	}
-	slog.Warn("Random question bucket fetched.", "bucket", "high_success", "expected", quota3, "actual", len(bucket3))
+	logRandomSelectionResult("Random question bucket fetched.", quota3, len(bucket3), "bucket", "high_success", "expected", quota3, "actual", len(bucket3))
 	quota2 += quota3 - len(bucket3)
 
 	bucket2, err := qc.fetchQuestionsRecencyWeighted(bucket2Where, quota2)
 	if err != nil {
 		return nil, err
 	}
-	slog.Warn("Random question bucket fetched.", "bucket", "high_failure", "expected", quota2, "actual", len(bucket2))
+	logRandomSelectionResult("Random question bucket fetched.", quota2, len(bucket2), "bucket", "high_failure", "expected", quota2, "actual", len(bucket2))
 	quota1 += quota2 - len(bucket2)
 
 	bucket1, err := qc.fetchQuestionBucket(bucket1Where, quota1)
 	if err != nil {
 		return nil, err
 	}
-	slog.Warn("Random question bucket fetched.", "bucket", "unpractised", "expected", quota1, "actual", len(bucket1))
+	logRandomSelectionResult("Random question bucket fetched.", quota1, len(bucket1), "bucket", "unpractised", "expected", quota1, "actual", len(bucket1))
 
 	combined := append(append(bucket1, bucket2...), bucket3...)
 
@@ -166,7 +166,7 @@ func (qc *QuestionController) fetchRandomQuestionsWeighted(count int, excludeRec
 		if err != nil {
 			return nil, err
 		}
-		slog.Warn("Random question fallback triggered.", "expected", remaining, "actual", len(fallback))
+		logRandomSelectionResult("Random question fallback triggered.", remaining, len(fallback), "expected", remaining, "actual", len(fallback))
 		combined = append(combined, fallback...)
 	}
 
@@ -175,7 +175,7 @@ func (qc *QuestionController) fetchRandomQuestionsWeighted(count int, excludeRec
 		combined[i], combined[j] = combined[j], combined[i]
 	})
 
-	slog.Warn("Random questions selected.", "requested", count, "returned", len(combined))
+	logRandomSelectionResult("Random questions selected.", count, len(combined), "requested", count, "returned", len(combined))
 
 	return combined, nil
 }

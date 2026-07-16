@@ -112,6 +112,18 @@ func ParseRequestBody(obj any, c *gin.Context) error {
 	return nil
 }
 
+// logRandomSelectionResult logs a step of a random-selection process (bucket
+// fetch, fallback, or final summary). It logs at Warn when actual falls short
+// of expected — a genuine shortage worth surfacing — and at Debug otherwise,
+// since an exact match is routine tracing detail, not an incident.
+func logRandomSelectionResult(msg string, expected, actual int, args ...any) {
+	if actual != expected {
+		slog.Warn(msg, args...)
+	} else {
+		slog.Debug(msg, args...)
+	}
+}
+
 // ResponseSuccess sends a success response and logs the details.
 func ResponseSuccess(statusCode int, data any, c *gin.Context) {
 	// Set the response & log the success
