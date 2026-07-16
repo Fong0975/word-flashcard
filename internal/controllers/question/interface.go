@@ -1,11 +1,11 @@
-package controllers
+package question
 
 import (
 	"github.com/gin-gonic/gin"
 )
 
-// QuestionControllerInterface defines the interface for question controller
-type QuestionControllerInterface interface {
+// ControllerInterface defines the interface for question controller
+type ControllerInterface interface {
 	ListQuestions(c *gin.Context)
 	GetQuestions(c *gin.Context)
 	RandomQuestions(c *gin.Context)

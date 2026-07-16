@@ -6,6 +6,7 @@ import (
 	"word-flashcard/internal/controllers/dictionary"
 	"word-flashcard/internal/controllers/health"
 	"word-flashcard/internal/controllers/note"
+	"word-flashcard/internal/controllers/question"
 	"word-flashcard/internal/middleware"
 
 	"github.com/gin-gonic/gin"
@@ -16,7 +17,7 @@ type ControllerDependencies struct {
 	HealthController     health.ControllerInterface
 	DictionaryController dictionary.ControllerInterface
 	WordController       controllers.WordControllerInterface
-	QuestionController   controllers.QuestionControllerInterface
+	QuestionController   question.ControllerInterface
 	NoteController       note.ControllerInterface
 }
 
@@ -30,12 +31,12 @@ func SetupAPIRoutes(router *gin.Engine) {
 	}
 	wordController := controllers.NewWordController(wordPeer, wordDefinitionsPeer, wordPracticeLogPeer)
 
-	questionPeer, questionAnswerLogPeer, err := controllers.GetReelQuestionPeers()
+	questionPeer, questionAnswerLogPeer, err := question.GetReelPeers()
 	if err != nil {
 		slog.Error("Failed to initialize Question controller", "error", err)
 		return
 	}
-	questionController := controllers.NewQuestionController(questionPeer, questionAnswerLogPeer)
+	questionController := question.New(questionPeer, questionAnswerLogPeer)
 
 	notePeer, err := note.GetReelPeer()
 	if err != nil {
