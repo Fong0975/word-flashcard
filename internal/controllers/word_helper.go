@@ -25,11 +25,11 @@ import (
 // parseAndValidateWordRequest parses and validates word data from HTTP request
 func (wc *WordController) parseAndValidateWordRequest(c *gin.Context, isUpdate bool) (*models.Word, error) {
 	var wordData models.Word
-	err := ParseRequestBody(&wordData, c)
+	err := common.ParseRequestBody(&wordData, c)
 	if err != nil {
 		return nil, err
 	} else if err := validateWordFields(&wordData, isUpdate); err != nil {
-		return nil, newValidationError(err)
+		return nil, common.NewValidationError(err)
 	}
 
 	return &wordData, nil
@@ -38,10 +38,10 @@ func (wc *WordController) parseAndValidateWordRequest(c *gin.Context, isUpdate b
 // parseAndValidateWordDefinitionRequest parses and validates word definition data from HTTP request
 func (wc *WordController) parseAndValidateWordDefinitionRequest(c *gin.Context, isUpdate bool) (*models.WordDefinition, error) {
 	var wordDefinitionData models.WordDefinition
-	if err := ParseRequestBody(&wordDefinitionData, c); err != nil {
+	if err := common.ParseRequestBody(&wordDefinitionData, c); err != nil {
 		return nil, err
 	} else if err := validateWordDefinitionFields(wordDefinitionData, isUpdate); err != nil {
-		return nil, newValidationError(err)
+		return nil, common.NewValidationError(err)
 	}
 
 	return &wordDefinitionData, nil
@@ -296,7 +296,7 @@ func (wc *WordController) fetchRandomWordsWeighted(quotasByLevel map[string]int)
 		if err != nil {
 			return nil, err
 		}
-		logRandomSelectionResult("Random word bucket fetched.", quota, len(words), "level", level, "expected", quota, "actual", len(words))
+		common.LogRandomSelectionResult("Random word bucket fetched.", quota, len(words), "level", level, "expected", quota, "actual", len(words))
 		carry = quota - len(words)
 		combined = append(combined, words...)
 	}
@@ -446,20 +446,20 @@ func (wc *WordController) transformToWordEntities(words []*dbModels.Word, wordsD
 func validateWordFields(wordData *models.Word, isUpdate bool) error {
 	// Validate word field: VARCHAR(255), NOT NULL for creation
 	if !isUpdate && (wordData.Word == nil || *wordData.Word == "") {
-		return newFieldError("word is invalid", "reason", "required field missing")
+		return common.NewFieldError("word is invalid", "reason", "required field missing")
 	} else if wordData.Word != nil && len(*wordData.Word) > 255 {
-		return newFieldError("word is invalid", "reason", "exceeds max length", "length", len(*wordData.Word), "max", 255)
+		return common.NewFieldError("word is invalid", "reason", "exceeds max length", "length", len(*wordData.Word), "max", 255)
 	}
 
 	// Validate familiarity enum values
 	validFamiliarity := []string{schema.WORD_FAMILIARITY_RED, schema.WORD_FAMILIARITY_YELLOW, schema.WORD_FAMILIARITY_GREEN}
 	if wordData.Familiarity != nil && !slices.Contains(validFamiliarity, *wordData.Familiarity) {
-		return newFieldError("familiarity is invalid", "value", *wordData.Familiarity, "allowed", strings.Join(validFamiliarity, ","))
+		return common.NewFieldError("familiarity is invalid", "value", *wordData.Familiarity, "allowed", strings.Join(validFamiliarity, ","))
 	}
 
 	// Validate reminder field: VARCHAR(100), nullable
 	if wordData.Reminder != nil && len(*wordData.Reminder) > 100 {
-		return newFieldError("reminder is invalid", "reason", "exceeds max length", "length", len(*wordData.Reminder), "max", 100)
+		return common.NewFieldError("reminder is invalid", "reason", "exceeds max length", "length", len(*wordData.Reminder), "max", 100)
 	}
 
 	return nil
@@ -469,26 +469,26 @@ func validateWordFields(wordData *models.Word, isUpdate bool) error {
 func validateWordDefinitionFields(definition models.WordDefinition, isUpdate bool) error {
 	// Validate part_of_speech field: VARCHAR(50), required for creation
 	if !isUpdate && (definition.PartOfSpeech == nil || *definition.PartOfSpeech == "") {
-		return newFieldError("part_of_speech is invalid", "reason", "required field missing")
+		return common.NewFieldError("part_of_speech is invalid", "reason", "required field missing")
 	} else if definition.PartOfSpeech != nil && len(*definition.PartOfSpeech) > 50 {
-		return newFieldError("part_of_speech is invalid", "reason", "exceeds max length", "length", len(*definition.PartOfSpeech), "max", 50)
+		return common.NewFieldError("part_of_speech is invalid", "reason", "exceeds max length", "length", len(*definition.PartOfSpeech), "max", 50)
 	}
 
 	// Validate definition field: TEXT, NOT NULL for creation
 	if !isUpdate && (definition.Definition == nil || *definition.Definition == "") {
-		return newFieldError("definition is invalid", "reason", "required field missing")
+		return common.NewFieldError("definition is invalid", "reason", "required field missing")
 	} else if definition.Definition != nil && len(*definition.Definition) > 21845 {
-		return newFieldError("definition is invalid", "reason", "exceeds max length", "length", len(*definition.Definition), "max", 21845)
+		return common.NewFieldError("definition is invalid", "reason", "exceeds max length", "length", len(*definition.Definition), "max", 21845)
 	}
 
 	// Validate phonetics field: TEXT, nullable
 	if definition.Phonetics != nil && len(*definition.Phonetics) > 21845 {
-		return newFieldError("phonetics is invalid", "reason", "exceeds max length", "length", len(*definition.Phonetics), "max", 21845)
+		return common.NewFieldError("phonetics is invalid", "reason", "exceeds max length", "length", len(*definition.Phonetics), "max", 21845)
 	}
 
 	// Validate examples field: TEXT, nullable
 	if definition.Examples != nil && len(*definition.Examples) > 21845 {
-		return newFieldError("examples is invalid", "reason", "exceeds max length", "length", len(*definition.Examples), "max", 21845)
+		return common.NewFieldError("examples is invalid", "reason", "exceeds max length", "length", len(*definition.Examples), "max", 21845)
 	}
 
 	return nil

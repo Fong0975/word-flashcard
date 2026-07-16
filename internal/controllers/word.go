@@ -73,9 +73,9 @@ func GetReelPeers() (peers.WordPeerInterface, peers.WordDefinitionsPeerInterface
 // @Router /api/words [get]
 func (wc *WordController) ListWords(c *gin.Context) {
 	// ================ 1. Parse pagination parameters ================
-	limit, offset, err := parseLimitAndOffsetFromPath(c)
+	limit, offset, err := common.ParseLimitAndOffsetFromPath(c)
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid limit/offset parameter", models.ErrCodeInvalidRequest, err, c)
+		common.ResponseError(http.StatusBadRequest, "Invalid limit/offset parameter", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 
@@ -88,14 +88,14 @@ func (wc *WordController) ListWords(c *gin.Context) {
 	orderBy := fmt.Sprintf("%s ASC", schema.WORD_WORD)
 	words, err := wc.wordPeer.Select([]*string{}, nil, []*string{&orderBy}, &limitPtr, &offsetPtr)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", models.ErrCodeInternalError, err, c)
+		common.ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", models.ErrCodeInternalError, err, c)
 		return
 	}
 
 	// Query 'word_definitions' table
 	wordsDefs, err := wc.fetchWordDefinitionsForWords(words)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", models.ErrCodeInternalError, err, c)
+		common.ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", models.ErrCodeInternalError, err, c)
 		return
 	}
 
@@ -103,7 +103,7 @@ func (wc *WordController) ListWords(c *gin.Context) {
 	wordEntities := wc.transformToWordEntities(words, wordsDefs)
 
 	// ================ 4. Send response ================
-	ResponseSuccess(http.StatusOK, wordEntities, c)
+	common.ResponseSuccess(http.StatusOK, wordEntities, c)
 }
 
 // SearchWords @Summary Search words with filters and pagination
@@ -122,16 +122,16 @@ func (wc *WordController) ListWords(c *gin.Context) {
 func (wc *WordController) SearchWords(c *gin.Context) {
 	// ============== 1. Get search filter from request ================
 	var searchReq models.SearchFilter
-	err := ParseRequestBody(&searchReq, c)
+	err := common.ParseRequestBody(&searchReq, c)
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid request body", models.ErrCodeInvalidRequest, err, c)
+		common.ResponseError(http.StatusBadRequest, "Invalid request body", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 
 	// ================ 2. Parse pagination parameters ================
-	limit, offset, err := parseLimitAndOffsetFromPath(c)
+	limit, offset, err := common.ParseLimitAndOffsetFromPath(c)
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid limit/offset parameter", models.ErrCodeInvalidRequest, err, c)
+		common.ResponseError(http.StatusBadRequest, "Invalid limit/offset parameter", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 
@@ -142,11 +142,11 @@ func (wc *WordController) SearchWords(c *gin.Context) {
 	// ================ 3. Parse and validate sort parameters ================
 	sortParam, err := models.ParseSortParam(c.Query("sort"))
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid sort parameter", models.ErrCodeInvalidRequest, err, c)
+		common.ResponseError(http.StatusBadRequest, "Invalid sort parameter", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 	if err := sortParam.Validate(wordSortableColumns); err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid sort parameter", models.ErrCodeInvalidRequest, err, c)
+		common.ResponseError(http.StatusBadRequest, "Invalid sort parameter", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 
@@ -164,33 +164,33 @@ func (wc *WordController) SearchWords(c *gin.Context) {
 		// No filter, fetch all records with pagination
 		wordEntities, err := wc.fetchWordsWithDefinitions([]*string{}, nil, orderByClauses, &limitPtr, &offsetPtr)
 		if err != nil {
-			ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", models.ErrCodeInternalError, err, c)
+			common.ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", models.ErrCodeInternalError, err, c)
 			return
 		}
 		if len(wordEntities) == 0 {
 			wordEntities = []*models.Word{}
 		}
-		ResponseSuccess(http.StatusOK, wordEntities, c)
+		common.ResponseSuccess(http.StatusOK, wordEntities, c)
 		return
 	}
 
 	// ================ 5. Separate conditions by table ================
 	wordsFilter, wordDefsFilter, err := parseSearchConditionsByTable(&searchReq)
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid filter", models.ErrCodeInvalidRequest, err, c)
+		common.ResponseError(http.StatusBadRequest, "Invalid filter", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 
 	// ================ 6. Query each table separately ================
 	wordsIDs, err := wc.queryWordIDsByTableFilter(wordsFilter, false)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to query words table", models.ErrCodeInternalError, err, c)
+		common.ResponseError(http.StatusInternalServerError, "Failed to query words table", models.ErrCodeInternalError, err, c)
 		return
 	}
 
 	wordDefsIDs, err := wc.queryWordIDsByTableFilter(wordDefsFilter, true)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to query word_definitions table", models.ErrCodeInternalError, err, c)
+		common.ResponseError(http.StatusInternalServerError, "Failed to query word_definitions table", models.ErrCodeInternalError, err, c)
 		return
 	}
 
@@ -200,7 +200,7 @@ func (wc *WordController) SearchWords(c *gin.Context) {
 	// ================ 8. Query final words with pagination ================
 	wordEntities, err := wc.queryWordsByIDsWithPagination(finalWordIDs, orderByClauses, &limitPtr, &offsetPtr)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to fetch final word data from database", models.ErrCodeInternalError, err, c)
+		common.ResponseError(http.StatusInternalServerError, "Failed to fetch final word data from database", models.ErrCodeInternalError, err, c)
 		return
 	}
 	if len(wordEntities) == 0 {
@@ -208,7 +208,7 @@ func (wc *WordController) SearchWords(c *gin.Context) {
 	}
 
 	// ================ 9. Send response ================
-	ResponseSuccess(http.StatusOK, wordEntities, c)
+	common.ResponseSuccess(http.StatusOK, wordEntities, c)
 }
 
 // RandomWords @Summary Get random words weighted by familiarity and practice recency
@@ -224,15 +224,15 @@ func (wc *WordController) SearchWords(c *gin.Context) {
 func (wc *WordController) RandomWords(c *gin.Context) {
 	// ============== 1. Get random request from body ================
 	var randomReq models.WordRandomRequest
-	err := ParseRequestBody(&randomReq, c)
+	err := common.ParseRequestBody(&randomReq, c)
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid request body", models.ErrCodeInvalidRequest, err, c)
+		common.ResponseError(http.StatusBadRequest, "Invalid request body", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 
 	// Validate count parameter
 	if randomReq.Count <= 0 || randomReq.Count > 1000 {
-		ResponseError(http.StatusBadRequest, "Count must be between 1 and 1000", models.ErrCodeValidationError, nil, c)
+		common.ResponseError(http.StatusBadRequest, "Count must be between 1 and 1000", models.ErrCodeValidationError, nil, c)
 		return
 	}
 
@@ -243,21 +243,21 @@ func (wc *WordController) RandomWords(c *gin.Context) {
 	} else if len(randomReq.FamiliarityLevels) > 0 {
 		quotas = computeLevelQuotas(randomReq.Count, randomReq.FamiliarityLevels)
 	} else {
-		ResponseError(http.StatusBadRequest, "Either familiarity_levels or per_category_counts is required", models.ErrCodeValidationError, nil, c)
+		common.ResponseError(http.StatusBadRequest, "Either familiarity_levels or per_category_counts is required", models.ErrCodeValidationError, nil, c)
 		return
 	}
 
 	// ================ 3. Fetch weighted random words ================
 	words, err := wc.fetchRandomWordsWeighted(quotas)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", models.ErrCodeInternalError, err, c)
+		common.ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", models.ErrCodeInternalError, err, c)
 		return
 	}
 
 	// ================ 4. Attach definitions and build response ================
 	wordsDefs, err := wc.fetchWordDefinitionsForWords(words)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", models.ErrCodeInternalError, err, c)
+		common.ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", models.ErrCodeInternalError, err, c)
 		return
 	}
 	wordEntities := wc.transformToWordEntities(words, wordsDefs)
@@ -266,7 +266,7 @@ func (wc *WordController) RandomWords(c *gin.Context) {
 	}
 
 	// ================ 5. Send response ================
-	ResponseSuccess(http.StatusOK, wordEntities, c)
+	common.ResponseSuccess(http.StatusOK, wordEntities, c)
 }
 
 // CreateWord @Summary Create a new word
@@ -284,7 +284,7 @@ func (wc *WordController) CreateWord(c *gin.Context) {
 	// ================ 1. Parse request body ================
 	wordData, err := wc.parseAndValidateWordRequest(c, false)
 	if err != nil {
-		respondInvalidBody(err, c)
+		common.RespondInvalidBody(err, c)
 		return
 	}
 
@@ -295,7 +295,7 @@ func (wc *WordController) CreateWord(c *gin.Context) {
 	// Insert word
 	wordID, err := wc.wordPeer.Insert(wordModel)
 	if err != nil {
-		respondDatabaseWriteError(
+		common.RespondDatabaseWriteError(
 			"Failed to insert data into database",
 			"A word with this text already exists",
 			err, c,
@@ -308,12 +308,12 @@ func (wc *WordController) CreateWord(c *gin.Context) {
 	orderBy := fmt.Sprintf("%s DESC", schema.WORD_ID)
 	wordEntities, err := wc.fetchWordsWithDefinitions([]*string{}, where, []*string{&orderBy}, nil, nil)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Inserted but failed to fetch data from database", models.ErrCodeInternalError, err, c)
+		common.ResponseError(http.StatusInternalServerError, "Inserted but failed to fetch data from database", models.ErrCodeInternalError, err, c)
 		return
 	}
 
 	// ================ 3. Send response ================
-	ResponseSuccess(http.StatusOK, wordEntities[0], c)
+	common.ResponseSuccess(http.StatusOK, wordEntities[0], c)
 }
 
 // CreateWordDefinition @Summary Create a word definition
@@ -330,16 +330,16 @@ func (wc *WordController) CreateWord(c *gin.Context) {
 func (wc *WordController) CreateWordDefinition(c *gin.Context) {
 	// ================ 1. Parse request parameter & body ================
 	// Get word ID from URL parameter
-	wordID, err := parseIDFromPath(c, "id")
+	wordID, err := common.ParseIDFromPath(c, "id")
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid word ID.", models.ErrCodeInvalidRequest, err, c)
+		common.ResponseError(http.StatusBadRequest, "Invalid word ID.", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 
 	// Request body
 	wordDefinitionData, err := wc.parseAndValidateWordDefinitionRequest(c, false)
 	if err != nil {
-		respondInvalidBody(err, c)
+		common.RespondInvalidBody(err, c)
 		return
 	}
 
@@ -350,7 +350,7 @@ func (wc *WordController) CreateWordDefinition(c *gin.Context) {
 	// Insert word definition
 	wordDefsModel.WordId = &wordID
 	if _, err := wc.wordDefinitionPeer.Insert(wordDefsModel); err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to insert data into database", models.ErrCodeInternalError, err, c)
+		common.ResponseError(http.StatusInternalServerError, "Failed to insert data into database", models.ErrCodeInternalError, err, c)
 		return
 	}
 
@@ -359,12 +359,12 @@ func (wc *WordController) CreateWordDefinition(c *gin.Context) {
 	orderBy := fmt.Sprintf("%s DESC", schema.WORD_ID)
 	wordEntities, err := wc.fetchWordsWithDefinitions([]*string{}, where, []*string{&orderBy}, nil, nil)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Inserted but failed to fetch data from database", models.ErrCodeInternalError, err, c)
+		common.ResponseError(http.StatusInternalServerError, "Inserted but failed to fetch data from database", models.ErrCodeInternalError, err, c)
 		return
 	}
 
 	// ================ 3. Send response ================
-	ResponseSuccess(http.StatusOK, wordEntities[0], c)
+	common.ResponseSuccess(http.StatusOK, wordEntities[0], c)
 }
 
 // UpdateWord @Summary Update a word
@@ -383,15 +383,15 @@ func (wc *WordController) CreateWordDefinition(c *gin.Context) {
 func (wc *WordController) UpdateWord(c *gin.Context) {
 	// ================ 1. Parse request parameter & body ================
 	// Get word ID from URL parameter
-	wordID, err := parseIDFromPath(c, "id")
+	wordID, err := common.ParseIDFromPath(c, "id")
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid word ID.", models.ErrCodeInvalidRequest, err, c)
+		common.ResponseError(http.StatusBadRequest, "Invalid word ID.", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 
 	wordData, err := wc.parseAndValidateWordRequest(c, true)
 	if err != nil {
-		respondInvalidBody(err, c)
+		common.RespondInvalidBody(err, c)
 		return
 	}
 
@@ -405,10 +405,10 @@ func (wc *WordController) UpdateWord(c *gin.Context) {
 	if wordData.IncrementCountPractise {
 		currentWords, err := wc.wordPeer.Select([]*string{}, where, nil, nil, nil)
 		if err != nil {
-			ResponseError(http.StatusInternalServerError, "Failed to fetch current word data", models.ErrCodeInternalError, err, c)
+			common.ResponseError(http.StatusInternalServerError, "Failed to fetch current word data", models.ErrCodeInternalError, err, c)
 			return
 		} else if len(currentWords) == 0 {
-			ResponseError(http.StatusNotFound, "Word not found", models.ErrCodeNotFound, nil, c)
+			common.ResponseError(http.StatusNotFound, "Word not found", models.ErrCodeNotFound, nil, c)
 			return
 		}
 		currentCount := 0
@@ -426,14 +426,14 @@ func (wc *WordController) UpdateWord(c *gin.Context) {
 	// ================ 4. Update data in database ================
 	effected, err := wc.wordPeer.Update(wordModel, where)
 	if err != nil {
-		respondDatabaseWriteError(
+		common.RespondDatabaseWriteError(
 			"Failed to update data in database",
 			"A word with this text already exists",
 			err, c,
 		)
 		return
 	} else if effected == 0 {
-		ResponseError(http.StatusNotFound, "Word not found", models.ErrCodeNotFound, nil, c)
+		common.ResponseError(http.StatusNotFound, "Word not found", models.ErrCodeNotFound, nil, c)
 		return
 	}
 
@@ -457,12 +457,12 @@ func (wc *WordController) UpdateWord(c *gin.Context) {
 	orderBy := fmt.Sprintf("%s DESC", schema.WORD_ID)
 	wordEntities, err := wc.fetchWordsWithDefinitions([]*string{}, whereQuery, []*string{&orderBy}, nil, nil)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Updated but failed to fetch data from database", models.ErrCodeInternalError, err, c)
+		common.ResponseError(http.StatusInternalServerError, "Updated but failed to fetch data from database", models.ErrCodeInternalError, err, c)
 		return
 	}
 
 	// ================ 7. Send response ================
-	ResponseSuccess(http.StatusOK, wordEntities[0], c)
+	common.ResponseSuccess(http.StatusOK, wordEntities[0], c)
 }
 
 // UpdateWordDefinition @Summary Update a word definition
@@ -480,16 +480,16 @@ func (wc *WordController) UpdateWord(c *gin.Context) {
 func (wc *WordController) UpdateWordDefinition(c *gin.Context) {
 	// =============== 1. Parse request parameter & body ================
 	// Get word definition ID from URL parameter
-	wordDefID, err := parseIDFromPath(c, "id")
+	wordDefID, err := common.ParseIDFromPath(c, "id")
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid word definition ID.", models.ErrCodeInvalidRequest, err, c)
+		common.ResponseError(http.StatusBadRequest, "Invalid word definition ID.", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 
 	// Request body
 	wordDefinitionData, err := wc.parseAndValidateWordDefinitionRequest(c, true)
 	if err != nil {
-		respondInvalidBody(err, c)
+		common.RespondInvalidBody(err, c)
 		return
 	}
 
@@ -501,10 +501,10 @@ func (wc *WordController) UpdateWordDefinition(c *gin.Context) {
 	where := squirrel.Eq{schema.WORD_DEFINITIONS_ID: wordDefID}
 	effected, err := wc.wordDefinitionPeer.Update(wordDefsModel, where)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to update data in database", models.ErrCodeInternalError, err, c)
+		common.ResponseError(http.StatusInternalServerError, "Failed to update data in database", models.ErrCodeInternalError, err, c)
 		return
 	} else if effected == 0 {
-		ResponseError(http.StatusNotFound, "Word definition not found", models.ErrCodeNotFound, nil, c)
+		common.ResponseError(http.StatusNotFound, "Word definition not found", models.ErrCodeNotFound, nil, c)
 		return
 	}
 
@@ -514,7 +514,7 @@ func (wc *WordController) UpdateWordDefinition(c *gin.Context) {
 	whereQueryDef := squirrel.Eq{schema.WORD_DEFINITIONS_ID: wordDefID}
 	wordDefModels, err := wc.wordDefinitionPeer.Select([]*string{}, whereQueryDef, []*string{&orderBy}, nil, nil)
 	if err != nil || len(wordDefModels) == 0 {
-		ResponseError(http.StatusInternalServerError, "Updated but failed to fetch data from database", models.ErrCodeInternalError, err, c)
+		common.ResponseError(http.StatusInternalServerError, "Updated but failed to fetch data from database", models.ErrCodeInternalError, err, c)
 		return
 	}
 	// Query the associated word
@@ -522,12 +522,12 @@ func (wc *WordController) UpdateWordDefinition(c *gin.Context) {
 	whereQuery := squirrel.Eq{schema.WORD_ID: wordID}
 	wordEntities, err := wc.fetchWordsWithDefinitions([]*string{}, whereQuery, []*string{&orderBy}, nil, nil)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Updated but failed to fetch data from database", models.ErrCodeInternalError, err, c)
+		common.ResponseError(http.StatusInternalServerError, "Updated but failed to fetch data from database", models.ErrCodeInternalError, err, c)
 		return
 	}
 
 	// ================ 3. Send response ================
-	ResponseSuccess(http.StatusOK, wordEntities[0], c)
+	common.ResponseSuccess(http.StatusOK, wordEntities[0], c)
 }
 
 // DeleteWord @Summary Delete a word
@@ -544,9 +544,9 @@ func (wc *WordController) UpdateWordDefinition(c *gin.Context) {
 func (wc *WordController) DeleteWord(c *gin.Context) {
 	// =============== 1. Parse request parameter ================
 	// Get word ID from URL parameter
-	wordID, err := parseIDFromPath(c, "id")
+	wordID, err := common.ParseIDFromPath(c, "id")
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid word ID.", models.ErrCodeInvalidRequest, err, c)
+		common.ResponseError(http.StatusBadRequest, "Invalid word ID.", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 
@@ -555,14 +555,14 @@ func (wc *WordController) DeleteWord(c *gin.Context) {
 	whereDefs := squirrel.Eq{schema.WORD_DEFINITIONS_WORD_ID: wordID}
 	existingDefs, err := wc.wordDefinitionPeer.Select([]*string{}, whereDefs, nil, nil, nil)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to check associated data in database", models.ErrCodeInternalError, err, c)
+		common.ResponseError(http.StatusInternalServerError, "Failed to check associated data in database", models.ErrCodeInternalError, err, c)
 		return
 	}
 
 	// Delete word definitions only if they exist
 	if len(existingDefs) > 0 {
 		if _, err := wc.wordDefinitionPeer.Delete(whereDefs); err != nil {
-			ResponseError(http.StatusInternalServerError, "Failed to delete associated data from database", models.ErrCodeInternalError, err, c)
+			common.ResponseError(http.StatusInternalServerError, "Failed to delete associated data from database", models.ErrCodeInternalError, err, c)
 			return
 		}
 	}
@@ -571,15 +571,15 @@ func (wc *WordController) DeleteWord(c *gin.Context) {
 	where := squirrel.Eq{schema.WORD_ID: wordID}
 	effected, err := wc.wordPeer.Delete(where)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to delete data from database", models.ErrCodeInternalError, err, c)
+		common.ResponseError(http.StatusInternalServerError, "Failed to delete data from database", models.ErrCodeInternalError, err, c)
 		return
 	} else if effected == 0 {
-		ResponseError(http.StatusNotFound, "Word not found", models.ErrCodeNotFound, nil, c)
+		common.ResponseError(http.StatusNotFound, "Word not found", models.ErrCodeNotFound, nil, c)
 		return
 	}
 
 	// ================ 3. Send response ================
-	ResponseSuccess(http.StatusNoContent, nil, c)
+	common.ResponseSuccess(http.StatusNoContent, nil, c)
 }
 
 // DeleteWordDefinition @Summary Delete a word definition
@@ -596,9 +596,9 @@ func (wc *WordController) DeleteWord(c *gin.Context) {
 func (wc *WordController) DeleteWordDefinition(c *gin.Context) {
 	// =============== 1. Parse request parameter ================
 	// Get word definition ID from URL parameter
-	wordDefID, err := parseIDFromPath(c, "id")
+	wordDefID, err := common.ParseIDFromPath(c, "id")
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid word definition ID.", models.ErrCodeInvalidRequest, err, c)
+		common.ResponseError(http.StatusBadRequest, "Invalid word definition ID.", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 
@@ -606,15 +606,15 @@ func (wc *WordController) DeleteWordDefinition(c *gin.Context) {
 	where := squirrel.Eq{schema.WORD_DEFINITIONS_ID: wordDefID}
 	effected, err := wc.wordDefinitionPeer.Delete(where)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to delete data from database", models.ErrCodeInternalError, err, c)
+		common.ResponseError(http.StatusInternalServerError, "Failed to delete data from database", models.ErrCodeInternalError, err, c)
 		return
 	} else if effected == 0 {
-		ResponseError(http.StatusNotFound, "Word definition not found", models.ErrCodeNotFound, nil, c)
+		common.ResponseError(http.StatusNotFound, "Word definition not found", models.ErrCodeNotFound, nil, c)
 		return
 	}
 
 	// ================ 3. Send response ================
-	ResponseSuccess(http.StatusNoContent, nil, c)
+	common.ResponseSuccess(http.StatusNoContent, nil, c)
 }
 
 // CountWords @Summary Count words matching filter criteria
@@ -630,21 +630,21 @@ func (wc *WordController) DeleteWordDefinition(c *gin.Context) {
 func (wc *WordController) CountWords(c *gin.Context) {
 	// ============== 1. Get search filter from request ================
 	var searchReq models.SearchFilter
-	err := ParseRequestBody(&searchReq, c)
+	err := common.ParseRequestBody(&searchReq, c)
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid request body", models.ErrCodeInvalidRequest, err, c)
+		common.ResponseError(http.StatusBadRequest, "Invalid request body", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 
 	// ================ 2. Count words using same logic as SearchWords ================
 	count, err := wc.countWordsMatchingFilter(&searchReq)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to count words", models.ErrCodeInternalError, err, c)
+		common.ResponseError(http.StatusInternalServerError, "Failed to count words", models.ErrCodeInternalError, err, c)
 		return
 	}
 
 	// ================ 3. Send response ================
-	ResponseSuccess(http.StatusOK, gin.H{"count": count}, c)
+	common.ResponseSuccess(http.StatusOK, gin.H{"count": count}, c)
 }
 
 // StatsWords @Summary Get word statistics
@@ -658,17 +658,17 @@ func (wc *WordController) StatsWords(c *gin.Context) {
 	// ================ 1. Count per familiarity level ================
 	red, err := wc.wordPeer.Count(squirrel.Eq{schema.WORD_FAMILIARITY: schema.WORD_FAMILIARITY_RED})
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to count words", models.ErrCodeInternalError, err, c)
+		common.ResponseError(http.StatusInternalServerError, "Failed to count words", models.ErrCodeInternalError, err, c)
 		return
 	}
 	yellow, err := wc.wordPeer.Count(squirrel.Eq{schema.WORD_FAMILIARITY: schema.WORD_FAMILIARITY_YELLOW})
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to count words", models.ErrCodeInternalError, err, c)
+		common.ResponseError(http.StatusInternalServerError, "Failed to count words", models.ErrCodeInternalError, err, c)
 		return
 	}
 	green, err := wc.wordPeer.Count(squirrel.Eq{schema.WORD_FAMILIARITY: schema.WORD_FAMILIARITY_GREEN})
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to count words", models.ErrCodeInternalError, err, c)
+		common.ResponseError(http.StatusInternalServerError, "Failed to count words", models.ErrCodeInternalError, err, c)
 		return
 	}
 
@@ -676,7 +676,7 @@ func (wc *WordController) StatsWords(c *gin.Context) {
 	cpCol := schema.WORD_COUNT_PRACTISE
 	words, err := wc.wordPeer.Select([]*string{&cpCol}, nil, nil, nil, nil)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to fetch practice counts", models.ErrCodeInternalError, err, c)
+		common.ResponseError(http.StatusInternalServerError, "Failed to fetch practice counts", models.ErrCodeInternalError, err, c)
 		return
 	}
 
@@ -691,7 +691,7 @@ func (wc *WordController) StatsWords(c *gin.Context) {
 	practiceBuckets := common.BuildPracticeCountBuckets(counts)
 
 	// ================ 4. Send response ================
-	ResponseSuccess(http.StatusOK, models.WordStats{
+	common.ResponseSuccess(http.StatusOK, models.WordStats{
 		FamiliarityDistribution: models.WordFamiliarityDistribution{
 			Red:    red,
 			Yellow: yellow,
@@ -712,15 +712,15 @@ func (wc *WordController) StatsWords(c *gin.Context) {
 // @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to fetch data from database"
 // @Router /api/words/{id}/logs [get]
 func (wc *WordController) GetWordLogs(c *gin.Context) {
-	wordID, err := parseIDFromPath(c, "id")
+	wordID, err := common.ParseIDFromPath(c, "id")
 	if err != nil {
-		ResponseError(http.StatusBadRequest, "Invalid word ID.", models.ErrCodeInvalidRequest, err, c)
+		common.ResponseError(http.StatusBadRequest, "Invalid word ID.", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 
-	limit, err := ParseIntQueryParam(c, "limit", 10)
+	limit, err := common.ParseIntQueryParam(c, "limit", 10)
 	if err != nil || limit < 1 || limit > 50 {
-		ResponseError(http.StatusBadRequest, "Invalid limit parameter", models.ErrCodeInvalidRequest, err, c)
+		common.ResponseError(http.StatusBadRequest, "Invalid limit parameter", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 	limitPtr := uint64(limit)
@@ -729,11 +729,11 @@ func (wc *WordController) GetWordLogs(c *gin.Context) {
 	orderBy := fmt.Sprintf("%s DESC", schema.COMMON_CREATED_AT)
 	logs, err := wc.wordPracticeLogPeer.Select([]*string{}, where, []*string{&orderBy}, &limitPtr, nil)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", models.ErrCodeInternalError, err, c)
+		common.ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", models.ErrCodeInternalError, err, c)
 		return
 	}
 
-	ResponseSuccess(http.StatusOK, wc.toWordPracticeLogEntries(logs), c)
+	common.ResponseSuccess(http.StatusOK, wc.toWordPracticeLogEntries(logs), c)
 }
 
 // GetWordsTrend @Summary Get daily practice trend across all words
@@ -746,9 +746,9 @@ func (wc *WordController) GetWordLogs(c *gin.Context) {
 // @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to fetch data from database"
 // @Router /api/words/trend [get]
 func (wc *WordController) GetWordsTrend(c *gin.Context) {
-	days, err := ParseIntQueryParam(c, "days", 30)
+	days, err := common.ParseIntQueryParam(c, "days", 30)
 	if err != nil || days < 1 || days > 90 {
-		ResponseError(http.StatusBadRequest, "Invalid days parameter", models.ErrCodeInvalidRequest, err, c)
+		common.ResponseError(http.StatusBadRequest, "Invalid days parameter", models.ErrCodeInvalidRequest, err, c)
 		return
 	}
 
@@ -757,9 +757,9 @@ func (wc *WordController) GetWordsTrend(c *gin.Context) {
 	where := squirrel.GtOrEq{schema.COMMON_CREATED_AT: since}
 	logs, err := wc.wordPracticeLogPeer.Select([]*string{}, where, nil, nil, nil)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", models.ErrCodeInternalError, err, c)
+		common.ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", models.ErrCodeInternalError, err, c)
 		return
 	}
 
-	ResponseSuccess(http.StatusOK, wc.buildWordTrendPoints(logs, days, now), c)
+	common.ResponseSuccess(http.StatusOK, wc.buildWordTrendPoints(logs, days, now), c)
 }

@@ -58,7 +58,7 @@ func (qc *QuestionController) validateQuestionFields(question *models.Question, 
 	if err := validateStringField(question.Answer, isUpdate, "answer", 5, false); err != nil {
 		return err
 	} else if question.Answer != nil && !slices.Contains(listAnswer, strings.ToUpper(*question.Answer)) {
-		return newFieldError("answer is invalid", "value", *question.Answer, "allowed", strings.Join(listAnswer, ","))
+		return common.NewFieldError("answer is invalid", "value", *question.Answer, "allowed", strings.Join(listAnswer, ","))
 	}
 
 	// reference: VARCHAR(255), Allow NULL
@@ -73,18 +73,18 @@ func (qc *QuestionController) validateQuestionFields(question *models.Question, 
 
 	// count_practise: INT, > 0
 	if question.CountPractise != nil && *question.CountPractise < 0 {
-		return newFieldError("count_practise is invalid", "reason", "negative value", "value", *question.CountPractise)
+		return common.NewFieldError("count_practise is invalid", "reason", "negative value", "value", *question.CountPractise)
 	}
 
 	// count_failure_practise: INT, > 0, <= count_practise
 	if question.CountFailurePractise != nil {
 		switch {
 		case question.CountPractise == nil:
-			return newFieldError("count_failure_practise is invalid", "reason", "count_practise is required when count_failure_practise is set")
+			return common.NewFieldError("count_failure_practise is invalid", "reason", "count_practise is required when count_failure_practise is set")
 		case *question.CountFailurePractise < 0:
-			return newFieldError("count_failure_practise is invalid", "reason", "negative value", "value", *question.CountFailurePractise)
+			return common.NewFieldError("count_failure_practise is invalid", "reason", "negative value", "value", *question.CountFailurePractise)
 		case *question.CountFailurePractise > *question.CountPractise:
-			return newFieldError("count_failure_practise is invalid",
+			return common.NewFieldError("count_failure_practise is invalid",
 				"reason", "exceeds count_practise",
 				"count_failure_practise", *question.CountFailurePractise,
 				"count_practise", *question.CountPractise)
@@ -93,7 +93,7 @@ func (qc *QuestionController) validateQuestionFields(question *models.Question, 
 
 	// selected_option: must be one of A-D when provided (quiz-answer logging)
 	if question.SelectedOption != nil && !slices.Contains(listAnswer, strings.ToUpper(*question.SelectedOption)) {
-		return newFieldError("selected_option is invalid", "value", *question.SelectedOption, "allowed", strings.Join(listAnswer, ","))
+		return common.NewFieldError("selected_option is invalid", "value", *question.SelectedOption, "allowed", strings.Join(listAnswer, ","))
 	}
 
 	return nil
@@ -143,21 +143,21 @@ func (qc *QuestionController) fetchRandomQuestionsWeighted(count int, excludeRec
 	if err != nil {
 		return nil, err
 	}
-	logRandomSelectionResult("Random question bucket fetched.", quota3, len(bucket3), "bucket", "high_success", "expected", quota3, "actual", len(bucket3))
+	common.LogRandomSelectionResult("Random question bucket fetched.", quota3, len(bucket3), "bucket", "high_success", "expected", quota3, "actual", len(bucket3))
 	quota2 += quota3 - len(bucket3)
 
 	bucket2, err := qc.fetchQuestionsRecencyWeighted(bucket2Where, quota2)
 	if err != nil {
 		return nil, err
 	}
-	logRandomSelectionResult("Random question bucket fetched.", quota2, len(bucket2), "bucket", "high_failure", "expected", quota2, "actual", len(bucket2))
+	common.LogRandomSelectionResult("Random question bucket fetched.", quota2, len(bucket2), "bucket", "high_failure", "expected", quota2, "actual", len(bucket2))
 	quota1 += quota2 - len(bucket2)
 
 	bucket1, err := qc.fetchQuestionBucket(bucket1Where, quota1)
 	if err != nil {
 		return nil, err
 	}
-	logRandomSelectionResult("Random question bucket fetched.", quota1, len(bucket1), "bucket", "unpractised", "expected", quota1, "actual", len(bucket1))
+	common.LogRandomSelectionResult("Random question bucket fetched.", quota1, len(bucket1), "bucket", "unpractised", "expected", quota1, "actual", len(bucket1))
 
 	combined := append(append(bucket1, bucket2...), bucket3...)
 
@@ -175,7 +175,7 @@ func (qc *QuestionController) fetchRandomQuestionsWeighted(count int, excludeRec
 		if err != nil {
 			return nil, err
 		}
-		logRandomSelectionResult("Random question fallback triggered.", remaining, len(fallback), "expected", remaining, "actual", len(fallback))
+		common.LogRandomSelectionResult("Random question fallback triggered.", remaining, len(fallback), "expected", remaining, "actual", len(fallback))
 		combined = append(combined, fallback...)
 	}
 
@@ -184,7 +184,7 @@ func (qc *QuestionController) fetchRandomQuestionsWeighted(count int, excludeRec
 		combined[i], combined[j] = combined[j], combined[i]
 	})
 
-	logRandomSelectionResult("Random questions selected.", count, len(combined), "requested", count, "returned", len(combined))
+	common.LogRandomSelectionResult("Random questions selected.", count, len(combined), "requested", count, "returned", len(combined))
 
 	return combined, nil
 }
@@ -314,9 +314,9 @@ func (qc *QuestionController) buildQuestionTrendPoints(logs []*dbModels.Question
 // validateStringField Verify the string field is empty and its length
 func validateStringField(field *string, isUpdate bool, name string, length int, nullable bool) error {
 	if !nullable && !isUpdate && (field == nil || *field == "") {
-		return newFieldError(name+" is invalid", "reason", "required field missing")
+		return common.NewFieldError(name+" is invalid", "reason", "required field missing")
 	} else if field != nil && len(*field) > length {
-		return newFieldError(name+" is invalid", "reason", "exceeds max length", "length", len(*field), "max", length)
+		return common.NewFieldError(name+" is invalid", "reason", "exceeds max length", "length", len(*field), "max", length)
 	}
 
 	return nil

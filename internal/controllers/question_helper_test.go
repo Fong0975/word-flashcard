@@ -9,6 +9,7 @@ import (
 	"word-flashcard/data/mocks"
 	dbModels "word-flashcard/data/models"
 	"word-flashcard/data/schema"
+	"word-flashcard/internal/controllers/common"
 	"word-flashcard/internal/models"
 	"word-flashcard/utils"
 	"word-flashcard/utils/database"
@@ -357,8 +358,8 @@ func (suite *QuestionHelperTestSuite) TestValidateQuestionFields() {
 
 				// The internal detail must be attached for log enrichment, but never
 				// exposed through Error() -- i.e. never shown to the client.
-				var de *detailedError
-				suite.Require().True(errors.As(err, &de), "expected a *detailedError to carry log detail")
+				var de *common.DetailedError
+				suite.Require().True(errors.As(err, &de), "expected a *common.DetailedError to carry log detail")
 				suite.Equal(tc.wantDetail, de.LogDetail())
 			} else {
 				suite.NoError(err)

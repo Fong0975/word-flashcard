@@ -2,7 +2,7 @@ package routers
 
 import (
 	"net/http"
-	"word-flashcard/internal/controllers"
+	"word-flashcard/internal/controllers/common"
 	"word-flashcard/internal/middleware"
 	"word-flashcard/internal/models"
 
@@ -55,9 +55,9 @@ func setupErrorHandlers(router *gin.Engine) {
 	router.HandleMethodNotAllowed = true
 
 	router.NoRoute(func(c *gin.Context) {
-		controllers.ResponseError(http.StatusNotFound, "Route not found", models.ErrCodeNotFound, nil, c)
+		common.ResponseError(http.StatusNotFound, "Route not found", models.ErrCodeNotFound, nil, c)
 	})
 	router.NoMethod(func(c *gin.Context) {
-		controllers.ResponseError(http.StatusMethodNotAllowed, "Method not allowed", models.ErrCodeInvalidRequest, nil, c)
+		common.ResponseError(http.StatusMethodNotAllowed, "Method not allowed", models.ErrCodeInvalidRequest, nil, c)
 	})
 }

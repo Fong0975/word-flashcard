@@ -12,6 +12,7 @@ import (
 	"time"
 	"unicode"
 
+	"word-flashcard/internal/controllers/common"
 	"word-flashcard/internal/models"
 
 	"github.com/gin-gonic/gin"
@@ -59,7 +60,7 @@ func (dc *DictionaryController) SearchWord(c *gin.Context) {
 
 	// Validate word parameter
 	if word == "" {
-		ResponseError(http.StatusBadRequest, "Word parameter is required", models.ErrCodeInvalidRequest, nil, c)
+		common.ResponseError(http.StatusBadRequest, "Word parameter is required", models.ErrCodeInvalidRequest, nil, c)
 		return
 	}
 
@@ -76,10 +77,10 @@ func (dc *DictionaryController) SearchWord(c *gin.Context) {
 	response, err := dc.fetchWordDataFromCambridgeAPI(word)
 	if err != nil {
 		if errors.Is(err, errWordNotFound) {
-			ResponseError(http.StatusNotFound, fmt.Sprintf("Word '%s' not found", word), models.ErrCodeNotFound, err, c)
+			common.ResponseError(http.StatusNotFound, fmt.Sprintf("Word '%s' not found", word), models.ErrCodeNotFound, err, c)
 			return
 		}
-		ResponseError(http.StatusBadGateway, "Dictionary service is currently unavailable", models.ErrCodeUpstreamUnavailable, err, c)
+		common.ResponseError(http.StatusBadGateway, "Dictionary service is currently unavailable", models.ErrCodeUpstreamUnavailable, err, c)
 		return
 	}
 

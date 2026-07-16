@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"word-flashcard/internal/controllers/common"
 	"word-flashcard/internal/models"
 
 	"github.com/gin-gonic/gin"
@@ -67,15 +68,15 @@ func (hc *HealthController) HealthCheck(c *gin.Context) {
 func (hc *HealthController) InformationCheck(c *gin.Context) {
 	versionPath, err := findVersionFile()
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "version file not found", models.ErrCodeInternalError, err, c)
+		common.ResponseError(http.StatusInternalServerError, "version file not found", models.ErrCodeInternalError, err, c)
 		return
 	}
 	data, err := os.ReadFile(versionPath)
 	if err != nil {
-		ResponseError(http.StatusInternalServerError, "failed to read version file", models.ErrCodeInternalError, err, c)
+		common.ResponseError(http.StatusInternalServerError, "failed to read version file", models.ErrCodeInternalError, err, c)
 		return
 	}
-	ResponseSuccess(http.StatusOK, models.InformationResponse{
+	common.ResponseSuccess(http.StatusOK, models.InformationResponse{
 		Version: strings.TrimSpace(string(data)),
 	}, c)
 }

@@ -698,7 +698,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.QuestionTrendPoint"
+                                "$ref": "#/definitions/word-flashcard_internal_models.QuestionTrendPoint"
                             }
                         }
                     },
@@ -896,7 +896,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.QuestionAnswerLogEntry"
+                                "$ref": "#/definitions/word-flashcard_internal_models.QuestionAnswerLogEntry"
                             }
                         }
                     },
@@ -1378,7 +1378,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.WordTrendPoint"
+                                "$ref": "#/definitions/word-flashcard_internal_models.WordTrendPoint"
                             }
                         }
                     },
@@ -1535,7 +1535,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.WordPracticeLogEntry"
+                                "$ref": "#/definitions/word-flashcard_internal_models.WordPracticeLogEntry"
                             }
                         }
                     },
@@ -1556,71 +1556,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "models.QuestionAnswerLogEntry": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "is_correct": {
-                    "type": "boolean"
-                },
-                "selected_option": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.QuestionTrendPoint": {
-            "type": "object",
-            "properties": {
-                "accuracy_rate": {
-                    "type": "number"
-                },
-                "date": {
-                    "type": "string"
-                },
-                "practice_count": {
-                    "type": "integer"
-                }
-            }
-        },
-        "models.WordPracticeLogEntry": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "familiarity": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "previous_familiarity": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.WordTrendPoint": {
-            "type": "object",
-            "properties": {
-                "avg_familiarity_score": {
-                    "type": "number"
-                },
-                "date": {
-                    "type": "string"
-                },
-                "improvement_rate": {
-                    "type": "number"
-                },
-                "practice_count": {
-                    "type": "integer"
-                }
-            }
-        },
         "word-flashcard_internal_models.AccuracyBucket": {
             "type": "object",
             "properties": {
@@ -1815,6 +1750,23 @@ const docTemplate = `{
                 }
             }
         },
+        "word-flashcard_internal_models.QuestionAnswerLogEntry": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_correct": {
+                    "type": "boolean"
+                },
+                "selected_option": {
+                    "type": "string"
+                }
+            }
+        },
         "word-flashcard_internal_models.QuestionRandomRequest": {
             "type": "object",
             "required": [
@@ -1839,6 +1791,20 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/word-flashcard_internal_models.AccuracyBucket"
                     }
+                }
+            }
+        },
+        "word-flashcard_internal_models.QuestionTrendPoint": {
+            "type": "object",
+            "properties": {
+                "accuracy_rate": {
+                    "type": "number"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "practice_count": {
+                    "type": "integer"
                 }
             }
         },
@@ -1950,6 +1916,23 @@ const docTemplate = `{
                 }
             }
         },
+        "word-flashcard_internal_models.WordPracticeLogEntry": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "familiarity": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "previous_familiarity": {
+                    "type": "string"
+                }
+            }
+        },
         "word-flashcard_internal_models.WordRandomRequest": {
             "type": "object",
             "required": [
@@ -1986,6 +1969,23 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/word-flashcard_internal_models.PracticeCountBucket"
                     }
+                }
+            }
+        },
+        "word-flashcard_internal_models.WordTrendPoint": {
+            "type": "object",
+            "properties": {
+                "avg_familiarity_score": {
+                    "type": "number"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "improvement_rate": {
+                    "type": "number"
+                },
+                "practice_count": {
+                    "type": "integer"
                 }
             }
         }
