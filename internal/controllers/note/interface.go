@@ -1,9 +1,9 @@
-package controllers
+package note
 
 import "github.com/gin-gonic/gin"
 
-// NoteControllerInterface defines the interface for note controller
-type NoteControllerInterface interface {
+// ControllerInterface defines the interface for note controller
+type ControllerInterface interface {
 	ListNotes(c *gin.Context)
 	SearchNotes(c *gin.Context)
 	GetNote(c *gin.Context)

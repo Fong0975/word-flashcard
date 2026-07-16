@@ -3,6 +3,7 @@ package routers
 import (
 	"log/slog"
 	"word-flashcard/internal/controllers"
+	"word-flashcard/internal/controllers/note"
 	"word-flashcard/internal/middleware"
 
 	"github.com/gin-gonic/gin"
@@ -14,7 +15,7 @@ type ControllerDependencies struct {
 	DictionaryController controllers.DictionaryControllerInterface
 	WordController       controllers.WordControllerInterface
 	QuestionController   controllers.QuestionControllerInterface
-	NoteController       controllers.NoteControllerInterface
+	NoteController       note.ControllerInterface
 }
 
 // SetupAPIRoutes configures all API routes with default controllers
@@ -34,12 +35,12 @@ func SetupAPIRoutes(router *gin.Engine) {
 	}
 	questionController := controllers.NewQuestionController(questionPeer, questionAnswerLogPeer)
 
-	notePeer, err := controllers.GetReelNotePeer()
+	notePeer, err := note.GetReelPeer()
 	if err != nil {
 		slog.Error("Failed to initialize Note controller", "error", err)
 		return
 	}
-	noteController := controllers.NewNoteController(notePeer)
+	noteController := note.New(notePeer)
 
 	// Inject controllers into dependencies struct
 	deps := &ControllerDependencies{
