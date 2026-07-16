@@ -959,16 +959,19 @@ func (suite *WordHelperTestSuite) TestTransformToWordEntities() {
 // TestValidateWordFields tests the validateWordFields function
 func (suite *WordHelperTestSuite) TestValidateWordFields() {
 	type testCase struct {
-		name     string
-		input    *models.Word
-		isUpdate bool
-		wantErr  bool
+		name       string
+		input      *models.Word
+		isUpdate   bool
+		wantErr    bool
+		wantErrMsg string
+		wantDetail []any
 	}
 
 	validWord := "example"
 	longWord := strings.Repeat("a", 256)
 	validFam := schema.WORD_FAMILIARITY_GREEN
 	invalidFam := "blue"
+	longReminder := strings.Repeat("r", 101)
 
 	testCases := []testCase{
 		{
@@ -985,8 +988,10 @@ func (suite *WordHelperTestSuite) TestValidateWordFields() {
 			input: &models.Word{
 				Familiarity: &validFam,
 			},
-			isUpdate: false,
-			wantErr:  true,
+			isUpdate:   false,
+			wantErr:    true,
+			wantErrMsg: "word is invalid",
+			wantDetail: []any{"reason", "required field missing"},
 		},
 		{
 			name: "update - invalid familiarity",
@@ -994,16 +999,34 @@ func (suite *WordHelperTestSuite) TestValidateWordFields() {
 				Word:        &validWord,
 				Familiarity: &invalidFam,
 			},
-			isUpdate: true,
-			wantErr:  true,
+			isUpdate:   true,
+			wantErr:    true,
+			wantErrMsg: "familiarity is invalid",
+			wantDetail: []any{"value", invalidFam, "allowed", strings.Join([]string{
+				schema.WORD_FAMILIARITY_RED, schema.WORD_FAMILIARITY_YELLOW, schema.WORD_FAMILIARITY_GREEN,
+			}, ",")},
 		},
 		{
 			name: "create - word too long",
 			input: &models.Word{
 				Word: &longWord,
 			},
-			isUpdate: false,
-			wantErr:  true,
+			isUpdate:   false,
+			wantErr:    true,
+			wantErrMsg: "word is invalid",
+			wantDetail: []any{"reason", "exceeds max length", "length", 256, "max", 255},
+		},
+		{
+			name: "create - reminder too long",
+			input: &models.Word{
+				Word:        &validWord,
+				Familiarity: &validFam,
+				Reminder:    &longReminder,
+			},
+			isUpdate:   false,
+			wantErr:    true,
+			wantErrMsg: "reminder is invalid",
+			wantDetail: []any{"reason", "exceeds max length", "length", 101, "max", 100},
 		},
 	}
 
@@ -1012,6 +1035,14 @@ func (suite *WordHelperTestSuite) TestValidateWordFields() {
 			err := validateWordFields(tc.input, tc.isUpdate)
 			if tc.wantErr {
 				suite.Error(err)
+				// The public-facing message must stay unchanged (frontend exposure level).
+				suite.Equal(tc.wantErrMsg, err.Error())
+
+				// The internal detail must be attached for log enrichment, but never
+				// exposed through Error() -- i.e. never shown to the client.
+				var de *detailedError
+				suite.Require().True(errors.As(err, &de), "expected a *detailedError to carry log detail")
+				suite.Equal(tc.wantDetail, de.LogDetail())
 			} else {
 				suite.NoError(err)
 			}
@@ -1022,10 +1053,12 @@ func (suite *WordHelperTestSuite) TestValidateWordFields() {
 // TestValidateWordDefinitionFields tests the validateWordDefinitionFields function
 func (suite *WordHelperTestSuite) TestValidateWordDefinitionFields() {
 	type testCase struct {
-		name     string
-		input    models.WordDefinition
-		isUpdate bool
-		wantErr  bool
+		name       string
+		input      models.WordDefinition
+		isUpdate   bool
+		wantErr    bool
+		wantErrMsg string
+		wantDetail []any
 	}
 
 	validPOS := "noun"
@@ -1048,8 +1081,10 @@ func (suite *WordHelperTestSuite) TestValidateWordDefinitionFields() {
 			input: models.WordDefinition{
 				Definition: &validDef,
 			},
-			isUpdate: false,
-			wantErr:  true,
+			isUpdate:   false,
+			wantErr:    true,
+			wantErrMsg: "part_of_speech is invalid",
+			wantDetail: []any{"reason", "required field missing"},
 		},
 		{
 			name: "update - too long part_of_speech",
@@ -1057,8 +1092,20 @@ func (suite *WordHelperTestSuite) TestValidateWordDefinitionFields() {
 				PartOfSpeech: &longPOS,
 				Definition:   &validDef,
 			},
-			isUpdate: true,
-			wantErr:  true,
+			isUpdate:   true,
+			wantErr:    true,
+			wantErrMsg: "part_of_speech is invalid",
+			wantDetail: []any{"reason", "exceeds max length", "length", 51, "max", 50},
+		},
+		{
+			name: "create - missing definition",
+			input: models.WordDefinition{
+				PartOfSpeech: &validPOS,
+			},
+			isUpdate:   false,
+			wantErr:    true,
+			wantErrMsg: "definition is invalid",
+			wantDetail: []any{"reason", "required field missing"},
 		},
 		{
 			name: "create - too long definition",
@@ -1066,8 +1113,10 @@ func (suite *WordHelperTestSuite) TestValidateWordDefinitionFields() {
 				PartOfSpeech: &validPOS,
 				Definition:   &longText,
 			},
-			isUpdate: false,
-			wantErr:  true,
+			isUpdate:   false,
+			wantErr:    true,
+			wantErrMsg: "definition is invalid",
+			wantDetail: []any{"reason", "exceeds max length", "length", 21846, "max", 21845},
 		},
 	}
 
@@ -1076,6 +1125,14 @@ func (suite *WordHelperTestSuite) TestValidateWordDefinitionFields() {
 			err := validateWordDefinitionFields(tc.input, tc.isUpdate)
 			if tc.wantErr {
 				suite.Error(err)
+				// The public-facing message must stay unchanged (frontend exposure level).
+				suite.Equal(tc.wantErrMsg, err.Error())
+
+				// The internal detail must be attached for log enrichment, but never
+				// exposed through Error() -- i.e. never shown to the client.
+				var de *detailedError
+				suite.Require().True(errors.As(err, &de), "expected a *detailedError to carry log detail")
+				suite.Equal(tc.wantDetail, de.LogDetail())
 			} else {
 				suite.NoError(err)
 			}

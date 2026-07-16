@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"testing"
@@ -110,10 +111,12 @@ func (suite *QuestionHelperTestSuite) TestConvertToEntities() {
 // TestValidateQuestionFields test the validateQuestionFields function
 func (suite *QuestionHelperTestSuite) TestValidateQuestionFields() {
 	type questionTestCase struct {
-		name     string
-		input    *models.Question
-		isUpdate bool
-		wantErr  bool
+		name       string
+		input      *models.Question
+		isUpdate   bool
+		wantErr    bool
+		wantErrMsg string
+		wantDetail []any
 	}
 
 	testQuestion := models.Question{
@@ -147,8 +150,10 @@ func (suite *QuestionHelperTestSuite) TestValidateQuestionFields() {
 				q.Question = nil
 				return &q
 			}(),
-			isUpdate: false,
-			wantErr:  true,
+			isUpdate:   false,
+			wantErr:    true,
+			wantErrMsg: "question is invalid",
+			wantDetail: []any{"reason", "required field missing"},
 		},
 		{
 			name: "update - invalid question",
@@ -158,8 +163,10 @@ func (suite *QuestionHelperTestSuite) TestValidateQuestionFields() {
 				q.Question = &invalidStr
 				return &q
 			}(),
-			isUpdate: true,
-			wantErr:  true,
+			isUpdate:   true,
+			wantErr:    true,
+			wantErrMsg: "question is invalid",
+			wantDetail: []any{"reason", "exceeds max length", "length", 1025, "max", 1024},
 		},
 		{
 			name: "create - nil option_a",
@@ -168,8 +175,10 @@ func (suite *QuestionHelperTestSuite) TestValidateQuestionFields() {
 				q.OptionA = nil
 				return &q
 			}(),
-			isUpdate: false,
-			wantErr:  true,
+			isUpdate:   false,
+			wantErr:    true,
+			wantErrMsg: "option_a is invalid",
+			wantDetail: []any{"reason", "required field missing"},
 		},
 		{
 			name: "update - invalid option_a",
@@ -179,8 +188,10 @@ func (suite *QuestionHelperTestSuite) TestValidateQuestionFields() {
 				q.OptionA = &invalidStr
 				return &q
 			}(),
-			isUpdate: true,
-			wantErr:  true,
+			isUpdate:   true,
+			wantErr:    true,
+			wantErrMsg: "option_a is invalid",
+			wantDetail: []any{"reason", "exceeds max length", "length", 256, "max", 255},
 		},
 		{
 			name: "update - invalid option_b",
@@ -190,8 +201,10 @@ func (suite *QuestionHelperTestSuite) TestValidateQuestionFields() {
 				q.OptionB = &invalidStr
 				return &q
 			}(),
-			isUpdate: true,
-			wantErr:  true,
+			isUpdate:   true,
+			wantErr:    true,
+			wantErrMsg: "option_b is invalid",
+			wantDetail: []any{"reason", "exceeds max length", "length", 256, "max", 255},
 		},
 		{
 			name: "update - invalid option_c",
@@ -201,8 +214,10 @@ func (suite *QuestionHelperTestSuite) TestValidateQuestionFields() {
 				q.OptionC = &invalidStr
 				return &q
 			}(),
-			isUpdate: true,
-			wantErr:  true,
+			isUpdate:   true,
+			wantErr:    true,
+			wantErrMsg: "option_c is invalid",
+			wantDetail: []any{"reason", "exceeds max length", "length", 256, "max", 255},
 		},
 		{
 			name: "update - invalid option_d",
@@ -212,8 +227,10 @@ func (suite *QuestionHelperTestSuite) TestValidateQuestionFields() {
 				q.OptionD = &invalidStr
 				return &q
 			}(),
-			isUpdate: true,
-			wantErr:  true,
+			isUpdate:   true,
+			wantErr:    true,
+			wantErrMsg: "option_d is invalid",
+			wantDetail: []any{"reason", "exceeds max length", "length", 256, "max", 255},
 		},
 		{
 			name: "create - nil answer",
@@ -222,29 +239,35 @@ func (suite *QuestionHelperTestSuite) TestValidateQuestionFields() {
 				q.Answer = nil
 				return &q
 			}(),
-			isUpdate: false,
-			wantErr:  true,
+			isUpdate:   false,
+			wantErr:    true,
+			wantErrMsg: "answer is invalid",
+			wantDetail: []any{"reason", "required field missing"},
 		},
 		{
-			name: "update - invalid answer",
+			name: "update - answer too long",
 			input: func() *models.Question {
 				q := testQuestion
 				invalidStr := strings.Repeat("q", 6)
 				q.Answer = &invalidStr
 				return &q
 			}(),
-			isUpdate: true,
-			wantErr:  true,
+			isUpdate:   true,
+			wantErr:    true,
+			wantErrMsg: "answer is invalid",
+			wantDetail: []any{"reason", "exceeds max length", "length", 6, "max", 5},
 		},
 		{
-			name: "update - invalid answer",
+			name: "update - answer not in A-D",
 			input: func() *models.Question {
 				q := testQuestion
 				q.Answer = utils.StrPtr("F")
 				return &q
 			}(),
-			isUpdate: true,
-			wantErr:  true,
+			isUpdate:   true,
+			wantErr:    true,
+			wantErrMsg: "answer is invalid",
+			wantDetail: []any{"value", "F", "allowed", "A,B,C,D"},
 		},
 		{
 			name: "update - invalid reference",
@@ -254,8 +277,10 @@ func (suite *QuestionHelperTestSuite) TestValidateQuestionFields() {
 				q.Reference = &invalidStr
 				return &q
 			}(),
-			isUpdate: true,
-			wantErr:  true,
+			isUpdate:   true,
+			wantErr:    true,
+			wantErrMsg: "reference is invalid",
+			wantDetail: []any{"reason", "exceeds max length", "length", 256, "max", 255},
 		},
 		{
 			name: "update - invalid count_practise",
@@ -264,8 +289,10 @@ func (suite *QuestionHelperTestSuite) TestValidateQuestionFields() {
 				q.CountPractise = utils.IntPtr(-1)
 				return &q
 			}(),
-			isUpdate: true,
-			wantErr:  true,
+			isUpdate:   true,
+			wantErr:    true,
+			wantErrMsg: "count_practise is invalid",
+			wantDetail: []any{"reason", "negative value", "value", -1},
 		},
 		{
 			name: "update - invalid count_failure_practise",
@@ -274,8 +301,10 @@ func (suite *QuestionHelperTestSuite) TestValidateQuestionFields() {
 				q.CountFailurePractise = utils.IntPtr(-1)
 				return &q
 			}(),
-			isUpdate: true,
-			wantErr:  true,
+			isUpdate:   true,
+			wantErr:    true,
+			wantErrMsg: "count_failure_practise is invalid",
+			wantDetail: []any{"reason", "negative value", "value", -1},
 		},
 		{
 			name: "update - invalid count_failure_practise (lager than count_practise)",
@@ -285,8 +314,35 @@ func (suite *QuestionHelperTestSuite) TestValidateQuestionFields() {
 				q.CountFailurePractise = utils.IntPtr(6)
 				return &q
 			}(),
-			isUpdate: true,
-			wantErr:  true,
+			isUpdate:   true,
+			wantErr:    true,
+			wantErrMsg: "count_failure_practise is invalid",
+			wantDetail: []any{"reason", "exceeds count_practise", "count_failure_practise", 6, "count_practise", 5},
+		},
+		{
+			name: "update - count_failure_practise without count_practise",
+			input: func() *models.Question {
+				q := testQuestion
+				q.CountPractise = nil
+				q.CountFailurePractise = utils.IntPtr(1)
+				return &q
+			}(),
+			isUpdate:   true,
+			wantErr:    true,
+			wantErrMsg: "count_failure_practise is invalid",
+			wantDetail: []any{"reason", "count_practise is required when count_failure_practise is set"},
+		},
+		{
+			name: "update - invalid selected_option",
+			input: func() *models.Question {
+				q := testQuestion
+				q.SelectedOption = utils.StrPtr("Z")
+				return &q
+			}(),
+			isUpdate:   true,
+			wantErr:    true,
+			wantErrMsg: "selected_option is invalid",
+			wantDetail: []any{"value", "Z", "allowed", "A,B,C,D"},
 		},
 	}
 
@@ -296,6 +352,14 @@ func (suite *QuestionHelperTestSuite) TestValidateQuestionFields() {
 			err := suite.controller.validateQuestionFields(tc.input, tc.isUpdate)
 			if tc.wantErr {
 				suite.Error(err)
+				// The public-facing message must stay unchanged (frontend exposure level).
+				suite.Equal(tc.wantErrMsg, err.Error())
+
+				// The internal detail must be attached for log enrichment, but never
+				// exposed through Error() -- i.e. never shown to the client.
+				var de *detailedError
+				suite.Require().True(errors.As(err, &de), "expected a *detailedError to carry log detail")
+				suite.Equal(tc.wantDetail, de.LogDetail())
 			} else {
 				suite.NoError(err)
 			}

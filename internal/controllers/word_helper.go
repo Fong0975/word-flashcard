@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"errors"
 	"fmt"
 	"log/slog"
 	"math/rand"
@@ -447,20 +446,20 @@ func (wc *WordController) transformToWordEntities(words []*dbModels.Word, wordsD
 func validateWordFields(wordData *models.Word, isUpdate bool) error {
 	// Validate word field: VARCHAR(255), NOT NULL for creation
 	if !isUpdate && (wordData.Word == nil || *wordData.Word == "") {
-		return errors.New("word is invalid")
+		return newFieldError("word is invalid", "reason", "required field missing")
 	} else if wordData.Word != nil && len(*wordData.Word) > 255 {
-		return errors.New("word is invalid")
+		return newFieldError("word is invalid", "reason", "exceeds max length", "length", len(*wordData.Word), "max", 255)
 	}
 
 	// Validate familiarity enum values
 	validFamiliarity := []string{schema.WORD_FAMILIARITY_RED, schema.WORD_FAMILIARITY_YELLOW, schema.WORD_FAMILIARITY_GREEN}
 	if wordData.Familiarity != nil && !slices.Contains(validFamiliarity, *wordData.Familiarity) {
-		return errors.New("familiarity is invalid")
+		return newFieldError("familiarity is invalid", "value", *wordData.Familiarity, "allowed", strings.Join(validFamiliarity, ","))
 	}
 
 	// Validate reminder field: VARCHAR(100), nullable
 	if wordData.Reminder != nil && len(*wordData.Reminder) > 100 {
-		return errors.New("reminder is invalid")
+		return newFieldError("reminder is invalid", "reason", "exceeds max length", "length", len(*wordData.Reminder), "max", 100)
 	}
 
 	return nil
@@ -470,26 +469,26 @@ func validateWordFields(wordData *models.Word, isUpdate bool) error {
 func validateWordDefinitionFields(definition models.WordDefinition, isUpdate bool) error {
 	// Validate part_of_speech field: VARCHAR(50), required for creation
 	if !isUpdate && (definition.PartOfSpeech == nil || *definition.PartOfSpeech == "") {
-		return errors.New("part_of_speech is invalid")
+		return newFieldError("part_of_speech is invalid", "reason", "required field missing")
 	} else if definition.PartOfSpeech != nil && len(*definition.PartOfSpeech) > 50 {
-		return errors.New("part_of_speech is invalid")
+		return newFieldError("part_of_speech is invalid", "reason", "exceeds max length", "length", len(*definition.PartOfSpeech), "max", 50)
 	}
 
 	// Validate definition field: TEXT, NOT NULL for creation
 	if !isUpdate && (definition.Definition == nil || *definition.Definition == "") {
-		return errors.New("definition is invalid")
+		return newFieldError("definition is invalid", "reason", "required field missing")
 	} else if definition.Definition != nil && len(*definition.Definition) > 21845 {
-		return errors.New("definition is invalid")
+		return newFieldError("definition is invalid", "reason", "exceeds max length", "length", len(*definition.Definition), "max", 21845)
 	}
 
 	// Validate phonetics field: TEXT, nullable
 	if definition.Phonetics != nil && len(*definition.Phonetics) > 21845 {
-		return errors.New("phonetics is invalid")
+		return newFieldError("phonetics is invalid", "reason", "exceeds max length", "length", len(*definition.Phonetics), "max", 21845)
 	}
 
 	// Validate examples field: TEXT, nullable
 	if definition.Examples != nil && len(*definition.Examples) > 21845 {
-		return errors.New("examples is invalid")
+		return newFieldError("examples is invalid", "reason", "exceeds max length", "length", len(*definition.Examples), "max", 21845)
 	}
 
 	return nil

@@ -154,11 +154,43 @@ func ResponseSuccess(statusCode int, data any, c *gin.Context) {
 // ResponseError sends an error response and logs the error details.
 // message is safe to show to the client; err (the underlying cause, which may
 // contain internal detail) is only ever written to the log, never to the response body.
+// If err carries a *detailedError anywhere in its chain, its key/value pairs
+// are appended to the log line so the client-safe message can stay generic
+// while the log captures the concrete reason.
 func ResponseError(statusCode int, message string, code models.ErrorCode, err error, c *gin.Context) {
 	// Set the response
 	c.JSON(statusCode, models.ErrorResponse{Error: message, Code: code})
-	// Log the error
-	slog.Error("API error response.", "path", c.Request.RequestURI, "status", statusCode, "message", message, "code", code, "error", err)
+
+	// Log the error, enriched with any internal-only detail attached to err
+	logArgs := []any{"path", c.Request.RequestURI, "status", statusCode, "message", message, "code", code, "error", err}
+	var de *detailedError
+	if errors.As(err, &de) {
+		logArgs = append(logArgs, de.LogDetail()...)
+	}
+	slog.Error("API error response.", logArgs...)
+}
+
+// detailedError pairs a client-safe message with extra key/value context that
+// is only ever meant for the logs, never the HTTP response body. Use
+// newFieldError to construct one; ResponseError automatically surfaces
+// LogDetail() when the error reaches it.
+type detailedError struct {
+	public string
+	args   []any
+}
+
+func (e *detailedError) Error() string { return e.public }
+
+// LogDetail returns the extra context as slog-style alternating key/value
+// pairs, meant for logs only.
+func (e *detailedError) LogDetail() []any { return e.args }
+
+// newFieldError builds a field-validation error whose message (public) is
+// safe to return to the client as-is, while args (slog-style key/value
+// pairs, e.g. "length", 134, "max", 100) carries the concrete reason for the
+// failure for diagnostics only.
+func newFieldError(public string, args ...any) error {
+	return &detailedError{public: public, args: args}
 }
 
 // validationError marks an error as a field-level validation failure, as opposed
