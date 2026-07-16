@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"errors"
 	"fmt"
 	"math/rand"
 	"slices"
@@ -59,7 +58,7 @@ func (qc *QuestionController) validateQuestionFields(question *models.Question, 
 	if err := validateStringField(question.Answer, isUpdate, "answer", 5, false); err != nil {
 		return err
 	} else if question.Answer != nil && !slices.Contains(listAnswer, strings.ToUpper(*question.Answer)) {
-		return errors.New("answer is invalid")
+		return newFieldError("answer is invalid", "value", *question.Answer, "allowed", strings.Join(listAnswer, ","))
 	}
 
 	// reference: VARCHAR(255), Allow NULL
@@ -74,17 +73,27 @@ func (qc *QuestionController) validateQuestionFields(question *models.Question, 
 
 	// count_practise: INT, > 0
 	if question.CountPractise != nil && *question.CountPractise < 0 {
-		return errors.New("count_practise is invalid")
+		return newFieldError("count_practise is invalid", "reason", "negative value", "value", *question.CountPractise)
 	}
 
 	// count_failure_practise: INT, > 0, <= count_practise
-	if question.CountFailurePractise != nil && (question.CountPractise == nil || *question.CountFailurePractise < 0 || *question.CountFailurePractise > *question.CountPractise) {
-		return errors.New("count_failure_practise is invalid")
+	if question.CountFailurePractise != nil {
+		switch {
+		case question.CountPractise == nil:
+			return newFieldError("count_failure_practise is invalid", "reason", "count_practise is required when count_failure_practise is set")
+		case *question.CountFailurePractise < 0:
+			return newFieldError("count_failure_practise is invalid", "reason", "negative value", "value", *question.CountFailurePractise)
+		case *question.CountFailurePractise > *question.CountPractise:
+			return newFieldError("count_failure_practise is invalid",
+				"reason", "exceeds count_practise",
+				"count_failure_practise", *question.CountFailurePractise,
+				"count_practise", *question.CountPractise)
+		}
 	}
 
 	// selected_option: must be one of A-D when provided (quiz-answer logging)
 	if question.SelectedOption != nil && !slices.Contains(listAnswer, strings.ToUpper(*question.SelectedOption)) {
-		return errors.New("selected_option is invalid")
+		return newFieldError("selected_option is invalid", "value", *question.SelectedOption, "allowed", strings.Join(listAnswer, ","))
 	}
 
 	return nil
@@ -305,9 +314,9 @@ func (qc *QuestionController) buildQuestionTrendPoints(logs []*dbModels.Question
 // validateStringField Verify the string field is empty and its length
 func validateStringField(field *string, isUpdate bool, name string, length int, nullable bool) error {
 	if !nullable && !isUpdate && (field == nil || *field == "") {
-		return errors.New(name + " is invalid")
+		return newFieldError(name+" is invalid", "reason", "required field missing")
 	} else if field != nil && len(*field) > length {
-		return errors.New(name + " is invalid")
+		return newFieldError(name+" is invalid", "reason", "exceeds max length", "length", len(*field), "max", length)
 	}
 
 	return nil
