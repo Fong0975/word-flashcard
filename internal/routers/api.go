@@ -3,6 +3,7 @@ package routers
 import (
 	"log/slog"
 	"word-flashcard/internal/controllers"
+	"word-flashcard/internal/controllers/health"
 	"word-flashcard/internal/controllers/note"
 	"word-flashcard/internal/middleware"
 
@@ -11,7 +12,7 @@ import (
 
 // ControllerDependencies holds all controller dependencies
 type ControllerDependencies struct {
-	HealthController     controllers.HealthControllerInterface
+	HealthController     health.ControllerInterface
 	DictionaryController controllers.DictionaryControllerInterface
 	WordController       controllers.WordControllerInterface
 	QuestionController   controllers.QuestionControllerInterface
@@ -44,7 +45,7 @@ func SetupAPIRoutes(router *gin.Engine) {
 
 	// Inject controllers into dependencies struct
 	deps := &ControllerDependencies{
-		HealthController:     controllers.NewHealthController(),
+		HealthController:     health.New(),
 		DictionaryController: controllers.NewDictionaryController(),
 		WordController:       wordController,
 		QuestionController:   questionController,
