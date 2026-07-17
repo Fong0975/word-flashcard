@@ -87,11 +87,64 @@ jobs:
         report-path: 'ctrf/ctrf-report.json'
         github-report: true
         pull-request-report: true
+        comment-tag: 'unit-test-report'
+        overwrite-comment: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Generate coverage report
-      run: go tool cover -func=coverage.out
+      if: always()
+      run: |
+        if [ -f coverage.out ]; then
+          go tool cover -func=coverage.out | tee coverage-func.txt
+        else
+          echo "coverage.out not found, skipping coverage report"
+        fi
+
+    - name: Build coverage summary for PR comment
+      if: always()
+      run: |
+        if [ -f coverage-func.txt ]; then
+          TOTAL=$(grep '^total:' coverage-func.txt | awk '{print $NF}')
+          WEAK=$(awk '!/^total:/ { pct=$NF; gsub("%","",pct); if (pct+0 < 60) print }' coverage-func.txt | head -30)
+          {
+            echo "### 🧪 Backend Coverage"
+            echo ""
+            echo "**Total coverage:** ${TOTAL}"
+            echo ""
+            if [ -n "$WEAK" ]; then
+              echo "<details><summary>⚠️ Functions under 60% coverage</summary>"
+              echo ""
+              echo '```'
+              echo "$WEAK"
+              echo '```'
+              echo ""
+              echo "</details>"
+            else
+              echo "✅ All functions are at or above 60% coverage"
+            fi
+          } > coverage-comment.md
+        else
+          {
+            echo "### 🧪 Backend Coverage"
+            echo ""
+            echo "_Coverage data not available for this run._"
+          } > coverage-comment.md
+        fi
+        cp coverage-comment.md coverage-template.hbs
+
+    - name: Append coverage to PR comment
+      uses: ctrf-io/github-test-reporter@v1
+      if: always()
+      with:
+        report-path: 'ctrf/ctrf-report.json'
+        custom-report: true
+        template-path: 'coverage-template.hbs'
+        pull-request: true
+        comment-tag: 'unit-test-report'
+        update-comment: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     # Update final status for manual triggers only
     - name: Update Final Status
