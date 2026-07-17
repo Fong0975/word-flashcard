@@ -43,6 +43,8 @@ Do NOT describe implementation details or list files. Write in English.>
 ---
 **Squash merge commit title**
 feat/fix: <Sentence case summary of what changed>
+**Suggested branch name**
+feat/fix/<kebab-case-summary>
 ```
 
 For example, if only `web/` files were changed, the output must look like:
@@ -62,6 +64,8 @@ feat: <Title Case summary>
 ---
 **Squash merge commit title**
 feat: <Sentence case summary>
+**Suggested branch name**
+feat/<kebab-case-summary>
 ```
 
 ## Capitalization rules
@@ -71,6 +75,11 @@ feat: <Sentence case summary>
 - **Squash merge commit title**: same content but follows **Sentence case**
   - Example: `feat: Add web speech API fallback and improve navigation state`
   - Proper nouns and acronyms (API, UI, URL, SQL, MySQL…) always keep their standard casing in both.
+- **Suggested branch name**: `<type>/<kebab-case-summary>`, all lowercase, words separated by hyphens
+  - Reuse the same `type` prefix as the PR Title (`feat`, `fix`, `refactor`, `chore`, `docs`, `test`)
+  - Condense the title into 3–6 words; drop filler words (a, the, and, with)
+  - Acronyms are lowercased in branch names (e.g. `api`, `url`, `sql`)
+  - Example: for title `feat: Add Web Speech API Fallback and Improve Navigation State` → branch `feat/web-speech-api-fallback`
 
 ## Writing guidelines
 
