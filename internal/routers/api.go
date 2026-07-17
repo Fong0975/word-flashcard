@@ -2,7 +2,11 @@ package routers
 
 import (
 	"log/slog"
-	"word-flashcard/internal/controllers"
+	"word-flashcard/internal/controllers/dictionary"
+	"word-flashcard/internal/controllers/health"
+	"word-flashcard/internal/controllers/note"
+	"word-flashcard/internal/controllers/question"
+	"word-flashcard/internal/controllers/word"
 	"word-flashcard/internal/middleware"
 
 	"github.com/gin-gonic/gin"
@@ -10,41 +14,41 @@ import (
 
 // ControllerDependencies holds all controller dependencies
 type ControllerDependencies struct {
-	HealthController     controllers.HealthControllerInterface
-	DictionaryController controllers.DictionaryControllerInterface
-	WordController       controllers.WordControllerInterface
-	QuestionController   controllers.QuestionControllerInterface
-	NoteController       controllers.NoteControllerInterface
+	HealthController     health.ControllerInterface
+	DictionaryController dictionary.ControllerInterface
+	WordController       word.ControllerInterface
+	QuestionController   question.ControllerInterface
+	NoteController       note.ControllerInterface
 }
 
 // SetupAPIRoutes configures all API routes with default controllers
 func SetupAPIRoutes(router *gin.Engine) {
 	// Initialize default controllers
-	wordPeer, wordDefinitionsPeer, wordPracticeLogPeer, err := controllers.GetReelPeers()
+	wordPeer, wordDefinitionsPeer, wordPracticeLogPeer, err := word.GetReelPeers()
 	if err != nil {
 		slog.Error("Failed to initialize Word controller", "error", err)
 		return
 	}
-	wordController := controllers.NewWordController(wordPeer, wordDefinitionsPeer, wordPracticeLogPeer)
+	wordController := word.New(wordPeer, wordDefinitionsPeer, wordPracticeLogPeer)
 
-	questionPeer, questionAnswerLogPeer, err := controllers.GetReelQuestionPeers()
+	questionPeer, questionAnswerLogPeer, err := question.GetReelPeers()
 	if err != nil {
 		slog.Error("Failed to initialize Question controller", "error", err)
 		return
 	}
-	questionController := controllers.NewQuestionController(questionPeer, questionAnswerLogPeer)
+	questionController := question.New(questionPeer, questionAnswerLogPeer)
 
-	notePeer, err := controllers.GetReelNotePeer()
+	notePeer, err := note.GetReelPeer()
 	if err != nil {
 		slog.Error("Failed to initialize Note controller", "error", err)
 		return
 	}
-	noteController := controllers.NewNoteController(notePeer)
+	noteController := note.New(notePeer)
 
 	// Inject controllers into dependencies struct
 	deps := &ControllerDependencies{
-		HealthController:     controllers.NewHealthController(),
-		DictionaryController: controllers.NewDictionaryController(),
+		HealthController:     health.New(),
+		DictionaryController: dictionary.New(),
 		WordController:       wordController,
 		QuestionController:   questionController,
 		NoteController:       noteController,

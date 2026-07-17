@@ -1,47 +1,5 @@
 basePath: /
 definitions:
-  models.QuestionAnswerLogEntry:
-    properties:
-      created_at:
-        type: string
-      id:
-        type: integer
-      is_correct:
-        type: boolean
-      selected_option:
-        type: string
-    type: object
-  models.QuestionTrendPoint:
-    properties:
-      accuracy_rate:
-        type: number
-      date:
-        type: string
-      practice_count:
-        type: integer
-    type: object
-  models.WordPracticeLogEntry:
-    properties:
-      created_at:
-        type: string
-      familiarity:
-        type: string
-      id:
-        type: integer
-      previous_familiarity:
-        type: string
-    type: object
-  models.WordTrendPoint:
-    properties:
-      avg_familiarity_score:
-        type: number
-      date:
-        type: string
-      improvement_rate:
-        type: number
-      practice_count:
-        type: integer
-    type: object
   word-flashcard_internal_models.AccuracyBucket:
     properties:
       count:
@@ -171,6 +129,17 @@ definitions:
       selected_option:
         type: string
     type: object
+  word-flashcard_internal_models.QuestionAnswerLogEntry:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      is_correct:
+        type: boolean
+      selected_option:
+        type: string
+    type: object
   word-flashcard_internal_models.QuestionRandomRequest:
     properties:
       count:
@@ -188,6 +157,15 @@ definitions:
         items:
           $ref: '#/definitions/word-flashcard_internal_models.AccuracyBucket'
         type: array
+    type: object
+  word-flashcard_internal_models.QuestionTrendPoint:
+    properties:
+      accuracy_rate:
+        type: number
+      date:
+        type: string
+      practice_count:
+        type: integer
     type: object
   word-flashcard_internal_models.SearchCondition:
     properties:
@@ -261,6 +239,17 @@ definitions:
       yellow:
         type: integer
     type: object
+  word-flashcard_internal_models.WordPracticeLogEntry:
+    properties:
+      created_at:
+        type: string
+      familiarity:
+        type: string
+      id:
+        type: integer
+      previous_familiarity:
+        type: string
+    type: object
   word-flashcard_internal_models.WordRandomRequest:
     properties:
       count:
@@ -286,6 +275,17 @@ definitions:
         items:
           $ref: '#/definitions/word-flashcard_internal_models.PracticeCountBucket'
         type: array
+    type: object
+  word-flashcard_internal_models.WordTrendPoint:
+    properties:
+      avg_familiarity_score:
+        type: number
+      date:
+        type: string
+      improvement_rate:
+        type: number
+      practice_count:
+        type: integer
     type: object
 host: localhost:8080
 info:
@@ -782,7 +782,7 @@ paths:
           description: Recent answer log entries
           schema:
             items:
-              $ref: '#/definitions/models.QuestionAnswerLogEntry'
+              $ref: '#/definitions/word-flashcard_internal_models.QuestionAnswerLogEntry'
             type: array
         "400":
           description: Bad request - Invalid question ID or limit parameter
@@ -879,7 +879,7 @@ paths:
           description: Daily trend points, ascending by date
           schema:
             items:
-              $ref: '#/definitions/models.QuestionTrendPoint'
+              $ref: '#/definitions/word-flashcard_internal_models.QuestionTrendPoint'
             type: array
         "400":
           description: Bad request - Invalid days parameter
@@ -1049,7 +1049,7 @@ paths:
           description: Recent practice log entries
           schema:
             items:
-              $ref: '#/definitions/models.WordPracticeLogEntry'
+              $ref: '#/definitions/word-flashcard_internal_models.WordPracticeLogEntry'
             type: array
         "400":
           description: Bad request - Invalid word ID or limit parameter
@@ -1306,7 +1306,7 @@ paths:
           description: Daily trend points, ascending by date
           schema:
             items:
-              $ref: '#/definitions/models.WordTrendPoint'
+              $ref: '#/definitions/word-flashcard_internal_models.WordTrendPoint'
             type: array
         "400":
           description: Bad request - Invalid days parameter
