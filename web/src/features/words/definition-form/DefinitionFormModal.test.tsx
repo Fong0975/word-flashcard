@@ -316,7 +316,9 @@ describe('DefinitionFormModal', () => {
 
       await user.click(screen.getByTitle('Copy word text to clipboard'));
 
-      expect(await screen.findByRole('alert')).toHaveTextContent('Copy denied');
+      expect(
+        await screen.findByRole('alert', { name: /copy denied/i }),
+      ).toHaveTextContent('Copy denied');
     });
   });
 
