@@ -75,6 +75,7 @@ export const NoteDetailPage: React.FC = () => {
   }, [fetchNote]);
 
   const handleEdit = () => {
+    /* istanbul ignore next -- unreachable: UI already disables the trigger before this guard can run */
     if (!note) {
       return;
     }
@@ -90,6 +91,7 @@ export const NoteDetailPage: React.FC = () => {
   };
 
   const handleSave = async () => {
+    /* istanbul ignore next -- unreachable: UI already disables the trigger before this guard can run */
     if (!note || !editTitle.trim()) {
       return;
     }

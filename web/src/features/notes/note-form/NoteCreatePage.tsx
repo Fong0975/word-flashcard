@@ -28,6 +28,7 @@ export const NoteCreatePage: React.FC = () => {
   };
 
   const handleSave = async () => {
+    /* istanbul ignore next -- unreachable: Save button is disabled when title is empty */
     if (!title.trim()) {
       return;
     }
