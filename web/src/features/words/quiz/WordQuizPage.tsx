@@ -95,13 +95,7 @@ export const WordQuizPage: React.FC = () => {
               </div>
             )}
 
-            {pageState === 'results' && (
-              <WordQuizResults
-                results={results}
-                onRetakeQuiz={handleRetakeQuiz}
-                onBackToHome={handleBackToHome}
-              />
-            )}
+            {pageState === 'results' && <WordQuizResults results={results} />}
           </>
         }
         footer={

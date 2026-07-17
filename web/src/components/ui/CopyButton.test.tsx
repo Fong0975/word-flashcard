@@ -92,4 +92,46 @@ describe('CopyButton', () => {
       screen.getByRole('button', { name: 'Copy the word' }),
     ).toBeInTheDocument();
   });
+
+  it('calls onCopySuccess when copy succeeds', async () => {
+    const onCopySuccess = jest.fn();
+    mockedUseCopyToClipboard.mockReturnValue(
+      buildHookReturn({ copySuccess: true }),
+    );
+    const user = userEvent.setup();
+    render(<CopyButton text='hello' onCopySuccess={onCopySuccess} />);
+
+    await user.click(screen.getByRole('button'));
+
+    expect(onCopySuccess).toHaveBeenCalled();
+  });
+
+  it('calls onCopyError with the error when copy fails', async () => {
+    const onCopyError = jest.fn();
+    mockedUseCopyToClipboard.mockReturnValue(
+      buildHookReturn({ copyError: 'oops' }),
+    );
+    const user = userEvent.setup();
+    render(<CopyButton text='hello' onCopyError={onCopyError} />);
+
+    await user.click(screen.getByRole('button'));
+
+    expect(onCopyError).toHaveBeenCalledWith('oops');
+  });
+
+  it.each([
+    { size: 'sm' as const, expectedClass: 'p-1' },
+    { size: 'lg' as const, expectedClass: 'p-3' },
+  ])('applies $expectedClass for $size size', testCase => {
+    render(<CopyButton text='hello' size={testCase.size} />);
+    expect(screen.getByRole('button')).toHaveClass(testCase.expectedClass);
+  });
+
+  it.each([
+    { variant: 'ghost' as const, expectedClass: 'text-gray-500' },
+    { variant: 'outline' as const, expectedClass: 'border' },
+  ])('applies $expectedClass for $variant variant', testCase => {
+    render(<CopyButton text='hello' variant={testCase.variant} />);
+    expect(screen.getByRole('button')).toHaveClass(testCase.expectedClass);
+  });
 });

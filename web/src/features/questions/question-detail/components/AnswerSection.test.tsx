@@ -49,6 +49,34 @@ describe('AnswerSection', () => {
     expect(screen.getByText('3')).toBeInTheDocument();
   });
 
+  it('shows option_c content when the answer is C', () => {
+    render(
+      <AnswerSection
+        isExpanded
+        onToggle={jest.fn()}
+        answer='C'
+        question={buildQuestion()}
+      />,
+    );
+
+    expect(screen.getByText('Correct Answer:')).toBeInTheDocument();
+    expect(screen.getByText('5')).toBeInTheDocument();
+  });
+
+  it('shows option_d content when the answer is D', () => {
+    render(
+      <AnswerSection
+        isExpanded
+        onToggle={jest.fn()}
+        answer='D'
+        question={buildQuestion()}
+      />,
+    );
+
+    expect(screen.getByText('Correct Answer:')).toBeInTheDocument();
+    expect(screen.getByText('6')).toBeInTheDocument();
+  });
+
   it('falls back to a not-found message for an unknown answer letter', () => {
     render(
       <AnswerSection

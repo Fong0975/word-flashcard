@@ -85,6 +85,25 @@ describe('WordStatsModal', () => {
     expect(screen.getByText('Times practiced (per word)')).toBeInTheDocument();
   });
 
+  it('switches back to the familiarity tab after viewing another tab', async () => {
+    const user = userEvent.setup();
+    jest.spyOn(apiService, 'getWordStats').mockResolvedValue(buildStats());
+
+    render(<WordStatsModal isOpen onClose={jest.fn()} />);
+    await screen.findByText('Familiarity distribution — 6 words total');
+
+    await user.click(screen.getByRole('button', { name: 'Practice Count' }));
+    expect(
+      screen.getByText('Practice count distribution — 6 words total'),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Familiarity' }));
+
+    expect(
+      screen.getByText('Familiarity distribution — 6 words total'),
+    ).toBeInTheDocument();
+  });
+
   it('switches to the trend tab and renders the chart when there is practice activity', async () => {
     const user = userEvent.setup();
     jest.spyOn(apiService, 'getWordStats').mockResolvedValue(buildStats());
@@ -134,6 +153,30 @@ describe('WordStatsModal', () => {
     expect(
       await screen.findByText('No recent practice activity.'),
     ).toBeInTheDocument();
+  });
+
+  it('shows the loading spinner while the trend request is pending', async () => {
+    const user = userEvent.setup();
+    jest.spyOn(apiService, 'getWordStats').mockResolvedValue(buildStats());
+    let resolveTrend: (points: WordTrendPoint[]) => void = () => {};
+    jest.spyOn(apiService, 'getWordsTrend').mockReturnValue(
+      new Promise(resolve => {
+        resolveTrend = resolve;
+      }),
+    );
+
+    render(<WordStatsModal isOpen onClose={jest.fn()} />);
+    await screen.findByText('Familiarity distribution — 6 words total');
+
+    await user.click(screen.getByRole('button', { name: 'Trend' }));
+
+    expect(await screen.findByText('Loading trend...')).toBeInTheDocument();
+
+    resolveTrend([]);
+
+    await waitFor(() => {
+      expect(screen.queryByText('Loading trend...')).not.toBeInTheDocument();
+    });
   });
 
   it('shows an error message on the trend tab when the trend request fails', async () => {

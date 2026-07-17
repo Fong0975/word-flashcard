@@ -5,8 +5,6 @@ import { getFamiliarityDisplayColors } from '../../shared/constants/familiarity'
 
 interface WordQuizResultsProps {
   results: WordQuizResult[];
-  onRetakeQuiz: () => void;
-  onBackToHome: () => void;
 }
 
 const FamiliarityBadge: React.FC<{ familiarity: string }> = ({
@@ -26,8 +24,6 @@ const FamiliarityBadge: React.FC<{ familiarity: string }> = ({
 
 export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
   results,
-  onRetakeQuiz,
-  onBackToHome,
 }) => {
   const totalQuestions = results.length;
   const levels: Record<string, number> = { red: 0, yellow: 1, green: 2 };
@@ -99,19 +95,28 @@ export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
           <div className='flex flex-1 gap-2'>
             <span className='flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-50 px-3 py-2 dark:bg-red-900/20'>
               <span className='h-2.5 w-2.5 flex-shrink-0 rounded-full bg-red-500'></span>
-              <span className='text-lg font-bold text-red-700 dark:text-red-300'>
+              <span
+                aria-label='red count'
+                className='text-lg font-bold text-red-700 dark:text-red-300'
+              >
                 {redCount}
               </span>
             </span>
             <span className='flex flex-1 items-center justify-center gap-2 rounded-lg bg-yellow-50 px-3 py-2 dark:bg-yellow-900/20'>
               <span className='h-2.5 w-2.5 flex-shrink-0 rounded-full bg-yellow-500'></span>
-              <span className='text-lg font-bold text-yellow-700 dark:text-yellow-300'>
+              <span
+                aria-label='yellow count'
+                className='text-lg font-bold text-yellow-700 dark:text-yellow-300'
+              >
                 {yellowCount}
               </span>
             </span>
             <span className='flex flex-1 items-center justify-center gap-2 rounded-lg bg-green-50 px-3 py-2 dark:bg-green-900/20'>
               <span className='h-2.5 w-2.5 flex-shrink-0 rounded-full bg-green-500'></span>
-              <span className='text-lg font-bold text-green-700 dark:text-green-300'>
+              <span
+                aria-label='green count'
+                className='text-lg font-bold text-green-700 dark:text-green-300'
+              >
                 {greenCount}
               </span>
             </span>
@@ -128,7 +133,10 @@ export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
               <span className='text-base font-bold text-blue-500 dark:text-blue-400'>
                 ↑
               </span>
-              <span className='text-lg font-bold text-gray-700 dark:text-gray-200'>
+              <span
+                aria-label='improvement count'
+                className='text-lg font-bold text-gray-700 dark:text-gray-200'
+              >
                 {improvementCount}
               </span>
             </span>
@@ -136,7 +144,10 @@ export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
               <span className='text-base font-bold text-gray-400 dark:text-gray-500'>
                 →
               </span>
-              <span className='text-lg font-bold text-gray-700 dark:text-gray-200'>
+              <span
+                aria-label='stay count'
+                className='text-lg font-bold text-gray-700 dark:text-gray-200'
+              >
                 {stayCount}
               </span>
             </span>
@@ -144,7 +155,10 @@ export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
               <span className='text-base font-bold text-orange-500 dark:text-orange-400'>
                 ↓
               </span>
-              <span className='text-lg font-bold text-gray-700 dark:text-gray-200'>
+              <span
+                aria-label='worsened count'
+                className='text-lg font-bold text-gray-700 dark:text-gray-200'
+              >
                 {worsenedCount}
               </span>
             </span>

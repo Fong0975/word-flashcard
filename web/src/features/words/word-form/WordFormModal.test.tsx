@@ -118,4 +118,71 @@ describe('WordFormModal', () => {
     ).toBeInTheDocument();
     expect(createWordSpy).not.toHaveBeenCalled();
   });
+
+  it('navigates to word detail and closes the modal when a suggestion is clicked', async () => {
+    const user = userEvent.setup();
+    const suggestedWord = buildWord({ id: 2, word: 'apple' });
+    (apiService.searchWords as jest.Mock).mockResolvedValue([suggestedWord]);
+    const onClose = jest.fn();
+    const onOpenWordDetail = jest.fn();
+    render(
+      <WordFormModal
+        isOpen
+        onClose={onClose}
+        onOpenWordDetail={onOpenWordDetail}
+        mode='create'
+      />,
+    );
+
+    await user.type(screen.getByRole('textbox', { name: 'Word' }), 'app');
+
+    const suggestionButton = await screen.findByRole('button', {
+      name: 'apple',
+    });
+    await user.click(suggestionButton);
+
+    expect(onOpenWordDetail).toHaveBeenCalledWith(suggestedWord);
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('toggles the reminder checkbox', async () => {
+    const user = userEvent.setup();
+    render(
+      <WordFormModal
+        isOpen
+        onClose={jest.fn()}
+        mode='edit'
+        word={buildWord()}
+      />,
+    );
+
+    const checkbox = screen.getByRole('checkbox');
+    const textInput = screen.getByPlaceholderText('Enter reminder note...');
+
+    expect(checkbox).not.toBeChecked();
+    expect(textInput).toBeDisabled();
+
+    await user.click(checkbox);
+
+    expect(checkbox).toBeChecked();
+    expect(textInput).toBeEnabled();
+  });
+
+  it('updates the reminder text input', async () => {
+    const user = userEvent.setup();
+    render(
+      <WordFormModal
+        isOpen
+        onClose={jest.fn()}
+        mode='edit'
+        word={buildWord({ reminder: 'call back' })}
+      />,
+    );
+
+    const textInput = screen.getByDisplayValue('call back');
+    await user.clear(textInput);
+    await user.type(textInput, 'renewed reminder');
+
+    expect(screen.getByDisplayValue('renewed reminder')).toBeInTheDocument();
+  });
 });

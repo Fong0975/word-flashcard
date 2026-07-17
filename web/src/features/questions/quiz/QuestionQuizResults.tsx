@@ -9,14 +9,10 @@ import { calculateAccuracyRate } from '../question-detail/utils/accuracyCalculat
 
 interface QuestionQuizResultsProps {
   results: QuestionQuizResult[];
-  onRetakeQuiz: () => void;
-  onBackToHome: () => void;
 }
 
 export const QuestionQuizResults: React.FC<QuestionQuizResultsProps> = ({
   results,
-  onRetakeQuiz,
-  onBackToHome,
 }) => {
   const totalQuestions = results.length;
   const correctAnswers = results.filter(result => result.isCorrect).length;

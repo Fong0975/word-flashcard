@@ -66,6 +66,37 @@ describe('QuestionStatsModal', () => {
     expect(screen.getByText('N/A')).toBeInTheDocument();
   });
 
+  it('renders without crashing when a bucket range is the exact string "0%"', async () => {
+    const stats: QuestionStatsResponse = {
+      accuracy_distribution: [
+        { range: '0%', count: 2, practice_count_breakdown: [] },
+        { range: '80-100%', count: 5, practice_count_breakdown: [] },
+      ],
+    };
+    jest.spyOn(apiService, 'getQuestionStats').mockResolvedValue(stats);
+
+    render(<QuestionStatsModal isOpen onClose={jest.fn()} />);
+
+    expect(
+      await screen.findByText('Accuracy distribution — 7 questions total'),
+    ).toBeInTheDocument();
+  });
+
+  it('renders without crashing when a bucket range does not start with a digit', async () => {
+    const stats: QuestionStatsResponse = {
+      accuracy_distribution: [
+        { range: 'unknown', count: 1, practice_count_breakdown: [] },
+      ],
+    };
+    jest.spyOn(apiService, 'getQuestionStats').mockResolvedValue(stats);
+
+    render(<QuestionStatsModal isOpen onClose={jest.fn()} />);
+
+    expect(
+      await screen.findByText('Accuracy distribution — 1 questions total'),
+    ).toBeInTheDocument();
+  });
+
   it('switches to the trend tab and renders the chart when there is activity', async () => {
     const user = userEvent.setup();
     jest.spyOn(apiService, 'getQuestionStats').mockResolvedValue({
@@ -97,6 +128,31 @@ describe('QuestionStatsModal', () => {
       screen.queryByText('No recent answer activity.'),
     ).not.toBeInTheDocument();
     expect(apiService.getQuestionsTrend).toHaveBeenCalledWith(30);
+  });
+
+  it('switches back to the accuracy tab after viewing the trend tab', async () => {
+    const user = userEvent.setup();
+    jest.spyOn(apiService, 'getQuestionStats').mockResolvedValue({
+      accuracy_distribution: [
+        { range: '80-100%', count: 5, practice_count_breakdown: [] },
+      ],
+    });
+    jest
+      .spyOn(apiService, 'getQuestionsTrend')
+      .mockResolvedValue([buildTrendPoint()]);
+
+    render(<QuestionStatsModal isOpen onClose={jest.fn()} />);
+    await screen.findByText('Accuracy distribution — 5 questions total');
+
+    await user.click(screen.getByRole('button', { name: 'Trend' }));
+    expect(
+      screen.queryByText('Accuracy distribution — 5 questions total'),
+    ).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Accuracy' }));
+    expect(
+      await screen.findByText('Accuracy distribution — 5 questions total'),
+    ).toBeInTheDocument();
   });
 
   it('shows the empty state on the trend tab when there is no answer activity', async () => {

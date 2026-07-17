@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { DEFAULT_QUIZ_CONFIG } from '../constants';
+
 import { QuizSetupModal } from './QuizSetupModal';
 
 describe('QuizSetupModal', () => {
@@ -77,6 +79,28 @@ describe('QuizSetupModal', () => {
       await user.click(screen.getByRole('button', { name: 'Cancel' }));
       expect(onClose).toHaveBeenCalledTimes(1);
     });
+
+    it.each(DEFAULT_QUIZ_CONFIG.QUESTION_COUNT_OPTIONS)(
+      'sets the question count to %i when its quick select button is clicked',
+      async option => {
+        const user = userEvent.setup();
+        render(
+          <QuizSetupModal
+            isOpen
+            onClose={jest.fn()}
+            onStartQuiz={jest.fn()}
+            title='Question Quiz Setup'
+            entityName='question'
+          />,
+        );
+
+        await user.click(
+          screen.getByRole('button', { name: option.toString() }),
+        );
+
+        expect(screen.getByRole('spinbutton')).toHaveValue(option);
+      },
+    );
   });
 
   describe('with familiarity selection', () => {
@@ -159,6 +183,53 @@ describe('QuizSetupModal', () => {
       expect(screen.getByText('Select Familiarity Levels')).toBeInTheDocument();
       expect(screen.getByRole('spinbutton')).toBeInTheDocument();
       expect(screen.queryByText('Words per Category')).not.toBeInTheDocument();
+    });
+
+    it('switches back to category mode from total mode', async () => {
+      const user = userEvent.setup();
+      render(
+        <QuizSetupModal
+          isOpen
+          onClose={jest.fn()}
+          onStartQuiz={jest.fn()}
+          title='Word Quiz Setup'
+          entityName='word'
+          enableFamiliaritySelection
+        />,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Total Count' }));
+      expect(screen.getByText('Select Familiarity Levels')).toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: 'By Category' }));
+
+      expect(screen.getByText('Words per Category')).toBeInTheDocument();
+      expect(
+        screen.queryByText('Select Familiarity Levels'),
+      ).not.toBeInTheDocument();
+    });
+
+    it('re-selects a familiarity level after deselecting it', async () => {
+      const user = userEvent.setup();
+      render(
+        <QuizSetupModal
+          isOpen
+          onClose={jest.fn()}
+          onStartQuiz={jest.fn()}
+          title='Word Quiz Setup'
+          entityName='word'
+          enableFamiliaritySelection
+        />,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Total Count' }));
+      const checkbox = screen.getByRole('checkbox', { name: 'Green Level' });
+
+      await user.click(checkbox);
+      expect(checkbox).not.toBeChecked();
+
+      await user.click(checkbox);
+      expect(checkbox).toBeChecked();
     });
 
     it('disables Start Quiz in total mode once every familiarity level is deselected', async () => {

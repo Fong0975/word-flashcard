@@ -22,7 +22,7 @@ interface WordHistorySectionProps {
 
 const FAMILIARITY_LEVEL_LABELS = ['Red', 'Yellow', 'Green'];
 
-const familiarityLevel = (familiarity: string): number => {
+export const familiarityLevel = (familiarity: string): number => {
   switch (familiarity) {
     case 'yellow':
       return 1;
@@ -33,10 +33,11 @@ const familiarityLevel = (familiarity: string): number => {
   }
 };
 
-const formatShortDate = (iso: string): string =>
+export const formatShortDate = (iso: string): string =>
   new Date(iso).toLocaleDateString();
 
-const formatDateTime = (iso: string): string => new Date(iso).toLocaleString();
+export const formatDateTime = (iso: string): string =>
+  new Date(iso).toLocaleString();
 
 interface FamiliarityBadgeProps {
   familiarity: string;

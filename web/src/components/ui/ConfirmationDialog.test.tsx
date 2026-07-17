@@ -53,6 +53,17 @@ describe('ConfirmationDialog', () => {
     expect(screen.getByRole('button', { name: /Delete/ })).toBeDisabled();
   });
 
+  it('renders the info variant icon and confirm button styles', () => {
+    const { container } = render(
+      <ConfirmationDialog {...baseProps} isOpen variant='info' />,
+    );
+
+    expect(container).toContainHTML('M13 16h-1v-4h-1m1-4h.01');
+    expect(screen.getByRole('button', { name: 'Delete' })).toHaveClass(
+      'bg-blue-600',
+    );
+  });
+
   it('uses a custom cancel label when provided', () => {
     render(
       <ConfirmationDialog {...baseProps} isOpen cancelText='Never mind' />,
