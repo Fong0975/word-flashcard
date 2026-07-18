@@ -121,6 +121,23 @@ jobs:
         fi
         cp coverage-comment.md coverage-template.hbs
 
+    - name: Enforce coverage threshold
+      if: always()
+      run: |
+        cd web
+        THRESHOLD=80
+        SUMMARY=coverage/coverage-summary.json
+        if [ ! -f "$SUMMARY" ]; then
+          echo "::error::coverage-summary.json not found; cannot verify coverage threshold"
+          exit 1
+        fi
+        TOTAL=$(jq -r '.total.lines.pct' "$SUMMARY")
+        if awk -v total="$TOTAL" -v threshold="$THRESHOLD" 'BEGIN { exit !(total < threshold) }'; then
+          echo "::error::Frontend line coverage ${TOTAL}% is below the required ${THRESHOLD}% threshold"
+          exit 1
+        fi
+        echo "Frontend line coverage ${TOTAL}% meets the ${THRESHOLD}% threshold"
+
     - name: Append coverage to PR comment
       uses: ctrf-io/github-test-reporter@v1
       if: always()

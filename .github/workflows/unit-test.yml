@@ -138,6 +138,21 @@ jobs:
         fi
         cp coverage-comment.md coverage-template.hbs
 
+    - name: Enforce coverage threshold
+      if: always()
+      run: |
+        THRESHOLD=60
+        if [ ! -f coverage-func.txt ]; then
+          echo "::error::coverage-func.txt not found; cannot verify coverage threshold"
+          exit 1
+        fi
+        TOTAL=$(grep '^total:' coverage-func.txt | awk '{print $NF}' | tr -d '%')
+        if awk -v total="$TOTAL" -v threshold="$THRESHOLD" 'BEGIN { exit !(total < threshold) }'; then
+          echo "::error::Backend statement coverage ${TOTAL}% is below the required ${THRESHOLD}% threshold"
+          exit 1
+        fi
+        echo "Backend statement coverage ${TOTAL}% meets the ${THRESHOLD}% threshold"
+
     - name: Append coverage to PR comment
       uses: ctrf-io/github-test-reporter@v1
       if: always()
