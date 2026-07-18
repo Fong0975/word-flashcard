@@ -5,6 +5,7 @@ import { WordDefinition } from '../../../types/api';
 import { apiService } from '../../../lib/api';
 
 import { DefinitionFormModal } from './DefinitionFormModal';
+import { ExternalDictionaryState } from './hooks/useDictionaryData';
 import { CambridgeApiResponse } from './types';
 
 const buildDefinition = (
@@ -28,6 +29,17 @@ const buildDictionaryResponse = (
   pronunciation: [],
   definition: [],
   ...overrides,
+});
+
+const buildExternalDictionaryState = (): ExternalDictionaryState => ({
+  dictionaryData: null,
+  isLoadingDictionary: false,
+  dictionaryError: null,
+  isCollapsed: false,
+  setDictionaryData: jest.fn(),
+  setIsLoadingDictionary: jest.fn(),
+  setDictionaryError: jest.fn(),
+  setIsCollapsed: jest.fn(),
 });
 
 describe('DefinitionFormModal', () => {
@@ -138,7 +150,7 @@ describe('DefinitionFormModal', () => {
     expect(onDefinitionAdded).toHaveBeenCalledTimes(1);
   });
 
-  it('fetches dictionary data and applies a definition to the form', async () => {
+  it('fetches dictionary data and applies a definition', async () => {
     const user = userEvent.setup();
     jest.spyOn(apiService, 'lookupWord').mockResolvedValue(
       buildDictionaryResponse({
@@ -170,5 +182,166 @@ describe('DefinitionFormModal', () => {
     expect(screen.getByPlaceholderText('Enter the definition...')).toHaveValue(
       '蘋果 a round fruit',
     );
+  });
+
+  it('applies fetched pronunciation data to the form', async () => {
+    const user = userEvent.setup();
+    jest.spyOn(apiService, 'lookupWord').mockResolvedValue(
+      buildDictionaryResponse({
+        pronunciation: [
+          {
+            pos: 'noun',
+            lang: 'uk',
+            url: 'https://example.com/uk.mp3',
+            pron: '/ˈæp.əl/',
+          },
+          {
+            pos: 'noun',
+            lang: 'us',
+            url: 'https://example.com/us.mp3',
+            pron: '/ˈæp.əl/',
+          },
+        ],
+      }),
+    );
+    render(
+      <DefinitionFormModal
+        isOpen
+        onClose={jest.fn()}
+        wordId={1}
+        wordText='apple'
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Fetch Definition' }));
+    await screen.findByText('Pronunciation');
+
+    await user.click(screen.getByRole('button', { name: 'Apply' }));
+
+    expect(
+      screen.getByPlaceholderText('https://example.com/audio-uk.mp3'),
+    ).toHaveValue('https://example.com/uk.mp3');
+    expect(
+      screen.getByPlaceholderText('https://example.com/audio-us.mp3'),
+    ).toHaveValue('https://example.com/us.mp3');
+  });
+
+  it.each([
+    { shouldResetDictionaryOnClose: true, resetsFully: true },
+    { shouldResetDictionaryOnClose: false, resetsFully: false },
+  ])(
+    'resets dictionary state on close (reset=$shouldResetDictionaryOnClose)',
+    ({ shouldResetDictionaryOnClose, resetsFully }) => {
+      const externalDictionaryState = buildExternalDictionaryState();
+      const { rerender } = render(
+        <DefinitionFormModal
+          isOpen
+          onClose={jest.fn()}
+          wordId={1}
+          wordText='apple'
+          shouldResetDictionaryOnClose={shouldResetDictionaryOnClose}
+          externalDictionaryState={externalDictionaryState}
+        />,
+      );
+
+      rerender(
+        <DefinitionFormModal
+          isOpen={false}
+          onClose={jest.fn()}
+          wordId={1}
+          wordText='apple'
+          shouldResetDictionaryOnClose={shouldResetDictionaryOnClose}
+          externalDictionaryState={externalDictionaryState}
+        />,
+      );
+
+      expect(externalDictionaryState.setIsCollapsed).toHaveBeenCalledWith(true);
+      // Ternary-computed expected call lists keep both branches under a
+      // single unconditional `expect`, since `jest/no-conditional-expect`
+      // disallows wrapping `expect` itself in an if/else.
+      expect(externalDictionaryState.setDictionaryData.mock.calls).toEqual(
+        resetsFully ? [[null]] : [],
+      );
+      expect(externalDictionaryState.setDictionaryError.mock.calls).toEqual(
+        resetsFully ? [[null]] : [],
+      );
+    },
+  );
+
+  describe('copy word button', () => {
+    afterEach(() => {
+      delete (navigator as unknown as { clipboard?: unknown }).clipboard;
+    });
+
+    it('swaps the copy icon to a checkmark on success', async () => {
+      const user = userEvent.setup();
+      Object.defineProperty(navigator, 'clipboard', {
+        value: { writeText: jest.fn().mockResolvedValue(undefined) },
+        configurable: true,
+      });
+      render(
+        <DefinitionFormModal
+          isOpen
+          onClose={jest.fn()}
+          wordId={1}
+          wordText='apple'
+        />,
+      );
+
+      const copyButton = screen.getByTitle('Copy word text to clipboard');
+      await user.click(copyButton);
+
+      expect(navigator.clipboard.writeText).toHaveBeenCalledWith('apple');
+      await waitFor(() =>
+        expect(copyButton.innerHTML).toContain('text-green-500'),
+      );
+    });
+
+    it('shows an error toast when copying the word fails', async () => {
+      const user = userEvent.setup();
+      Object.defineProperty(navigator, 'clipboard', {
+        value: {
+          writeText: jest.fn().mockRejectedValue(new Error('Copy denied')),
+        },
+        configurable: true,
+      });
+      render(
+        <DefinitionFormModal
+          isOpen
+          onClose={jest.fn()}
+          wordId={1}
+          wordText='apple'
+        />,
+      );
+
+      await user.click(screen.getByTitle('Copy word text to clipboard'));
+
+      expect(
+        await screen.findByRole('alert', { name: /copy denied/i }),
+      ).toHaveTextContent('Copy denied');
+    });
+  });
+
+  it('shows the edit-mode submitting text while updating', async () => {
+    const user = userEvent.setup();
+    jest
+      .spyOn(apiService, 'updateDefinition')
+      .mockReturnValue(new Promise(() => {}));
+    render(
+      <DefinitionFormModal
+        isOpen
+        onClose={jest.fn()}
+        wordId={null}
+        wordText='apple'
+        mode='edit'
+        definition={buildDefinition()}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Update Definition' }));
+
+    expect(
+      await screen.findByText('Updating Definition...'),
+    ).toBeInTheDocument();
   });
 });

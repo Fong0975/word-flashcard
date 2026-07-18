@@ -1,14 +1,33 @@
 import { FC, ReactNode } from 'react';
 import { renderHook, act } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router-dom';
 
 import { useTab } from './useTab';
+
+type RouterLocation = ReturnType<typeof useLocation>;
 
 const buildWrapper = (
   initialEntries: string[],
 ): FC<{ children: ReactNode }> => {
   return ({ children }) => (
     <MemoryRouter initialEntries={initialEntries}>{children}</MemoryRouter>
+  );
+};
+
+const buildWrapperWithLocation = (
+  initialEntries: string[],
+  locationRef: { current: RouterLocation | null },
+): FC<{ children: ReactNode }> => {
+  const LocationCapture = () => {
+    locationRef.current = useLocation();
+    return null;
+  };
+
+  return ({ children }) => (
+    <MemoryRouter initialEntries={initialEntries}>
+      {children}
+      <LocationCapture />
+    </MemoryRouter>
   );
 };
 
@@ -69,6 +88,20 @@ describe('useTab', () => {
     });
   });
 
+  it('switchTab removes the tab param when switching back to words', () => {
+    const locationRef: { current: RouterLocation | null } = { current: null };
+    const { result } = renderHook(() => useTab(), {
+      wrapper: buildWrapperWithLocation(['/?tab=notes'], locationRef),
+    });
+
+    act(() => {
+      result.current.switchTab('words');
+    });
+
+    expect(result.current.currentTab).toBe('words');
+    expect(locationRef.current?.search).toBe('');
+  });
+
   it('switchTab is a no-op when switching to the already-active tab', () => {
     const { result } = renderHook(() => useTab(), {
       wrapper: buildWrapper(['/?tab=notes']),
@@ -83,19 +116,26 @@ describe('useTab', () => {
     expect(dispatchSpy).not.toHaveBeenCalled();
   });
 
-  it('responds to the Alt+2 keyboard shortcut by switching to questions', () => {
-    const { result } = renderHook(() => useTab(), {
-      wrapper: buildWrapper(['/']),
-    });
+  it.each([
+    ['Digit1', 'words', '/?tab=notes'],
+    ['Digit2', 'questions', '/'],
+    ['Digit3', 'notes', '/'],
+  ])(
+    'responds to the Alt+%s keyboard shortcut by switching to %s',
+    (code, expectedTab, initialEntry) => {
+      const { result } = renderHook(() => useTab(), {
+        wrapper: buildWrapper([initialEntry]),
+      });
 
-    act(() => {
-      document.dispatchEvent(
-        new KeyboardEvent('keydown', { altKey: true, code: 'Digit2' }),
-      );
-    });
+      act(() => {
+        document.dispatchEvent(
+          new KeyboardEvent('keydown', { altKey: true, code }),
+        );
+      });
 
-    expect(result.current.currentTab).toBe('questions');
-  });
+      expect(result.current.currentTab).toBe(expectedTab);
+    },
+  );
 
   it('ignores the keyboard shortcut without the Alt modifier', () => {
     const { result } = renderHook(() => useTab(), {

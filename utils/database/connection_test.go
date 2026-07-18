@@ -1,6 +1,7 @@
 package database
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -358,54 +359,186 @@ func (s *connectionTestSuite) TestInsert() {
 
 // TestUpdate tests updating records in database
 func (s *connectionTestSuite) TestUpdate() {
-	db, mock, cleanup := createMockDatabase(s.t, "mysql")
-	defer cleanup()
-
-	// Test data to update
-	updateData := testUser{
-		Name: "Updated User",
-	}
-
-	// Create where condition
+	updateData := testUser{Name: "Updated User"}
 	whereCondition := squirrel.Eq{"id": 1}
 
-	// Mock expects an UPDATE query
-	// Note: The Update method automatically adds updated_at field
-	mock.ExpectExec("UPDATE users SET").
-		WillReturnResult(sqlmock.NewResult(0, 1))
+	tests := []struct {
+		name          string
+		disconnected  bool
+		where         squirrel.Sqlizer
+		setupMock     func(mock sqlmock.Sqlmock)
+		expectedRows  int64
+		errorContains string
+	}{
+		{
+			name:  "success",
+			where: whereCondition,
+			setupMock: func(mock sqlmock.Sqlmock) {
+				// Note: The Update method automatically adds updated_at field
+				mock.ExpectExec("UPDATE users SET").
+					WillReturnResult(sqlmock.NewResult(0, 1))
+			},
+			expectedRows: 1,
+		},
+		{
+			name:          "database not connected",
+			disconnected:  true,
+			where:         whereCondition,
+			errorContains: "not connected",
+		},
+		{
+			name:          "nil where clause is rejected",
+			where:         nil,
+			errorContains: "requires a WHERE clause",
+		},
+		{
+			name:  "exec fails",
+			where: whereCondition,
+			setupMock: func(mock sqlmock.Sqlmock) {
+				mock.ExpectExec("UPDATE users SET").
+					WillReturnError(errors.New("exec failed"))
+			},
+			errorContains: "exec failed",
+		},
+		{
+			name:  "rows affected lookup fails",
+			where: whereCondition,
+			setupMock: func(mock sqlmock.Sqlmock) {
+				mock.ExpectExec("UPDATE users SET").
+					WillReturnResult(sqlmock.NewErrorResult(errors.New("rows affected failed")))
+			},
+			errorContains: "rows affected failed",
+		},
+		{
+			name:  "zero rows affected",
+			where: whereCondition,
+			setupMock: func(mock sqlmock.Sqlmock) {
+				mock.ExpectExec("UPDATE users SET").
+					WillReturnResult(sqlmock.NewResult(0, 0))
+			},
+			errorContains: "no rows were affected",
+		},
+	}
 
-	// Test Update method
-	rowsAffected, err := db.Update("users", updateData, whereCondition)
+	for _, tt := range tests {
+		s.Run(tt.name, func() {
+			db, mock, cleanup := createMockDatabase(s.t, "mysql")
+			defer cleanup()
 
-	s.NoError(err, "Update should succeed")
-	s.Equal(int64(1), rowsAffected, "Should return 1 affected row")
+			if tt.disconnected {
+				db.db = nil
+			}
+			if tt.setupMock != nil {
+				tt.setupMock(mock)
+			}
 
-	// Verify all expectations were met
-	s.NoError(mock.ExpectationsWereMet())
+			rowsAffected, err := db.Update("users", updateData, tt.where)
+
+			if tt.errorContains != "" {
+				s.Error(err)
+				s.Contains(err.Error(), tt.errorContains)
+			} else {
+				s.NoError(err)
+				s.Equal(tt.expectedRows, rowsAffected)
+			}
+
+			if !tt.disconnected {
+				s.NoError(mock.ExpectationsWereMet())
+			}
+		})
+	}
 }
 
 // ========== Delete Tests ==========
 
 // TestDelete tests deleting records from database
 func (s *connectionTestSuite) TestDelete() {
-	db, mock, cleanup := createMockDatabase(s.t, "mysql")
-	defer cleanup()
-
-	// Create where condition
 	whereCondition := squirrel.Eq{"id": 1}
 
-	// Mock expects a DELETE query
-	mock.ExpectExec("DELETE FROM users").
-		WillReturnResult(sqlmock.NewResult(0, 1))
+	tests := []struct {
+		name          string
+		disconnected  bool
+		where         squirrel.Sqlizer
+		setupMock     func(mock sqlmock.Sqlmock)
+		expectedRows  int64
+		errorContains string
+	}{
+		{
+			name:  "success",
+			where: whereCondition,
+			setupMock: func(mock sqlmock.Sqlmock) {
+				mock.ExpectExec("DELETE FROM users").
+					WillReturnResult(sqlmock.NewResult(0, 1))
+			},
+			expectedRows: 1,
+		},
+		{
+			name:          "database not connected",
+			disconnected:  true,
+			where:         whereCondition,
+			errorContains: "not connected",
+		},
+		{
+			name:          "nil where clause is rejected",
+			where:         nil,
+			errorContains: "requires a WHERE clause",
+		},
+		{
+			name:  "exec fails",
+			where: whereCondition,
+			setupMock: func(mock sqlmock.Sqlmock) {
+				mock.ExpectExec("DELETE FROM users").
+					WillReturnError(errors.New("exec failed"))
+			},
+			errorContains: "exec failed",
+		},
+		{
+			name:  "rows affected lookup fails",
+			where: whereCondition,
+			setupMock: func(mock sqlmock.Sqlmock) {
+				mock.ExpectExec("DELETE FROM users").
+					WillReturnResult(sqlmock.NewErrorResult(errors.New("rows affected failed")))
+			},
+			errorContains: "rows affected failed",
+		},
+		{
+			name:  "zero rows affected",
+			where: whereCondition,
+			setupMock: func(mock sqlmock.Sqlmock) {
+				mock.ExpectExec("DELETE FROM users").
+					WillReturnResult(sqlmock.NewResult(0, 0))
+			},
+			errorContains: "no rows were affected",
+		},
+	}
 
-	// Test Delete method
-	rowsAffected, err := db.Delete("users", whereCondition)
+	for _, tt := range tests {
+		s.Run(tt.name, func() {
+			db, mock, cleanup := createMockDatabase(s.t, "mysql")
+			defer cleanup()
 
-	s.NoError(err, "Delete should succeed")
-	s.Equal(int64(1), rowsAffected, "Should return 1 affected row")
+			if tt.disconnected {
+				db.db = nil
+			}
+			if tt.setupMock != nil {
+				tt.setupMock(mock)
+			}
 
-	// Verify all expectations were met
-	s.NoError(mock.ExpectationsWereMet())
+			rowsAffected, err := db.Delete("users", tt.where)
+
+			if tt.errorContains != "" {
+				s.Error(err)
+				s.Contains(err.Error(), tt.errorContains)
+			} else {
+				s.NoError(err)
+				s.Equal(tt.expectedRows, rowsAffected)
+			}
+
+			if !tt.disconnected {
+				s.NoError(mock.ExpectationsWereMet())
+			}
+		})
+	}
 }
 
 // ========== Count Tests ==========
@@ -514,6 +647,116 @@ func (s *connectionTestSuite) TestQuery() {
 
 		s.Error(err, "Query should fail when not connected")
 		s.Nil(result, "Rows should be nil when not connected")
+	}
+}
+
+// ========== DSN Builder Tests ==========
+
+// TestBuildMySQLDSN tests building the MySQL data source name string
+func (s *connectionTestSuite) TestBuildMySQLDSN() {
+	tests := []struct {
+		name     string
+		config   *DBConfig
+		expected string
+	}{
+		{
+			name: "standard config",
+			config: &DBConfig{
+				User:         "testuser",
+				Password:     "testpass",
+				Host:         "localhost",
+				Port:         3306,
+				DatabaseName: "testdb",
+			},
+			expected: "testuser:testpass@tcp(localhost:3306)/testdb?parseTime=true&charset=utf8mb4&collation=utf8mb4_unicode_ci",
+		},
+		{
+			name: "different host, port and credentials",
+			config: &DBConfig{
+				User:         "admin",
+				Password:     "secret",
+				Host:         "db.example.com",
+				Port:         13306,
+				DatabaseName: "flashcards",
+			},
+			expected: "admin:secret@tcp(db.example.com:13306)/flashcards?parseTime=true&charset=utf8mb4&collation=utf8mb4_unicode_ci",
+		},
+	}
+
+	for _, tt := range tests {
+		s.Run(tt.name, func() {
+			db := NewUniversalDatabase(tt.config)
+			s.Equal(tt.expected, db.buildMySQLDSN())
+		})
+	}
+}
+
+// TestBuildPostgreSQLDSN tests building the PostgreSQL data source name string
+func (s *connectionTestSuite) TestBuildPostgreSQLDSN() {
+	tests := []struct {
+		name     string
+		config   *DBConfig
+		expected string
+	}{
+		{
+			name: "standard config",
+			config: &DBConfig{
+				User:         "testuser",
+				Password:     "testpass",
+				Host:         "localhost",
+				Port:         5432,
+				DatabaseName: "testdb",
+				SSLMode:      "disable",
+			},
+			expected: "host=localhost port=5432 user=testuser password=testpass dbname=testdb sslmode=disable",
+		},
+		{
+			name: "different host, port and sslmode",
+			config: &DBConfig{
+				User:         "admin",
+				Password:     "secret",
+				Host:         "db.example.com",
+				Port:         6432,
+				DatabaseName: "flashcards",
+				SSLMode:      "require",
+			},
+			expected: "host=db.example.com port=6432 user=admin password=secret dbname=flashcards sslmode=require",
+		},
+	}
+
+	for _, tt := range tests {
+		s.Run(tt.name, func() {
+			db := NewUniversalDatabase(tt.config)
+			s.Equal(tt.expected, db.buildPostgreSQLDSN())
+		})
+	}
+}
+
+// ========== Connection Configuration Tests ==========
+
+// TestConfigureConnection tests applying connection pool settings to the underlying *sql.DB
+func (s *connectionTestSuite) TestConfigureConnection() {
+	tests := []struct {
+		name         string
+		maxOpenConns int
+		maxIdleConns int
+	}{
+		{name: "typical pool sizes", maxOpenConns: 25, maxIdleConns: 25},
+		{name: "small pool sizes", maxOpenConns: 5, maxIdleConns: 2},
+	}
+
+	for _, tt := range tests {
+		s.Run(tt.name, func() {
+			db, _, cleanup := createMockDatabase(s.t, "mysql")
+			defer cleanup()
+
+			db.config.MaxOpenConns = tt.maxOpenConns
+			db.config.MaxIdleConns = tt.maxIdleConns
+
+			db.configureConnection(db.db)
+
+			s.Equal(tt.maxOpenConns, db.db.Stats().MaxOpenConnections)
+		})
 	}
 }
 

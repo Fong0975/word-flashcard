@@ -87,11 +87,6 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
   const modalTitle = mode === 'create' ? 'Add New Question' : 'Edit Question';
   const copyText = formatFormDataForCopy(formData);
 
-  const handleFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    handleSubmit(formData);
-  };
-
   return (
     <Modal
       isOpen={isOpen}
@@ -119,7 +114,7 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
 
         {/* Scrollable Content */}
         <div className='min-h-0 flex-1 space-y-6 overflow-y-auto px-6 py-4'>
-          <form onSubmit={handleFormSubmit}>
+          <div>
             <div className='space-y-6'>
               <QuestionInput
                 value={formData.question}
@@ -158,7 +153,7 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
 
               <FormErrorMessage error={error} />
             </div>
-          </form>
+          </div>
         </div>
 
         {/* Fixed Footer */}

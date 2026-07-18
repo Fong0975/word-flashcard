@@ -46,6 +46,15 @@ describe('Toast', () => {
     expect(onClose).toHaveBeenCalledWith('1');
     jest.useRealTimers();
   });
+
+  it('renders info type styles and icon', () => {
+    render(<Toast id='1' message='FYI' type='info' onClose={jest.fn()} />);
+
+    const alert = screen.getByRole('alert');
+    expect(alert).toHaveClass('bg-blue-50', 'border-blue-200');
+    expect(alert).toContainHTML('M11.25 11.25l.041-.02');
+    expect(screen.getByText('FYI')).toHaveClass('text-blue-800');
+  });
 });
 
 describe('ToastContainer', () => {

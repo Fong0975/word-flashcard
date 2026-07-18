@@ -80,11 +80,7 @@ export const QuestionQuizPage: React.FC = () => {
             )}
 
             {pageState === 'results' && (
-              <QuestionQuizResults
-                results={results}
-                onRetakeQuiz={handleRetakeQuiz}
-                onBackToHome={handleBackToHome}
-              />
+              <QuestionQuizResults results={results} />
             )}
           </>
         }

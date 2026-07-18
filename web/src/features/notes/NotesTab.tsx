@@ -130,7 +130,11 @@ export const NotesTab: React.FC = () => {
   if (notesHook.loading && orderedNotes.length === 0 && !isSearching) {
     return (
       <div className='flex justify-center py-12'>
-        <div className='h-8 w-8 animate-spin rounded-full border-b-2 border-blue-500'></div>
+        <div
+          role='status'
+          aria-label='Loading'
+          className='h-8 w-8 animate-spin rounded-full border-b-2 border-blue-500'
+        ></div>
       </div>
     );
   }

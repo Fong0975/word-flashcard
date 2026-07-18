@@ -2,6 +2,7 @@ package question
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 
@@ -32,4 +33,60 @@ func (suite *ControllerTestSuite) TestGetQuestions() {
 	expectedQuestion, err := json.Marshal(getExpectedQuestions()[1])
 	assert.NoError(suite.T(), err)
 	assert.Equal(suite.T(), string(expectedQuestion), w.Body.String())
+}
+
+// TestGetQuestionsInvalidID tests that an invalid question ID returns 400
+func (suite *ControllerTestSuite) TestGetQuestionsInvalidID() {
+	w := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(w)
+	ctx.Request = httptest.NewRequest(http.MethodGet, "/api/questions/abc", nil)
+	ctx.Params = gin.Params{gin.Param{Key: "id", Value: "abc"}}
+	suite.controller.GetQuestions(ctx)
+
+	assert.Equal(suite.T(), http.StatusBadRequest, w.Code)
+}
+
+// TestGetQuestionsSelectError tests that a database failure while fetching returns 500
+func (suite *ControllerTestSuite) TestGetQuestionsSelectError() {
+	suite.mockQuestionPeer.EXPECT().
+		Select(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(nil, fmt.Errorf("select failed")).Times(1)
+
+	w := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(w)
+	ctx.Request = httptest.NewRequest(http.MethodGet, "/api/questions/1", nil)
+	ctx.Params = gin.Params{gin.Param{Key: "id", Value: "1"}}
+	suite.controller.GetQuestions(ctx)
+
+	assert.Equal(suite.T(), http.StatusInternalServerError, w.Code)
+}
+
+// TestGetQuestionsNotFound tests that fetching a non-existent question returns 404
+func (suite *ControllerTestSuite) TestGetQuestionsNotFound() {
+	suite.mockQuestionPeer.EXPECT().
+		Select(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return([]*dbModels.Question{}, nil).Times(1)
+
+	w := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(w)
+	ctx.Request = httptest.NewRequest(http.MethodGet, "/api/questions/999", nil)
+	ctx.Params = gin.Params{gin.Param{Key: "id", Value: "999"}}
+	suite.controller.GetQuestions(ctx)
+
+	assert.Equal(suite.T(), http.StatusNotFound, w.Code)
+}
+
+// TestGetQuestionsMultipleRecords tests that more than one matching record returns 500
+func (suite *ControllerTestSuite) TestGetQuestionsMultipleRecords() {
+	suite.mockQuestionPeer.EXPECT().
+		Select(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return([]*dbModels.Question{getSampleQuestions()[0], getSampleQuestions()[1]}, nil).Times(1)
+
+	w := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(w)
+	ctx.Request = httptest.NewRequest(http.MethodGet, "/api/questions/1", nil)
+	ctx.Params = gin.Params{gin.Param{Key: "id", Value: "1"}}
+	suite.controller.GetQuestions(ctx)
+
+	assert.Equal(suite.T(), http.StatusInternalServerError, w.Code)
 }

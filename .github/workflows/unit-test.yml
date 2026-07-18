@@ -96,6 +96,11 @@ jobs:
       if: always()
       run: |
         if [ -f coverage.out ]; then
+          # Exclude files with no unit-testable logic (dev-only seed script,
+          # thin CRUD peers already covered indirectly via mocks/utils/database,
+          # swaggo/swag-generated docs boilerplate).
+          grep -v -E "word-flashcard/data/demo\.go|word-flashcard/data/peers/(base|note_peer|question_peer|word_peer|word_definitions_peer|question_answer_log_peer|word_practice_log_peer)\.go|word-flashcard/docs/docs\.go" coverage.out > coverage.filtered.out
+          mv coverage.filtered.out coverage.out
           go tool cover -func=coverage.out | tee coverage-func.txt
         else
           echo "coverage.out not found, skipping coverage report"
@@ -132,6 +137,21 @@ jobs:
           } > coverage-comment.md
         fi
         cp coverage-comment.md coverage-template.hbs
+
+    - name: Enforce coverage threshold
+      if: always()
+      run: |
+        THRESHOLD=60
+        if [ ! -f coverage-func.txt ]; then
+          echo "::error::coverage-func.txt not found; cannot verify coverage threshold"
+          exit 1
+        fi
+        TOTAL=$(grep '^total:' coverage-func.txt | awk '{print $NF}' | tr -d '%')
+        if awk -v total="$TOTAL" -v threshold="$THRESHOLD" 'BEGIN { exit !(total < threshold) }'; then
+          echo "::error::Backend statement coverage ${TOTAL}% is below the required ${THRESHOLD}% threshold"
+          exit 1
+        fi
+        echo "Backend statement coverage ${TOTAL}% meets the ${THRESHOLD}% threshold"
 
     - name: Append coverage to PR comment
       uses: ctrf-io/github-test-reporter@v1

@@ -92,7 +92,7 @@ jobs:
           WEAK=$(jq -r --arg pwd "$PWD/" '
             to_entries[]
             | select(.key != "total")
-            | select(.value.lines.pct < 60)
+            | select(.value.lines.pct < 80)
             | "\(.key | ltrimstr($pwd)): \(.value.lines.pct)%"
           ' "$SUMMARY" | head -30)
           {
@@ -101,7 +101,7 @@ jobs:
             echo "**Total line coverage:** ${TOTAL}%"
             echo ""
             if [ -n "$WEAK" ]; then
-              echo "<details><summary>⚠️ Files under 60% line coverage</summary>"
+              echo "<details><summary>⚠️ Files under 80% line coverage</summary>"
               echo ""
               echo '```'
               echo "$WEAK"
@@ -109,7 +109,7 @@ jobs:
               echo ""
               echo "</details>"
             else
-              echo "✅ All files are at or above 60% line coverage"
+              echo "✅ All files are at or above 80% line coverage"
             fi
           } > coverage-comment.md
         else
@@ -120,6 +120,23 @@ jobs:
           } > coverage-comment.md
         fi
         cp coverage-comment.md coverage-template.hbs
+
+    - name: Enforce coverage threshold
+      if: always()
+      run: |
+        cd web
+        THRESHOLD=80
+        SUMMARY=coverage/coverage-summary.json
+        if [ ! -f "$SUMMARY" ]; then
+          echo "::error::coverage-summary.json not found; cannot verify coverage threshold"
+          exit 1
+        fi
+        TOTAL=$(jq -r '.total.lines.pct' "$SUMMARY")
+        if awk -v total="$TOTAL" -v threshold="$THRESHOLD" 'BEGIN { exit !(total < threshold) }'; then
+          echo "::error::Frontend line coverage ${TOTAL}% is below the required ${THRESHOLD}% threshold"
+          exit 1
+        fi
+        echo "Frontend line coverage ${TOTAL}% meets the ${THRESHOLD}% threshold"
 
     - name: Append coverage to PR comment
       uses: ctrf-io/github-test-reporter@v1

@@ -135,6 +135,55 @@ describe('EntityReviewTab', () => {
     expect(clearError).toHaveBeenCalledTimes(1);
   });
 
+  it('reloads the page when the error retry action is clicked', async () => {
+    const user = userEvent.setup();
+    const reload = jest.fn();
+    const originalLocation = window.location;
+    Object.defineProperty(window, 'location', {
+      value: { ...originalLocation, reload },
+      writable: true,
+    });
+
+    render(
+      <EntityReviewTab
+        config={buildConfig()}
+        actions={buildActions()}
+        entityListHook={buildEntityListHook({
+          error: 'Failed to load words',
+        })}
+        renderCard={entity => <span>{entity.name}</span>}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Try again' }));
+    expect(reload).toHaveBeenCalledTimes(1);
+
+    Object.defineProperty(window, 'location', {
+      value: originalLocation,
+      writable: true,
+    });
+  });
+
+  it('commits a typed term and clears it via Clear button', async () => {
+    const user = userEvent.setup();
+    const setSearchTerm = jest.fn();
+    const onSearch = jest.fn();
+    render(
+      <EntityReviewTab
+        config={buildConfig()}
+        actions={buildActions({ onSearch })}
+        entityListHook={buildEntityListHook({ setSearchTerm })}
+        renderCard={entity => <span>{entity.name}</span>}
+      />,
+    );
+
+    await user.type(screen.getByPlaceholderText('Search words...'), 'app');
+    await user.click(screen.getByRole('button', { name: 'Clear search' }));
+
+    expect(setSearchTerm).toHaveBeenCalledWith('');
+    expect(onSearch).toHaveBeenCalledWith('');
+  });
+
   it('shows the empty state when there are no entities and no search term', () => {
     render(
       <EntityReviewTab
