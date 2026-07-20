@@ -52,7 +52,7 @@ func (qc *Controller) UpdateQuestions(c *gin.Context) {
 
 	// ================ 3. Conditionally stamp last_answered_at ================
 	if questionData.Practiced {
-		now := time.Now()
+		now := time.Now().UTC()
 		questionModel.LastAnsweredAt = &now
 	}
 
