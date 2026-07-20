@@ -58,6 +58,8 @@ ctrf/
 *.test.tsx
 *.test.js
 *.test.jsx
+apiTestHelpers.ts
+setupTests.ts
 
 # TypeScript cache
 *.tsbuildinfo
