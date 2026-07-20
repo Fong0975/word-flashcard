@@ -258,4 +258,117 @@ describe('QuestionQuiz', () => {
       'Failed to update question statistics: update failed',
     );
   });
+
+  it('reports loading/disabled true while submitting, then loading false once it resolves', async () => {
+    const user = userEvent.setup();
+    const onNextAction = jest.fn();
+    jest
+      .spyOn(apiService, 'getRandomQuestions')
+      .mockResolvedValue([buildQuestion()]);
+
+    let resolveUpdate!: (value: Question) => void;
+    const updatePromise = new Promise<Question>(resolve => {
+      resolveUpdate = resolve;
+    });
+    jest.spyOn(apiService, 'updateQuestion').mockReturnValue(updatePromise);
+
+    render(
+      <QuestionQuiz
+        questionCount={1}
+        onQuizComplete={noop}
+        onBackToHome={noop}
+        onNextAction={onNextAction}
+      />,
+    );
+    await screen.findByRole('heading', { name: 'What is 2 + 2?' });
+
+    await user.click(screen.getAllByRole('radio')[0]);
+    lastNextAction(onNextAction)!.onClick();
+
+    await waitFor(() =>
+      expect(lastNextAction(onNextAction)).toMatchObject({
+        label: 'Submit Answer',
+        disabled: true,
+        loading: true,
+      }),
+    );
+
+    resolveUpdate(buildQuestion());
+
+    await waitFor(() =>
+      expect(lastNextAction(onNextAction)).toMatchObject({
+        label: 'Finish Quiz',
+        loading: false,
+      }),
+    );
+  });
+
+  it('ignores a second submission while one is already pending', async () => {
+    const onNextAction = jest.fn();
+    const user = userEvent.setup();
+    jest
+      .spyOn(apiService, 'getRandomQuestions')
+      .mockResolvedValue([buildQuestion()]);
+    const updateSpy = jest
+      .spyOn(apiService, 'updateQuestion')
+      .mockReturnValue(new Promise<Question>(() => {}));
+
+    render(
+      <QuestionQuiz
+        questionCount={1}
+        onQuizComplete={noop}
+        onBackToHome={noop}
+        onNextAction={onNextAction}
+      />,
+    );
+    await screen.findByRole('heading', { name: 'What is 2 + 2?' });
+
+    await user.click(screen.getAllByRole('radio')[0]);
+    lastNextAction(onNextAction)!.onClick();
+
+    await waitFor(() =>
+      expect(lastNextAction(onNextAction)).toMatchObject({ loading: true }),
+    );
+
+    lastNextAction(onNextAction)!.onClick();
+
+    expect(updateSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('resets the submitting state after a failure so the user can retry', async () => {
+    const user = userEvent.setup();
+    const onNextAction = jest.fn();
+    jest
+      .spyOn(apiService, 'getRandomQuestions')
+      .mockResolvedValue([buildQuestion()]);
+    const updateSpy = jest
+      .spyOn(apiService, 'updateQuestion')
+      .mockRejectedValueOnce(new Error('update failed'))
+      .mockResolvedValueOnce(buildQuestion());
+
+    render(
+      <QuestionQuiz
+        questionCount={1}
+        onQuizComplete={noop}
+        onBackToHome={noop}
+        onNextAction={onNextAction}
+      />,
+    );
+    await screen.findByRole('heading', { name: 'What is 2 + 2?' });
+
+    await user.click(screen.getAllByRole('radio')[0]);
+    lastNextAction(onNextAction)!.onClick();
+
+    await waitFor(() =>
+      expect(lastNextAction(onNextAction)).toMatchObject({
+        label: 'Submit Answer',
+        disabled: false,
+        loading: false,
+      }),
+    );
+
+    lastNextAction(onNextAction)!.onClick();
+
+    await waitFor(() => expect(updateSpy).toHaveBeenCalledTimes(2));
+  });
 });

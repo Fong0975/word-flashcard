@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { WordQuizResult } from '../../../types/api';
 import { FamiliarityLevel } from '../../../types/base';
@@ -66,6 +66,10 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
     getPendingReminder,
   } = useReminderNote();
 
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [processingLevel, setProcessingLevel] =
+    useState<FamiliarityLevel | null>(null);
+
   const completeQuiz = (extraDecisions?: Record<number, FamiliarityLevel>) => {
     const allResults = buildAllResults(extraDecisions);
     setState('completed');
@@ -74,7 +78,14 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
 
   // Handle familiarity selection — calls API, records decision, advances step
   const handleFamiliaritySelect = async (newFamiliarity: FamiliarityLevel) => {
+    if (isProcessing) {
+      return;
+    }
+
     const pendingReminder = getPendingReminder();
+
+    setIsProcessing(true);
+    setProcessingLevel(newFamiliarity);
 
     try {
       await apiService.updateWordFields(currentWord.id, {
@@ -98,10 +109,19 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
       if (onError) {
         onError('Failed to update word familiarity: ' + errorMessage);
       }
+    } finally {
+      setIsProcessing(false);
+      setProcessingLevel(null);
     }
   };
 
   const handleNext = () => {
+    if (isProcessing) {
+      return;
+    }
+
+    setIsProcessing(true);
+
     if (!showAnswer) {
       // Question page → show answer
       advance();
@@ -116,6 +136,8 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
       resetReminder();
       advance();
     }
+
+    setIsProcessing(false);
   };
 
   const handlePrev = () => {
@@ -175,7 +197,8 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
             <div className='flex-shrink-0 text-center'>
               <button
                 onClick={handleNext}
-                className='w-full rounded-lg bg-blue-500 px-8 py-3 font-medium text-white transition-colors hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
+                disabled={isProcessing}
+                className='w-full rounded-lg bg-blue-500 px-8 py-3 font-medium text-white transition-colors hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
               >
                 Show Answer
               </button>
@@ -218,7 +241,11 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
               </div>
 
               {/* Familiarity Buttons */}
-              <FamiliarityRatingButtons onSelect={handleFamiliaritySelect} />
+              <FamiliarityRatingButtons
+                onSelect={handleFamiliaritySelect}
+                disabled={isProcessing}
+                loadingLevel={processingLevel}
+              />
             </div>
           </div>
         )}
