@@ -14,20 +14,7 @@ import { useToast } from '../../../hooks/ui/useToast';
 import { useDeleteConfirmation } from '../../../hooks/ui/useDeleteConfirmation';
 import { useTemplateButtons } from '../../../hooks/shared';
 import { appendTemplateText } from '../../../utils/textTemplates';
-
-const formatDate = (dateStr: string | null): string => {
-  if (!dateStr) {
-    return '-';
-  }
-  const date = new Date(dateStr);
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-};
+import { formatNoteDateTime } from '../../../utils/dateFormat';
 
 export const NoteDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -189,7 +176,7 @@ export const NoteDetailPage: React.FC = () => {
         </div>
       </div>
       <p className='mt-1 text-xs text-gray-400 dark:text-gray-500'>
-        Updated: {formatDate(note.updated_at)}
+        Updated: {formatNoteDateTime(note.updated_at)}
       </p>
     </div>
   );

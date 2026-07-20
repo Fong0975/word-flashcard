@@ -22,6 +22,7 @@ import {
   QuestionTrendPoint,
 } from '../../types/api';
 import { useAsyncOnOpen } from '../shared/hooks/useAsyncOnOpen';
+import { formatShortDate } from '../../utils/dateFormat';
 
 interface TooltipPayload {
   payload: {
@@ -72,12 +73,6 @@ interface QuestionStatsModalProps {
 }
 
 type ActiveTab = 'accuracy' | 'trend';
-
-// Only invoked by recharts' tickFormatter/labelFormatter props below, which
-// recharts never calls under jsdom (ResponsiveContainer measures 0x0 there).
-/* istanbul ignore next */
-const formatShortDate = (iso: string): string =>
-  new Date(iso).toLocaleDateString();
 
 const getBarColor = (range: string): string => {
   if (range === 'N/A') {

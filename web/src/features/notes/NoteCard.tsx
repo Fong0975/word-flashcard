@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { Note } from '../../types/api';
+import { formatNoteDate } from '../../utils/dateFormat';
 
 interface NoteCardProps {
   note: Note;
@@ -18,18 +19,6 @@ interface NoteCardProps {
   onDragEnd: () => void;
   onClick: () => void;
 }
-
-const formatDate = (dateStr: string | null): string => {
-  if (!dateStr) {
-    return '-';
-  }
-  const date = new Date(dateStr);
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-};
 
 export const NoteCard: React.FC<NoteCardProps> = ({
   note,
@@ -134,7 +123,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({
           {note.title}
         </p>
         <p className='text-xs text-gray-400 dark:text-gray-500'>
-          {formatDate(note.updated_at)}
+          {formatNoteDate(note.updated_at)}
         </p>
       </button>
 
