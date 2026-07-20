@@ -5,12 +5,7 @@ import { Word, WordPracticeLogEntry } from '../../../../types/api';
 import { FamiliarityLevel } from '../../../../types/base';
 import { apiService } from '../../../../lib/api';
 
-import {
-  WordHistorySection,
-  familiarityLevel,
-  formatShortDate,
-  formatDateTime,
-} from './WordHistorySection';
+import { WordHistorySection, familiarityLevel } from './WordHistorySection';
 
 const buildWord = (overrides: Partial<Word> = {}): Word => ({
   id: 1,
@@ -137,19 +132,5 @@ describe('familiarityLevel', () => {
   it('falls back to 0 for red or any unrecognized value', () => {
     expect(familiarityLevel('red')).toBe(0);
     expect(familiarityLevel('unknown')).toBe(0);
-  });
-});
-
-describe('formatShortDate', () => {
-  it('formats an ISO string using the locale date format', () => {
-    const iso = '2026-07-10T10:00:00Z';
-    expect(formatShortDate(iso)).toBe(new Date(iso).toLocaleDateString());
-  });
-});
-
-describe('formatDateTime', () => {
-  it('formats an ISO string using the locale date-time format', () => {
-    const iso = '2026-07-10T10:00:00Z';
-    expect(formatDateTime(iso)).toBe(new Date(iso).toLocaleString());
   });
 });

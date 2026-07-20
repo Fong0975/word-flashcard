@@ -668,7 +668,7 @@ func (s *connectionTestSuite) TestBuildMySQLDSN() {
 				Port:         3306,
 				DatabaseName: "testdb",
 			},
-			expected: "testuser:testpass@tcp(localhost:3306)/testdb?parseTime=true&charset=utf8mb4&collation=utf8mb4_unicode_ci",
+			expected: "testuser:testpass@tcp(localhost:3306)/testdb?parseTime=true&charset=utf8mb4&collation=utf8mb4_unicode_ci&loc=UTC&time_zone=%27%2B00%3A00%27",
 		},
 		{
 			name: "different host, port and credentials",
@@ -679,7 +679,7 @@ func (s *connectionTestSuite) TestBuildMySQLDSN() {
 				Port:         13306,
 				DatabaseName: "flashcards",
 			},
-			expected: "admin:secret@tcp(db.example.com:13306)/flashcards?parseTime=true&charset=utf8mb4&collation=utf8mb4_unicode_ci",
+			expected: "admin:secret@tcp(db.example.com:13306)/flashcards?parseTime=true&charset=utf8mb4&collation=utf8mb4_unicode_ci&loc=UTC&time_zone=%27%2B00%3A00%27",
 		},
 	}
 

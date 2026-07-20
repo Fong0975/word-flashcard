@@ -15,6 +15,7 @@ import { LoadingSpinner } from '../../../../components/ui/LoadingSpinner';
 import { apiService } from '../../../../lib/api';
 import { Question, QuestionAnswerLogEntry } from '../../../../types/api';
 import { useAsyncOnOpen } from '../../../shared/hooks/useAsyncOnOpen';
+import { formatDateTime } from '../../../../utils/dateFormat';
 
 interface QuestionHistorySectionProps {
   question: Question;
@@ -40,8 +41,6 @@ const getAvailableOptions = (question: Question): OptionLetter[] => {
     }
   });
 };
-
-const formatDateTime = (iso: string): string => new Date(iso).toLocaleString();
 
 interface OptionCount {
   option: string;

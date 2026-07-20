@@ -15,6 +15,7 @@ import { apiService } from '../../../../lib/api';
 import { Word, WordPracticeLogEntry } from '../../../../types/api';
 import { useAsyncOnOpen } from '../../../shared/hooks/useAsyncOnOpen';
 import { getFamiliarityDisplayColors } from '../../../shared/constants/familiarity';
+import { formatShortDate, formatDateTime } from '../../../../utils/dateFormat';
 
 interface WordHistorySectionProps {
   word: Word;
@@ -32,12 +33,6 @@ export const familiarityLevel = (familiarity: string): number => {
       return 0;
   }
 };
-
-export const formatShortDate = (iso: string): string =>
-  new Date(iso).toLocaleDateString();
-
-export const formatDateTime = (iso: string): string =>
-  new Date(iso).toLocaleString();
 
 interface FamiliarityBadgeProps {
   familiarity: string;

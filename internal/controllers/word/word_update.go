@@ -66,7 +66,7 @@ func (wc *Controller) UpdateWord(c *gin.Context) {
 		wordModel.CountPractise = &newCount
 		previousFamiliarity = currentWords[0].Familiarity
 
-		now := time.Now()
+		now := time.Now().UTC()
 		wordModel.LastPracticedAt = &now
 	}
 

@@ -183,8 +183,8 @@ func (u *UniversalDatabase) Insert(table string, data interface{}) (int64, error
 		return 0, NewDatabaseError("insert", fmt.Errorf("no data to insert"))
 	}
 	// Add CreateAT and UpdatedAt timestamp if applicable
-	dataMap["created_at"] = time.Now().Format(FORMAT_TIMESTAMP)
-	dataMap["updated_at"] = time.Now().Format(FORMAT_TIMESTAMP)
+	dataMap["created_at"] = time.Now().UTC().Format(FORMAT_TIMESTAMP)
+	dataMap["updated_at"] = time.Now().UTC().Format(FORMAT_TIMESTAMP)
 
 	// --------------- 2. Prepare Insert Parameters ---------------
 	// To ensure stable column order, we first collect all column names and sort them
@@ -280,7 +280,7 @@ func (u *UniversalDatabase) Update(table string, data interface{}, where squirre
 		return 0, NewDatabaseError("update", fmt.Errorf("no data to update"))
 	}
 	// Add UpdatedAt timestamp if applicable
-	dataMap["updated_at"] = time.Now().Format(FORMAT_TIMESTAMP)
+	dataMap["updated_at"] = time.Now().UTC().Format(FORMAT_TIMESTAMP)
 
 	// --------------- 2. Build Query Object ---------------
 	query := squirrel.Update(table).
@@ -448,8 +448,12 @@ func (u *UniversalDatabase) InitializeTables() error {
 }
 
 // buildMySQLDSN builds MySQL data source name
+//
+// loc=UTC and time_zone='+00:00' force every connection's time.Time
+// conversion and MySQL session time_zone to UTC, regardless of the
+// external MySQL server's own default time_zone setting.
 func (u *UniversalDatabase) buildMySQLDSN() string {
-	return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true&charset=utf8mb4&collation=utf8mb4_unicode_ci",
+	return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true&charset=utf8mb4&collation=utf8mb4_unicode_ci&loc=UTC&time_zone=%%27%%2B00%%3A00%%27",
 		u.config.User, u.config.Password,
 		u.config.Host, u.config.Port,
 		u.config.DatabaseName)
