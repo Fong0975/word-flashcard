@@ -31,16 +31,17 @@ const buildDictionaryResponse = (
   ...overrides,
 });
 
-const buildExternalDictionaryState = (): ExternalDictionaryState => ({
-  dictionaryData: null,
-  isLoadingDictionary: false,
-  dictionaryError: null,
-  isCollapsed: false,
-  setDictionaryData: jest.fn(),
-  setIsLoadingDictionary: jest.fn(),
-  setDictionaryError: jest.fn(),
-  setIsCollapsed: jest.fn(),
-});
+const buildExternalDictionaryState =
+  (): jest.Mocked<ExternalDictionaryState> => ({
+    dictionaryData: null,
+    isLoadingDictionary: false,
+    dictionaryError: null,
+    isCollapsed: false,
+    setDictionaryData: jest.fn(),
+    setIsLoadingDictionary: jest.fn(),
+    setDictionaryError: jest.fn(),
+    setIsCollapsed: jest.fn(),
+  });
 
 describe('DefinitionFormModal', () => {
   let consoleErrorSpy: jest.SpyInstance;

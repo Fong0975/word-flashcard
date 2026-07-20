@@ -1,3 +1,5 @@
+export {};
+
 describe('API_CONFIG', () => {
   const ORIGINAL_ENV = process.env;
 

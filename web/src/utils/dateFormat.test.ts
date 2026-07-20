@@ -14,7 +14,8 @@ const CROSS_DAY_ISO = '2026-07-19T17:30:00Z';
 // locale (only the timezone is pinned), so their punctuation/wording varies
 // by environment (e.g. "7/20/2026" vs "2026/7/20"). Compare the numeric
 // components instead of the exact string so the test stays locale-agnostic.
-const numbersIn = (value: string): string[] => (value.match(/\d+/g) ?? []).sort();
+const numbersIn = (value: string): string[] =>
+  (value.match(/\d+/g) ?? []).sort();
 
 describe('formatShortDate', () => {
   it('renders the date in Asia/Taipei, not the raw UTC date', () => {
