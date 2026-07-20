@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 
@@ -23,7 +23,12 @@ jest.mock('./QuestionQuiz', () => ({
   QuestionQuiz: (props: {
     onQuizComplete: (results: QuestionQuizResult[]) => void;
     onNextAction?: (
-      action: { onClick: () => void; label: string } | null,
+      action: {
+        onClick: () => void;
+        label: string;
+        disabled?: boolean;
+        loading?: boolean;
+      } | null,
     ) => void;
   }) => (
     <div>
@@ -36,6 +41,17 @@ jest.mock('./QuestionQuiz', () => ({
         }
       >
         Report Submit Action
+      </button>
+      <button
+        onClick={() =>
+          props.onNextAction?.({
+            onClick: mockActionClick,
+            label: 'Submit Answer',
+            loading: true,
+          })
+        }
+      >
+        Report Loading Submit Action
       </button>
       <button onClick={() => props.onNextAction?.(null)}>
         Clear Next Action
@@ -160,6 +176,40 @@ describe('QuestionQuizPage', () => {
       );
       expect(
         screen.queryByRole('button', { name: 'Submit Answer' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('disables the footer button and shows a spinner when the action is loading', async () => {
+      const user = userEvent.setup();
+      renderPage('/question/quiz?count=5');
+
+      await user.click(
+        screen.getByRole('button', { name: 'Report Loading Submit Action' }),
+      );
+
+      const footerButton = screen.getByRole('button', {
+        name: 'Submit Answer',
+      });
+      expect(footerButton).toBeDisabled();
+      expect(
+        within(footerButton).getByTestId('footer-action-spinner'),
+      ).toBeInTheDocument();
+    });
+
+    it('keeps the footer button enabled and spinner-free when not loading', async () => {
+      const user = userEvent.setup();
+      renderPage('/question/quiz?count=5');
+
+      await user.click(
+        screen.getByRole('button', { name: 'Report Submit Action' }),
+      );
+
+      const footerButton = screen.getByRole('button', {
+        name: 'Submit Answer',
+      });
+      expect(footerButton).not.toBeDisabled();
+      expect(
+        within(footerButton).queryByTestId('footer-action-spinner'),
       ).not.toBeInTheDocument();
     });
   });

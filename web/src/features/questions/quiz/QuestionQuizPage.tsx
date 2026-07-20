@@ -88,10 +88,21 @@ export const QuestionQuizPage: React.FC = () => {
           pageState === 'quiz' && nextAction ? (
             <button
               onClick={nextAction.onClick}
-              disabled={nextAction.disabled}
+              disabled={nextAction.disabled || nextAction.loading}
               className={nextAction.className}
             >
-              {nextAction.label}
+              {nextAction.loading ? (
+                <div className='flex items-center justify-center'>
+                  <div
+                    aria-hidden='true'
+                    data-testid='footer-action-spinner'
+                    className='mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-white'
+                  ></div>
+                  {nextAction.label}
+                </div>
+              ) : (
+                nextAction.label
+              )}
             </button>
           ) : pageState === 'results' ? (
             <QuizResultsFooter

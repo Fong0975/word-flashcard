@@ -274,6 +274,79 @@ describe('WordQuiz', () => {
     expect(updateSpy).not.toHaveBeenCalled();
   });
 
+  it('disables quiz buttons while a familiarity update is pending, ignores a repeat click, and re-enables them after it resolves', async () => {
+    const user = userEvent.setup();
+    jest
+      .spyOn(apiService, 'getRandomWords')
+      .mockResolvedValue([
+        buildWord({ id: 1, word: 'apple' }),
+        buildWord({ id: 2, word: 'banana' }),
+      ]);
+    let resolveUpdate: (value: Word) => void = () => {};
+    const updatePromise = new Promise<Word>(resolve => {
+      resolveUpdate = resolve;
+    });
+    const updateSpy = jest
+      .spyOn(apiService, 'updateWordFields')
+      .mockReturnValue(updatePromise);
+
+    render(
+      <WordQuiz
+        selectedFamiliarity={[FamiliarityLevel.GREEN]}
+        questionCount={2}
+        onQuizComplete={noop}
+        onBackToHome={noop}
+      />,
+    );
+
+    await screen.findByRole('heading', { name: 'apple' });
+    await user.click(screen.getByRole('button', { name: 'Show Answer' }));
+    const familiarButton = screen.getByRole('button', { name: 'Familiar' });
+    await user.click(familiarButton);
+    await user.click(familiarButton);
+
+    expect(screen.getByRole('button', { name: 'Unfamiliar' })).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: 'Somewhat Familiar' }),
+    ).toBeDisabled();
+    expect(familiarButton).toBeDisabled();
+    expect(updateSpy).toHaveBeenCalledTimes(1);
+
+    resolveUpdate(buildWord());
+
+    await screen.findByRole('heading', { name: 'banana' });
+
+    expect(
+      screen.getByRole('button', { name: 'Show Answer' }),
+    ).not.toBeDisabled();
+  });
+
+  it('resets the processing state so buttons are re-enabled after a failed familiarity update', async () => {
+    const user = userEvent.setup();
+    jest.spyOn(apiService, 'getRandomWords').mockResolvedValue([buildWord()]);
+    jest
+      .spyOn(apiService, 'updateWordFields')
+      .mockRejectedValue(new Error('update failed'));
+
+    render(
+      <WordQuiz
+        selectedFamiliarity={[FamiliarityLevel.GREEN]}
+        questionCount={1}
+        onQuizComplete={noop}
+        onBackToHome={noop}
+      />,
+    );
+
+    await screen.findByRole('heading', { name: 'apple' });
+    await user.click(screen.getByRole('button', { name: 'Show Answer' }));
+    await user.click(screen.getByRole('button', { name: 'Familiar' }));
+
+    await screen.findByText('update failed');
+    await user.click(screen.getByRole('button', { name: 'Try Again' }));
+
+    expect(screen.getByRole('button', { name: 'Familiar' })).not.toBeDisabled();
+  });
+
   it('returns to the question stage when Previous is pressed from the answer stage, without an API call', async () => {
     const user = userEvent.setup();
     jest.spyOn(apiService, 'getRandomWords').mockResolvedValue([buildWord()]);

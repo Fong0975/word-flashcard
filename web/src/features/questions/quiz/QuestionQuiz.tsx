@@ -37,6 +37,7 @@ export interface NextActionProps {
   onClick: () => void;
   label: string;
   disabled?: boolean;
+  loading?: boolean;
   className?: string;
 }
 
@@ -63,6 +64,7 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
   const [results, setResults] = useState<QuestionQuizResult[]>([]);
   const [showAnswer, setShowAnswer] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const currentQuestion = questions[currentQuestionIndex];
   const { shuffledOptions, shuffledAnswer } =
@@ -76,6 +78,9 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
   };
 
   const handleSubmitAnswer = useCallback(async () => {
+    if (isSubmitting) {
+      return;
+    }
     if (!currentQuestion || selectedAnswer === null) {
       return;
     }
@@ -94,6 +99,7 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
     )?.originalKey;
 
     try {
+      setIsSubmitting(true);
       await apiService.updateQuestion(currentQuestion.id, {
         question: currentQuestion.question,
         answer: currentQuestion.answer,
@@ -127,8 +133,11 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
       if (onError) {
         onError('Failed to update question statistics: ' + errorMessage);
       }
+    } finally {
+      setIsSubmitting(false);
     }
   }, [
+    isSubmitting,
     currentQuestion,
     selectedAnswer,
     shuffledAnswer,
@@ -138,6 +147,10 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
   ]);
 
   const handleNextQuestion = useCallback(() => {
+    if (isSubmitting) {
+      return;
+    }
+    setIsSubmitting(true);
     if (currentQuestionIndex < questions.length - 1) {
       // Move to next question
       setCurrentQuestionIndex(currentQuestionIndex + 1);
@@ -148,7 +161,9 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
       setState('completed');
       onQuizComplete(results);
     }
+    setIsSubmitting(false);
   }, [
+    isSubmitting,
     currentQuestionIndex,
     questions.length,
     results,
@@ -168,14 +183,17 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
       onNextAction({
         onClick: handleNextQuestion,
         label,
+        disabled: isSubmitting,
+        loading: isSubmitting,
         className:
-          'w-full rounded-lg bg-green-500 px-8 py-3 font-medium text-white transition-colors hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 md:text-lg',
+          'w-full rounded-lg bg-green-500 px-8 py-3 font-medium text-white transition-colors hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-lg',
       });
     } else {
       onNextAction({
         onClick: handleSubmitAnswer,
         label: 'Submit Answer',
-        disabled: !selectedAnswer,
+        disabled: !selectedAnswer || isSubmitting,
+        loading: isSubmitting,
         className:
           'w-full rounded-lg bg-blue-500 px-8 py-3 font-medium text-white transition-colors hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-lg',
       });
@@ -189,6 +207,7 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
     questions.length,
     handleNextQuestion,
     handleSubmitAnswer,
+    isSubmitting,
   ]);
 
   if (error) {

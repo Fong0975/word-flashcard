@@ -28,4 +28,44 @@ describe('FamiliarityRatingButtons', () => {
     await user.click(screen.getByText('Familiar'));
     expect(onSelect).toHaveBeenCalledWith(FamiliarityLevel.GREEN);
   });
+
+  it('disables all three buttons when disabled is true', () => {
+    render(<FamiliarityRatingButtons onSelect={jest.fn()} disabled />);
+
+    expect(screen.getByRole('button', { name: 'Unfamiliar' })).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: 'Somewhat Familiar' }),
+    ).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Familiar' })).toBeDisabled();
+  });
+
+  it('shows a spinner on the button matching loadingLevel and does not call onSelect when clicked while disabled', async () => {
+    const user = userEvent.setup();
+    const onSelect = jest.fn();
+    render(
+      <FamiliarityRatingButtons
+        onSelect={onSelect}
+        disabled
+        loadingLevel={FamiliarityLevel.YELLOW}
+      />,
+    );
+
+    expect(screen.queryByText('Somewhat Familiar')).not.toBeInTheDocument();
+    expect(screen.getByText('Unfamiliar')).toBeInTheDocument();
+    expect(screen.getByText('Familiar')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Unfamiliar' }));
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it('renders normally when disabled and loadingLevel are left undefined', () => {
+    render(<FamiliarityRatingButtons onSelect={jest.fn()} />);
+
+    expect(screen.getByRole('button', { name: 'Unfamiliar' })).toBeEnabled();
+    expect(
+      screen.getByRole('button', { name: 'Somewhat Familiar' }),
+    ).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Familiar' })).toBeEnabled();
+  });
 });
