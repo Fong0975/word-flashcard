@@ -21,7 +21,7 @@ import (
 // accuracy_rate = round1(2*100/3) = 66.7, the other two days stay zero-filled.
 func (suite *ControllerTestSuite) TestGetQuestionsTrend() {
 	testID := 1
-	now := time.Now()
+	now := common.NowInReportTimeZone()
 	dateKeys := common.DailyDateKeys(3, now)
 	oldestDay, err := time.Parse("2006-01-02", dateKeys[0])
 	assert.NoError(suite.T(), err)
@@ -56,5 +56,47 @@ func (suite *ControllerTestSuite) TestGetQuestionsTrend() {
 	}
 	expectedJSON, marshalErr := json.Marshal(expected)
 	assert.NoError(suite.T(), marshalErr)
+	assert.Equal(suite.T(), string(expectedJSON), w.Body.String())
+}
+
+// TestGetQuestionsTrendBucketsByReportTimeZone tests that GetQuestionsTrend
+// buckets an answer log by its calendar day in common.ReportTimeZone rather
+// than the UTC calendar day the timestamp is stored/parsed in. The log is
+// placed at 00:30 in ReportTimeZone converted to its equivalent UTC instant,
+// which for a timezone ahead of UTC falls on the previous UTC calendar day --
+// exactly the mismatch that caused trend charts to bucket a practice into the
+// wrong day.
+func (suite *ControllerTestSuite) TestGetQuestionsTrendBucketsByReportTimeZone() {
+	testID := 1
+	now := common.NowInReportTimeZone()
+	dateKeys := common.DailyDateKeys(3, now)
+
+	reportMidnight := time.Date(now.Year(), now.Month(), now.Day(), 0, 30, 0, 0, now.Location())
+	logTime := reportMidnight.UTC()
+
+	id1 := 1
+	optA := "A"
+	isTrue := true
+	logs := []*dbModels.QuestionAnswerLog{
+		{Id: &id1, QuestionId: &testID, SelectedOption: &optA, IsCorrect: &isTrue, CreatedAt: &logTime},
+	}
+
+	suite.mockQuestionAnswerLogPeer.EXPECT().
+		Select(mock.Anything, mock.Anything, ([]*string)(nil), (*uint64)(nil), (*uint64)(nil)).
+		Return(logs, nil).Times(1)
+
+	w := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(w)
+	ctx.Request = httptest.NewRequest(http.MethodGet, "/api/questions/trend?days=3", nil)
+	suite.controller.GetQuestionsTrend(ctx)
+
+	assert.Equal(suite.T(), http.StatusOK, w.Code)
+	expected := []models.QuestionTrendPoint{
+		{Date: dateKeys[0], PracticeCount: 0, AccuracyRate: 0},
+		{Date: dateKeys[1], PracticeCount: 0, AccuracyRate: 0},
+		{Date: dateKeys[2], PracticeCount: 1, AccuracyRate: 100},
+	}
+	expectedJSON, marshalErr2 := json.Marshal(expected)
+	assert.NoError(suite.T(), marshalErr2)
 	assert.Equal(suite.T(), string(expectedJSON), w.Body.String())
 }

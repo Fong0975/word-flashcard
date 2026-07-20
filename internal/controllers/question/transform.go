@@ -60,7 +60,7 @@ func (qc *Controller) buildQuestionTrendPoints(logs []*dbModels.QuestionAnswerLo
 		if l.CreatedAt == nil {
 			continue
 		}
-		key := l.CreatedAt.Format("2006-01-02")
+		key := common.ReportDateKey(*l.CreatedAt)
 		if _, ok := idx[key]; !ok {
 			continue
 		}
