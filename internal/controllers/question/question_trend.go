@@ -2,7 +2,6 @@ package question
 
 import (
 	"net/http"
-	"time"
 	"word-flashcard/data/schema"
 	"word-flashcard/internal/controllers/common"
 	"word-flashcard/internal/models"
@@ -29,7 +28,7 @@ func (qc *Controller) GetQuestionsTrend(c *gin.Context) {
 	}
 
 	// ================ 2. Fetch data from database ================
-	now := time.Now()
+	now := common.NowInReportTimeZone()
 	since := now.AddDate(0, 0, -(days - 1))
 	where := squirrel.GtOrEq{schema.COMMON_CREATED_AT: since}
 	logs, err := qc.questionAnswerLogPeer.Select([]*string{}, where, nil, nil, nil)

@@ -2,7 +2,6 @@ package word
 
 import (
 	"net/http"
-	"time"
 	"word-flashcard/data/schema"
 	"word-flashcard/internal/controllers/common"
 	"word-flashcard/internal/models"
@@ -27,7 +26,7 @@ func (wc *Controller) GetWordsTrend(c *gin.Context) {
 		return
 	}
 
-	now := time.Now()
+	now := common.NowInReportTimeZone()
 	since := now.AddDate(0, 0, -(days - 1))
 	where := squirrel.GtOrEq{schema.COMMON_CREATED_AT: since}
 	logs, err := wc.wordPracticeLogPeer.Select([]*string{}, where, nil, nil, nil)

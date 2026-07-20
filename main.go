@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"syscall"
 	"time"
+	_ "time/tzdata"
 	"word-flashcard/utils/log"
 
 	"word-flashcard/data"
