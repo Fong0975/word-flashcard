@@ -49,7 +49,12 @@ func validateWordFields(wordData *models.Word, isUpdate bool) error {
 	}
 
 	// Validate reminder field: VARCHAR(100), nullable
-	return common.ValidateStringField(wordData.Reminder, isUpdate, "reminder", 100, true)
+	if err := common.ValidateStringField(wordData.Reminder, isUpdate, "reminder", 100, true); err != nil {
+		return err
+	}
+
+	// Validate quiz_session_id field: VARCHAR(36), nullable
+	return common.ValidateStringField(wordData.QuizSessionID, isUpdate, "quiz_session_id", 36, true)
 }
 
 // validateWordDefinitionFields validates word definition entity fields including constraints

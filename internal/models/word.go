@@ -25,6 +25,7 @@ type Word struct {
 	Reminder               *string          `json:"reminder"`
 	CountPractise          *int             `json:"count_practise"`
 	IncrementCountPractise bool             `json:"increment_count_practise,omitempty"`
+	QuizSessionID          *string          `json:"quiz_session_id,omitempty"`
 	Definitions            []WordDefinition `json:"definitions"`
 }
 

@@ -47,3 +47,13 @@ func (wp *WordPracticeLogPeer) Insert(log *models.WordPracticeLog) (int64, error
 
 	return result, nil
 }
+
+// Update modifies an existing WordPracticeLog record in the database
+func (wp *WordPracticeLogPeer) Update(log *models.WordPracticeLog, where squirrel.Sqlizer) (int64, error) {
+	result, err := wp.db.Update(wp.tableName, log, where)
+	if err != nil {
+		return 0, err
+	}
+
+	return result, nil
+}

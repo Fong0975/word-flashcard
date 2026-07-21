@@ -81,6 +81,7 @@ export interface UpdateWordRequest {
   readonly familiarity: FamiliarityLevel;
   readonly reminder?: string;
   readonly increment_count_practise?: boolean;
+  readonly quiz_session_id?: string;
 }
 
 /**

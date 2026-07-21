@@ -142,6 +142,7 @@ describe('WordQuiz', () => {
         word: 'apple',
         familiarity: FamiliarityLevel.GREEN,
         increment_count_practise: true,
+        quiz_session_id: expect.any(String),
         reminder: 'Remember this one',
       }),
     );
@@ -176,6 +177,7 @@ describe('WordQuiz', () => {
         word: 'apple',
         familiarity: FamiliarityLevel.RED,
         increment_count_practise: true,
+        quiz_session_id: expect.any(String),
       }),
     );
   });
