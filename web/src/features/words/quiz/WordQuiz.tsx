@@ -6,6 +6,7 @@ import { QuizLoadingScreen } from '../../shared/components/QuizLoadingScreen';
 import { QuizErrorScreen } from '../../shared/components/QuizErrorScreen';
 import { apiService } from '../../../lib/api';
 import { getApiErrorMessage } from '../../../lib/apiErrorMessage';
+import { generateQuizSessionId } from '../../../utils/quizSessionId';
 import {
   extractPronunciationUrls,
   isValidAudioUrl,
@@ -69,6 +70,10 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingLevel, setProcessingLevel] =
     useState<FamiliarityLevel | null>(null);
+  // Generated once per quiz attempt so the backend can tell a resubmission
+  // (navigating back and re-rating an already-answered word) apart from a
+  // new practice event.
+  const [quizSessionId] = useState(() => generateQuizSessionId());
 
   const completeQuiz = (extraDecisions?: Record<number, FamiliarityLevel>) => {
     const allResults = buildAllResults(extraDecisions);
@@ -92,6 +97,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
         word: currentWord.word,
         familiarity: newFamiliarity,
         increment_count_practise: true,
+        quiz_session_id: quizSessionId,
         ...(pendingReminder !== undefined ? { reminder: pendingReminder } : {}),
       });
 
