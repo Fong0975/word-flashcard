@@ -8,6 +8,7 @@ type WordPracticeLog struct {
 	WordId              *int       `db:"word_id" json:"word_id"`
 	Familiarity         *string    `db:"familiarity" json:"familiarity"`
 	PreviousFamiliarity *string    `db:"previous_familiarity" json:"previous_familiarity"`
+	QuizSessionID       *string    `db:"quiz_session_id" json:"quiz_session_id"`
 	CreatedAt           *time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt           *time.Time `db:"updated_at" json:"updated_at"`
 }

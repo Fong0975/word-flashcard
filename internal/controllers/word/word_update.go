@@ -49,7 +49,29 @@ func (wc *Controller) UpdateWord(c *gin.Context) {
 	// ================ 3. Conditionally increment count_practise ================
 	where := squirrel.Eq{schema.WORD_ID: wordID}
 	var previousFamiliarity *string
-	if wordData.IncrementCountPractise {
+
+	// If a quiz session id is supplied, check whether this word already has a
+	// practice log for this session -- i.e. the user navigated back and is
+	// resubmitting a familiarity for a question they already answered in the
+	// same quiz attempt. In that case the existing row is corrected in place
+	// (step 5) instead of incrementing count_practise/last_practiced_at again.
+	var existingSessionLog *dbModels.WordPracticeLog
+	if wordData.IncrementCountPractise && wordData.QuizSessionID != nil {
+		logWhere := squirrel.Eq{
+			schema.WORD_PRACTICE_LOG_WORD_ID:         wordID,
+			schema.WORD_PRACTICE_LOG_QUIZ_SESSION_ID: *wordData.QuizSessionID,
+		}
+		existingLogs, err := wc.wordPracticeLogPeer.Select([]*string{}, logWhere, nil, nil, nil)
+		if err != nil {
+			common.ResponseError(http.StatusInternalServerError, "Failed to fetch current word data", models.ErrCodeInternalError, err, c)
+			return
+		}
+		if len(existingLogs) > 0 {
+			existingSessionLog = existingLogs[0]
+		}
+	}
+
+	if wordData.IncrementCountPractise && existingSessionLog == nil {
 		currentWords, err := wc.wordPeer.Select([]*string{}, where, nil, nil, nil)
 		if err != nil {
 			common.ResponseError(http.StatusInternalServerError, "Failed to fetch current word data", models.ErrCodeInternalError, err, c)
@@ -89,13 +111,25 @@ func (wc *Controller) UpdateWord(c *gin.Context) {
 	// logging failure here must not turn into a user-facing error for an
 	// update that already committed.
 	if wordData.IncrementCountPractise {
-		practiceLog := &dbModels.WordPracticeLog{
-			WordId:              &wordID,
-			Familiarity:         wordModel.Familiarity,
-			PreviousFamiliarity: previousFamiliarity,
-		}
-		if _, err := wc.wordPracticeLogPeer.Insert(practiceLog); err != nil {
-			slog.Error("Failed to log word practice", "word_id", wordID, "error", err)
+		if existingSessionLog != nil {
+			// Resubmission within the same quiz session: correct the existing
+			// row's familiarity in place. previous_familiarity is left untouched
+			// so it still reflects the word's state from before this quiz attempt.
+			correction := &dbModels.WordPracticeLog{Familiarity: wordModel.Familiarity}
+			logWhere := squirrel.Eq{schema.WORD_PRACTICE_LOG_ID: *existingSessionLog.Id}
+			if _, err := wc.wordPracticeLogPeer.Update(correction, logWhere); err != nil {
+				slog.Error("Failed to update word practice log", "word_id", wordID, "quiz_session_id", *wordData.QuizSessionID, "error", err)
+			}
+		} else {
+			practiceLog := &dbModels.WordPracticeLog{
+				WordId:              &wordID,
+				Familiarity:         wordModel.Familiarity,
+				PreviousFamiliarity: previousFamiliarity,
+				QuizSessionID:       wordData.QuizSessionID,
+			}
+			if _, err := wc.wordPracticeLogPeer.Insert(practiceLog); err != nil {
+				slog.Error("Failed to log word practice", "word_id", wordID, "error", err)
+			}
 		}
 	}
 

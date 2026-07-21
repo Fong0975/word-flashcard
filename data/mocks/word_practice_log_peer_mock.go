@@ -44,6 +44,11 @@ func (_e *MockWordPracticeLogPeer_Expecter) Insert(log interface{}) *mock.Call {
 	return _e.mock.On("Insert", log)
 }
 
+// Update expecter method
+func (_e *MockWordPracticeLogPeer_Expecter) Update(log interface{}, where interface{}) *mock.Call {
+	return _e.mock.On("Update", log, where)
+}
+
 // Select mock implementation
 func (_m *MockWordPracticeLogPeer) Select(columns []*string, where squirrel.Sqlizer, orderBy []*string, limit *uint64, offset *uint64) ([]*models.WordPracticeLog, error) {
 	ret := _m.Called(columns, where, orderBy, limit, offset)
@@ -81,6 +86,27 @@ func (_m *MockWordPracticeLogPeer) Insert(log *models.WordPracticeLog) (int64, e
 	var r1 error
 	if rf, ok := ret.Get(1).(func(*models.WordPracticeLog) error); ok {
 		r1 = rf(log)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Update mock implementation
+func (_m *MockWordPracticeLogPeer) Update(log *models.WordPracticeLog, where squirrel.Sqlizer) (int64, error) {
+	ret := _m.Called(log, where)
+
+	var r0 int64
+	if rf, ok := ret.Get(0).(func(*models.WordPracticeLog, squirrel.Sqlizer) int64); ok {
+		r0 = rf(log, where)
+	} else {
+		r0 = ret.Get(0).(int64)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*models.WordPracticeLog, squirrel.Sqlizer) error); ok {
+		r1 = rf(log, where)
 	} else {
 		r1 = ret.Error(1)
 	}

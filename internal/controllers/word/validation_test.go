@@ -130,6 +130,7 @@ func (suite *HelperTestSuite) TestValidateWordFields() {
 	validFam := schema.WORD_FAMILIARITY_GREEN
 	invalidFam := "blue"
 	longReminder := strings.Repeat("r", 101)
+	longQuizSessionID := strings.Repeat("s", 37)
 
 	testCases := []testCase{
 		{
@@ -185,6 +186,18 @@ func (suite *HelperTestSuite) TestValidateWordFields() {
 			wantErr:    true,
 			wantErrMsg: "reminder is invalid",
 			wantDetail: []any{"reason", "exceeds max length", "length", 101, "max", 100},
+		},
+		{
+			name: "update - quiz_session_id too long",
+			input: &models.Word{
+				Word:          &validWord,
+				Familiarity:   &validFam,
+				QuizSessionID: &longQuizSessionID,
+			},
+			isUpdate:   true,
+			wantErr:    true,
+			wantErrMsg: "quiz_session_id is invalid",
+			wantDetail: []any{"reason", "exceeds max length", "length", 37, "max", 36},
 		},
 	}
 

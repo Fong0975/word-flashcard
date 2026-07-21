@@ -33,7 +33,7 @@ func TestRegisterAllTables(t *testing.T) {
 			"id", "title", "content", "sort_order", "created_at", "updated_at",
 		},
 		"word_practice_logs": {
-			"id", "word_id", "familiarity", "previous_familiarity", "created_at", "updated_at",
+			"id", "word_id", "familiarity", "previous_familiarity", "quiz_session_id", "created_at", "updated_at",
 		},
 		"question_answer_logs": {
 			"id", "question_id", "selected_option", "is_correct", "created_at", "updated_at",

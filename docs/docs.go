@@ -1867,6 +1867,9 @@ const docTemplate = `{
                 "increment_count_practise": {
                     "type": "boolean"
                 },
+                "quiz_session_id": {
+                    "type": "string"
+                },
                 "reminder": {
                     "type": "string"
                 },
