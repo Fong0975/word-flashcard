@@ -2,6 +2,7 @@ package question
 
 import (
 	"fmt"
+	"log/slog"
 	"math/rand"
 	"time"
 	dbModels "word-flashcard/data/models"
@@ -70,7 +71,9 @@ func (qc *Controller) fetchRandomQuestionsWeighted(count int, excludeRecentDays 
 	if err != nil {
 		return nil, err
 	}
-	common.LogRandomSelectionResult("Random question bucket fetched.", quota1, len(bucket1), "bucket", "unpractised", "expected", quota1, "actual", len(bucket1))
+	// Unpractised-bucket shortfalls are routine (the bucket empties out once a
+	// user has practised everything), so mismatches log at Info rather than Warn.
+	common.LogRandomSelectionResultAtLevel("Random question bucket fetched.", slog.LevelInfo, quota1, len(bucket1), "bucket", "unpractised", "expected", quota1, "actual", len(bucket1))
 
 	combined := append(append(bucket1, bucket2...), bucket3...)
 
