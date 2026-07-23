@@ -85,7 +85,7 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       title='Word Statistics'
-      maxWidth='md'
+      maxWidth='lg'
     >
       {loading && <LoadingSpinner message='' />}
 
@@ -256,8 +256,11 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
               )}
 
               {!trendLoading && !trendError && trend && hasTrendActivity && (
-                <ResponsiveContainer width='100%' height={220}>
-                  <ComposedChart data={[...trend]}>
+                <ResponsiveContainer width='100%' height={280}>
+                  <ComposedChart
+                    data={[...trend]}
+                    margin={{ top: 4, right: 4, left: -12, bottom: 0 }}
+                  >
                     <CartesianGrid
                       strokeDasharray='3 3'
                       stroke='currentColor'
@@ -284,27 +287,38 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
                       labelFormatter={value => formatShortDate(value as string)}
                       contentStyle={{ fontSize: '12px' }}
                     />
-                    <Legend wrapperStyle={{ fontSize: '12px' }} />
+                    <Legend
+                      wrapperStyle={{ fontSize: '12px' }}
+                      formatter={value => (
+                        <span className='text-gray-500 dark:text-gray-400'>
+                          {value}
+                        </span>
+                      )}
+                    />
                     <Bar
                       yAxisId='left'
                       dataKey='practice_count'
-                      fill='#6366f1'
+                      fill='#4338ca'
                       name='Practices'
                       radius={[2, 2, 0, 0]}
                     />
                     <Line
                       yAxisId='right'
                       dataKey='improvement_rate'
-                      stroke='#22c55e'
+                      stroke='#c084fc'
+                      strokeWidth={2.5}
                       dot={false}
-                      name='Improvement %'
+                      activeDot={{ r: 4 }}
+                      name='Improvement (%)'
                     />
                     <Line
                       yAxisId='right'
                       dataKey='avg_familiarity_score'
-                      stroke='#3b82f6'
+                      stroke='#38bdf8'
+                      strokeWidth={2.5}
                       dot={false}
-                      name='Avg Familiarity %'
+                      activeDot={{ r: 4 }}
+                      name='Avg Familiarity (%)'
                     />
                   </ComposedChart>
                 </ResponsiveContainer>
