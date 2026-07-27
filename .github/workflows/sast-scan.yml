@@ -1,0 +1,62 @@
+name: SAST Scan
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths-ignore:
+      - '**/*.png'
+      - '**/*.jpg'
+      - '**/*.jpeg'
+      - '**/*.ico'
+      - '**/*.svg'
+      - 'go.sum'
+      - 'web/package-lock.json'
+      - 'utils/cambridge-dictionary-api/pnpm-lock.yaml'
+      - 'docs/swagger.json'
+      - 'docs/swagger.yaml'
+      - 'docs/docs.go'
+      - 'dist/**'
+      - 'VERSION'
+  schedule:
+    - cron: '0 0 15 * *'
+  workflow_dispatch: # Allow on-demand full-repo runs
+
+concurrency:
+  group: sast-scan
+  cancel-in-progress: false
+
+jobs:
+  sast:
+    name: Run Semgrep SAST
+    runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # Needed for the PR baseline diff and for full-history scheduled scans
+
+    - name: Run Semgrep (PR diff scan)
+      if: github.event_name == 'pull_request'
+      run: |
+        semgrep scan \
+          --config=p/security-audit \
+          --config=p/owasp-top-ten \
+          --config=p/golang \
+          --config=p/typescript \
+          --config=p/react \
+          --baseline-commit=${{ github.event.pull_request.base.sha }} \
+          --error
+
+    - name: Run Semgrep (full repo scan)
+      if: github.event_name != 'pull_request'
+      run: |
+        semgrep scan \
+          --config=p/security-audit \
+          --config=p/owasp-top-ten \
+          --config=p/golang \
+          --config=p/typescript \
+          --config=p/react \
+          --error
