@@ -14,16 +14,16 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-// TestExportData verifies every table is fetched and assembled into a
-// single export, and that a failure fetching any one table stops the
-// request with a 500 before any later table is queried.
-func (suite *ControllerTestSuite) TestExportData() {
+// TestBuildExport verifies every table is fetched and assembled into a
+// single export, and that a failure fetching any one table stops the build
+// before any later table is queried.
+func (suite *ControllerTestSuite) TestBuildExport() {
 	fetchErr := errors.New("select failed")
 
 	tests := []struct {
 		name       string
 		setupMocks func()
-		wantStatus int
+		wantErr    bool
 	}{
 		{
 			name: "success returns every table",
@@ -41,7 +41,6 @@ func (suite *ControllerTestSuite) TestExportData() {
 				suite.mockWordPracticeLogPeer.EXPECT().Select(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return([]*dbModels.WordPracticeLog{sampleWordPracticeLog(1, 1)}, nil).Times(1)
 			},
-			wantStatus: http.StatusOK,
 		},
 		{
 			name: "word peer failure",
@@ -49,7 +48,7 @@ func (suite *ControllerTestSuite) TestExportData() {
 				suite.mockWordPeer.EXPECT().Select(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(nil, fetchErr).Times(1)
 			},
-			wantStatus: http.StatusInternalServerError,
+			wantErr: true,
 		},
 		{
 			name: "question peer failure",
@@ -59,7 +58,7 @@ func (suite *ControllerTestSuite) TestExportData() {
 				suite.mockQuestionPeer.EXPECT().Select(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(nil, fetchErr).Times(1)
 			},
-			wantStatus: http.StatusInternalServerError,
+			wantErr: true,
 		},
 		{
 			name: "note peer failure",
@@ -71,7 +70,7 @@ func (suite *ControllerTestSuite) TestExportData() {
 				suite.mockNotePeer.EXPECT().Select(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(nil, fetchErr).Times(1)
 			},
-			wantStatus: http.StatusInternalServerError,
+			wantErr: true,
 		},
 		{
 			name: "word definition peer failure",
@@ -85,7 +84,7 @@ func (suite *ControllerTestSuite) TestExportData() {
 				suite.mockWordDefinitionPeer.EXPECT().Select(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(nil, fetchErr).Times(1)
 			},
-			wantStatus: http.StatusInternalServerError,
+			wantErr: true,
 		},
 		{
 			name: "question answer log peer failure",
@@ -101,7 +100,7 @@ func (suite *ControllerTestSuite) TestExportData() {
 				suite.mockQuestionAnswerLogPeer.EXPECT().Select(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(nil, fetchErr).Times(1)
 			},
-			wantStatus: http.StatusInternalServerError,
+			wantErr: true,
 		},
 		{
 			name: "word practice log peer failure",
@@ -118,6 +117,68 @@ func (suite *ControllerTestSuite) TestExportData() {
 					Return([]*dbModels.QuestionAnswerLog{}, nil).Times(1)
 				suite.mockWordPracticeLogPeer.EXPECT().Select(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(nil, fetchErr).Times(1)
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		suite.Run(tt.name, func() {
+			suite.SetupTest()
+			tt.setupMocks()
+
+			export, err := suite.controller.BuildExport()
+
+			if tt.wantErr {
+				suite.Error(err)
+				suite.Nil(export)
+				return
+			}
+
+			suite.Require().NoError(err)
+			suite.Require().NotNil(export)
+			suite.Len(export.Words, 1)
+			suite.Len(export.Questions, 1)
+			suite.Len(export.Notes, 1)
+			suite.Len(export.WordDefinitions, 1)
+			suite.Len(export.QuestionAnswerLogs, 1)
+			suite.Len(export.WordPracticeLogs, 1)
+		})
+	}
+}
+
+// TestExportData verifies the HTTP-specific behavior on top of BuildExport:
+// a successful build is sent as a downloadable JSON file, and a build
+// failure (fully covered by TestBuildExport) surfaces as a 500.
+func (suite *ControllerTestSuite) TestExportData() {
+	tests := []struct {
+		name       string
+		setupMocks func()
+		wantStatus int
+	}{
+		{
+			name: "success streams the export as a download",
+			setupMocks: func() {
+				suite.mockWordPeer.EXPECT().Select(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					Return([]*dbModels.Word{sampleWord(1)}, nil).Times(1)
+				suite.mockQuestionPeer.EXPECT().Select(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					Return([]*dbModels.Question{}, nil).Times(1)
+				suite.mockNotePeer.EXPECT().Select(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					Return([]*dbModels.Note{}, nil).Times(1)
+				suite.mockWordDefinitionPeer.EXPECT().Select(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					Return([]*dbModels.WordDefinition{}, nil).Times(1)
+				suite.mockQuestionAnswerLogPeer.EXPECT().Select(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					Return([]*dbModels.QuestionAnswerLog{}, nil).Times(1)
+				suite.mockWordPracticeLogPeer.EXPECT().Select(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					Return([]*dbModels.WordPracticeLog{}, nil).Times(1)
+			},
+			wantStatus: http.StatusOK,
+		},
+		{
+			name: "BuildExport failure returns 500",
+			setupMocks: func() {
+				suite.mockWordPeer.EXPECT().Select(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					Return(nil, errors.New("select failed")).Times(1)
 			},
 			wantStatus: http.StatusInternalServerError,
 		},
@@ -141,11 +202,6 @@ func (suite *ControllerTestSuite) TestExportData() {
 				var export models.DataExport
 				suite.Require().NoError(json.Unmarshal(w.Body.Bytes(), &export))
 				suite.Len(export.Words, 1)
-				suite.Len(export.Questions, 1)
-				suite.Len(export.Notes, 1)
-				suite.Len(export.WordDefinitions, 1)
-				suite.Len(export.QuestionAnswerLogs, 1)
-				suite.Len(export.WordPracticeLogs, 1)
 			}
 		})
 	}
