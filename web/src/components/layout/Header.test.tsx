@@ -44,6 +44,26 @@ describe('Header', () => {
     ).toHaveAttribute('href', 'https://github.com/Fong0975/word-flashcard');
   });
 
+  it('renders a settings button with an import/export dropdown menu', () => {
+    mockMatchMedia(false);
+    render(
+      <MemoryRouter>
+        <Header />
+      </MemoryRouter>,
+    );
+
+    expect(
+      screen.getByRole('button', { name: 'Settings' }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Data')).toBeInTheDocument();
+    expect(
+      screen.getByRole('menuitem', { name: 'Import' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('menuitem', { name: 'Export' }),
+    ).toBeInTheDocument();
+  });
+
   it('toggles the dark mode label when clicked', async () => {
     mockMatchMedia(false);
     const user = userEvent.setup();
