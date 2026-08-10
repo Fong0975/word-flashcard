@@ -15,6 +15,7 @@ import (
 )
 
 const (
+	defaultBackupEnabled        = true
 	defaultBackupDir            = "backups"
 	defaultBackupIntervalHours  = 72 // how old the newest backup must be before a new one is due
 	defaultCheckIntervalHours   = 24 // how often to re-check the above
@@ -37,6 +38,10 @@ const (
 // days" across restarts: it reads the newest backup file's real mtime from
 // disk, which persists across restarts, unlike an in-memory ticker that
 // would reset to zero every time the process restarts.
+//
+// Setting BACKUP_ENABLED=false disables the scheduler entirely -- including
+// the startup backup -- and StartBackupScheduler returns immediately without
+// connecting to the database.
 func StartBackupScheduler(stop <-chan struct{}) {
 	// A panic here must never take down the HTTP server -- this goroutine
 	// isn't covered by gin's RecoveryMiddleware.
@@ -45,6 +50,11 @@ func StartBackupScheduler(stop <-chan struct{}) {
 			slog.Error("Backup scheduler panicked and stopped", "panic", r)
 		}
 	}()
+
+	if !config.GetOrDefaultBool("BACKUP_ENABLED", defaultBackupEnabled) {
+		slog.Info("Backup scheduler disabled via BACKUP_ENABLED=false; skipping the startup backup and periodic checks")
+		return
+	}
 
 	dir := config.GetOrDefault("BACKUP_DIR", defaultBackupDir)
 	interval := time.Duration(config.GetOrDefaultInt("BACKUP_INTERVAL_HOURS", defaultBackupIntervalHours)) * time.Hour

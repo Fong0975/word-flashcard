@@ -29,3 +29,20 @@ func GetOrDefaultInt(key string, defaultValue int) int {
 
 	return intVal
 }
+
+// GetOrDefaultBool retrieves the boolean value of the environment variable named by the key.
+func GetOrDefaultBool(key string, defaultValue bool) bool {
+	// Get the string value
+	strVal := GetOrDefault(key, "")
+	if strVal == "" {
+		return defaultValue
+	}
+
+	// Convert to bool
+	boolVal, err := strconv.ParseBool(strVal)
+	if err != nil {
+		return defaultValue
+	}
+
+	return boolVal
+}

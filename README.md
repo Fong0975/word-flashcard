@@ -31,7 +31,7 @@ A personal language learning app for building vocabulary and practising with qui
 **Data Management**
 - Export a full snapshot of all data (words, questions, notes, and their practice/answer history) to a JSON file from the header menu
 - Restore all data from a previously exported JSON file, preserving original ids and timestamps (replaces all existing data)
-- The server automatically writes a full backup to disk on startup and on a configurable interval, keeping a limited number of recent backups
+- The server automatically writes a full backup to disk on startup and on a configurable interval, keeping a limited number of recent backups; this can be disabled entirely via `BACKUP_ENABLED`
 
 ## Project Structure
 
@@ -137,8 +137,10 @@ LOG_FILE_MAX_SIZE_MB=10
 LOG_LEVEL=INFO
 
 # Automatic Backup Configuration
+# - BACKUP_ENABLED: set to false to disable the automatic backup scheduler entirely (including the startup backup)
 # - BACKUP_INTERVAL_HOURS: how old the newest backup must be before a new one is due
 # - BACKUP_CHECK_INTERVAL_HOURS: how often to re-check the above
+BACKUP_ENABLED=true
 BACKUP_DIR=backups
 BACKUP_INTERVAL_HOURS=72
 BACKUP_CHECK_INTERVAL_HOURS=24
@@ -376,6 +378,7 @@ Use the Docker to deploy the services for the production environment.
 | .env     | CAMBRIDGE_API_PORT                | Port for the Cambridge Dictionary API (default expose port for docker-compose) | 8081                                                                                                              |
 | .env     | FRONTEND_PORT                     | Port for the React frontend service (default expose port for docker-compose)   | 3000                                                                                                              |
 | .env     | LOG_FILE_PATH                     | Log file path inside the container                                             | logs/word-flashcard.log <br/> (Docker binds volumes by default, storing log files in the physical root directory) |
+| .env     | BACKUP_ENABLED                    | Whether the automatic backup scheduler runs (startup backup + periodic checks) | true                                                                                                               |
 | .env     | BACKUP_DIR                        | Automatic backup output directory inside the container                         | backups <br/> (bound via its own `./backups:/root/backups` volume, so backup files persist on the physical host)  |
 | web/.env | REACT_APP_API_HOSTNAME            | Hostname for the API service in the frontend                                   | api.flashcard.com                                                                                                 |
 | web/.env | REACT_APP_API_PORT                | Port for the API service in the frontend configuration                         | 8080                                                                                                              |

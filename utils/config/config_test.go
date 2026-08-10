@@ -70,7 +70,7 @@ func TestGetOrDefaultInt(t *testing.T) {
 		{
 			name:         "Env variable is not a valid Int",
 			key:          "TIMEOUT",
-			envValue:     "abc", // 無法轉為 int
+			envValue:     "abc", // cannot be converted to int
 			defaultValue: 30,
 			want:         30,
 		},
@@ -81,12 +81,66 @@ func TestGetOrDefaultInt(t *testing.T) {
 			if tt.envValue != "" {
 				t.Setenv(tt.key, tt.envValue)
 			} else {
-				os.Unsetenv(tt.key) // 確保環境變數是乾淨的
+				os.Unsetenv(tt.key) // ensure the environment variable is clean
 			}
 
 			got := GetOrDefaultInt(tt.key, tt.defaultValue)
 			if got != tt.want {
 				t.Errorf("GetOrDefaultInt() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestGetOrDefaultBool(t *testing.T) {
+	tests := []struct {
+		name         string
+		key          string
+		envValue     string
+		defaultValue bool
+		want         bool
+	}{
+		{
+			name:         "Convert to bool true",
+			key:          "BACKUP_ENABLED",
+			envValue:     "true",
+			defaultValue: false,
+			want:         true,
+		},
+		{
+			name:         "Convert to bool false",
+			key:          "BACKUP_ENABLED",
+			envValue:     "false",
+			defaultValue: true,
+			want:         false,
+		},
+		{
+			name:         "Env variable does not exist",
+			key:          "FEATURE_FLAG",
+			envValue:     "",
+			defaultValue: true,
+			want:         true,
+		},
+		{
+			name:         "Env variable is not a valid bool",
+			key:          "FEATURE_FLAG",
+			envValue:     "not-a-bool",
+			defaultValue: true,
+			want:         true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.envValue != "" {
+				t.Setenv(tt.key, tt.envValue)
+			} else {
+				os.Unsetenv(tt.key) // ensure the environment variable is clean
+			}
+
+			got := GetOrDefaultBool(tt.key, tt.defaultValue)
+			if got != tt.want {
+				t.Errorf("GetOrDefaultBool() = %v, want %v", got, tt.want)
 			}
 		})
 	}
