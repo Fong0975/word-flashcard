@@ -23,6 +23,9 @@ export * from './hooks';
 // ===== API TYPES =====
 export * from './api';
 
+// ===== DATA EXPORT/IMPORT TYPES =====
+export * from './data-export';
+
 // ===== GLOBAL TYPE AUGMENTATIONS =====
 
 declare global {

@@ -56,6 +56,8 @@ export const API_ENDPOINTS = {
   notesSearch: '/notes/search',
   noteById: (noteId: number) => `/notes/${noteId}`,
   notesCount: '/notes/count',
+  dataExport: '/data/export',
+  dataImport: '/data/import',
 } as const;
 
 // Dictionary API endpoints
