@@ -299,6 +299,28 @@ npm run test:ci
 npm run test:ctrf
 ```
 
+### Dependency Vulnerability Scanning
+
+#### Backend
+
+```bash
+# Install govulncheck (one-time)
+go install golang.org/x/vuln/cmd/govulncheck@latest
+
+# Scan Go dependencies (go.mod) for known vulnerabilities
+govulncheck ./...
+```
+
+#### Frontend
+
+```bash
+# Navigate to the web directory
+cd web
+
+# Scan npm dependencies (package.json) for known vulnerabilities (high/critical only)
+npm audit --audit-level=high
+```
+
 ### Building the Application
 
 To build the Go binary:
