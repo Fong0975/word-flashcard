@@ -22,6 +22,7 @@ import {
   NotesListParams,
   NotesSearchParams,
 } from '../types/api';
+import { DataExportPayload, ImportSummary } from '../types/data-export';
 import {
   SearchFilter,
   ApiErrorCode,
@@ -30,6 +31,11 @@ import {
 } from '../types/base';
 
 import { API_CONFIG, API_ENDPOINTS, DICTIONARY_ENDPOINTS } from './api-config';
+
+// Export/import move the entire database in one request, so they're given a
+// longer default timeout than the rest of the API (still overridable via
+// ApiRequestOptions.timeout).
+const DATA_TRANSFER_TIMEOUT_MS = 60000;
 
 // Custom error class for API errors
 export class ApiError extends Error {
@@ -475,6 +481,25 @@ class ApiService {
 
   async getNotesCount(options?: ApiRequestOptions): Promise<{ count: number }> {
     return this.get<{ count: number }>(API_ENDPOINTS.notesCount, options);
+  }
+
+  // Data export/import methods
+
+  async exportData(options?: ApiRequestOptions): Promise<DataExportPayload> {
+    return this.get<DataExportPayload>(API_ENDPOINTS.dataExport, {
+      timeout: DATA_TRANSFER_TIMEOUT_MS,
+      ...options,
+    });
+  }
+
+  async importData(
+    payload: DataExportPayload,
+    options?: ApiRequestOptions,
+  ): Promise<ImportSummary> {
+    return this.post<ImportSummary>(API_ENDPOINTS.dataImport, payload, {
+      timeout: DATA_TRANSFER_TIMEOUT_MS,
+      ...options,
+    });
   }
 
   // Dictionary API methods

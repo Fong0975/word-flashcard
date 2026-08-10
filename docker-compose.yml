@@ -40,6 +40,7 @@ services:
       retries: 3
     volumes:
       - .:/root/logs
+      - ./backups:/root/backups
     extra_hosts:
       - "host.docker.internal:host-gateway"
 

@@ -17,6 +17,7 @@ import (
 	"word-flashcard/data"
 	_ "word-flashcard/docs"
 	"word-flashcard/internal/routers"
+	"word-flashcard/internal/scheduler"
 	"word-flashcard/utils/database"
 
 	"github.com/joho/godotenv"
@@ -52,6 +53,12 @@ func main() {
 		slog.Error("Failed to initialize database:", "error", err)
 	}
 
+	// Start the background backup scheduler (runs once now, then on its own
+	// interval); a failure to start only disables backups, it never blocks
+	// server startup.
+	backupSchedulerStop := make(chan struct{})
+	go scheduler.StartBackupScheduler(backupSchedulerStop)
+
 	// Get HTTP server
 	server := getHTTPServer()
 	if server == nil {
@@ -69,7 +76,7 @@ func main() {
 	slog.Info("=============== Completed Start Up Server ===============")
 
 	// Run HTTP server
-	runHTTPServer(server)
+	runHTTPServer(server, backupSchedulerStop)
 }
 
 func bootstrap() error {
@@ -107,7 +114,7 @@ func getHTTPServer() *http.Server {
 	}
 }
 
-func runHTTPServer(server *http.Server) {
+func runHTTPServer(server *http.Server, backupSchedulerStop chan<- struct{}) {
 	go func() {
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			slog.Error("Failed to start server", "error", err)
@@ -121,6 +128,9 @@ func runHTTPServer(server *http.Server) {
 	// Wait for signal
 	<-quit
 	slog.Debug("Server shutdown signal received")
+
+	// Stop the background backup scheduler alongside the HTTP server
+	close(backupSchedulerStop)
 
 	// Create context with timeout for shutdown
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)

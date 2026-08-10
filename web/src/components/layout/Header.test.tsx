@@ -44,6 +44,21 @@ describe('Header', () => {
     ).toHaveAttribute('href', 'https://github.com/Fong0975/word-flashcard');
   });
 
+  it('renders the data management settings entry point', () => {
+    // Full coverage of the dropdown's Import/Export behavior lives in
+    // DataManagementMenu.test.tsx; this just checks Header wires it in.
+    mockMatchMedia(false);
+    render(
+      <MemoryRouter>
+        <Header />
+      </MemoryRouter>,
+    );
+
+    expect(
+      screen.getByRole('button', { name: 'Settings' }),
+    ).toBeInTheDocument();
+  });
+
   it('toggles the dark mode label when clicked', async () => {
     mockMatchMedia(false);
     const user = userEvent.setup();

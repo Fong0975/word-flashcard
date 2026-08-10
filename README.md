@@ -28,12 +28,18 @@ A personal language learning app for building vocabulary and practising with qui
 - Reorder notes via drag-and-drop or move-up / move-down buttons
 - Search notes and browse with paginated results
 
+**Data Management**
+- Export a full snapshot of all data (words, questions, notes, and their practice/answer history) to a JSON file from the header menu
+- Restore all data from a previously exported JSON file, preserving original ids and timestamps (replaces all existing data)
+- The server automatically writes a full backup to disk on startup and on a configurable interval, keeping a limited number of recent backups
+
 ## Project Structure
 
 ```
 word-flashcard/
 ├── .claude/                       # Claude Code project configuration
 │   └── commands/                 # Project-specific Claude Code custom commands (skills)
+├── backups/                       # Automatic backup output (created at runtime, not committed)
 ├── data/                          # Database peers and models
 │   ├── mocks/                    # Mock function for testing
 │   ├── models/                   # Data models
@@ -44,11 +50,11 @@ word-flashcard/
 ├── docs/                          # Auto-generated Swagger API documentation
 ├── internal/                      # Internal application code
 │   ├── controllers/              # API controllers
-│   ├── handlers/                 # HTTP web handlers
 │   ├── middleware/               # HTTP middleware
 │   ├── mocks/                    # Mock interfaces for testing
 │   ├── models/                   # Data models
-│   └── routers/                  # Route configuration
+│   ├── routers/                  # Route configuration
+│   └── scheduler/                # Background jobs (automatic backup scheduler)
 ├── utils/                         # Utility modules
 │   ├── cambridge-dictionary-api/ # Cambridge Dictionary API sub-service
 │   ├── config/                   # Configuration module
@@ -129,6 +135,14 @@ FRONTEND_PORT=3000
 LOG_FILE_PATH=word-flashcard.log
 LOG_FILE_MAX_SIZE_MB=10
 LOG_LEVEL=INFO
+
+# Automatic Backup Configuration
+# - BACKUP_INTERVAL_HOURS: how old the newest backup must be before a new one is due
+# - BACKUP_CHECK_INTERVAL_HOURS: how often to re-check the above
+BACKUP_DIR=backups
+BACKUP_INTERVAL_HOURS=72
+BACKUP_CHECK_INTERVAL_HOURS=24
+BACKUP_RETENTION_COUNT=10
 
 # Database Configuration
 # Supported types: mysql, postgresql
@@ -362,6 +376,7 @@ Use the Docker to deploy the services for the production environment.
 | .env     | CAMBRIDGE_API_PORT                | Port for the Cambridge Dictionary API (default expose port for docker-compose) | 8081                                                                                                              |
 | .env     | FRONTEND_PORT                     | Port for the React frontend service (default expose port for docker-compose)   | 3000                                                                                                              |
 | .env     | LOG_FILE_PATH                     | Log file path inside the container                                             | logs/word-flashcard.log <br/> (Docker binds volumes by default, storing log files in the physical root directory) |
+| .env     | BACKUP_DIR                        | Automatic backup output directory inside the container                         | backups <br/> (bound via its own `./backups:/root/backups` volume, so backup files persist on the physical host)  |
 | web/.env | REACT_APP_API_HOSTNAME            | Hostname for the API service in the frontend                                   | api.flashcard.com                                                                                                 |
 | web/.env | REACT_APP_API_PORT                | Port for the API service in the frontend configuration                         | 8080                                                                                                              |
 | web/.env | REACT_APP_API_HOSTNAME_DICTIONARY | Hostname for the Cambridge Dictionary API in the frontend configuration        | dictionary.flashcard.com                                                                                          |

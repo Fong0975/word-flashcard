@@ -24,6 +24,76 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/data/export": {
+            "get": {
+                "description": "Returns every row of every table as a single JSON document, including ids and timestamps, suitable for a later POST /api/data/import restore.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "data"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Full database snapshot",
+                        "schema": {
+                            "$ref": "#/definitions/models.DataExport"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to fetch data from database",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/data/import": {
+            "post": {
+                "description": "Wipes every table and rewrites it from the uploaded snapshot, preserving each row's original id/created_at/updated_at. Destructive: all existing data is permanently replaced.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "data"
+                ],
+                "parameters": [
+                    {
+                        "description": "Full database snapshot to restore",
+                        "name": "export",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.DataExport"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Row counts written per table",
+                        "schema": {
+                            "$ref": "#/definitions/models.ImportSummary"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid or incomplete request body",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to restore data into database",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/dictionary/{word}": {
             "get": {
                 "description": "Get dictionary definition and pronunciation for a given word from Cambridge Dictionary API",
@@ -1556,6 +1626,253 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "models.DataExport": {
+            "type": "object",
+            "properties": {
+                "exported_at": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/word-flashcard_data_models.Note"
+                    }
+                },
+                "question_answer_logs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/word-flashcard_data_models.QuestionAnswerLog"
+                    }
+                },
+                "questions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/word-flashcard_data_models.Question"
+                    }
+                },
+                "word_definitions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/word-flashcard_data_models.WordDefinition"
+                    }
+                },
+                "word_practice_logs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/word-flashcard_data_models.WordPracticeLog"
+                    }
+                },
+                "words": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/word-flashcard_data_models.Word"
+                    }
+                }
+            }
+        },
+        "models.ImportSummary": {
+            "type": "object",
+            "properties": {
+                "notes": {
+                    "type": "integer"
+                },
+                "question_answer_logs": {
+                    "type": "integer"
+                },
+                "questions": {
+                    "type": "integer"
+                },
+                "word_definitions": {
+                    "type": "integer"
+                },
+                "word_practice_logs": {
+                    "type": "integer"
+                },
+                "words": {
+                    "type": "integer"
+                }
+            }
+        },
+        "word-flashcard_data_models.Note": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "sort_order": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "word-flashcard_data_models.Question": {
+            "type": "object",
+            "properties": {
+                "answer": {
+                    "type": "string"
+                },
+                "count_failure_practise": {
+                    "type": "integer"
+                },
+                "count_practise": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "last_answered_at": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "option_a": {
+                    "type": "string"
+                },
+                "option_b": {
+                    "type": "string"
+                },
+                "option_c": {
+                    "type": "string"
+                },
+                "option_d": {
+                    "type": "string"
+                },
+                "question": {
+                    "type": "string"
+                },
+                "reference": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "word-flashcard_data_models.QuestionAnswerLog": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_correct": {
+                    "type": "boolean"
+                },
+                "question_id": {
+                    "type": "integer"
+                },
+                "selected_option": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "word-flashcard_data_models.Word": {
+            "type": "object",
+            "properties": {
+                "count_practise": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "familiarity": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "last_practiced_at": {
+                    "type": "string"
+                },
+                "reminder": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "word": {
+                    "type": "string"
+                }
+            }
+        },
+        "word-flashcard_data_models.WordDefinition": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "definition": {
+                    "type": "string"
+                },
+                "examples": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "part_of_speech": {
+                    "type": "string"
+                },
+                "phonetics": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "word_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "word-flashcard_data_models.WordPracticeLog": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "familiarity": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "previous_familiarity": {
+                    "type": "string"
+                },
+                "quiz_session_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "word_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "word-flashcard_internal_models.AccuracyBucket": {
             "type": "object",
             "properties": {

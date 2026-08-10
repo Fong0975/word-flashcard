@@ -2,6 +2,7 @@ package routers
 
 import (
 	"log/slog"
+	"word-flashcard/internal/controllers/backup"
 	"word-flashcard/internal/controllers/dictionary"
 	"word-flashcard/internal/controllers/health"
 	"word-flashcard/internal/controllers/note"
@@ -19,6 +20,7 @@ type ControllerDependencies struct {
 	WordController       word.ControllerInterface
 	QuestionController   question.ControllerInterface
 	NoteController       note.ControllerInterface
+	BackupController     backup.ControllerInterface
 }
 
 // SetupAPIRoutes configures all API routes with default controllers
@@ -45,6 +47,21 @@ func SetupAPIRoutes(router *gin.Engine) {
 	}
 	noteController := note.New(notePeer)
 
+	backupWordPeer, backupWordDefinitionPeer, backupQuestionPeer, backupQuestionAnswerLogPeer, backupWordPracticeLogPeer, backupNotePeer, backupPeer, err := backup.GetReelPeers()
+	if err != nil {
+		slog.Error("Failed to initialize Backup controller", "error", err)
+		return
+	}
+	backupController := backup.New(
+		backupWordPeer,
+		backupWordDefinitionPeer,
+		backupQuestionPeer,
+		backupQuestionAnswerLogPeer,
+		backupWordPracticeLogPeer,
+		backupNotePeer,
+		backupPeer,
+	)
+
 	// Inject controllers into dependencies struct
 	deps := &ControllerDependencies{
 		HealthController:     health.New(),
@@ -52,6 +69,7 @@ func SetupAPIRoutes(router *gin.Engine) {
 		WordController:       wordController,
 		QuestionController:   questionController,
 		NoteController:       noteController,
+		BackupController:     backupController,
 	}
 
 	// Setup routes with dependencies
@@ -106,4 +124,8 @@ func SetupAPIRoutesWithDependencies(router *gin.Engine, deps *ControllerDependen
 	apiGroup.PUT("/notes/:id", deps.NoteController.UpdateNote)
 	apiGroup.DELETE("/notes/:id", deps.NoteController.DeleteNote)
 	apiGroup.GET("/notes/count", deps.NoteController.CountNotes)
+
+	// Data export/import routes
+	apiGroup.GET("/data/export", deps.BackupController.ExportData)
+	apiGroup.POST("/data/import", deps.BackupController.ImportData)
 }

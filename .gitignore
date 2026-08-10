@@ -17,6 +17,9 @@ dist/*
 # log file
 *.log
 
+# automatic backup output
+backups/
+
 # Code coverage profiles and other test artifacts
 *.out
 coverage.*
