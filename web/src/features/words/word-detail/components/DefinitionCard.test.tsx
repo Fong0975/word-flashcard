@@ -23,8 +23,8 @@ describe('DefinitionCard', () => {
       <DefinitionCard
         definition={buildDefinition()}
         index={0}
-        onEdit={jest.fn()}
-        onDelete={jest.fn()}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
       />,
     );
 
@@ -34,14 +34,14 @@ describe('DefinitionCard', () => {
 
   it('delegates edit clicks with the definition', async () => {
     const user = userEvent.setup();
-    const onEdit = jest.fn();
+    const onEdit = vi.fn();
     const definition = buildDefinition();
     render(
       <DefinitionCard
         definition={definition}
         index={0}
         onEdit={onEdit}
-        onDelete={jest.fn()}
+        onDelete={vi.fn()}
       />,
     );
 

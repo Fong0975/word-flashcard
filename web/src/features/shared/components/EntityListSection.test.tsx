@@ -16,17 +16,17 @@ const buildEntities = (count: number): TestEntity[] =>
   }));
 
 const baseProps = {
-  onPageChange: jest.fn(),
-  onNext: jest.fn(),
-  onPrevious: jest.fn(),
-  onFirst: jest.fn(),
-  onLast: jest.fn(),
+  onPageChange: vi.fn(),
+  onNext: vi.fn(),
+  onPrevious: vi.fn(),
+  onFirst: vi.fn(),
+  onLast: vi.fn(),
   entityNamePlural: 'Words',
 };
 
 describe('EntityListSection', () => {
   it('renders a card for each entity with the sequence-adjusted index', () => {
-    const renderCard = jest.fn((entity: TestEntity) => (
+    const renderCard = vi.fn((entity: TestEntity) => (
       <span>{entity.name}</span>
     ));
     render(
@@ -78,7 +78,7 @@ describe('EntityListSection', () => {
 
   it('shows the total count as a button when onTotalCountClick is provided', async () => {
     const user = userEvent.setup();
-    const onTotalCountClick = jest.fn();
+    const onTotalCountClick = vi.fn();
     render(
       <EntityListSection
         {...baseProps}
@@ -139,7 +139,7 @@ describe('EntityListSection', () => {
 
   it('renders pagination and forwards page changes when there is more than one page', async () => {
     const user = userEvent.setup();
-    const onPageChange = jest.fn();
+    const onPageChange = vi.fn();
     render(
       <EntityListSection
         {...baseProps}

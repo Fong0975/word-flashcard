@@ -25,10 +25,10 @@ describe('DictionaryLookup', () => {
         isLoadingDictionary={false}
         dictionaryError={null}
         isCollapsed={false}
-        onFetchDictionary={jest.fn()}
-        onToggleCollapsed={jest.fn()}
-        onApplyPronunciation={jest.fn()}
-        onApplyDefinition={jest.fn()}
+        onFetchDictionary={vi.fn()}
+        onToggleCollapsed={vi.fn()}
+        onApplyPronunciation={vi.fn()}
+        onApplyDefinition={vi.fn()}
       />,
     );
     expect(container).toBeEmptyDOMElement();
@@ -42,10 +42,10 @@ describe('DictionaryLookup', () => {
         isLoadingDictionary={false}
         dictionaryError={null}
         isCollapsed
-        onFetchDictionary={jest.fn()}
-        onToggleCollapsed={jest.fn()}
-        onApplyPronunciation={jest.fn()}
-        onApplyDefinition={jest.fn()}
+        onFetchDictionary={vi.fn()}
+        onToggleCollapsed={vi.fn()}
+        onApplyPronunciation={vi.fn()}
+        onApplyDefinition={vi.fn()}
       />,
     );
 
@@ -63,10 +63,10 @@ describe('DictionaryLookup', () => {
         isLoadingDictionary={false}
         dictionaryError='Failed to fetch dictionary data'
         isCollapsed={false}
-        onFetchDictionary={jest.fn()}
-        onToggleCollapsed={jest.fn()}
-        onApplyPronunciation={jest.fn()}
-        onApplyDefinition={jest.fn()}
+        onFetchDictionary={vi.fn()}
+        onToggleCollapsed={vi.fn()}
+        onApplyPronunciation={vi.fn()}
+        onApplyDefinition={vi.fn()}
       />,
     );
 
@@ -83,10 +83,10 @@ describe('DictionaryLookup', () => {
         isLoadingDictionary={false}
         dictionaryError={null}
         isCollapsed={false}
-        onFetchDictionary={jest.fn()}
-        onToggleCollapsed={jest.fn()}
-        onApplyPronunciation={jest.fn()}
-        onApplyDefinition={jest.fn()}
+        onFetchDictionary={vi.fn()}
+        onToggleCollapsed={vi.fn()}
+        onApplyPronunciation={vi.fn()}
+        onApplyDefinition={vi.fn()}
       />,
     );
 
@@ -113,10 +113,10 @@ describe('DictionaryLookup', () => {
         isLoadingDictionary={false}
         dictionaryError={null}
         isCollapsed={false}
-        onFetchDictionary={jest.fn()}
-        onToggleCollapsed={jest.fn()}
-        onApplyPronunciation={jest.fn()}
-        onApplyDefinition={jest.fn()}
+        onFetchDictionary={vi.fn()}
+        onToggleCollapsed={vi.fn()}
+        onApplyPronunciation={vi.fn()}
+        onApplyDefinition={vi.fn()}
       />,
     );
 
@@ -126,7 +126,7 @@ describe('DictionaryLookup', () => {
 
   it('calls onFetchDictionary when the fetch button is clicked', async () => {
     const user = userEvent.setup();
-    const onFetchDictionary = jest.fn();
+    const onFetchDictionary = vi.fn();
     render(
       <DictionaryLookup
         wordText='apple'
@@ -135,9 +135,9 @@ describe('DictionaryLookup', () => {
         dictionaryError={null}
         isCollapsed={false}
         onFetchDictionary={onFetchDictionary}
-        onToggleCollapsed={jest.fn()}
-        onApplyPronunciation={jest.fn()}
-        onApplyDefinition={jest.fn()}
+        onToggleCollapsed={vi.fn()}
+        onApplyPronunciation={vi.fn()}
+        onApplyDefinition={vi.fn()}
       />,
     );
 

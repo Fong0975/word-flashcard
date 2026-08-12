@@ -1,46 +1,53 @@
-# Getting Started with Create React App
+# Word Flashcard — Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+React + TypeScript frontend for Word Flashcard, built with [Vite](https://vite.dev/) and tested with [Vitest](https://vitest.dev/).
+
+For the full project (backend, Docker deployment, environment configuration), see the [root README](../README.md).
 
 ## Available Scripts
 
-In the project directory, you can run:
+In the `web/` directory, you can run:
 
 ### `npm start`
 
-Runs the app in the development mode.\
+Runs the app in development mode with Vite's dev server (hot module replacement).\
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
 
 ### `npm test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Launches Vitest in interactive watch mode.
+
+### `npm run test:ci`
+
+Runs all tests once with a coverage report (used in CI).
+
+### `npm run test:ctrf`
+
+Runs all tests once with a coverage report and additionally generates a CTRF JSON report at `ctrf/ctrf-report.json` (used by the Frontend Unit Tests GitHub Actions workflow to post results on pull requests).
 
 ### `npm run build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Builds the app for production into the `build` folder (not Vite's default `dist` — kept as `build` so the output matches what `docker/web/Dockerfile` expects).\
+The build is minified and the filenames include content hashes.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### `npm run preview`
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Serves the production build from the `build` folder locally, for a quick sanity check before deploying.
 
-### `npm run eject`
+### `npm run lint` / `npm run lint:fix` / `npm run lint:check`
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+Run ESLint (includes Prettier and Tailwind CSS class checks). `lint:fix` applies automatic fixes; `lint:check` fails on any warning (used in CI).
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### `npm run format` / `npm run format:check` / `npm run format:diff`
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+Pure Prettier commands for formatting-only operations, faster than the ESLint commands when you don't need code-quality checks.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+## Environment Variables
+
+Vite only exposes environment variables prefixed with `VITE_` to client code, read via `import.meta.env.VITE_*` (not `process.env`). See `.env.example` for the variables this app uses, and the root README's [Environment Configuration](../README.md#2-environment-configuration) section for setup instructions.
 
 ## Learn More
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+- [Vite documentation](https://vite.dev/guide/)
+- [Vitest documentation](https://vitest.dev/guide/)
+- [React documentation](https://react.dev/)

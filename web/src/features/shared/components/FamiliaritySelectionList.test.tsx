@@ -8,10 +8,7 @@ import { FamiliaritySelectionList } from './FamiliaritySelectionList';
 describe('FamiliaritySelectionList', () => {
   it('renders an option for every familiarity level', () => {
     render(
-      <FamiliaritySelectionList
-        selectedFamiliarity={[]}
-        onToggle={jest.fn()}
-      />,
+      <FamiliaritySelectionList selectedFamiliarity={[]} onToggle={vi.fn()} />,
     );
 
     expect(screen.getByText('Green Level')).toBeInTheDocument();
@@ -23,7 +20,7 @@ describe('FamiliaritySelectionList', () => {
     render(
       <FamiliaritySelectionList
         selectedFamiliarity={[FamiliarityLevel.GREEN]}
-        onToggle={jest.fn()}
+        onToggle={vi.fn()}
       />,
     );
 
@@ -32,7 +29,7 @@ describe('FamiliaritySelectionList', () => {
 
   it('calls onToggle with the clicked level', async () => {
     const user = userEvent.setup();
-    const onToggle = jest.fn();
+    const onToggle = vi.fn();
     render(
       <FamiliaritySelectionList selectedFamiliarity={[]} onToggle={onToggle} />,
     );
@@ -43,10 +40,7 @@ describe('FamiliaritySelectionList', () => {
 
   it('shows a warning when nothing is selected', () => {
     render(
-      <FamiliaritySelectionList
-        selectedFamiliarity={[]}
-        onToggle={jest.fn()}
-      />,
+      <FamiliaritySelectionList selectedFamiliarity={[]} onToggle={vi.fn()} />,
     );
     expect(
       screen.getByText('Please select at least one familiarity level.'),
@@ -57,7 +51,7 @@ describe('FamiliaritySelectionList', () => {
     render(
       <FamiliaritySelectionList
         selectedFamiliarity={[FamiliarityLevel.GREEN]}
-        onToggle={jest.fn()}
+        onToggle={vi.fn()}
       />,
     );
     expect(

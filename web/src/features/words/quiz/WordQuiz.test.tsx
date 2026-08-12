@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { MockInstance } from 'vitest';
 
 import { Word } from '../../../types/api';
 import { FamiliarityLevel } from '../../../types/base';
@@ -20,21 +21,21 @@ const buildWord = (overrides: Partial<Word> = {}): Word => ({
 const noop = () => {};
 
 describe('WordQuiz', () => {
-  let consoleErrorSpy: jest.SpyInstance;
+  let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('shows the loading screen while words are being fetched', () => {
-    jest
-      .spyOn(apiService, 'getRandomWords')
-      .mockReturnValue(new Promise<Word[]>(() => {}));
+    vi.spyOn(apiService, 'getRandomWords').mockReturnValue(
+      new Promise<Word[]>(() => {}),
+    );
 
     render(
       <WordQuiz
@@ -50,9 +51,9 @@ describe('WordQuiz', () => {
 
   it('shows an error screen when fetching words fails, and Try Again dismisses it', async () => {
     const user = userEvent.setup();
-    jest
-      .spyOn(apiService, 'getRandomWords')
-      .mockRejectedValue(new Error('network down'));
+    vi.spyOn(apiService, 'getRandomWords').mockRejectedValue(
+      new Error('network down'),
+    );
 
     render(
       <WordQuiz
@@ -72,7 +73,7 @@ describe('WordQuiz', () => {
 
   it('renders the current word during the question stage and reveals the rating UI after Show Answer', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getRandomWords').mockResolvedValue([buildWord()]);
+    vi.spyOn(apiService, 'getRandomWords').mockResolvedValue([buildWord()]);
 
     render(
       <WordQuiz
@@ -105,13 +106,11 @@ describe('WordQuiz', () => {
 
   it('submits a familiarity rating, sends the reminder note when enabled, and advances to the next word', async () => {
     const user = userEvent.setup();
-    jest
-      .spyOn(apiService, 'getRandomWords')
-      .mockResolvedValue([
-        buildWord({ id: 1, word: 'apple' }),
-        buildWord({ id: 2, word: 'banana' }),
-      ]);
-    const updateSpy = jest
+    vi.spyOn(apiService, 'getRandomWords').mockResolvedValue([
+      buildWord({ id: 1, word: 'apple' }),
+      buildWord({ id: 2, word: 'banana' }),
+    ]);
+    const updateSpy = vi
       .spyOn(apiService, 'updateWordFields')
       .mockResolvedValue(buildWord());
 
@@ -154,8 +153,8 @@ describe('WordQuiz', () => {
 
   it('omits the reminder field when no reminder note is set', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getRandomWords').mockResolvedValue([buildWord()]);
-    const updateSpy = jest
+    vi.spyOn(apiService, 'getRandomWords').mockResolvedValue([buildWord()]);
+    const updateSpy = vi
       .spyOn(apiService, 'updateWordFields')
       .mockResolvedValue(buildWord());
 
@@ -184,11 +183,11 @@ describe('WordQuiz', () => {
 
   it('shows an error and does not advance when the familiarity update request fails', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getRandomWords').mockResolvedValue([buildWord()]);
-    jest
-      .spyOn(apiService, 'updateWordFields')
-      .mockRejectedValue(new Error('update failed'));
-    const onError = jest.fn();
+    vi.spyOn(apiService, 'getRandomWords').mockResolvedValue([buildWord()]);
+    vi.spyOn(apiService, 'updateWordFields').mockRejectedValue(
+      new Error('update failed'),
+    );
+    const onError = vi.fn();
 
     render(
       <WordQuiz
@@ -212,13 +211,11 @@ describe('WordQuiz', () => {
 
   it('completes the quiz after rating the last word and calls onQuizComplete', async () => {
     const user = userEvent.setup();
-    jest
-      .spyOn(apiService, 'getRandomWords')
-      .mockResolvedValue([
-        buildWord({ id: 1, word: 'apple', familiarity: FamiliarityLevel.RED }),
-      ]);
-    jest.spyOn(apiService, 'updateWordFields').mockResolvedValue(buildWord());
-    const onQuizComplete = jest.fn();
+    vi.spyOn(apiService, 'getRandomWords').mockResolvedValue([
+      buildWord({ id: 1, word: 'apple', familiarity: FamiliarityLevel.RED }),
+    ]);
+    vi.spyOn(apiService, 'updateWordFields').mockResolvedValue(buildWord());
+    const onQuizComplete = vi.fn();
 
     render(
       <WordQuiz
@@ -247,7 +244,7 @@ describe('WordQuiz', () => {
 
   it('defaults to maintaining familiarity and advances without an API call when Next is pressed without rating', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getRandomWords').mockResolvedValue([
+    vi.spyOn(apiService, 'getRandomWords').mockResolvedValue([
       buildWord({
         id: 1,
         word: 'apple',
@@ -255,7 +252,7 @@ describe('WordQuiz', () => {
       }),
       buildWord({ id: 2, word: 'banana' }),
     ]);
-    const updateSpy = jest.spyOn(apiService, 'updateWordFields');
+    const updateSpy = vi.spyOn(apiService, 'updateWordFields');
 
     render(
       <WordQuiz
@@ -278,17 +275,15 @@ describe('WordQuiz', () => {
 
   it('disables quiz buttons while a familiarity update is pending, ignores a repeat click, and re-enables them after it resolves', async () => {
     const user = userEvent.setup();
-    jest
-      .spyOn(apiService, 'getRandomWords')
-      .mockResolvedValue([
-        buildWord({ id: 1, word: 'apple' }),
-        buildWord({ id: 2, word: 'banana' }),
-      ]);
+    vi.spyOn(apiService, 'getRandomWords').mockResolvedValue([
+      buildWord({ id: 1, word: 'apple' }),
+      buildWord({ id: 2, word: 'banana' }),
+    ]);
     let resolveUpdate: (value: Word) => void = () => {};
     const updatePromise = new Promise<Word>(resolve => {
       resolveUpdate = resolve;
     });
-    const updateSpy = jest
+    const updateSpy = vi
       .spyOn(apiService, 'updateWordFields')
       .mockReturnValue(updatePromise);
 
@@ -325,10 +320,10 @@ describe('WordQuiz', () => {
 
   it('resets the processing state so buttons are re-enabled after a failed familiarity update', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getRandomWords').mockResolvedValue([buildWord()]);
-    jest
-      .spyOn(apiService, 'updateWordFields')
-      .mockRejectedValue(new Error('update failed'));
+    vi.spyOn(apiService, 'getRandomWords').mockResolvedValue([buildWord()]);
+    vi.spyOn(apiService, 'updateWordFields').mockRejectedValue(
+      new Error('update failed'),
+    );
 
     render(
       <WordQuiz
@@ -351,8 +346,8 @@ describe('WordQuiz', () => {
 
   it('returns to the question stage when Previous is pressed from the answer stage, without an API call', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getRandomWords').mockResolvedValue([buildWord()]);
-    const updateSpy = jest.spyOn(apiService, 'updateWordFields');
+    vi.spyOn(apiService, 'getRandomWords').mockResolvedValue([buildWord()]);
+    const updateSpy = vi.spyOn(apiService, 'updateWordFields');
 
     render(
       <WordQuiz

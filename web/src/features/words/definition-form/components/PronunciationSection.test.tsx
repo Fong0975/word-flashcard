@@ -20,7 +20,7 @@ describe('PronunciationSection', () => {
     const { container } = render(
       <PronunciationSection
         pronunciations={[]}
-        onApplyPronunciation={jest.fn()}
+        onApplyPronunciation={vi.fn()}
       />,
     );
     expect(container).toBeEmptyDOMElement();
@@ -33,7 +33,7 @@ describe('PronunciationSection', () => {
           buildPronunciation({ lang: 'uk' }),
           buildPronunciation({ lang: 'us', url: 'http://example.com/us.mp3' }),
         ]}
-        onApplyPronunciation={jest.fn()}
+        onApplyPronunciation={vi.fn()}
       />,
     );
 
@@ -48,7 +48,7 @@ describe('PronunciationSection', () => {
     render(
       <PronunciationSection
         pronunciations={[buildPronunciation({ lang: 'uk' })]}
-        onApplyPronunciation={jest.fn()}
+        onApplyPronunciation={vi.fn()}
       />,
     );
 
@@ -59,7 +59,7 @@ describe('PronunciationSection', () => {
 
   it('calls onApplyPronunciation with the group urls and part of speech', async () => {
     const user = userEvent.setup();
-    const onApplyPronunciation = jest.fn();
+    const onApplyPronunciation = vi.fn();
     render(
       <PronunciationSection
         pronunciations={[
@@ -90,7 +90,7 @@ describe('PronunciationSection', () => {
     render(
       <PronunciationSection
         pronunciations={[buildPronunciation({ url: '' })]}
-        onApplyPronunciation={jest.fn()}
+        onApplyPronunciation={vi.fn()}
       />,
     );
 

@@ -11,8 +11,8 @@ describe('FormActions', () => {
         entityLabel='Word'
         isSubmitting={false}
         isFormValid
-        onCancel={jest.fn()}
-        onSubmit={jest.fn()}
+        onCancel={vi.fn()}
+        onSubmit={vi.fn()}
       />,
     );
     expect(
@@ -27,8 +27,8 @@ describe('FormActions', () => {
         entityLabel='Word'
         isSubmitting={false}
         isFormValid
-        onCancel={jest.fn()}
-        onSubmit={jest.fn()}
+        onCancel={vi.fn()}
+        onSubmit={vi.fn()}
       />,
     );
     expect(
@@ -43,8 +43,8 @@ describe('FormActions', () => {
         entityLabel='Word'
         isSubmitting
         isFormValid
-        onCancel={jest.fn()}
-        onSubmit={jest.fn()}
+        onCancel={vi.fn()}
+        onSubmit={vi.fn()}
       />,
     );
     expect(screen.getByText('Adding...')).toBeInTheDocument();
@@ -59,8 +59,8 @@ describe('FormActions', () => {
         entityLabel='Word'
         isSubmitting={false}
         isFormValid={false}
-        onCancel={jest.fn()}
-        onSubmit={jest.fn()}
+        onCancel={vi.fn()}
+        onSubmit={vi.fn()}
       />,
     );
     expect(screen.getByRole('button', { name: 'Add Word' })).toBeDisabled();
@@ -68,8 +68,8 @@ describe('FormActions', () => {
 
   it('calls onCancel and onSubmit when clicked', async () => {
     const user = userEvent.setup();
-    const onCancel = jest.fn();
-    const onSubmit = jest.fn();
+    const onCancel = vi.fn();
+    const onSubmit = vi.fn();
     render(
       <FormActions
         mode='create'

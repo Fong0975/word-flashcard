@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { MockInstance } from 'vitest';
 
 import { Question, QuestionAnswerLogEntry } from '../../../../types/api';
 import { apiService } from '../../../../lib/api';
@@ -31,19 +32,19 @@ const buildEntry = (
 });
 
 describe('QuestionHistorySection', () => {
-  let consoleErrorSpy: jest.SpyInstance;
+  let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('renders collapsed by default and does not fetch', () => {
-    const getQuestionLogsSpy = jest.spyOn(apiService, 'getQuestionLogs');
+    const getQuestionLogsSpy = vi.spyOn(apiService, 'getQuestionLogs');
 
     render(<QuestionHistorySection question={buildQuestion()} />);
 
@@ -53,7 +54,7 @@ describe('QuestionHistorySection', () => {
 
   it('fetches and renders entries and per-option counts when expanded', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getQuestionLogs').mockResolvedValue([
+    vi.spyOn(apiService, 'getQuestionLogs').mockResolvedValue([
       buildEntry({ id: 1, selected_option: 'B', is_correct: true }),
       buildEntry({
         id: 2,
@@ -89,7 +90,7 @@ describe('QuestionHistorySection', () => {
   it('shows a loading state while fetching', async () => {
     const user = userEvent.setup();
     let resolveFetch: (value: QuestionAnswerLogEntry[]) => void = () => {};
-    jest.spyOn(apiService, 'getQuestionLogs').mockReturnValue(
+    vi.spyOn(apiService, 'getQuestionLogs').mockReturnValue(
       new Promise(resolve => {
         resolveFetch = resolve;
       }),
@@ -110,9 +111,9 @@ describe('QuestionHistorySection', () => {
 
   it('shows an error message when the request fails', async () => {
     const user = userEvent.setup();
-    jest
-      .spyOn(apiService, 'getQuestionLogs')
-      .mockRejectedValue(new Error('network down'));
+    vi.spyOn(apiService, 'getQuestionLogs').mockRejectedValue(
+      new Error('network down'),
+    );
 
     render(<QuestionHistorySection question={buildQuestion()} />);
     await user.click(
@@ -124,7 +125,7 @@ describe('QuestionHistorySection', () => {
 
   it('shows the empty state when there is no history', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getQuestionLogs').mockResolvedValue([]);
+    vi.spyOn(apiService, 'getQuestionLogs').mockResolvedValue([]);
 
     render(<QuestionHistorySection question={buildQuestion()} />);
     await user.click(

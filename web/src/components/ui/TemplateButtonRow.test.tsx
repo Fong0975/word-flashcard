@@ -13,13 +13,13 @@ const buildButtons = (): TemplateButton[] => [
 describe('TemplateButtonRow', () => {
   it('renders nothing when there are no buttons', () => {
     const { container } = render(
-      <TemplateButtonRow buttons={[]} onSelect={jest.fn()} />,
+      <TemplateButtonRow buttons={[]} onSelect={vi.fn()} />,
     );
     expect(container).toBeEmptyDOMElement();
   });
 
   it('renders a button per template and the default helper text', () => {
-    render(<TemplateButtonRow buttons={buildButtons()} onSelect={jest.fn()} />);
+    render(<TemplateButtonRow buttons={buildButtons()} onSelect={vi.fn()} />);
 
     expect(screen.getByRole('button', { name: 'Alert' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Divider' })).toBeInTheDocument();
@@ -30,7 +30,7 @@ describe('TemplateButtonRow', () => {
 
   it('calls onSelect with the template value when clicked', async () => {
     const user = userEvent.setup();
-    const onSelect = jest.fn();
+    const onSelect = vi.fn();
     render(<TemplateButtonRow buttons={buildButtons()} onSelect={onSelect} />);
 
     await user.click(screen.getByRole('button', { name: 'Alert' }));
@@ -41,7 +41,7 @@ describe('TemplateButtonRow', () => {
     render(
       <TemplateButtonRow
         buttons={buildButtons()}
-        onSelect={jest.fn()}
+        onSelect={vi.fn()}
         disabled
       />,
     );
@@ -54,7 +54,7 @@ describe('TemplateButtonRow', () => {
     render(
       <TemplateButtonRow
         buttons={buildButtons()}
-        onSelect={jest.fn()}
+        onSelect={vi.fn()}
         helperText='Custom helper'
       />,
     );

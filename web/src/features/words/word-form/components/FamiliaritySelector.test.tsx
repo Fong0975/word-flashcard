@@ -10,7 +10,7 @@ describe('FamiliaritySelector', () => {
     const { container } = render(
       <FamiliaritySelector
         value={FamiliarityLevel.GREEN}
-        onChange={jest.fn()}
+        onChange={vi.fn()}
         disabled={false}
         mode='create'
       />,
@@ -22,7 +22,7 @@ describe('FamiliaritySelector', () => {
     render(
       <FamiliaritySelector
         value={FamiliarityLevel.YELLOW}
-        onChange={jest.fn()}
+        onChange={vi.fn()}
         disabled={false}
         mode='edit'
       />,
@@ -32,7 +32,7 @@ describe('FamiliaritySelector', () => {
 
   it('calls onChange with the selected level', async () => {
     const user = userEvent.setup();
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     render(
       <FamiliaritySelector
         value={FamiliarityLevel.GREEN}
@@ -50,7 +50,7 @@ describe('FamiliaritySelector', () => {
     render(
       <FamiliaritySelector
         value={FamiliarityLevel.GREEN}
-        onChange={jest.fn()}
+        onChange={vi.fn()}
         disabled
         mode='edit'
       />,

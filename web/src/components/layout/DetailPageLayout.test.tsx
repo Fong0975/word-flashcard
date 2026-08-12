@@ -5,24 +5,24 @@ import { MemoryRouter } from 'react-router-dom';
 import { DetailPageLayout } from './DetailPageLayout';
 
 beforeEach(() => {
-  window.matchMedia = jest.fn().mockReturnValue({
+  window.matchMedia = vi.fn().mockReturnValue({
     matches: false,
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
   });
 });
 
 afterEach(() => {
   localStorage.clear();
   document.documentElement.classList.remove('dark');
-  jest.restoreAllMocks();
+  vi.restoreAllMocks();
 });
 
 describe('DetailPageLayout', () => {
   it('renders the body content', () => {
     render(
       <MemoryRouter>
-        <DetailPageLayout onBack={jest.fn()} body={<p>Body content</p>} />
+        <DetailPageLayout onBack={vi.fn()} body={<p>Body content</p>} />
       </MemoryRouter>,
     );
 
@@ -31,7 +31,7 @@ describe('DetailPageLayout', () => {
 
   it('calls onBack when the back button is clicked', async () => {
     const user = userEvent.setup();
-    const onBack = jest.fn();
+    const onBack = vi.fn();
     render(
       <MemoryRouter>
         <DetailPageLayout onBack={onBack} body={<p>Body content</p>} />
@@ -46,7 +46,7 @@ describe('DetailPageLayout', () => {
     render(
       <MemoryRouter>
         <DetailPageLayout
-          onBack={jest.fn()}
+          onBack={vi.fn()}
           header={<h2>Word: apple</h2>}
           body={<p>Body content</p>}
         />
@@ -62,7 +62,7 @@ describe('DetailPageLayout', () => {
     render(
       <MemoryRouter>
         <DetailPageLayout
-          onBack={jest.fn()}
+          onBack={vi.fn()}
           body={<p>Body content</p>}
           footer={<p>Footer content</p>}
         />

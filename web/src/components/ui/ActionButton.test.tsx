@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { DropdownMenuItem } from './DropdownMenu';
 import { ActionButton } from './ActionButton';
 
-const buildItems = (onClick: () => void = jest.fn()): DropdownMenuItem[] => [
+const buildItems = (onClick: () => void = vi.fn()): DropdownMenuItem[] => [
   { id: 'edit', label: 'Edit', onClick },
 ];
 
@@ -18,7 +18,7 @@ describe('ActionButton', () => {
 
   it('opens the dropdown and invokes the item handler on click', async () => {
     const user = userEvent.setup();
-    const onClick = jest.fn();
+    const onClick = vi.fn();
     render(<ActionButton label='Actions' items={buildItems(onClick)} />);
 
     await user.click(screen.getByRole('button', { name: /actions/i }));

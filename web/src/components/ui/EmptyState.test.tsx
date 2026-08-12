@@ -4,7 +4,7 @@ import { EmptyState } from './EmptyState';
 
 describe('EmptyState', () => {
   it('renders default title, description, and icon', () => {
-    render(<EmptyState onRefresh={jest.fn()} />);
+    render(<EmptyState onRefresh={vi.fn()} />);
 
     expect(screen.getByText('No data found')).toBeInTheDocument();
     expect(
@@ -16,7 +16,7 @@ describe('EmptyState', () => {
   it('renders custom title, description, and icon when provided', () => {
     render(
       <EmptyState
-        onRefresh={jest.fn()}
+        onRefresh={vi.fn()}
         icon='🔍'
         title='No results'
         description='Try a different search term.'

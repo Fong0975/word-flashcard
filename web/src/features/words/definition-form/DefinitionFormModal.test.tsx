@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { Mocked, MockInstance } from 'vitest';
 
 import { WordDefinition } from '../../../types/api';
 import { apiService } from '../../../lib/api';
@@ -31,35 +32,34 @@ const buildDictionaryResponse = (
   ...overrides,
 });
 
-const buildExternalDictionaryState =
-  (): jest.Mocked<ExternalDictionaryState> => ({
-    dictionaryData: null,
-    isLoadingDictionary: false,
-    dictionaryError: null,
-    isCollapsed: false,
-    setDictionaryData: jest.fn(),
-    setIsLoadingDictionary: jest.fn(),
-    setDictionaryError: jest.fn(),
-    setIsCollapsed: jest.fn(),
-  });
+const buildExternalDictionaryState = (): Mocked<ExternalDictionaryState> => ({
+  dictionaryData: null,
+  isLoadingDictionary: false,
+  dictionaryError: null,
+  isCollapsed: false,
+  setDictionaryData: vi.fn(),
+  setIsLoadingDictionary: vi.fn(),
+  setDictionaryError: vi.fn(),
+  setIsCollapsed: vi.fn(),
+});
 
 describe('DefinitionFormModal', () => {
-  let consoleErrorSpy: jest.SpyInstance;
+  let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('renders nothing when closed', () => {
     const { container } = render(
       <DefinitionFormModal
         isOpen={false}
-        onClose={jest.fn()}
+        onClose={vi.fn()}
         wordId={1}
         wordText='apple'
       />,
@@ -71,7 +71,7 @@ describe('DefinitionFormModal', () => {
     render(
       <DefinitionFormModal
         isOpen
-        onClose={jest.fn()}
+        onClose={vi.fn()}
         wordId={1}
         wordText='apple'
       />,
@@ -87,7 +87,7 @@ describe('DefinitionFormModal', () => {
     render(
       <DefinitionFormModal
         isOpen
-        onClose={jest.fn()}
+        onClose={vi.fn()}
         wordId={null}
         wordText='apple'
         mode='edit'
@@ -106,7 +106,7 @@ describe('DefinitionFormModal', () => {
 
   it('calls onClose when Cancel is clicked', async () => {
     const user = userEvent.setup();
-    const onClose = jest.fn();
+    const onClose = vi.fn();
     render(
       <DefinitionFormModal
         isOpen
@@ -122,11 +122,11 @@ describe('DefinitionFormModal', () => {
 
   it('adds a new definition once the required fields are filled', async () => {
     const user = userEvent.setup();
-    const addDefinitionSpy = jest
+    const addDefinitionSpy = vi
       .spyOn(apiService, 'addDefinition')
       .mockResolvedValue(buildDefinition());
-    const onClose = jest.fn();
-    const onDefinitionAdded = jest.fn();
+    const onClose = vi.fn();
+    const onDefinitionAdded = vi.fn();
     render(
       <DefinitionFormModal
         isOpen
@@ -153,7 +153,7 @@ describe('DefinitionFormModal', () => {
 
   it('fetches dictionary data and applies a definition', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'lookupWord').mockResolvedValue(
+    vi.spyOn(apiService, 'lookupWord').mockResolvedValue(
       buildDictionaryResponse({
         definition: [
           {
@@ -169,7 +169,7 @@ describe('DefinitionFormModal', () => {
     render(
       <DefinitionFormModal
         isOpen
-        onClose={jest.fn()}
+        onClose={vi.fn()}
         wordId={1}
         wordText='apple'
       />,
@@ -187,7 +187,7 @@ describe('DefinitionFormModal', () => {
 
   it('applies fetched pronunciation data to the form', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'lookupWord').mockResolvedValue(
+    vi.spyOn(apiService, 'lookupWord').mockResolvedValue(
       buildDictionaryResponse({
         pronunciation: [
           {
@@ -208,7 +208,7 @@ describe('DefinitionFormModal', () => {
     render(
       <DefinitionFormModal
         isOpen
-        onClose={jest.fn()}
+        onClose={vi.fn()}
         wordId={1}
         wordText='apple'
       />,
@@ -237,7 +237,7 @@ describe('DefinitionFormModal', () => {
       const { rerender } = render(
         <DefinitionFormModal
           isOpen
-          onClose={jest.fn()}
+          onClose={vi.fn()}
           wordId={1}
           wordText='apple'
           shouldResetDictionaryOnClose={shouldResetDictionaryOnClose}
@@ -248,7 +248,7 @@ describe('DefinitionFormModal', () => {
       rerender(
         <DefinitionFormModal
           isOpen={false}
-          onClose={jest.fn()}
+          onClose={vi.fn()}
           wordId={1}
           wordText='apple'
           shouldResetDictionaryOnClose={shouldResetDictionaryOnClose}
@@ -277,13 +277,13 @@ describe('DefinitionFormModal', () => {
     it('swaps the copy icon to a checkmark on success', async () => {
       const user = userEvent.setup();
       Object.defineProperty(navigator, 'clipboard', {
-        value: { writeText: jest.fn().mockResolvedValue(undefined) },
+        value: { writeText: vi.fn().mockResolvedValue(undefined) },
         configurable: true,
       });
       render(
         <DefinitionFormModal
           isOpen
-          onClose={jest.fn()}
+          onClose={vi.fn()}
           wordId={1}
           wordText='apple'
         />,
@@ -302,14 +302,14 @@ describe('DefinitionFormModal', () => {
       const user = userEvent.setup();
       Object.defineProperty(navigator, 'clipboard', {
         value: {
-          writeText: jest.fn().mockRejectedValue(new Error('Copy denied')),
+          writeText: vi.fn().mockRejectedValue(new Error('Copy denied')),
         },
         configurable: true,
       });
       render(
         <DefinitionFormModal
           isOpen
-          onClose={jest.fn()}
+          onClose={vi.fn()}
           wordId={1}
           wordText='apple'
         />,
@@ -325,13 +325,13 @@ describe('DefinitionFormModal', () => {
 
   it('shows the edit-mode submitting text while updating', async () => {
     const user = userEvent.setup();
-    jest
-      .spyOn(apiService, 'updateDefinition')
-      .mockReturnValue(new Promise(() => {}));
+    vi.spyOn(apiService, 'updateDefinition').mockReturnValue(
+      new Promise(() => {}),
+    );
     render(
       <DefinitionFormModal
         isOpen
-        onClose={jest.fn()}
+        onClose={vi.fn()}
         wordId={null}
         wordText='apple'
         mode='edit'

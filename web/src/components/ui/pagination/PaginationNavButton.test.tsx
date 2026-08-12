@@ -15,7 +15,7 @@ describe('PaginationNavButton', () => {
         type={type}
         layout='desktop'
         isEnabled
-        onClick={jest.fn()}
+        onClick={vi.fn()}
       />,
     );
 
@@ -24,7 +24,7 @@ describe('PaginationNavButton', () => {
 
   it('calls onClick when enabled', async () => {
     const user = userEvent.setup();
-    const onClick = jest.fn();
+    const onClick = vi.fn();
     render(
       <PaginationNavButton
         type='next'
@@ -44,7 +44,7 @@ describe('PaginationNavButton', () => {
         type='next'
         layout='desktop'
         isEnabled={false}
-        onClick={jest.fn()}
+        onClick={vi.fn()}
       />,
     );
 
@@ -57,7 +57,7 @@ describe('PaginationNavButton', () => {
         type='previous'
         layout='mobile'
         isEnabled
-        onClick={jest.fn()}
+        onClick={vi.fn()}
       />,
     );
 

@@ -22,8 +22,8 @@ describe('WordDeleteConfirmation', () => {
       <WordDeleteConfirmation
         word={buildWord()}
         isOpen={false}
-        onConfirm={jest.fn()}
-        onCancel={jest.fn()}
+        onConfirm={vi.fn()}
+        onCancel={vi.fn()}
       />,
     );
     expect(container).toBeEmptyDOMElement();
@@ -34,8 +34,8 @@ describe('WordDeleteConfirmation', () => {
       <WordDeleteConfirmation
         word={buildWord({ word: 'banana' })}
         isOpen
-        onConfirm={jest.fn()}
-        onCancel={jest.fn()}
+        onConfirm={vi.fn()}
+        onCancel={vi.fn()}
       />,
     );
 
@@ -44,8 +44,8 @@ describe('WordDeleteConfirmation', () => {
 
   it('calls onConfirm and onCancel', async () => {
     const user = userEvent.setup();
-    const onConfirm = jest.fn();
-    const onCancel = jest.fn();
+    const onConfirm = vi.fn();
+    const onCancel = vi.fn();
     render(
       <WordDeleteConfirmation
         word={buildWord()}

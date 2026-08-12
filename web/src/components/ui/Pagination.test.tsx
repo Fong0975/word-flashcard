@@ -4,17 +4,17 @@ import userEvent from '@testing-library/user-event';
 import { Pagination } from './Pagination';
 
 const baseProps = {
-  onPageChange: jest.fn(),
-  onNext: jest.fn(),
-  onPrevious: jest.fn(),
-  onFirst: jest.fn(),
-  onLast: jest.fn(),
+  onPageChange: vi.fn(),
+  onNext: vi.fn(),
+  onPrevious: vi.fn(),
+  onFirst: vi.fn(),
+  onLast: vi.fn(),
 };
 
 describe('Pagination', () => {
   it('calls onPageChange when a page number is clicked', async () => {
     const user = userEvent.setup();
-    const onPageChange = jest.fn();
+    const onPageChange = vi.fn();
     render(
       <Pagination
         {...baseProps}
@@ -71,8 +71,8 @@ describe('Pagination', () => {
 
   it('calls onNext and onPrevious when the corresponding buttons are clicked', async () => {
     const user = userEvent.setup();
-    const onNext = jest.fn();
-    const onPrevious = jest.fn();
+    const onNext = vi.fn();
+    const onPrevious = vi.fn();
     render(
       <Pagination
         {...baseProps}

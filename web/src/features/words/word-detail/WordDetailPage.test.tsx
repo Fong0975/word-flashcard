@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
+import type { MockInstance } from 'vitest';
 
 import { Word, WordDefinition } from '../../../types/api';
 import { FamiliarityLevel } from '../../../types/base';
@@ -9,10 +10,10 @@ import { createExactWordSearchFilter } from '../word-form/utils';
 
 import { WordDetailPage } from './WordDetailPage';
 
-const mockNavigate = jest.fn();
+const mockNavigate = vi.fn();
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
   useParams: () => ({ wordText: 'apple' }),
 }));
@@ -20,7 +21,7 @@ jest.mock('react-router-dom', () => ({
 // WordFormModal has its own dedicated tests; here it's stubbed so these tests
 // stay focused on WordDetailPage's own wiring: rename-then-navigate vs
 // refetch-in-place.
-jest.mock('../word-form', () => ({
+vi.mock('../word-form', () => ({
   WordFormModal: (props: {
     isOpen: boolean;
     onClose: () => void;
@@ -43,7 +44,7 @@ jest.mock('../word-form', () => ({
 // DefinitionFormModal has its own dedicated tests; here it's stubbed so these
 // tests stay focused on the add/edit modal-state wiring and the fetchWord
 // callbacks passed to it.
-jest.mock('../definition-form', () => ({
+vi.mock('../definition-form', () => ({
   DefinitionFormModal: (props: {
     isOpen: boolean;
     onClose: () => void;
@@ -95,31 +96,31 @@ const renderPage = () =>
   );
 
 describe('WordDetailPage', () => {
-  let consoleErrorSpy: jest.SpyInstance;
+  let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
     mockNavigate.mockClear();
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     // DetailPageLayout renders the real Header, whose useDarkMode hook reads
     // window.matchMedia; jsdom doesn't implement it, so stub it out.
-    window.matchMedia = jest.fn().mockReturnValue({
+    window.matchMedia = vi.fn().mockReturnValue({
       matches: false,
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
     });
   });
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
     localStorage.clear();
     document.documentElement.classList.remove('dark');
   });
 
   it('shows a loading spinner while fetching', () => {
-    jest
-      .spyOn(apiService, 'searchWords')
-      .mockReturnValue(new Promise<Word[]>(() => {}));
+    vi.spyOn(apiService, 'searchWords').mockReturnValue(
+      new Promise<Word[]>(() => {}),
+    );
 
     renderPage();
 
@@ -127,7 +128,7 @@ describe('WordDetailPage', () => {
   });
 
   it('fetches using an exact-match filter on the URL word text', async () => {
-    const searchSpy = jest
+    const searchSpy = vi
       .spyOn(apiService, 'searchWords')
       .mockResolvedValue([buildWord()]);
 
@@ -142,7 +143,7 @@ describe('WordDetailPage', () => {
 
   it('shows not-found and navigates home when no word matches', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'searchWords').mockResolvedValue([]);
+    vi.spyOn(apiService, 'searchWords').mockResolvedValue([]);
 
     renderPage();
 
@@ -153,9 +154,9 @@ describe('WordDetailPage', () => {
 
   it('shows an error and navigates home on fetch failure', async () => {
     const user = userEvent.setup();
-    jest
-      .spyOn(apiService, 'searchWords')
-      .mockRejectedValue(new Error('word gone'));
+    vi.spyOn(apiService, 'searchWords').mockRejectedValue(
+      new Error('word gone'),
+    );
 
     renderPage();
 
@@ -166,7 +167,7 @@ describe('WordDetailPage', () => {
 
   it('renders word details and uses browser-back on success', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'searchWords').mockResolvedValue([buildWord()]);
+    vi.spyOn(apiService, 'searchWords').mockResolvedValue([buildWord()]);
 
     renderPage();
 
@@ -181,7 +182,7 @@ describe('WordDetailPage', () => {
 
   it('navigates to new URL when the saved word was renamed', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'searchWords').mockResolvedValue([buildWord()]);
+    vi.spyOn(apiService, 'searchWords').mockResolvedValue([buildWord()]);
 
     renderPage();
     await screen.findByRole('heading', { name: 'apple' });
@@ -194,7 +195,7 @@ describe('WordDetailPage', () => {
 
   it('refetches in place when the saved word text is unchanged', async () => {
     const user = userEvent.setup();
-    const searchSpy = jest
+    const searchSpy = vi
       .spyOn(apiService, 'searchWords')
       .mockResolvedValue([buildWord()]);
 
@@ -213,10 +214,10 @@ describe('WordDetailPage', () => {
 
   it('deletes the word, navigates home, and does not refetch', async () => {
     const user = userEvent.setup();
-    const searchSpy = jest
+    const searchSpy = vi
       .spyOn(apiService, 'searchWords')
       .mockResolvedValue([buildWord()]);
-    const deleteSpy = jest
+    const deleteSpy = vi
       .spyOn(apiService, 'deleteWord')
       .mockResolvedValue(undefined);
 
@@ -239,10 +240,10 @@ describe('WordDetailPage', () => {
 
   it('deletes a definition and refetches the word', async () => {
     const user = userEvent.setup();
-    const searchSpy = jest
+    const searchSpy = vi
       .spyOn(apiService, 'searchWords')
       .mockResolvedValue([buildWord()]);
-    const deleteDefinitionSpy = jest
+    const deleteDefinitionSpy = vi
       .spyOn(apiService, 'deleteDefinition')
       .mockResolvedValue(undefined);
 
@@ -261,7 +262,7 @@ describe('WordDetailPage', () => {
 
   it('opens the add-definition modal and refetches after adding', async () => {
     const user = userEvent.setup();
-    const searchSpy = jest
+    const searchSpy = vi
       .spyOn(apiService, 'searchWords')
       .mockResolvedValue([buildWord()]);
 
@@ -280,7 +281,7 @@ describe('WordDetailPage', () => {
 
   it('opens edit-definition modal with the clicked definition', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'searchWords').mockResolvedValue([buildWord()]);
+    vi.spyOn(apiService, 'searchWords').mockResolvedValue([buildWord()]);
 
     renderPage();
     await screen.findByRole('heading', { name: 'apple' });
@@ -300,10 +301,10 @@ describe('WordDetailPage', () => {
 
   it('shows the reminder banner and clears it on confirm', async () => {
     const user = userEvent.setup();
-    const searchSpy = jest
+    const searchSpy = vi
       .spyOn(apiService, 'searchWords')
       .mockResolvedValue([buildWord({ reminder: 'Check plural form' })]);
-    const updateSpy = jest
+    const updateSpy = vi
       .spyOn(apiService, 'updateWordFields')
       .mockResolvedValue(buildWord());
 
@@ -325,10 +326,10 @@ describe('WordDetailPage', () => {
 
   it('cancels the clear-reminder confirmation without clearing', async () => {
     const user = userEvent.setup();
-    const updateSpy = jest.spyOn(apiService, 'updateWordFields');
-    jest
-      .spyOn(apiService, 'searchWords')
-      .mockResolvedValue([buildWord({ reminder: 'Check plural form' })]);
+    const updateSpy = vi.spyOn(apiService, 'updateWordFields');
+    vi.spyOn(apiService, 'searchWords').mockResolvedValue([
+      buildWord({ reminder: 'Check plural form' }),
+    ]);
 
     renderPage();
     await screen.findByText('Check plural form');
@@ -344,12 +345,12 @@ describe('WordDetailPage', () => {
 
   it('shows a toast when clearing the reminder fails', async () => {
     const user = userEvent.setup();
-    jest
-      .spyOn(apiService, 'searchWords')
-      .mockResolvedValue([buildWord({ reminder: 'Check plural form' })]);
-    jest
-      .spyOn(apiService, 'updateWordFields')
-      .mockRejectedValue(new Error('clear failed'));
+    vi.spyOn(apiService, 'searchWords').mockResolvedValue([
+      buildWord({ reminder: 'Check plural form' }),
+    ]);
+    vi.spyOn(apiService, 'updateWordFields').mockRejectedValue(
+      new Error('clear failed'),
+    );
 
     renderPage();
     await screen.findByText('Check plural form');

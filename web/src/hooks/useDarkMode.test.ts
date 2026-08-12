@@ -8,10 +8,10 @@ const buildMatchMediaMock = (matches: boolean) => {
   const listeners: MediaQueryListener[] = [];
   const mql = {
     matches,
-    addEventListener: jest.fn((_event: string, cb: MediaQueryListener) => {
+    addEventListener: vi.fn((_event: string, cb: MediaQueryListener) => {
       listeners.push(cb);
     }),
-    removeEventListener: jest.fn((_event: string, cb: MediaQueryListener) => {
+    removeEventListener: vi.fn((_event: string, cb: MediaQueryListener) => {
       const index = listeners.indexOf(cb);
       if (index !== -1) {
         listeners.splice(index, 1);
@@ -28,13 +28,13 @@ describe('useDarkMode', () => {
   afterEach(() => {
     localStorage.clear();
     document.documentElement.classList.remove('dark');
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('uses the saved theme preference when present', () => {
     localStorage.setItem('theme', 'dark');
     const { mql } = buildMatchMediaMock(false);
-    window.matchMedia = jest.fn().mockReturnValue(mql);
+    window.matchMedia = vi.fn().mockReturnValue(mql);
 
     const { result } = renderHook(() => useDarkMode());
 
@@ -45,7 +45,7 @@ describe('useDarkMode', () => {
 
   it('falls back to the system preference when no theme is saved', () => {
     const { mql } = buildMatchMediaMock(true);
-    window.matchMedia = jest.fn().mockReturnValue(mql);
+    window.matchMedia = vi.fn().mockReturnValue(mql);
 
     const { result } = renderHook(() => useDarkMode());
 
@@ -54,7 +54,7 @@ describe('useDarkMode', () => {
 
   it('falls back to light when the system prefers light and nothing is saved', () => {
     const { mql } = buildMatchMediaMock(false);
-    window.matchMedia = jest.fn().mockReturnValue(mql);
+    window.matchMedia = vi.fn().mockReturnValue(mql);
 
     const { result } = renderHook(() => useDarkMode());
 
@@ -64,7 +64,7 @@ describe('useDarkMode', () => {
 
   it('toggleTheme flips the theme and persists it', () => {
     const { mql } = buildMatchMediaMock(false);
-    window.matchMedia = jest.fn().mockReturnValue(mql);
+    window.matchMedia = vi.fn().mockReturnValue(mql);
 
     const { result } = renderHook(() => useDarkMode());
     expect(result.current.theme).toBe('light');
@@ -80,7 +80,7 @@ describe('useDarkMode', () => {
 
   it('applies a system theme change while no manual preference is stored', () => {
     const { mql, dispatch } = buildMatchMediaMock(false);
-    window.matchMedia = jest.fn().mockReturnValue(mql);
+    window.matchMedia = vi.fn().mockReturnValue(mql);
 
     const { result } = renderHook(() => useDarkMode());
     expect(result.current.theme).toBe('light');
@@ -95,7 +95,7 @@ describe('useDarkMode', () => {
 
   it('ignores a system theme change once a manual preference is stored', () => {
     const { mql, dispatch } = buildMatchMediaMock(false);
-    window.matchMedia = jest.fn().mockReturnValue(mql);
+    window.matchMedia = vi.fn().mockReturnValue(mql);
 
     const { result } = renderHook(() => useDarkMode());
     expect(localStorage.getItem('theme')).toBe('light');
@@ -109,7 +109,7 @@ describe('useDarkMode', () => {
 
   it('removes the system theme listener on unmount', () => {
     const { mql } = buildMatchMediaMock(false);
-    window.matchMedia = jest.fn().mockReturnValue(mql);
+    window.matchMedia = vi.fn().mockReturnValue(mql);
 
     const { unmount } = renderHook(() => useDarkMode());
     unmount();

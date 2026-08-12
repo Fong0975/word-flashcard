@@ -14,7 +14,7 @@ describe('OptionsSelectionList', () => {
       <OptionsSelectionList
         options={options}
         selectedAnswer={null}
-        onSelect={jest.fn()}
+        onSelect={vi.fn()}
       />,
     );
 
@@ -26,7 +26,7 @@ describe('OptionsSelectionList', () => {
       <OptionsSelectionList
         options={options}
         selectedAnswer='B'
-        onSelect={jest.fn()}
+        onSelect={vi.fn()}
       />,
     );
 
@@ -37,7 +37,7 @@ describe('OptionsSelectionList', () => {
 
   it('calls onSelect with the chosen option key', async () => {
     const user = userEvent.setup();
-    const onSelect = jest.fn();
+    const onSelect = vi.fn();
     render(
       <OptionsSelectionList
         options={options}

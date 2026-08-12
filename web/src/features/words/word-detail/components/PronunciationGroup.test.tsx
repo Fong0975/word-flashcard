@@ -1,17 +1,18 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { Mock } from 'vitest';
 
 import { speakText } from '../../../shared/speech';
 
 import { PronunciationGroup } from './PronunciationGroup';
 
-jest.mock('../../../shared/speech');
+vi.mock('../../../shared/speech');
 
-const mockedSpeakText = speakText as jest.Mock;
+const mockedSpeakText = speakText as Mock;
 
 describe('PronunciationGroup', () => {
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders nothing when there is no audio and no speech fallback', () => {

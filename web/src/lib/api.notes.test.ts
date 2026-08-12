@@ -1,12 +1,14 @@
+import type { Mock } from 'vitest';
+
 import { apiService } from './api';
 import { API_CONFIG, API_ENDPOINTS } from './api-config';
 import { buildMockResponse } from './apiTestHelpers';
 
 describe('ApiService - notes', () => {
-  let fetchMock: jest.Mock;
+  let fetchMock: Mock;
 
   beforeEach(() => {
-    fetchMock = jest.fn();
+    fetchMock = vi.fn();
     global.fetch = fetchMock as unknown as typeof fetch;
   });
 

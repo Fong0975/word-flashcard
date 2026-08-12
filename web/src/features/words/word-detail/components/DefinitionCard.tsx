@@ -9,7 +9,9 @@ import { DefinitionActions } from './DefinitionActions';
 
 export const DefinitionCard: React.FC<DefinitionCardProps> = ({
   definition,
-  index,
+  // Part of the public prop contract (callers pass the list index) but not
+  // yet used in this component's own rendering.
+  index: _index,
   onEdit,
   onDelete,
   speechFallback,

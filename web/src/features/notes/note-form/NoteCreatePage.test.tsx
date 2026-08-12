@@ -1,15 +1,16 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
+import type { MockInstance } from 'vitest';
 
 import { apiService } from '../../../lib/api';
 
 import { NoteCreatePage } from './NoteCreatePage';
 
-const mockNavigate = jest.fn();
+const mockNavigate = vi.fn();
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
 }));
 
@@ -21,23 +22,23 @@ const renderPage = () =>
   );
 
 describe('NoteCreatePage', () => {
-  let consoleErrorSpy: jest.SpyInstance;
+  let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
     mockNavigate.mockClear();
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     // DetailPageLayout renders the real Header, whose useDarkMode hook reads
     // window.matchMedia; jsdom doesn't implement it, so stub it out.
-    window.matchMedia = jest.fn().mockReturnValue({
+    window.matchMedia = vi.fn().mockReturnValue({
       matches: false,
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
     });
   });
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
     localStorage.clear();
     document.documentElement.classList.remove('dark');
   });
@@ -55,7 +56,7 @@ describe('NoteCreatePage', () => {
 
   it('creates the note and navigates to it on save', async () => {
     const user = userEvent.setup();
-    const createSpy = jest.spyOn(apiService, 'createNote').mockResolvedValue({
+    const createSpy = vi.spyOn(apiService, 'createNote').mockResolvedValue({
       id: 42,
       title: 'My note',
       content: 'Some content',
@@ -81,9 +82,9 @@ describe('NoteCreatePage', () => {
 
   it('shows an error and re-enables Save when creation fails', async () => {
     const user = userEvent.setup();
-    jest
-      .spyOn(apiService, 'createNote')
-      .mockRejectedValue(new Error('create failed'));
+    vi.spyOn(apiService, 'createNote').mockRejectedValue(
+      new Error('create failed'),
+    );
 
     renderPage();
 

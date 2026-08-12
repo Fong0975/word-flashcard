@@ -1,17 +1,18 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
+import type { MockInstance } from 'vitest';
 
 import { Note } from '../../../types/api';
 import { apiService } from '../../../lib/api';
 
 import { NoteDetailPage } from './NoteDetailPage';
 
-const mockNavigate = jest.fn();
+const mockNavigate = vi.fn();
 let mockParams: { id?: string } = { id: '1' };
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
   useParams: () => mockParams,
 }));
@@ -39,32 +40,32 @@ const renderPage = () =>
   );
 
 describe('NoteDetailPage', () => {
-  let consoleErrorSpy: jest.SpyInstance;
+  let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
     mockNavigate.mockClear();
     mockParams = { id: '1' };
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     // DetailPageLayout renders the real Header, whose useDarkMode hook reads
     // window.matchMedia; jsdom doesn't implement it, so stub it out.
-    window.matchMedia = jest.fn().mockReturnValue({
+    window.matchMedia = vi.fn().mockReturnValue({
       matches: false,
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
     });
   });
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
     localStorage.clear();
     document.documentElement.classList.remove('dark');
   });
 
   it('shows a loading spinner while fetching', () => {
-    jest
-      .spyOn(apiService, 'getNote')
-      .mockReturnValue(new Promise<Note>(() => {}));
+    vi.spyOn(apiService, 'getNote').mockReturnValue(
+      new Promise<Note>(() => {}),
+    );
 
     renderPage();
 
@@ -73,9 +74,9 @@ describe('NoteDetailPage', () => {
 
   it('navigates back when the header back button is clicked while loading', async () => {
     const user = userEvent.setup();
-    jest
-      .spyOn(apiService, 'getNote')
-      .mockReturnValue(new Promise<Note>(() => {}));
+    vi.spyOn(apiService, 'getNote').mockReturnValue(
+      new Promise<Note>(() => {}),
+    );
 
     renderPage();
 
@@ -86,7 +87,7 @@ describe('NoteDetailPage', () => {
 
   it('does not fetch the note when there is no id in the route', () => {
     mockParams = { id: undefined };
-    const getNoteSpy = jest.spyOn(apiService, 'getNote');
+    const getNoteSpy = vi.spyOn(apiService, 'getNote');
 
     renderPage();
 
@@ -95,7 +96,7 @@ describe('NoteDetailPage', () => {
 
   it('shows a not-found screen and navigates back on failure', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getNote').mockRejectedValue(new Error('note gone'));
+    vi.spyOn(apiService, 'getNote').mockRejectedValue(new Error('note gone'));
 
     renderPage();
 
@@ -108,7 +109,7 @@ describe('NoteDetailPage', () => {
 
   it('navigates back when the header back button is clicked on the error screen', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getNote').mockRejectedValue(new Error('note gone'));
+    vi.spyOn(apiService, 'getNote').mockRejectedValue(new Error('note gone'));
 
     renderPage();
 
@@ -120,9 +121,9 @@ describe('NoteDetailPage', () => {
   });
 
   it('renders the note title, content, and updated date', async () => {
-    jest
-      .spyOn(apiService, 'getNote')
-      .mockResolvedValue(buildNote({ updated_at: '2026-07-10T10:00:00Z' }));
+    vi.spyOn(apiService, 'getNote').mockResolvedValue(
+      buildNote({ updated_at: '2026-07-10T10:00:00Z' }),
+    );
 
     renderPage();
 
@@ -134,9 +135,9 @@ describe('NoteDetailPage', () => {
   });
 
   it('shows a "-" fallback when the note has no updated date', async () => {
-    jest
-      .spyOn(apiService, 'getNote')
-      .mockResolvedValue(buildNote({ updated_at: null }));
+    vi.spyOn(apiService, 'getNote').mockResolvedValue(
+      buildNote({ updated_at: null }),
+    );
 
     renderPage();
 
@@ -145,7 +146,7 @@ describe('NoteDetailPage', () => {
 
   it('navigates back when the header back button is clicked on the normal render', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getNote').mockResolvedValue(buildNote());
+    vi.spyOn(apiService, 'getNote').mockResolvedValue(buildNote());
 
     renderPage();
     await screen.findByRole('heading', { name: 'My note' });
@@ -156,9 +157,9 @@ describe('NoteDetailPage', () => {
   });
 
   it('shows a placeholder when the note has no content', async () => {
-    jest
-      .spyOn(apiService, 'getNote')
-      .mockResolvedValue(buildNote({ content: null }));
+    vi.spyOn(apiService, 'getNote').mockResolvedValue(
+      buildNote({ content: null }),
+    );
 
     renderPage();
 
@@ -169,8 +170,8 @@ describe('NoteDetailPage', () => {
 
   it('edits and saves changes to the note', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getNote').mockResolvedValue(buildNote());
-    const updateSpy = jest
+    vi.spyOn(apiService, 'getNote').mockResolvedValue(buildNote());
+    const updateSpy = vi
       .spyOn(apiService, 'updateNote')
       .mockResolvedValue(
         buildNote({ title: 'Updated title', content: 'Updated content' }),
@@ -205,7 +206,7 @@ describe('NoteDetailPage', () => {
 
   it('disables Save while editing when the title is cleared', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getNote').mockResolvedValue(buildNote());
+    vi.spyOn(apiService, 'getNote').mockResolvedValue(buildNote());
 
     renderPage();
     await screen.findByRole('heading', { name: 'My note' });
@@ -219,8 +220,8 @@ describe('NoteDetailPage', () => {
 
   it('cancels editing without saving', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getNote').mockResolvedValue(buildNote());
-    const updateSpy = jest.spyOn(apiService, 'updateNote');
+    vi.spyOn(apiService, 'getNote').mockResolvedValue(buildNote());
+    const updateSpy = vi.spyOn(apiService, 'updateNote');
 
     renderPage();
     await screen.findByRole('heading', { name: 'My note' });
@@ -239,10 +240,10 @@ describe('NoteDetailPage', () => {
 
   it('shows a save error and stays in edit mode on failure', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getNote').mockResolvedValue(buildNote());
-    jest
-      .spyOn(apiService, 'updateNote')
-      .mockRejectedValue(new Error('save failed'));
+    vi.spyOn(apiService, 'getNote').mockResolvedValue(buildNote());
+    vi.spyOn(apiService, 'updateNote').mockRejectedValue(
+      new Error('save failed'),
+    );
 
     renderPage();
     await screen.findByRole('heading', { name: 'My note' });
@@ -255,8 +256,8 @@ describe('NoteDetailPage', () => {
 
   it('deletes the note after confirming, and navigates back', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getNote').mockResolvedValue(buildNote());
-    const deleteSpy = jest
+    vi.spyOn(apiService, 'getNote').mockResolvedValue(buildNote());
+    const deleteSpy = vi
       .spyOn(apiService, 'deleteNote')
       .mockResolvedValue(undefined);
 
@@ -279,8 +280,8 @@ describe('NoteDetailPage', () => {
 
   it('cancels the delete confirmation without deleting', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getNote').mockResolvedValue(buildNote());
-    const deleteSpy = jest.spyOn(apiService, 'deleteNote');
+    vi.spyOn(apiService, 'getNote').mockResolvedValue(buildNote());
+    const deleteSpy = vi.spyOn(apiService, 'deleteNote');
 
     renderPage();
     await screen.findByRole('heading', { name: 'My note' });
@@ -298,10 +299,10 @@ describe('NoteDetailPage', () => {
 
   it('shows a toast when deleting fails', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getNote').mockResolvedValue(buildNote());
-    jest
-      .spyOn(apiService, 'deleteNote')
-      .mockRejectedValue(new Error('delete failed'));
+    vi.spyOn(apiService, 'getNote').mockResolvedValue(buildNote());
+    vi.spyOn(apiService, 'deleteNote').mockRejectedValue(
+      new Error('delete failed'),
+    );
 
     renderPage();
     await screen.findByRole('heading', { name: 'My note' });

@@ -1,4 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
+import type { MockInstance } from 'vitest';
 
 import { WordDefinition } from '../../../../types/api';
 import { apiService } from '../../../../lib/api';
@@ -26,15 +27,15 @@ const buildDefinition = (
 });
 
 describe('useDefinitionForm', () => {
-  let consoleErrorSpy: jest.SpyInstance;
+  let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('is blank while closed', () => {
@@ -43,7 +44,7 @@ describe('useDefinitionForm', () => {
         isOpen: false,
         mode: 'add',
         wordId: 1,
-        onClose: jest.fn(),
+        onClose: vi.fn(),
       }),
     );
     expect(result.current.formData).toEqual(blankForm);
@@ -55,7 +56,7 @@ describe('useDefinitionForm', () => {
         isOpen: true,
         mode: 'add',
         wordId: 1,
-        onClose: jest.fn(),
+        onClose: vi.fn(),
       }),
     );
     expect(result.current.formData).toEqual(blankForm);
@@ -69,7 +70,7 @@ describe('useDefinitionForm', () => {
         mode: 'edit',
         wordId: null,
         definition,
-        onClose: jest.fn(),
+        onClose: vi.fn(),
       }),
     );
 
@@ -88,7 +89,7 @@ describe('useDefinitionForm', () => {
         isOpen: true,
         mode: 'add',
         wordId: 1,
-        onClose: jest.fn(),
+        onClose: vi.fn(),
       }),
     );
 
@@ -109,7 +110,7 @@ describe('useDefinitionForm', () => {
         isOpen: true,
         mode: 'add',
         wordId: 1,
-        onClose: jest.fn(),
+        onClose: vi.fn(),
       }),
     );
 
@@ -140,7 +141,7 @@ describe('useDefinitionForm', () => {
         isOpen: true,
         mode: 'add',
         wordId: 1,
-        onClose: jest.fn(),
+        onClose: vi.fn(),
       }),
     );
 
@@ -153,13 +154,13 @@ describe('useDefinitionForm', () => {
   });
 
   it('does not submit without a definition or a part of speech', async () => {
-    const createSpy = jest.spyOn(apiService, 'addDefinition');
+    const createSpy = vi.spyOn(apiService, 'addDefinition');
     const { result } = renderHook(() =>
       useDefinitionForm({
         isOpen: true,
         mode: 'add',
         wordId: 1,
-        onClose: jest.fn(),
+        onClose: vi.fn(),
       }),
     );
 
@@ -171,11 +172,11 @@ describe('useDefinitionForm', () => {
   });
 
   it('builds the payload and adds the definition', async () => {
-    const addDefinitionSpy = jest
+    const addDefinitionSpy = vi
       .spyOn(apiService, 'addDefinition')
       .mockResolvedValue(buildDefinition());
-    const onClose = jest.fn();
-    const onDefinitionAdded = jest.fn();
+    const onClose = vi.fn();
+    const onDefinitionAdded = vi.fn();
     const { result } = renderHook(() =>
       useDefinitionForm({
         isOpen: true,
@@ -236,17 +237,17 @@ describe('useDefinitionForm', () => {
 
   it('updates the definition in edit mode', async () => {
     const definition = buildDefinition({ id: 7 });
-    const updateDefinitionSpy = jest
+    const updateDefinitionSpy = vi
       .spyOn(apiService, 'updateDefinition')
       .mockResolvedValue(definition);
-    const onDefinitionUpdated = jest.fn();
+    const onDefinitionUpdated = vi.fn();
     const { result } = renderHook(() =>
       useDefinitionForm({
         isOpen: true,
         mode: 'edit',
         wordId: null,
         definition,
-        onClose: jest.fn(),
+        onClose: vi.fn(),
         onDefinitionUpdated,
       }),
     );
@@ -260,16 +261,16 @@ describe('useDefinitionForm', () => {
   });
 
   it('reports a formatted error message when submission fails', async () => {
-    jest
-      .spyOn(apiService, 'addDefinition')
-      .mockRejectedValue(new Error('network down'));
-    const onError = jest.fn();
+    vi.spyOn(apiService, 'addDefinition').mockRejectedValue(
+      new Error('network down'),
+    );
+    const onError = vi.fn();
     const { result } = renderHook(() =>
       useDefinitionForm({
         isOpen: true,
         mode: 'add',
         wordId: 1,
-        onClose: jest.fn(),
+        onClose: vi.fn(),
         onError,
       }),
     );
@@ -295,7 +296,7 @@ describe('useDefinitionForm', () => {
         isOpen: true,
         mode: 'add',
         wordId: 1,
-        onClose: jest.fn(),
+        onClose: vi.fn(),
       }),
     );
 
@@ -313,7 +314,7 @@ describe('useDefinitionForm', () => {
         isOpen: true,
         mode: 'add',
         wordId: 1,
-        onClose: jest.fn(),
+        onClose: vi.fn(),
       }),
     );
     expect(result.current.isFormValid).toBe(false);

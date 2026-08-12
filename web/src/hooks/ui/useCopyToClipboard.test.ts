@@ -1,10 +1,11 @@
 import { renderHook, act } from '@testing-library/react';
+import type { Mock } from 'vitest';
 
 import { useCopyToClipboard } from './useCopyToClipboard';
 
 describe('useCopyToClipboard', () => {
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
     delete (navigator as unknown as { clipboard?: unknown }).clipboard;
     delete (document as unknown as { execCommand?: unknown }).execCommand;
   });
@@ -12,7 +13,7 @@ describe('useCopyToClipboard', () => {
   describe('with Clipboard API support', () => {
     beforeEach(() => {
       Object.defineProperty(navigator, 'clipboard', {
-        value: { writeText: jest.fn().mockResolvedValue(undefined) },
+        value: { writeText: vi.fn().mockResolvedValue(undefined) },
         configurable: true,
       });
     });
@@ -34,7 +35,7 @@ describe('useCopyToClipboard', () => {
     });
 
     it('auto-resets copySuccess after the delay', async () => {
-      jest.useFakeTimers();
+      vi.useFakeTimers();
       const { result } = renderHook(() =>
         useCopyToClipboard({ autoResetDelay: 1000 }),
       );
@@ -45,17 +46,17 @@ describe('useCopyToClipboard', () => {
       expect(result.current.copySuccess).toBe(true);
 
       act(() => {
-        jest.advanceTimersByTime(1000);
+        vi.advanceTimersByTime(1000);
       });
       expect(result.current.copySuccess).toBe(false);
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
 
     it('sets copyError and calls onError when writeText rejects', async () => {
-      (navigator.clipboard.writeText as jest.Mock).mockRejectedValue(
+      (navigator.clipboard.writeText as Mock).mockRejectedValue(
         new Error('denied'),
       );
-      const onError = jest.fn();
+      const onError = vi.fn();
       const { result } = renderHook(() => useCopyToClipboard({ onError }));
 
       await act(async () => {
@@ -108,7 +109,7 @@ describe('useCopyToClipboard', () => {
     });
 
     it('falls back to execCommand and reports success', async () => {
-      const execCommandMock = jest.fn().mockReturnValue(true);
+      const execCommandMock = vi.fn().mockReturnValue(true);
       document.execCommand = execCommandMock;
       const { result } = renderHook(() => useCopyToClipboard());
 
@@ -121,7 +122,7 @@ describe('useCopyToClipboard', () => {
     });
 
     it('sets an error when execCommand reports failure', async () => {
-      document.execCommand = jest.fn().mockReturnValue(false);
+      document.execCommand = vi.fn().mockReturnValue(false);
       const { result } = renderHook(() => useCopyToClipboard());
 
       await act(async () => {

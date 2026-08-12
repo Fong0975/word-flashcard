@@ -27,15 +27,15 @@ const buildEntityListHook = (
   itemsPerPage: 10,
   searchTerm: '',
   totalCount: 0,
-  fetchEntities: jest.fn().mockResolvedValue(undefined),
-  nextPage: jest.fn().mockResolvedValue(undefined),
-  previousPage: jest.fn().mockResolvedValue(undefined),
-  goToPage: jest.fn().mockResolvedValue(undefined),
-  goToFirst: jest.fn().mockResolvedValue(undefined),
-  goToLast: jest.fn().mockResolvedValue(undefined),
-  refresh: jest.fn().mockResolvedValue(undefined),
-  clearError: jest.fn(),
-  setSearchTerm: jest.fn(),
+  fetchEntities: vi.fn().mockResolvedValue(undefined),
+  nextPage: vi.fn().mockResolvedValue(undefined),
+  previousPage: vi.fn().mockResolvedValue(undefined),
+  goToPage: vi.fn().mockResolvedValue(undefined),
+  goToFirst: vi.fn().mockResolvedValue(undefined),
+  goToLast: vi.fn().mockResolvedValue(undefined),
+  refresh: vi.fn().mockResolvedValue(undefined),
+  clearError: vi.fn(),
+  setSearchTerm: vi.fn(),
   ...overrides,
 });
 
@@ -116,7 +116,7 @@ describe('EntityReviewTab', () => {
 
   it('shows the error state and clears it on dismiss', async () => {
     const user = userEvent.setup();
-    const clearError = jest.fn();
+    const clearError = vi.fn();
     render(
       <EntityReviewTab
         config={buildConfig()}
@@ -137,7 +137,7 @@ describe('EntityReviewTab', () => {
 
   it('reloads the page when the error retry action is clicked', async () => {
     const user = userEvent.setup();
-    const reload = jest.fn();
+    const reload = vi.fn();
     const originalLocation = window.location;
     Object.defineProperty(window, 'location', {
       value: { ...originalLocation, reload },
@@ -166,8 +166,8 @@ describe('EntityReviewTab', () => {
 
   it('commits a typed term and clears it via Clear button', async () => {
     const user = userEvent.setup();
-    const setSearchTerm = jest.fn();
-    const onSearch = jest.fn();
+    const setSearchTerm = vi.fn();
+    const onSearch = vi.fn();
     render(
       <EntityReviewTab
         config={buildConfig()}
@@ -237,7 +237,7 @@ describe('EntityReviewTab', () => {
     const { rerender } = render(
       <EntityReviewTab
         config={buildConfig({ enableQuiz: true })}
-        actions={buildActions({ onQuizSetup: jest.fn() })}
+        actions={buildActions({ onQuizSetup: vi.fn() })}
         entityListHook={buildEntityListHook({
           entities: [{ id: 1, name: 'apple' }],
           totalCount: 1,
@@ -250,7 +250,7 @@ describe('EntityReviewTab', () => {
     rerender(
       <EntityReviewTab
         config={buildConfig({ enableQuiz: true })}
-        actions={buildActions({ onQuizSetup: jest.fn() })}
+        actions={buildActions({ onQuizSetup: vi.fn() })}
         entityListHook={buildEntityListHook({ entities: [] })}
         renderCard={entity => <span>{entity.name}</span>}
       />,
@@ -262,7 +262,7 @@ describe('EntityReviewTab', () => {
 
   it('calls actions.onNew when the Add button is clicked', async () => {
     const user = userEvent.setup();
-    const onNew = jest.fn();
+    const onNew = vi.fn();
     render(
       <EntityReviewTab
         config={buildConfig()}
@@ -278,7 +278,7 @@ describe('EntityReviewTab', () => {
 
   it('refreshes and shows a success toast when the Refresh button is clicked', async () => {
     const user = userEvent.setup();
-    const onRefresh = jest.fn().mockResolvedValue(undefined);
+    const onRefresh = vi.fn().mockResolvedValue(undefined);
     render(
       <EntityReviewTab
         config={buildConfig()}

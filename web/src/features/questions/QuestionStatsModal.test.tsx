@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { MockInstance } from 'vitest';
 
 import { QuestionStatsResponse, QuestionTrendPoint } from '../../types/api';
 import { apiService } from '../../lib/api';
@@ -16,30 +17,30 @@ const buildTrendPoint = (
 });
 
 describe('QuestionStatsModal', () => {
-  let consoleErrorSpy: jest.SpyInstance;
+  let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('renders nothing when closed', () => {
     const { container } = render(
-      <QuestionStatsModal isOpen={false} onClose={jest.fn()} />,
+      <QuestionStatsModal isOpen={false} onClose={vi.fn()} />,
     );
     expect(container).toBeEmptyDOMElement();
   });
 
   it('shows an error message when the stats request fails', async () => {
-    jest
-      .spyOn(apiService, 'getQuestionStats')
-      .mockRejectedValue(new Error('network down'));
+    vi.spyOn(apiService, 'getQuestionStats').mockRejectedValue(
+      new Error('network down'),
+    );
 
-    render(<QuestionStatsModal isOpen onClose={jest.fn()} />);
+    render(<QuestionStatsModal isOpen onClose={vi.fn()} />);
 
     expect(await screen.findByText('network down')).toBeInTheDocument();
   });
@@ -53,9 +54,9 @@ describe('QuestionStatsModal', () => {
         { range: 'N/A', count: 2, practice_count_breakdown: [] },
       ],
     };
-    jest.spyOn(apiService, 'getQuestionStats').mockResolvedValue(stats);
+    vi.spyOn(apiService, 'getQuestionStats').mockResolvedValue(stats);
 
-    render(<QuestionStatsModal isOpen onClose={jest.fn()} />);
+    render(<QuestionStatsModal isOpen onClose={vi.fn()} />);
 
     expect(
       await screen.findByText('Accuracy distribution — 11 questions total'),
@@ -73,9 +74,9 @@ describe('QuestionStatsModal', () => {
         { range: '80-100%', count: 5, practice_count_breakdown: [] },
       ],
     };
-    jest.spyOn(apiService, 'getQuestionStats').mockResolvedValue(stats);
+    vi.spyOn(apiService, 'getQuestionStats').mockResolvedValue(stats);
 
-    render(<QuestionStatsModal isOpen onClose={jest.fn()} />);
+    render(<QuestionStatsModal isOpen onClose={vi.fn()} />);
 
     expect(
       await screen.findByText('Accuracy distribution — 7 questions total'),
@@ -88,9 +89,9 @@ describe('QuestionStatsModal', () => {
         { range: 'unknown', count: 1, practice_count_breakdown: [] },
       ],
     };
-    jest.spyOn(apiService, 'getQuestionStats').mockResolvedValue(stats);
+    vi.spyOn(apiService, 'getQuestionStats').mockResolvedValue(stats);
 
-    render(<QuestionStatsModal isOpen onClose={jest.fn()} />);
+    render(<QuestionStatsModal isOpen onClose={vi.fn()} />);
 
     expect(
       await screen.findByText('Accuracy distribution — 1 questions total'),
@@ -99,10 +100,10 @@ describe('QuestionStatsModal', () => {
 
   it('switches to the trend tab and renders the chart when there is activity', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getQuestionStats').mockResolvedValue({
+    vi.spyOn(apiService, 'getQuestionStats').mockResolvedValue({
       accuracy_distribution: [],
     });
-    jest.spyOn(apiService, 'getQuestionsTrend').mockResolvedValue([
+    vi.spyOn(apiService, 'getQuestionsTrend').mockResolvedValue([
       buildTrendPoint({
         date: '2026-07-09',
         practice_count: 2,
@@ -115,7 +116,7 @@ describe('QuestionStatsModal', () => {
       }),
     ]);
 
-    render(<QuestionStatsModal isOpen onClose={jest.fn()} />);
+    render(<QuestionStatsModal isOpen onClose={vi.fn()} />);
     await screen.findByText('Accuracy distribution — 0 questions total');
 
     await user.click(screen.getByRole('button', { name: 'Trend' }));
@@ -132,16 +133,16 @@ describe('QuestionStatsModal', () => {
 
   it('switches back to the accuracy tab after viewing the trend tab', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getQuestionStats').mockResolvedValue({
+    vi.spyOn(apiService, 'getQuestionStats').mockResolvedValue({
       accuracy_distribution: [
         { range: '80-100%', count: 5, practice_count_breakdown: [] },
       ],
     });
-    jest
-      .spyOn(apiService, 'getQuestionsTrend')
-      .mockResolvedValue([buildTrendPoint()]);
+    vi.spyOn(apiService, 'getQuestionsTrend').mockResolvedValue([
+      buildTrendPoint(),
+    ]);
 
-    render(<QuestionStatsModal isOpen onClose={jest.fn()} />);
+    render(<QuestionStatsModal isOpen onClose={vi.fn()} />);
     await screen.findByText('Accuracy distribution — 5 questions total');
 
     await user.click(screen.getByRole('button', { name: 'Trend' }));
@@ -157,17 +158,15 @@ describe('QuestionStatsModal', () => {
 
   it('shows the empty state on the trend tab when there is no answer activity', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getQuestionStats').mockResolvedValue({
+    vi.spyOn(apiService, 'getQuestionStats').mockResolvedValue({
       accuracy_distribution: [],
     });
-    jest
-      .spyOn(apiService, 'getQuestionsTrend')
-      .mockResolvedValue([
-        buildTrendPoint(),
-        buildTrendPoint({ date: '2026-07-11' }),
-      ]);
+    vi.spyOn(apiService, 'getQuestionsTrend').mockResolvedValue([
+      buildTrendPoint(),
+      buildTrendPoint({ date: '2026-07-11' }),
+    ]);
 
-    render(<QuestionStatsModal isOpen onClose={jest.fn()} />);
+    render(<QuestionStatsModal isOpen onClose={vi.fn()} />);
     await screen.findByText('Accuracy distribution — 0 questions total');
 
     await user.click(screen.getByRole('button', { name: 'Trend' }));
@@ -179,14 +178,14 @@ describe('QuestionStatsModal', () => {
 
   it('shows an error message on the trend tab when the trend request fails', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getQuestionStats').mockResolvedValue({
+    vi.spyOn(apiService, 'getQuestionStats').mockResolvedValue({
       accuracy_distribution: [],
     });
-    jest
-      .spyOn(apiService, 'getQuestionsTrend')
-      .mockRejectedValue(new Error('trend network down'));
+    vi.spyOn(apiService, 'getQuestionsTrend').mockRejectedValue(
+      new Error('trend network down'),
+    );
 
-    render(<QuestionStatsModal isOpen onClose={jest.fn()} />);
+    render(<QuestionStatsModal isOpen onClose={vi.fn()} />);
     await screen.findByText('Accuracy distribution — 0 questions total');
 
     await user.click(screen.getByRole('button', { name: 'Trend' }));

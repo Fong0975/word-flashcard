@@ -5,13 +5,13 @@ import { QuizCountInput } from './QuizCountInput';
 
 const baseProps = {
   value: '15',
-  onChange: jest.fn(),
+  onChange: vi.fn(),
   error: '',
   count: 15,
   minCount: 1,
   maxCount: 100,
   quickOptions: [5, 10, 15, 20],
-  onQuickSelect: jest.fn(),
+  onQuickSelect: vi.fn(),
 };
 
 describe('QuizCountInput', () => {
@@ -22,7 +22,7 @@ describe('QuizCountInput', () => {
 
   it('calls onChange as the user types', async () => {
     const user = userEvent.setup();
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     render(<QuizCountInput {...baseProps} value='' onChange={onChange} />);
 
     await user.type(screen.getByRole('spinbutton'), '5');
@@ -55,7 +55,7 @@ describe('QuizCountInput', () => {
 
   it('calls onQuickSelect with the chosen option', async () => {
     const user = userEvent.setup();
-    const onQuickSelect = jest.fn();
+    const onQuickSelect = vi.fn();
     render(<QuizCountInput {...baseProps} onQuickSelect={onQuickSelect} />);
 
     await user.click(screen.getByRole('button', { name: '20' }));

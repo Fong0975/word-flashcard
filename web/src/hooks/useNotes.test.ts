@@ -1,25 +1,26 @@
 import { renderHook, waitFor, act } from '@testing-library/react';
+import type { Mock, MockInstance } from 'vitest';
 
 import { apiService } from '../lib/api';
 import { SearchOperation, SearchLogic } from '../types/base';
 
 import { useNotes } from './useNotes';
 
-const lastCallArg = (mockFn: jest.Mock) =>
+const lastCallArg = (mockFn: Mock) =>
   mockFn.mock.calls[mockFn.mock.calls.length - 1][0];
 
 describe('useNotes', () => {
-  let consoleErrorSpy: jest.SpyInstance;
+  let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    jest.spyOn(apiService, 'searchNotes').mockResolvedValue([]);
-    jest.spyOn(apiService, 'getNotesCount').mockResolvedValue({ count: 0 });
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(apiService, 'searchNotes').mockResolvedValue([]);
+    vi.spyOn(apiService, 'getNotesCount').mockResolvedValue({ count: 0 });
   });
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('fetches with no search filter when there is no search term', async () => {
@@ -42,7 +43,7 @@ describe('useNotes', () => {
     });
     await waitFor(() => expect(result.current.loading).toBe(false));
 
-    const params = lastCallArg(apiService.searchNotes as jest.Mock);
+    const params = lastCallArg(apiService.searchNotes as Mock);
     expect(params.searchFilter).toBeUndefined();
   });
 
@@ -55,7 +56,7 @@ describe('useNotes', () => {
     });
     await waitFor(() => expect(result.current.loading).toBe(false));
 
-    const params = lastCallArg(apiService.searchNotes as jest.Mock);
+    const params = lastCallArg(apiService.searchNotes as Mock);
     expect(params.searchFilter).toEqual({
       conditions: [
         { key: 'title', operator: SearchOperation.LIKE, value: '%cat%' },
@@ -73,8 +74,8 @@ describe('useNotes', () => {
       sort_order: 0,
       updated_at: null,
     };
-    (apiService.searchNotes as jest.Mock).mockResolvedValue([note]);
-    (apiService.getNotesCount as jest.Mock).mockResolvedValue({ count: 1 });
+    (apiService.searchNotes as Mock).mockResolvedValue([note]);
+    (apiService.getNotesCount as Mock).mockResolvedValue({ count: 1 });
 
     const { result } = renderHook(() => useNotes());
     await waitFor(() => expect(result.current.loading).toBe(false));

@@ -26,8 +26,8 @@ describe('WordQuizNavHeader', () => {
         isFirstStep={false}
         showAnswer={false}
         currentWord={buildWord()}
-        onPrev={jest.fn()}
-        onNext={jest.fn()}
+        onPrev={vi.fn()}
+        onNext={vi.fn()}
       />,
     );
 
@@ -44,8 +44,8 @@ describe('WordQuizNavHeader', () => {
         isFirstStep
         showAnswer={false}
         currentWord={buildWord()}
-        onPrev={jest.fn()}
-        onNext={jest.fn()}
+        onPrev={vi.fn()}
+        onNext={vi.fn()}
       />,
     );
 
@@ -54,8 +54,8 @@ describe('WordQuizNavHeader', () => {
 
   it('calls onPrev and onNext when clicked', async () => {
     const user = userEvent.setup();
-    const onPrev = jest.fn();
-    const onNext = jest.fn();
+    const onPrev = vi.fn();
+    const onNext = vi.fn();
     render(
       <WordQuizNavHeader
         currentWordIndex={1}
@@ -85,8 +85,8 @@ describe('WordQuizNavHeader', () => {
         isFirstStep
         showAnswer={false}
         currentWord={buildWord({ word: 'banana' })}
-        onPrev={jest.fn()}
-        onNext={jest.fn()}
+        onPrev={vi.fn()}
+        onNext={vi.fn()}
       />,
     );
 
@@ -102,8 +102,8 @@ describe('WordQuizNavHeader', () => {
         isFirstStep
         showAnswer
         currentWord={buildWord({ word: 'banana' })}
-        onPrev={jest.fn()}
-        onNext={jest.fn()}
+        onPrev={vi.fn()}
+        onNext={vi.fn()}
       />,
     );
 

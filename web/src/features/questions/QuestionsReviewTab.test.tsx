@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
+import type { Mock } from 'vitest';
 
 import { EntityListHook } from '../../types';
 import { Question } from '../../types/api';
@@ -9,12 +10,12 @@ import { useQuestions } from '../../hooks/useQuestions';
 
 import { QuestionsReviewTab } from './QuestionsReviewTab';
 
-jest.mock('../../hooks/useQuestions');
+vi.mock('../../hooks/useQuestions');
 
-const mockNavigate = jest.fn();
+const mockNavigate = vi.fn();
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
 }));
 
@@ -22,7 +23,7 @@ jest.mock('react-router-dom', () => ({
 // each have their own dedicated tests; here they're stubbed so these tests
 // stay focused on QuestionsReviewTab's own responsibility: the URL-synced
 // pagination/sort wiring (ref-based effects) and the modal/navigation glue.
-jest.mock('../shared/components/EntityReviewTab', () => ({
+vi.mock('../shared/components/EntityReviewTab', () => ({
   EntityReviewTab: (props: {
     entityListHook: EntityListHook<Question>;
     actions: {
@@ -56,7 +57,7 @@ jest.mock('../shared/components/EntityReviewTab', () => ({
   ),
 }));
 
-jest.mock('./question-form/QuestionFormModal', () => ({
+vi.mock('./question-form/QuestionFormModal', () => ({
   QuestionFormModal: (props: {
     isOpen: boolean;
     mode: string;
@@ -90,7 +91,7 @@ jest.mock('./question-form/QuestionFormModal', () => ({
     ),
 }));
 
-jest.mock('./QuestionStatsModal', () => ({
+vi.mock('./QuestionStatsModal', () => ({
   QuestionStatsModal: (props: { isOpen: boolean; onClose: () => void }) =>
     !props.isOpen ? null : (
       <div>
@@ -100,7 +101,7 @@ jest.mock('./QuestionStatsModal', () => ({
     ),
 }));
 
-jest.mock('../shared/components/QuizSetupModal', () => ({
+vi.mock('../shared/components/QuizSetupModal', () => ({
   QuizSetupModal: (props: {
     isOpen: boolean;
     onClose: () => void;
@@ -130,15 +131,15 @@ const buildQuestionsHook = (
   itemsPerPage: 20,
   searchTerm: '',
   totalCount: 50,
-  fetchEntities: jest.fn().mockResolvedValue(undefined),
-  nextPage: jest.fn().mockResolvedValue(undefined),
-  previousPage: jest.fn().mockResolvedValue(undefined),
-  goToPage: jest.fn().mockResolvedValue(undefined),
-  goToFirst: jest.fn().mockResolvedValue(undefined),
-  goToLast: jest.fn().mockResolvedValue(undefined),
-  refresh: jest.fn().mockResolvedValue(undefined),
-  clearError: jest.fn(),
-  setSearchTerm: jest.fn(),
+  fetchEntities: vi.fn().mockResolvedValue(undefined),
+  nextPage: vi.fn().mockResolvedValue(undefined),
+  previousPage: vi.fn().mockResolvedValue(undefined),
+  goToPage: vi.fn().mockResolvedValue(undefined),
+  goToFirst: vi.fn().mockResolvedValue(undefined),
+  goToLast: vi.fn().mockResolvedValue(undefined),
+  refresh: vi.fn().mockResolvedValue(undefined),
+  clearError: vi.fn(),
+  setSearchTerm: vi.fn(),
   ...overrides,
 });
 
@@ -147,7 +148,7 @@ const renderTab = (
   hookOverrides: Partial<EntityListHook<Question>> = {},
 ) => {
   const hook = buildQuestionsHook(hookOverrides);
-  (useQuestions as jest.Mock).mockReturnValue(hook);
+  (useQuestions as Mock).mockReturnValue(hook);
 
   render(
     <MemoryRouter initialEntries={[path]}>
@@ -164,7 +165,7 @@ describe('QuestionsReviewTab', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('URL-synced pagination', () => {
@@ -291,7 +292,7 @@ describe('QuestionsReviewTab', () => {
 
     it('does not throw when the post-save refresh fails', async () => {
       const user = userEvent.setup();
-      renderTab('/', { refresh: jest.fn().mockRejectedValue(new Error('x')) });
+      renderTab('/', { refresh: vi.fn().mockRejectedValue(new Error('x')) });
 
       await user.click(screen.getByRole('button', { name: 'New' }));
       await user.click(

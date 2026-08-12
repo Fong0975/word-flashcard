@@ -1,17 +1,18 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { Mock } from 'vitest';
 
 import { speakText } from '../../../shared/speech';
 
 import { PronunciationControls } from './PronunciationControls';
 
-jest.mock('../../../shared/speech');
+vi.mock('../../../shared/speech');
 
-const mockedSpeakText = speakText as jest.Mock;
+const mockedSpeakText = speakText as Mock;
 
 describe('PronunciationControls', () => {
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders a playable UK button when a UK url is available', () => {

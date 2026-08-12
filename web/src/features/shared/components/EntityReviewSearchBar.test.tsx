@@ -8,10 +8,10 @@ describe('EntityReviewSearchBar', () => {
     render(
       <EntityReviewSearchBar
         value='cat'
-        onChange={jest.fn()}
-        onCompositionStart={jest.fn()}
-        onCompositionEnd={jest.fn()}
-        onClear={jest.fn()}
+        onChange={vi.fn()}
+        onCompositionStart={vi.fn()}
+        onCompositionEnd={vi.fn()}
+        onClear={vi.fn()}
         placeholder='Search words...'
       />,
     );
@@ -21,14 +21,14 @@ describe('EntityReviewSearchBar', () => {
 
   it('calls onChange as the user types', async () => {
     const user = userEvent.setup();
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     render(
       <EntityReviewSearchBar
         value=''
         onChange={onChange}
-        onCompositionStart={jest.fn()}
-        onCompositionEnd={jest.fn()}
-        onClear={jest.fn()}
+        onCompositionStart={vi.fn()}
+        onCompositionEnd={vi.fn()}
+        onClear={vi.fn()}
         placeholder='Search...'
       />,
     );
@@ -41,10 +41,10 @@ describe('EntityReviewSearchBar', () => {
     render(
       <EntityReviewSearchBar
         value=''
-        onChange={jest.fn()}
-        onCompositionStart={jest.fn()}
-        onCompositionEnd={jest.fn()}
-        onClear={jest.fn()}
+        onChange={vi.fn()}
+        onCompositionStart={vi.fn()}
+        onCompositionEnd={vi.fn()}
+        onClear={vi.fn()}
         placeholder='Search...'
       />,
     );
@@ -56,13 +56,13 @@ describe('EntityReviewSearchBar', () => {
 
   it('calls onClear when the clear button is clicked', async () => {
     const user = userEvent.setup();
-    const onClear = jest.fn();
+    const onClear = vi.fn();
     render(
       <EntityReviewSearchBar
         value='cat'
-        onChange={jest.fn()}
-        onCompositionStart={jest.fn()}
-        onCompositionEnd={jest.fn()}
+        onChange={vi.fn()}
+        onCompositionStart={vi.fn()}
+        onCompositionEnd={vi.fn()}
         onClear={onClear}
         placeholder='Search...'
       />,
@@ -73,15 +73,15 @@ describe('EntityReviewSearchBar', () => {
   });
 
   it('fires composition start/end handlers', () => {
-    const onCompositionStart = jest.fn();
-    const onCompositionEnd = jest.fn();
+    const onCompositionStart = vi.fn();
+    const onCompositionEnd = vi.fn();
     render(
       <EntityReviewSearchBar
         value=''
-        onChange={jest.fn()}
+        onChange={vi.fn()}
         onCompositionStart={onCompositionStart}
         onCompositionEnd={onCompositionEnd}
-        onClear={jest.fn()}
+        onClear={vi.fn()}
         placeholder='Search...'
       />,
     );
@@ -98,10 +98,10 @@ describe('EntityReviewSearchBar', () => {
     render(
       <EntityReviewSearchBar
         value=''
-        onChange={jest.fn()}
-        onCompositionStart={jest.fn()}
-        onCompositionEnd={jest.fn()}
-        onClear={jest.fn()}
+        onChange={vi.fn()}
+        onCompositionStart={vi.fn()}
+        onCompositionEnd={vi.fn()}
+        onClear={vi.fn()}
         placeholder='Search...'
         quickFiltersContent={<div>Quick filters</div>}
       />,

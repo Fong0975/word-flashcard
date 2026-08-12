@@ -6,7 +6,7 @@ import { Modal } from './Modal';
 describe('Modal', () => {
   it('renders nothing when closed', () => {
     const { container } = render(
-      <Modal isOpen={false} onClose={jest.fn()}>
+      <Modal isOpen={false} onClose={vi.fn()}>
         Content
       </Modal>,
     );
@@ -15,7 +15,7 @@ describe('Modal', () => {
 
   it('renders the title and children when open', () => {
     render(
-      <Modal isOpen onClose={jest.fn()} title='Edit Word'>
+      <Modal isOpen onClose={vi.fn()} title='Edit Word'>
         <p>Body content</p>
       </Modal>,
     );
@@ -28,7 +28,7 @@ describe('Modal', () => {
 
   it('calls onClose when the close button is clicked', async () => {
     const user = userEvent.setup();
-    const onClose = jest.fn();
+    const onClose = vi.fn();
     render(
       <Modal isOpen onClose={onClose} title='Edit Word'>
         Body
@@ -40,7 +40,7 @@ describe('Modal', () => {
   });
 
   it('calls onClose when clicking the backdrop', () => {
-    const onClose = jest.fn();
+    const onClose = vi.fn();
     render(
       <Modal isOpen onClose={onClose}>
         Body
@@ -52,7 +52,7 @@ describe('Modal', () => {
   });
 
   it('does not call onClose when clicking the backdrop with disableBackdropClose set', () => {
-    const onClose = jest.fn();
+    const onClose = vi.fn();
     render(
       <Modal isOpen onClose={onClose} disableBackdropClose>
         Body
@@ -64,7 +64,7 @@ describe('Modal', () => {
   });
 
   it('calls onClose when Escape is pressed', () => {
-    const onClose = jest.fn();
+    const onClose = vi.fn();
     render(
       <Modal isOpen onClose={onClose}>
         Body
@@ -76,7 +76,7 @@ describe('Modal', () => {
   });
 
   it('does not call onClose on Escape with disableEscapeClose set', () => {
-    const onClose = jest.fn();
+    const onClose = vi.fn();
     render(
       <Modal isOpen onClose={onClose} disableEscapeClose>
         Body
@@ -89,7 +89,7 @@ describe('Modal', () => {
 
   it('does not close when clicking inside the modal content', async () => {
     const user = userEvent.setup();
-    const onClose = jest.fn();
+    const onClose = vi.fn();
     render(
       <Modal isOpen onClose={onClose}>
         <p>Body content</p>

@@ -19,6 +19,6 @@ export const buildMockResponse = (
     status,
     statusText,
     headers: { get: () => contentType },
-    json: jest.fn().mockResolvedValue(body),
+    json: vi.fn().mockResolvedValue(body),
   } as unknown as Response;
 };

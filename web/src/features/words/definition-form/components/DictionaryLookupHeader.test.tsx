@@ -6,13 +6,13 @@ import { DictionaryLookupHeader } from './DictionaryLookupHeader';
 describe('DictionaryLookupHeader', () => {
   it('calls onFetchDictionary when the fetch button is clicked', async () => {
     const user = userEvent.setup();
-    const onFetchDictionary = jest.fn();
+    const onFetchDictionary = vi.fn();
     render(
       <DictionaryLookupHeader
         isLoadingDictionary={false}
         isCollapsed={false}
         onFetchDictionary={onFetchDictionary}
-        onToggleCollapsed={jest.fn()}
+        onToggleCollapsed={vi.fn()}
       />,
     );
 
@@ -25,8 +25,8 @@ describe('DictionaryLookupHeader', () => {
       <DictionaryLookupHeader
         isLoadingDictionary
         isCollapsed={false}
-        onFetchDictionary={jest.fn()}
-        onToggleCollapsed={jest.fn()}
+        onFetchDictionary={vi.fn()}
+        onToggleCollapsed={vi.fn()}
       />,
     );
 
@@ -35,12 +35,12 @@ describe('DictionaryLookupHeader', () => {
 
   it('calls onToggleCollapsed when the toggle button is clicked', async () => {
     const user = userEvent.setup();
-    const onToggleCollapsed = jest.fn();
+    const onToggleCollapsed = vi.fn();
     render(
       <DictionaryLookupHeader
         isLoadingDictionary={false}
         isCollapsed
-        onFetchDictionary={jest.fn()}
+        onFetchDictionary={vi.fn()}
         onToggleCollapsed={onToggleCollapsed}
       />,
     );

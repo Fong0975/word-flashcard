@@ -1,12 +1,13 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
+import type { MockInstance } from 'vitest';
 
 import { useRefreshAction } from './useRefreshAction';
 
 describe('useRefreshAction', () => {
-  let consoleErrorSpy: jest.SpyInstance;
+  let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -29,7 +30,7 @@ describe('useRefreshAction', () => {
   });
 
   it('awaits the onRefresh callback and shows success', async () => {
-    const onRefresh = jest.fn().mockResolvedValue(undefined);
+    const onRefresh = vi.fn().mockResolvedValue(undefined);
     const { result } = renderHook(() => useRefreshAction(onRefresh));
 
     await act(async () => {
@@ -41,7 +42,7 @@ describe('useRefreshAction', () => {
   });
 
   it('shows an error toast with the failure message when onRefresh rejects', async () => {
-    const onRefresh = jest.fn().mockRejectedValue(new Error('network down'));
+    const onRefresh = vi.fn().mockRejectedValue(new Error('network down'));
     const { result } = renderHook(() => useRefreshAction(onRefresh));
 
     await act(async () => {
@@ -57,7 +58,7 @@ describe('useRefreshAction', () => {
 
   it('ignores a second refresh call while one is already in flight', async () => {
     let resolveRefresh: () => void = () => {};
-    const onRefresh = jest.fn(
+    const onRefresh = vi.fn(
       () =>
         new Promise<void>(resolve => {
           resolveRefresh = resolve;

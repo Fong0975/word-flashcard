@@ -1,4 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
+import type { MockInstance } from 'vitest';
 
 import { Word } from '../../../../types/api';
 import { FamiliarityLevel } from '../../../../types/base';
@@ -20,30 +21,30 @@ const buildWord = (overrides: Partial<Word> = {}): Word => ({
 const buildCallbacks = (
   overrides: Partial<WordActionsCallbacks> = {},
 ): WordActionsCallbacks => ({
-  onEdit: jest.fn(),
-  onDelete: jest.fn(),
+  onEdit: vi.fn(),
+  onDelete: vi.fn(),
   ...overrides,
 });
 
 describe('useWordActions', () => {
-  let consoleErrorSpy: jest.SpyInstance;
+  let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('opens the edit modal and calls onEdit', () => {
-    const onEdit = jest.fn();
+    const onEdit = vi.fn();
     const { result } = renderHook(() =>
       useWordActions({
         word: buildWord(),
         callbacks: buildCallbacks({ onEdit }),
-        onClose: jest.fn(),
+        onClose: vi.fn(),
       }),
     );
 
@@ -60,7 +61,7 @@ describe('useWordActions', () => {
       useWordActions({
         word: buildWord(),
         callbacks: buildCallbacks(),
-        onClose: jest.fn(),
+        onClose: vi.fn(),
       }),
     );
 
@@ -75,12 +76,12 @@ describe('useWordActions', () => {
   });
 
   it('notifies onWordUpdated', () => {
-    const onWordUpdated = jest.fn();
+    const onWordUpdated = vi.fn();
     const { result } = renderHook(() =>
       useWordActions({
         word: buildWord(),
         callbacks: buildCallbacks({ onWordUpdated }),
-        onClose: jest.fn(),
+        onClose: vi.fn(),
       }),
     );
 
@@ -92,12 +93,12 @@ describe('useWordActions', () => {
   });
 
   it('opens the delete confirmation and calls onDelete', () => {
-    const onDelete = jest.fn();
+    const onDelete = vi.fn();
     const { result } = renderHook(() =>
       useWordActions({
         word: buildWord(),
         callbacks: buildCallbacks({ onDelete }),
-        onClose: jest.fn(),
+        onClose: vi.fn(),
       }),
     );
 
@@ -110,11 +111,11 @@ describe('useWordActions', () => {
   });
 
   it('deletes the word and notifies onClose/onWordUpdated on confirm', async () => {
-    const deleteWordSpy = jest
+    const deleteWordSpy = vi
       .spyOn(apiService, 'deleteWord')
       .mockResolvedValue(undefined);
-    const onClose = jest.fn();
-    const onWordUpdated = jest.fn();
+    const onClose = vi.fn();
+    const onWordUpdated = vi.fn();
     const { result } = renderHook(() =>
       useWordActions({
         word: buildWord({ id: 7 }),
@@ -133,15 +134,15 @@ describe('useWordActions', () => {
   });
 
   it('reports a formatted error message when deletion fails', async () => {
-    jest
-      .spyOn(apiService, 'deleteWord')
-      .mockRejectedValue(new Error('network down'));
-    const onError = jest.fn();
+    vi.spyOn(apiService, 'deleteWord').mockRejectedValue(
+      new Error('network down'),
+    );
+    const onError = vi.fn();
     const { result } = renderHook(() =>
       useWordActions({
         word: buildWord(),
         callbacks: buildCallbacks(),
-        onClose: jest.fn(),
+        onClose: vi.fn(),
         onError,
       }),
     );
@@ -158,7 +159,7 @@ describe('useWordActions', () => {
       useWordActions({
         word: buildWord(),
         callbacks: buildCallbacks(),
-        onClose: jest.fn(),
+        onClose: vi.fn(),
       }),
     );
 

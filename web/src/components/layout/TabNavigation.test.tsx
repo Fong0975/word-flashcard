@@ -5,7 +5,7 @@ import { TabNavigation } from './TabNavigation';
 
 describe('TabNavigation', () => {
   it('renders all three tabs', () => {
-    render(<TabNavigation currentTab='words' onTabChange={jest.fn()} />);
+    render(<TabNavigation currentTab='words' onTabChange={vi.fn()} />);
 
     expect(screen.getByRole('tab', { name: /Words/ })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: /Questions/ })).toBeInTheDocument();
@@ -13,7 +13,7 @@ describe('TabNavigation', () => {
   });
 
   it('marks the current tab as selected', () => {
-    render(<TabNavigation currentTab='questions' onTabChange={jest.fn()} />);
+    render(<TabNavigation currentTab='questions' onTabChange={vi.fn()} />);
 
     expect(screen.getByRole('tab', { name: /Questions/ })).toHaveAttribute(
       'aria-selected',
@@ -27,7 +27,7 @@ describe('TabNavigation', () => {
 
   it('calls onTabChange with the clicked tab', async () => {
     const user = userEvent.setup();
-    const onTabChange = jest.fn();
+    const onTabChange = vi.fn();
     render(<TabNavigation currentTab='words' onTabChange={onTabChange} />);
 
     await user.click(screen.getByRole('tab', { name: /Notes/ }));

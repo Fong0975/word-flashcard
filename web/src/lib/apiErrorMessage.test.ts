@@ -1,11 +1,13 @@
+import type { MockInstance } from 'vitest';
+
 import { getApiErrorMessage, getApiErrorCode } from './apiErrorMessage';
 import { ApiError } from './api';
 
 describe('apiErrorMessage', () => {
-  let consoleErrorSpy: jest.SpyInstance;
+  let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {

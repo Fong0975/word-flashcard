@@ -4,11 +4,11 @@ import { useQuizExitGuard } from './useQuizExitGuard';
 
 describe('useQuizExitGuard', () => {
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('calls onExit immediately when the back button handler fires while inactive', () => {
-    const onExit = jest.fn();
+    const onExit = vi.fn();
     const { result } = renderHook(() =>
       useQuizExitGuard({ isActive: false, onExit }),
     );
@@ -22,7 +22,7 @@ describe('useQuizExitGuard', () => {
   });
 
   it('shows the exit confirmation instead of exiting while active', () => {
-    const onExit = jest.fn();
+    const onExit = vi.fn();
     const { result } = renderHook(() =>
       useQuizExitGuard({ isActive: true, onExit }),
     );
@@ -36,23 +36,23 @@ describe('useQuizExitGuard', () => {
   });
 
   it('pushes a guard history entry while active', () => {
-    const pushStateSpy = jest.spyOn(window.history, 'pushState');
-    renderHook(() => useQuizExitGuard({ isActive: true, onExit: jest.fn() }));
+    const pushStateSpy = vi.spyOn(window.history, 'pushState');
+    renderHook(() => useQuizExitGuard({ isActive: true, onExit: vi.fn() }));
 
     expect(pushStateSpy).toHaveBeenCalledWith(null, '');
   });
 
   it('does not push a guard history entry while inactive', () => {
-    const pushStateSpy = jest.spyOn(window.history, 'pushState');
-    renderHook(() => useQuizExitGuard({ isActive: false, onExit: jest.fn() }));
+    const pushStateSpy = vi.spyOn(window.history, 'pushState');
+    renderHook(() => useQuizExitGuard({ isActive: false, onExit: vi.fn() }));
 
     expect(pushStateSpy).not.toHaveBeenCalled();
   });
 
   it('shows the exit confirmation and re-guards history on popstate while active', () => {
-    const pushStateSpy = jest.spyOn(window.history, 'pushState');
+    const pushStateSpy = vi.spyOn(window.history, 'pushState');
     const { result } = renderHook(() =>
-      useQuizExitGuard({ isActive: true, onExit: jest.fn() }),
+      useQuizExitGuard({ isActive: true, onExit: vi.fn() }),
     );
     pushStateSpy.mockClear();
 
@@ -65,7 +65,7 @@ describe('useQuizExitGuard', () => {
   });
 
   it('exit confirm hides the dialog and calls onExit', () => {
-    const onExit = jest.fn();
+    const onExit = vi.fn();
     const { result } = renderHook(() =>
       useQuizExitGuard({ isActive: true, onExit }),
     );
@@ -82,7 +82,7 @@ describe('useQuizExitGuard', () => {
   });
 
   it('exit cancel hides the dialog without calling onExit', () => {
-    const onExit = jest.fn();
+    const onExit = vi.fn();
     const { result } = renderHook(() =>
       useQuizExitGuard({ isActive: true, onExit }),
     );
@@ -99,20 +99,20 @@ describe('useQuizExitGuard', () => {
   });
 
   it('prevents the default beforeunload behavior while active', () => {
-    renderHook(() => useQuizExitGuard({ isActive: true, onExit: jest.fn() }));
+    renderHook(() => useQuizExitGuard({ isActive: true, onExit: vi.fn() }));
 
     const event = new Event('beforeunload', { cancelable: true });
-    const preventDefaultSpy = jest.spyOn(event, 'preventDefault');
+    const preventDefaultSpy = vi.spyOn(event, 'preventDefault');
     window.dispatchEvent(event);
 
     expect(preventDefaultSpy).toHaveBeenCalled();
   });
 
   it('does not intercept beforeunload while inactive', () => {
-    renderHook(() => useQuizExitGuard({ isActive: false, onExit: jest.fn() }));
+    renderHook(() => useQuizExitGuard({ isActive: false, onExit: vi.fn() }));
 
     const event = new Event('beforeunload', { cancelable: true });
-    const preventDefaultSpy = jest.spyOn(event, 'preventDefault');
+    const preventDefaultSpy = vi.spyOn(event, 'preventDefault');
     window.dispatchEvent(event);
 
     expect(preventDefaultSpy).not.toHaveBeenCalled();

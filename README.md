@@ -69,11 +69,14 @@ word-flashcard/
 │   ├── .env.example              # Environment variables template
 │   ├── Dockerfile                # Dockerfile for frontend service
 │   ├── README.md                 # React app documentation
+│   ├── index.html                # Vite entry HTML
 │   ├── package.json              # React dependencies
 │   ├── package-lock.json         # React dependency lock file
 │   ├── postcss.config.js         # PostCSS configuration
 │   ├── tailwind.config.js        # Tailwind CSS configuration
-│   └── tsconfig.json             # TypeScript configuration
+│   ├── tsconfig.json             # TypeScript configuration
+│   ├── vite.config.mts           # Vite build/dev-server configuration
+│   └── vitest.config.mts         # Vitest test configuration
 ├── .env.example                  # Environment variables template
 ├── docker-compose.yml            # Definition of multi-container for services in the project
 ├── Dockerfile                    # Dockerfile for backend service
@@ -87,7 +90,7 @@ word-flashcard/
 ## Prerequisites
 
 - Go `1.23.7` or higher
-- Node.js and npm
+- Node.js `20.19+` and npm (required by [Vite](https://vite.dev/), which the frontend build tooling in `web/` is built on)
 - Internet connection for fetching dictionary data
 - MySQL or PostgreSQL database
 
@@ -171,10 +174,10 @@ Create a `.env` file in the `web/` directory with the following configuration:
 
 ```env
 # API Configuration
-REACT_APP_API_HOSTNAME=localhost
-REACT_APP_API_PORT=8080
-REACT_APP_API_HOSTNAME_DICTIONARY=localhost
-REACT_APP_API_PORT_DICTIONARY=8081
+VITE_API_HOSTNAME=localhost
+VITE_API_PORT=8080
+VITE_API_HOSTNAME_DICTIONARY=localhost
+VITE_API_PORT_DICTIONARY=8081
 ```
 
 For detailed database configuration and usage, see [Database Documentation](utils/database/README.md).
@@ -380,9 +383,9 @@ Use the Docker to deploy the services for the production environment.
 | .env     | LOG_FILE_PATH                     | Log file path inside the container                                             | logs/word-flashcard.log <br/> (Docker binds volumes by default, storing log files in the physical root directory) |
 | .env     | BACKUP_ENABLED                    | Whether the automatic backup scheduler runs (startup backup + periodic checks) | true                                                                                                               |
 | .env     | BACKUP_DIR                        | Automatic backup output directory inside the container                         | backups <br/> (bound via its own `./backups:/root/backups` volume, so backup files persist on the physical host)  |
-| web/.env | REACT_APP_API_HOSTNAME            | Hostname for the API service in the frontend                                   | api.flashcard.com                                                                                                 |
-| web/.env | REACT_APP_API_PORT                | Port for the API service in the frontend configuration                         | 8080                                                                                                              |
-| web/.env | REACT_APP_API_HOSTNAME_DICTIONARY | Hostname for the Cambridge Dictionary API in the frontend configuration        | dictionary.flashcard.com                                                                                          |
-| web/.env | REACT_APP_API_PORT_DICTIONARY     | Port for the Cambridge Dictionary API in the frontend configuration            | 8081                                                                                                              |
+| web/.env | VITE_API_HOSTNAME                 | Hostname for the API service in the frontend                                   | api.flashcard.com                                                                                                 |
+| web/.env | VITE_API_PORT                     | Port for the API service in the frontend configuration                         | 8080                                                                                                              |
+| web/.env | VITE_API_HOSTNAME_DICTIONARY      | Hostname for the Cambridge Dictionary API in the frontend configuration        | dictionary.flashcard.com                                                                                          |
+| web/.env | VITE_API_PORT_DICTIONARY          | Port for the Cambridge Dictionary API in the frontend configuration            | 8081                                                                                                              |
 
 3. Use `docker\docker-compose.yml` to build the Docker containers.

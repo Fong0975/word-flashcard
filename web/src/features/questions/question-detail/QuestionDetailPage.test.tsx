@@ -1,17 +1,18 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
+import type { MockInstance } from 'vitest';
 
 import { Question } from '../../../types/api';
 import { apiService } from '../../../lib/api';
 
 import { QuestionDetailPage } from './QuestionDetailPage';
 
-const mockNavigate = jest.fn();
-const mockUseParams = jest.fn();
+const mockNavigate = vi.fn();
+const mockUseParams = vi.fn();
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
   useParams: () => mockUseParams(),
 }));
@@ -39,31 +40,31 @@ const renderPage = () =>
   );
 
 describe('QuestionDetailPage', () => {
-  let consoleErrorSpy: jest.SpyInstance;
+  let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
     mockNavigate.mockClear();
     mockUseParams.mockReturnValue({ id: '1' });
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     // DetailPageLayout renders the real Header, whose useDarkMode hook reads
     // window.matchMedia; jsdom doesn't implement it, so stub it out.
-    window.matchMedia = jest.fn().mockReturnValue({
+    window.matchMedia = vi.fn().mockReturnValue({
       matches: false,
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
     });
   });
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
     localStorage.clear();
     document.documentElement.classList.remove('dark');
   });
 
   it('does not fetch a question when the route has no id', () => {
     mockUseParams.mockReturnValue({ id: undefined });
-    const getQuestionSpy = jest.spyOn(apiService, 'getQuestion');
+    const getQuestionSpy = vi.spyOn(apiService, 'getQuestion');
 
     renderPage();
 
@@ -71,9 +72,9 @@ describe('QuestionDetailPage', () => {
   });
 
   it('shows a loading spinner while fetching', () => {
-    jest
-      .spyOn(apiService, 'getQuestion')
-      .mockReturnValue(new Promise<Question>(() => {}));
+    vi.spyOn(apiService, 'getQuestion').mockReturnValue(
+      new Promise<Question>(() => {}),
+    );
 
     renderPage();
 
@@ -82,9 +83,9 @@ describe('QuestionDetailPage', () => {
 
   it('navigates back with browser history when Go back is clicked while loading', async () => {
     const user = userEvent.setup();
-    jest
-      .spyOn(apiService, 'getQuestion')
-      .mockReturnValue(new Promise<Question>(() => {}));
+    vi.spyOn(apiService, 'getQuestion').mockReturnValue(
+      new Promise<Question>(() => {}),
+    );
 
     renderPage();
 
@@ -96,9 +97,9 @@ describe('QuestionDetailPage', () => {
 
   it('shows an error screen and navigates home on failure', async () => {
     const user = userEvent.setup();
-    jest
-      .spyOn(apiService, 'getQuestion')
-      .mockRejectedValue(new Error('question gone'));
+    vi.spyOn(apiService, 'getQuestion').mockRejectedValue(
+      new Error('question gone'),
+    );
 
     renderPage();
 
@@ -111,9 +112,9 @@ describe('QuestionDetailPage', () => {
 
   it('navigates home when Go back is clicked on the error screen', async () => {
     const user = userEvent.setup();
-    jest
-      .spyOn(apiService, 'getQuestion')
-      .mockRejectedValue(new Error('question gone'));
+    vi.spyOn(apiService, 'getQuestion').mockRejectedValue(
+      new Error('question gone'),
+    );
 
     renderPage();
 
@@ -126,7 +127,7 @@ describe('QuestionDetailPage', () => {
 
   it('renders question details, using browser-back on header', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getQuestion').mockResolvedValue(buildQuestion());
+    vi.spyOn(apiService, 'getQuestion').mockResolvedValue(buildQuestion());
 
     renderPage();
 
@@ -143,9 +144,9 @@ describe('QuestionDetailPage', () => {
 
   it('toggles the answer and explanation section', async () => {
     const user = userEvent.setup();
-    jest
-      .spyOn(apiService, 'getQuestion')
-      .mockResolvedValue(buildQuestion({ notes: 'Because 2+2=4.' }));
+    vi.spyOn(apiService, 'getQuestion').mockResolvedValue(
+      buildQuestion({ notes: 'Because 2+2=4.' }),
+    );
 
     renderPage();
     await screen.findByRole('heading', { name: 'What is 2 + 2?' });
@@ -162,7 +163,7 @@ describe('QuestionDetailPage', () => {
 
   it('opens the edit modal when Edit is clicked', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getQuestion').mockResolvedValue(buildQuestion());
+    vi.spyOn(apiService, 'getQuestion').mockResolvedValue(buildQuestion());
 
     renderPage();
     await screen.findByRole('heading', { name: 'What is 2 + 2?' });
@@ -181,11 +182,10 @@ describe('QuestionDetailPage', () => {
   it('refetches and displays the updated question after a successful edit', async () => {
     const user = userEvent.setup();
     const updatedQuestion = buildQuestion({ question: 'What is 3 + 3?' });
-    jest
-      .spyOn(apiService, 'getQuestion')
+    vi.spyOn(apiService, 'getQuestion')
       .mockResolvedValueOnce(buildQuestion())
       .mockResolvedValueOnce(updatedQuestion);
-    jest.spyOn(apiService, 'updateQuestion').mockResolvedValue(updatedQuestion);
+    vi.spyOn(apiService, 'updateQuestion').mockResolvedValue(updatedQuestion);
 
     renderPage();
     await screen.findByRole('heading', { name: 'What is 2 + 2?' });
@@ -202,8 +202,8 @@ describe('QuestionDetailPage', () => {
 
   it('deletes the question after confirming, closes back home', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getQuestion').mockResolvedValue(buildQuestion());
-    const deleteSpy = jest
+    vi.spyOn(apiService, 'getQuestion').mockResolvedValue(buildQuestion());
+    const deleteSpy = vi
       .spyOn(apiService, 'deleteQuestion')
       .mockResolvedValue(undefined);
 
@@ -223,8 +223,8 @@ describe('QuestionDetailPage', () => {
 
   it('cancels the delete confirmation without deleting', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getQuestion').mockResolvedValue(buildQuestion());
-    const deleteSpy = jest.spyOn(apiService, 'deleteQuestion');
+    vi.spyOn(apiService, 'getQuestion').mockResolvedValue(buildQuestion());
+    const deleteSpy = vi.spyOn(apiService, 'deleteQuestion');
 
     renderPage();
     await screen.findByRole('heading', { name: 'What is 2 + 2?' });

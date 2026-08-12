@@ -1,13 +1,14 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { Mock } from 'vitest';
 
 import { useAudio, UseAudioReturn } from '../../hooks/useAudio';
 
 import { PronunciationButton } from './PronunciationButton';
 
-jest.mock('../../hooks/useAudio');
+vi.mock('../../hooks/useAudio');
 
-const mockedUseAudio = useAudio as jest.Mock;
+const mockedUseAudio = useAudio as Mock;
 
 const buildHookReturn = (
   overrides: Partial<UseAudioReturn> = {},
@@ -15,9 +16,9 @@ const buildHookReturn = (
   isPlaying: false,
   isLoading: false,
   error: null,
-  play: jest.fn().mockResolvedValue(undefined),
-  pause: jest.fn(),
-  stop: jest.fn(),
+  play: vi.fn().mockResolvedValue(undefined),
+  pause: vi.fn(),
+  stop: vi.fn(),
   ...overrides,
 });
 
@@ -37,7 +38,7 @@ describe('PronunciationButton', () => {
   });
 
   it('plays the given audio url when clicked', async () => {
-    const play = jest.fn().mockResolvedValue(undefined);
+    const play = vi.fn().mockResolvedValue(undefined);
     mockedUseAudio.mockReturnValue(buildHookReturn({ play }));
     const user = userEvent.setup();
     render(<PronunciationButton audioUrl='uk.mp3' accent='uk' />);
@@ -64,7 +65,7 @@ describe('PronunciationButton', () => {
   });
 
   it('does not call play when disabled', async () => {
-    const play = jest.fn();
+    const play = vi.fn();
     mockedUseAudio.mockReturnValue(buildHookReturn({ play }));
     const user = userEvent.setup();
     render(<PronunciationButton audioUrl='uk.mp3' accent='uk' disabled />);

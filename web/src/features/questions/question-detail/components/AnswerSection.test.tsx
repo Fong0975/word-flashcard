@@ -25,7 +25,7 @@ describe('AnswerSection', () => {
     render(
       <AnswerSection
         isExpanded={false}
-        onToggle={jest.fn()}
+        onToggle={vi.fn()}
         answer='A'
         question={buildQuestion()}
       />,
@@ -39,7 +39,7 @@ describe('AnswerSection', () => {
     render(
       <AnswerSection
         isExpanded
-        onToggle={jest.fn()}
+        onToggle={vi.fn()}
         answer='B'
         question={buildQuestion()}
       />,
@@ -53,7 +53,7 @@ describe('AnswerSection', () => {
     render(
       <AnswerSection
         isExpanded
-        onToggle={jest.fn()}
+        onToggle={vi.fn()}
         answer='C'
         question={buildQuestion()}
       />,
@@ -67,7 +67,7 @@ describe('AnswerSection', () => {
     render(
       <AnswerSection
         isExpanded
-        onToggle={jest.fn()}
+        onToggle={vi.fn()}
         answer='D'
         question={buildQuestion()}
       />,
@@ -81,7 +81,7 @@ describe('AnswerSection', () => {
     render(
       <AnswerSection
         isExpanded
-        onToggle={jest.fn()}
+        onToggle={vi.fn()}
         answer='Z'
         question={buildQuestion()}
       />,
@@ -94,7 +94,7 @@ describe('AnswerSection', () => {
     render(
       <AnswerSection
         isExpanded
-        onToggle={jest.fn()}
+        onToggle={vi.fn()}
         answer='A'
         explanation='**important**'
         question={buildQuestion()}
@@ -109,7 +109,7 @@ describe('AnswerSection', () => {
     render(
       <AnswerSection
         isExpanded
-        onToggle={jest.fn()}
+        onToggle={vi.fn()}
         answer='A'
         question={buildQuestion()}
       />,
@@ -120,7 +120,7 @@ describe('AnswerSection', () => {
 
   it('calls onToggle when the header is clicked', async () => {
     const user = userEvent.setup();
-    const onToggle = jest.fn();
+    const onToggle = vi.fn();
     render(
       <AnswerSection
         isExpanded={false}

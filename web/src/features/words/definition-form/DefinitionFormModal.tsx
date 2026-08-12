@@ -116,7 +116,7 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
             {wordText && (
               <div className='mt-1 flex items-center'>
                 <p className='text-lg text-gray-600 dark:text-gray-400'>
-                  for "
+                  for &quot;
                   <a
                     className='font-semibold text-gray-800 dark:text-blue-500 hover:dark:text-blue-300'
                     href={`https://dictionary.cambridge.org/zht/%E8%A9%9E%E5%85%B8/%E8%8B%B1%E8%AA%9E-%E6%BC%A2%E8%AA%9E-%E7%B9%81%E9%AB%94/${wordText}`}
@@ -125,7 +125,7 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
                   >
                     {wordText}
                   </a>
-                  "
+                  &quot;
                 </p>
                 <button
                   type='button'

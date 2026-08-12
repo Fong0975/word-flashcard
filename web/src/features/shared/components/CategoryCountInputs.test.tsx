@@ -15,7 +15,7 @@ const buildProps = () => ({
     [FamiliarityLevel.YELLOW]: 5,
     [FamiliarityLevel.GREEN]: 3,
   },
-  onChange: jest.fn(),
+  onChange: vi.fn(),
   maxCount: 100,
   allZero: false,
 });
@@ -36,7 +36,7 @@ describe('CategoryCountInputs', () => {
   });
 
   it('calls onChange with the category and the new value', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     render(<CategoryCountInputs {...buildProps()} onChange={onChange} />);
 
     const inputs = screen.getAllByRole('spinbutton');

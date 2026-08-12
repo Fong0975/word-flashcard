@@ -1,38 +1,43 @@
 export {};
 
 describe('API_CONFIG', () => {
-  const ORIGINAL_ENV = process.env;
+  const ORIGINAL_ENV = { ...import.meta.env };
 
   beforeEach(() => {
-    jest.resetModules();
-    process.env = { ...ORIGINAL_ENV };
+    vi.resetModules();
+    Object.assign(import.meta.env, ORIGINAL_ENV);
   });
 
   afterAll(() => {
-    process.env = ORIGINAL_ENV;
+    Object.assign(import.meta.env, ORIGINAL_ENV);
   });
 
-  it('falls back to localhost and the default ports when no env vars are set', () => {
-    delete process.env.REACT_APP_API_HOSTNAME;
-    delete process.env.REACT_APP_API_PORT;
-    delete process.env.REACT_APP_API_HOSTNAME_DICTIONARY;
-    delete process.env.REACT_APP_API_PORT_DICTIONARY;
+  it('falls back to localhost and the default ports when no env vars are set', async () => {
+    delete (import.meta.env as Record<string, string | undefined>)
+      .VITE_API_HOSTNAME;
+    delete (import.meta.env as Record<string, string | undefined>)
+      .VITE_API_PORT;
+    delete (import.meta.env as Record<string, string | undefined>)
+      .VITE_API_HOSTNAME_DICTIONARY;
+    delete (import.meta.env as Record<string, string | undefined>)
+      .VITE_API_PORT_DICTIONARY;
 
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { API_CONFIG } = require('./api-config');
+    const { API_CONFIG } = await import('./api-config');
 
     expect(API_CONFIG.baseURL).toBe('http://localhost:8080/api');
     expect(API_CONFIG.dictionaryBaseURL).toBe('http://localhost:8081/api');
   });
 
-  it('builds the base URLs from the configured env vars when set', () => {
-    process.env.REACT_APP_API_HOSTNAME = 'api.example.com';
-    process.env.REACT_APP_API_PORT = '9000';
-    process.env.REACT_APP_API_HOSTNAME_DICTIONARY = 'dict.example.com';
-    process.env.REACT_APP_API_PORT_DICTIONARY = '9001';
+  it('builds the base URLs from the configured env vars when set', async () => {
+    (import.meta.env as Record<string, string>).VITE_API_HOSTNAME =
+      'api.example.com';
+    (import.meta.env as Record<string, string>).VITE_API_PORT = '9000';
+    (import.meta.env as Record<string, string>).VITE_API_HOSTNAME_DICTIONARY =
+      'dict.example.com';
+    (import.meta.env as Record<string, string>).VITE_API_PORT_DICTIONARY =
+      '9001';
 
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { API_CONFIG } = require('./api-config');
+    const { API_CONFIG } = await import('./api-config');
 
     expect(API_CONFIG.baseURL).toBe('http://api.example.com:9000/api');
     expect(API_CONFIG.dictionaryBaseURL).toBe(
@@ -42,9 +47,8 @@ describe('API_CONFIG', () => {
 });
 
 describe('API_ENDPOINTS', () => {
-  it('builds parameterized endpoint paths from the given ids', () => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { API_ENDPOINTS } = require('./api-config');
+  it('builds parameterized endpoint paths from the given ids', async () => {
+    const { API_ENDPOINTS } = await import('./api-config');
 
     expect(API_ENDPOINTS.wordDefinition(5)).toBe('/words/definition/5');
     expect(API_ENDPOINTS.updateDefinition(5)).toBe('/words/definition/5');
@@ -57,9 +61,8 @@ describe('API_ENDPOINTS', () => {
 });
 
 describe('DICTIONARY_ENDPOINTS', () => {
-  it('URL-encodes spaces and special characters in the looked-up word', () => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { DICTIONARY_ENDPOINTS } = require('./api-config');
+  it('URL-encodes spaces and special characters in the looked-up word', async () => {
+    const { DICTIONARY_ENDPOINTS } = await import('./api-config');
 
     // encodeURIComponent leaves apostrophes untouched (they're in its
     // unreserved set) but must escape a literal slash so it isn't mistaken

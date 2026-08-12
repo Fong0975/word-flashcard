@@ -1,4 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
+import type { MockInstance } from 'vitest';
 
 import { Question } from '../../../../types/api';
 import { apiService } from '../../../../lib/api';
@@ -35,29 +36,29 @@ const buildQuestion = (overrides: Partial<Question> = {}): Question => ({
 const buildCallbacks = (
   overrides: Partial<QuestionFormSubmitCallbacks> = {},
 ): QuestionFormSubmitCallbacks => ({
-  onClose: jest.fn(),
+  onClose: vi.fn(),
   ...overrides,
 });
 
 describe('useQuestionSubmit', () => {
-  let consoleErrorSpy: jest.SpyInstance;
+  let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('creates a question with trimmed fields and undefined for blank options', async () => {
-    const createQuestionSpy = jest
+    const createQuestionSpy = vi
       .spyOn(apiService, 'createQuestion')
       .mockResolvedValue(buildQuestion());
-    const resetForm = jest.fn();
-    const onClose = jest.fn();
-    const onQuestionSaved = jest.fn();
+    const resetForm = vi.fn();
+    const onClose = vi.fn();
+    const onQuestionSaved = vi.fn();
     const { result } = renderHook(() =>
       useQuestionSubmit({
         mode: 'create',
@@ -89,7 +90,7 @@ describe('useQuestionSubmit', () => {
 
   it('updates a question with empty strings for blank options in edit mode', async () => {
     const question = buildQuestion();
-    const updateQuestionSpy = jest
+    const updateQuestionSpy = vi
       .spyOn(apiService, 'updateQuestion')
       .mockResolvedValue(question);
     const { result } = renderHook(() =>
@@ -97,7 +98,7 @@ describe('useQuestionSubmit', () => {
         mode: 'edit',
         question,
         callbacks: buildCallbacks(),
-        resetForm: jest.fn(),
+        resetForm: vi.fn(),
       }),
     );
 
@@ -118,11 +119,11 @@ describe('useQuestionSubmit', () => {
   });
 
   it('sets an error message and does not close on failure', async () => {
-    jest
-      .spyOn(apiService, 'createQuestion')
-      .mockRejectedValue(new Error('network down'));
-    const onClose = jest.fn();
-    const resetForm = jest.fn();
+    vi.spyOn(apiService, 'createQuestion').mockRejectedValue(
+      new Error('network down'),
+    );
+    const onClose = vi.fn();
+    const resetForm = vi.fn();
     const { result } = renderHook(() =>
       useQuestionSubmit({
         mode: 'create',

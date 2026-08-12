@@ -196,7 +196,8 @@ export const NoteDetailPage: React.FC = () => {
       {deleteConfirmation.showConfirm && (
         <div className='mb-4 rounded-md border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20'>
           <p className='mb-3 text-sm text-red-700 dark:text-red-300'>
-            Delete "<strong>{note.title}</strong>"? This cannot be undone.
+            Delete &quot;<strong>{note.title}</strong>&quot;? This cannot be
+            undone.
           </p>
           <div className='flex gap-2'>
             <button

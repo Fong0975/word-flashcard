@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { Mock, MockInstance } from 'vitest';
 
 import { Question } from '../../../types/api';
 import { apiService } from '../../../lib/api';
@@ -23,31 +24,31 @@ const buildQuestion = (overrides: Partial<Question> = {}): Question => ({
 
 const noop = () => {};
 
-const lastNextAction = (spy: jest.Mock): NextActionProps | null => {
+const lastNextAction = (spy: Mock): NextActionProps | null => {
   const { calls } = spy.mock;
   return calls.length > 0 ? calls[calls.length - 1][0] : null;
 };
 
 describe('QuestionQuiz', () => {
-  let consoleErrorSpy: jest.SpyInstance;
+  let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     // The shuffle is a real Fisher-Yates over Math.random(); mocking it to
     // return just under 1 makes every swap a no-op, so options keep their
     // original A/B/C/D order and the answer key is predictable.
-    jest.spyOn(Math, 'random').mockReturnValue(0.999999);
+    vi.spyOn(Math, 'random').mockReturnValue(0.999999);
   });
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('shows the loading screen while questions are being fetched', () => {
-    jest
-      .spyOn(apiService, 'getRandomQuestions')
-      .mockReturnValue(new Promise<Question[]>(() => {}));
+    vi.spyOn(apiService, 'getRandomQuestions').mockReturnValue(
+      new Promise<Question[]>(() => {}),
+    );
 
     render(
       <QuestionQuiz
@@ -62,10 +63,10 @@ describe('QuestionQuiz', () => {
 
   it('shows an error screen with a Back to Home action', async () => {
     const user = userEvent.setup();
-    const onBackToHome = jest.fn();
-    jest
-      .spyOn(apiService, 'getRandomQuestions')
-      .mockRejectedValue(new Error('network down'));
+    const onBackToHome = vi.fn();
+    vi.spyOn(apiService, 'getRandomQuestions').mockRejectedValue(
+      new Error('network down'),
+    );
 
     render(
       <QuestionQuiz
@@ -82,9 +83,9 @@ describe('QuestionQuiz', () => {
   });
 
   it('renders the question with its options in order', async () => {
-    jest
-      .spyOn(apiService, 'getRandomQuestions')
-      .mockResolvedValue([buildQuestion()]);
+    vi.spyOn(apiService, 'getRandomQuestions').mockResolvedValue([
+      buildQuestion(),
+    ]);
 
     render(
       <QuestionQuiz
@@ -102,10 +103,10 @@ describe('QuestionQuiz', () => {
 
   it('reports Submit Answer, disabled until an option is chosen', async () => {
     const user = userEvent.setup();
-    const onNextAction = jest.fn();
-    jest
-      .spyOn(apiService, 'getRandomQuestions')
-      .mockResolvedValue([buildQuestion()]);
+    const onNextAction = vi.fn();
+    vi.spyOn(apiService, 'getRandomQuestions').mockResolvedValue([
+      buildQuestion(),
+    ]);
 
     render(
       <QuestionQuiz
@@ -132,12 +133,12 @@ describe('QuestionQuiz', () => {
 
   it('submits the mapped-back answer, then reports Finish Quiz', async () => {
     const user = userEvent.setup();
-    const onNextAction = jest.fn();
-    const onQuizComplete = jest.fn();
-    jest
-      .spyOn(apiService, 'getRandomQuestions')
-      .mockResolvedValue([buildQuestion()]);
-    const updateSpy = jest
+    const onNextAction = vi.fn();
+    const onQuizComplete = vi.fn();
+    vi.spyOn(apiService, 'getRandomQuestions').mockResolvedValue([
+      buildQuestion(),
+    ]);
+    const updateSpy = vi
       .spyOn(apiService, 'updateQuestion')
       .mockResolvedValue(buildQuestion());
 
@@ -190,14 +191,12 @@ describe('QuestionQuiz', () => {
 
   it('advances to the next question and resets the selection', async () => {
     const user = userEvent.setup();
-    const onNextAction = jest.fn();
-    jest
-      .spyOn(apiService, 'getRandomQuestions')
-      .mockResolvedValue([
-        buildQuestion({ id: 1, question: 'First?' }),
-        buildQuestion({ id: 2, question: 'Second?' }),
-      ]);
-    jest.spyOn(apiService, 'updateQuestion').mockResolvedValue(buildQuestion());
+    const onNextAction = vi.fn();
+    vi.spyOn(apiService, 'getRandomQuestions').mockResolvedValue([
+      buildQuestion({ id: 1, question: 'First?' }),
+      buildQuestion({ id: 2, question: 'Second?' }),
+    ]);
+    vi.spyOn(apiService, 'updateQuestion').mockResolvedValue(buildQuestion());
 
     render(
       <QuestionQuiz
@@ -230,14 +229,14 @@ describe('QuestionQuiz', () => {
 
   it('shows an error and reports it via onError on failure', async () => {
     const user = userEvent.setup();
-    const onNextAction = jest.fn();
-    const onError = jest.fn();
-    jest
-      .spyOn(apiService, 'getRandomQuestions')
-      .mockResolvedValue([buildQuestion()]);
-    jest
-      .spyOn(apiService, 'updateQuestion')
-      .mockRejectedValue(new Error('update failed'));
+    const onNextAction = vi.fn();
+    const onError = vi.fn();
+    vi.spyOn(apiService, 'getRandomQuestions').mockResolvedValue([
+      buildQuestion(),
+    ]);
+    vi.spyOn(apiService, 'updateQuestion').mockRejectedValue(
+      new Error('update failed'),
+    );
 
     render(
       <QuestionQuiz
@@ -261,16 +260,16 @@ describe('QuestionQuiz', () => {
 
   it('reports loading/disabled true while submitting, then loading false once it resolves', async () => {
     const user = userEvent.setup();
-    const onNextAction = jest.fn();
-    jest
-      .spyOn(apiService, 'getRandomQuestions')
-      .mockResolvedValue([buildQuestion()]);
+    const onNextAction = vi.fn();
+    vi.spyOn(apiService, 'getRandomQuestions').mockResolvedValue([
+      buildQuestion(),
+    ]);
 
     let resolveUpdate!: (value: Question) => void;
     const updatePromise = new Promise<Question>(resolve => {
       resolveUpdate = resolve;
     });
-    jest.spyOn(apiService, 'updateQuestion').mockReturnValue(updatePromise);
+    vi.spyOn(apiService, 'updateQuestion').mockReturnValue(updatePromise);
 
     render(
       <QuestionQuiz
@@ -304,12 +303,12 @@ describe('QuestionQuiz', () => {
   });
 
   it('ignores a second submission while one is already pending', async () => {
-    const onNextAction = jest.fn();
+    const onNextAction = vi.fn();
     const user = userEvent.setup();
-    jest
-      .spyOn(apiService, 'getRandomQuestions')
-      .mockResolvedValue([buildQuestion()]);
-    const updateSpy = jest
+    vi.spyOn(apiService, 'getRandomQuestions').mockResolvedValue([
+      buildQuestion(),
+    ]);
+    const updateSpy = vi
       .spyOn(apiService, 'updateQuestion')
       .mockReturnValue(new Promise<Question>(() => {}));
 
@@ -337,11 +336,11 @@ describe('QuestionQuiz', () => {
 
   it('resets the submitting state after a failure so the user can retry', async () => {
     const user = userEvent.setup();
-    const onNextAction = jest.fn();
-    jest
-      .spyOn(apiService, 'getRandomQuestions')
-      .mockResolvedValue([buildQuestion()]);
-    const updateSpy = jest
+    const onNextAction = vi.fn();
+    vi.spyOn(apiService, 'getRandomQuestions').mockResolvedValue([
+      buildQuestion(),
+    ]);
+    const updateSpy = vi
       .spyOn(apiService, 'updateQuestion')
       .mockRejectedValueOnce(new Error('update failed'))
       .mockResolvedValueOnce(buildQuestion());

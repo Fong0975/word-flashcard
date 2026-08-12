@@ -5,13 +5,13 @@ import { Toast, ToastContainer } from './Toast';
 
 describe('Toast', () => {
   it('renders the message with an alert role', () => {
-    render(<Toast id='1' message='Saved' type='success' onClose={jest.fn()} />);
+    render(<Toast id='1' message='Saved' type='success' onClose={vi.fn()} />);
     expect(screen.getByRole('alert')).toHaveTextContent('Saved');
   });
 
   it('calls onClose when clicked', async () => {
     const user = userEvent.setup();
-    const onClose = jest.fn();
+    const onClose = vi.fn();
     render(<Toast id='1' message='Saved' type='success' onClose={onClose} />);
 
     await user.click(screen.getByRole('alert'));
@@ -19,7 +19,7 @@ describe('Toast', () => {
   });
 
   it('calls onClose when Enter is pressed', () => {
-    const onClose = jest.fn();
+    const onClose = vi.fn();
     render(<Toast id='1' message='Saved' type='success' onClose={onClose} />);
 
     fireEvent.keyDown(screen.getByRole('alert'), { key: 'Enter' });
@@ -27,8 +27,8 @@ describe('Toast', () => {
   });
 
   it('auto-dismisses after the given duration', () => {
-    jest.useFakeTimers();
-    const onClose = jest.fn();
+    vi.useFakeTimers();
+    const onClose = vi.fn();
     render(
       <Toast
         id='1'
@@ -40,15 +40,15 @@ describe('Toast', () => {
     );
 
     act(() => {
-      jest.advanceTimersByTime(1000);
+      vi.advanceTimersByTime(1000);
     });
 
     expect(onClose).toHaveBeenCalledWith('1');
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it('renders info type styles and icon', () => {
-    render(<Toast id='1' message='FYI' type='info' onClose={jest.fn()} />);
+    render(<Toast id='1' message='FYI' type='info' onClose={vi.fn()} />);
 
     const alert = screen.getByRole('alert');
     expect(alert).toHaveClass('bg-blue-50', 'border-blue-200');
@@ -60,14 +60,14 @@ describe('Toast', () => {
 describe('ToastContainer', () => {
   it('renders nothing when there are no toasts', () => {
     const { container } = render(
-      <ToastContainer toasts={[]} onRemoveToast={jest.fn()} />,
+      <ToastContainer toasts={[]} onRemoveToast={vi.fn()} />,
     );
     expect(container).toBeEmptyDOMElement();
   });
 
   it('renders each toast and forwards removal by id', async () => {
     const user = userEvent.setup();
-    const onRemoveToast = jest.fn();
+    const onRemoveToast = vi.fn();
     render(
       <ToastContainer
         toasts={[

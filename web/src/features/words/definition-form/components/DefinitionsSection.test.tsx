@@ -19,7 +19,7 @@ const buildDefinition = (
 describe('DefinitionsSection', () => {
   it('renders nothing when there are no definitions', () => {
     const { container } = render(
-      <DefinitionsSection definitions={[]} onApplyDefinition={jest.fn()} />,
+      <DefinitionsSection definitions={[]} onApplyDefinition={vi.fn()} />,
     );
     expect(container).toBeEmptyDOMElement();
   });
@@ -28,7 +28,7 @@ describe('DefinitionsSection', () => {
     render(
       <DefinitionsSection
         definitions={[buildDefinition()]}
-        onApplyDefinition={jest.fn()}
+        onApplyDefinition={vi.fn()}
       />,
     );
 
@@ -47,7 +47,7 @@ describe('DefinitionsSection', () => {
             ],
           }),
         ]}
-        onApplyDefinition={jest.fn()}
+        onApplyDefinition={vi.fn()}
       />,
     );
 
@@ -57,7 +57,7 @@ describe('DefinitionsSection', () => {
 
   it('calls onApplyDefinition with the clicked definition', async () => {
     const user = userEvent.setup();
-    const onApplyDefinition = jest.fn();
+    const onApplyDefinition = vi.fn();
     const definition = buildDefinition();
     render(
       <DefinitionsSection

@@ -9,8 +9,8 @@ describe('ReminderNoteInput', () => {
       <ReminderNoteInput
         enabled
         text=''
-        onEnabledChange={jest.fn()}
-        onTextChange={jest.fn()}
+        onEnabledChange={vi.fn()}
+        onTextChange={vi.fn()}
       />,
     );
 
@@ -22,8 +22,8 @@ describe('ReminderNoteInput', () => {
       <ReminderNoteInput
         enabled={false}
         text=''
-        onEnabledChange={jest.fn()}
-        onTextChange={jest.fn()}
+        onEnabledChange={vi.fn()}
+        onTextChange={vi.fn()}
       />,
     );
 
@@ -34,13 +34,13 @@ describe('ReminderNoteInput', () => {
 
   it('calls onEnabledChange when the checkbox is toggled', async () => {
     const user = userEvent.setup();
-    const onEnabledChange = jest.fn();
+    const onEnabledChange = vi.fn();
     render(
       <ReminderNoteInput
         enabled={false}
         text=''
         onEnabledChange={onEnabledChange}
-        onTextChange={jest.fn()}
+        onTextChange={vi.fn()}
       />,
     );
 
@@ -50,12 +50,12 @@ describe('ReminderNoteInput', () => {
 
   it('clears the text when the checkbox is unchecked', async () => {
     const user = userEvent.setup();
-    const onTextChange = jest.fn();
+    const onTextChange = vi.fn();
     render(
       <ReminderNoteInput
         enabled
         text='call back'
-        onEnabledChange={jest.fn()}
+        onEnabledChange={vi.fn()}
         onTextChange={onTextChange}
       />,
     );
@@ -66,12 +66,12 @@ describe('ReminderNoteInput', () => {
 
   it('calls onTextChange as the user types', async () => {
     const user = userEvent.setup();
-    const onTextChange = jest.fn();
+    const onTextChange = vi.fn();
     render(
       <ReminderNoteInput
         enabled
         text=''
-        onEnabledChange={jest.fn()}
+        onEnabledChange={vi.fn()}
         onTextChange={onTextChange}
       />,
     );

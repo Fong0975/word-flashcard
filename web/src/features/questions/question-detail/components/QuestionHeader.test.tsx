@@ -25,9 +25,9 @@ describe('QuestionHeader', () => {
     render(
       <QuestionHeader
         question={buildQuestion()}
-        onEdit={jest.fn()}
-        onCopy={jest.fn()}
-        onDelete={jest.fn()}
+        onEdit={vi.fn()}
+        onCopy={vi.fn()}
+        onDelete={vi.fn()}
       />,
     );
 
@@ -40,9 +40,9 @@ describe('QuestionHeader', () => {
     render(
       <QuestionHeader
         question={buildQuestion({ reference: 'Math textbook p.12' })}
-        onEdit={jest.fn()}
-        onCopy={jest.fn()}
-        onDelete={jest.fn()}
+        onEdit={vi.fn()}
+        onCopy={vi.fn()}
+        onDelete={vi.fn()}
       />,
     );
 
@@ -55,9 +55,9 @@ describe('QuestionHeader', () => {
     render(
       <QuestionHeader
         question={buildQuestion({ reference: '' })}
-        onEdit={jest.fn()}
-        onCopy={jest.fn()}
-        onDelete={jest.fn()}
+        onEdit={vi.fn()}
+        onCopy={vi.fn()}
+        onDelete={vi.fn()}
       />,
     );
 
@@ -66,13 +66,13 @@ describe('QuestionHeader', () => {
 
   it('delegates edit and delete clicks', async () => {
     const user = userEvent.setup();
-    const onEdit = jest.fn();
-    const onDelete = jest.fn();
+    const onEdit = vi.fn();
+    const onDelete = vi.fn();
     render(
       <QuestionHeader
         question={buildQuestion()}
         onEdit={onEdit}
-        onCopy={jest.fn()}
+        onCopy={vi.fn()}
         onDelete={onDelete}
       />,
     );

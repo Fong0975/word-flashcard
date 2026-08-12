@@ -1,4 +1,5 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
+import type { MockInstance } from 'vitest';
 
 import { Question } from '../../../../types/api';
 import { apiService } from '../../../../lib/api';
@@ -24,20 +25,20 @@ const buildQuestion = (overrides: Partial<Question> = {}): Question => ({
 const buildCallbacks = (
   overrides: Partial<QuestionActionsCallbacks> = {},
 ): QuestionActionsCallbacks => ({
-  onClose: jest.fn(),
+  onClose: vi.fn(),
   ...overrides,
 });
 
 describe('useQuestionActions', () => {
-  let consoleErrorSpy: jest.SpyInstance;
+  let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('toggles the edit modal open and closed', () => {
@@ -75,11 +76,11 @@ describe('useQuestionActions', () => {
   });
 
   it('deletes the question and notifies the parent on confirm', async () => {
-    const deleteQuestionSpy = jest
+    const deleteQuestionSpy = vi
       .spyOn(apiService, 'deleteQuestion')
       .mockResolvedValue(undefined);
-    const onClose = jest.fn();
-    const onQuestionUpdated = jest.fn();
+    const onClose = vi.fn();
+    const onQuestionUpdated = vi.fn();
     const { result } = renderHook(() =>
       useQuestionActions({
         question: buildQuestion(),
@@ -97,10 +98,10 @@ describe('useQuestionActions', () => {
   });
 
   it('reports a formatted error message when deletion fails', async () => {
-    jest
-      .spyOn(apiService, 'deleteQuestion')
-      .mockRejectedValue(new Error('network down'));
-    const onError = jest.fn();
+    vi.spyOn(apiService, 'deleteQuestion').mockRejectedValue(
+      new Error('network down'),
+    );
+    const onError = vi.fn();
     const { result } = renderHook(() =>
       useQuestionActions({
         question: buildQuestion(),
@@ -118,9 +119,9 @@ describe('useQuestionActions', () => {
 
   it('refreshes the question and then notifies the parent on handleQuestionUpdated', async () => {
     const refreshed = buildQuestion({ count_practise: 20 });
-    jest.spyOn(apiService, 'getQuestion').mockResolvedValue(refreshed);
-    const onQuestionRefreshed = jest.fn();
-    const onQuestionUpdated = jest.fn();
+    vi.spyOn(apiService, 'getQuestion').mockResolvedValue(refreshed);
+    const onQuestionRefreshed = vi.fn();
+    const onQuestionUpdated = vi.fn();
     const { result } = renderHook(() =>
       useQuestionActions({
         question: buildQuestion(),
@@ -138,10 +139,10 @@ describe('useQuestionActions', () => {
   });
 
   it('reports a formatted error when refreshing the question fails', async () => {
-    jest
-      .spyOn(apiService, 'getQuestion')
-      .mockRejectedValue(new Error('network down'));
-    const onError = jest.fn();
+    vi.spyOn(apiService, 'getQuestion').mockRejectedValue(
+      new Error('network down'),
+    );
+    const onError = vi.fn();
     const { result } = renderHook(() =>
       useQuestionActions({
         question: buildQuestion(),

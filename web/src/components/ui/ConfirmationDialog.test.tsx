@@ -7,8 +7,8 @@ const baseProps = {
   title: 'Delete Word',
   message: 'Are you sure?',
   confirmText: 'Delete',
-  onConfirm: jest.fn(),
-  onCancel: jest.fn(),
+  onConfirm: vi.fn(),
+  onCancel: vi.fn(),
 };
 
 describe('ConfirmationDialog', () => {
@@ -30,7 +30,7 @@ describe('ConfirmationDialog', () => {
 
   it('calls onConfirm when the confirm button is clicked', async () => {
     const user = userEvent.setup();
-    const onConfirm = jest.fn();
+    const onConfirm = vi.fn();
     render(<ConfirmationDialog {...baseProps} isOpen onConfirm={onConfirm} />);
 
     await user.click(screen.getByRole('button', { name: 'Delete' }));
@@ -39,7 +39,7 @@ describe('ConfirmationDialog', () => {
 
   it('calls onCancel when the cancel button is clicked', async () => {
     const user = userEvent.setup();
-    const onCancel = jest.fn();
+    const onCancel = vi.fn();
     render(<ConfirmationDialog {...baseProps} isOpen onCancel={onCancel} />);
 
     await user.click(screen.getByRole('button', { name: 'Cancel' }));

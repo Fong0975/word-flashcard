@@ -19,11 +19,7 @@ const buildWord = (overrides: Partial<Word> = {}): Word => ({
 describe('WordActions', () => {
   it('links to the Cambridge Dictionary entry for the word', () => {
     render(
-      <WordActions
-        word={buildWord()}
-        onEdit={jest.fn()}
-        onDelete={jest.fn()}
-      />,
+      <WordActions word={buildWord()} onEdit={vi.fn()} onDelete={vi.fn()} />,
     );
 
     const link = screen.getByTitle('Open in Cambridge Dictionary');
@@ -33,9 +29,9 @@ describe('WordActions', () => {
 
   it('calls onEdit when the edit button is clicked', async () => {
     const user = userEvent.setup();
-    const onEdit = jest.fn();
+    const onEdit = vi.fn();
     render(
-      <WordActions word={buildWord()} onEdit={onEdit} onDelete={jest.fn()} />,
+      <WordActions word={buildWord()} onEdit={onEdit} onDelete={vi.fn()} />,
     );
 
     await user.click(screen.getByTitle('Edit word'));
@@ -44,9 +40,9 @@ describe('WordActions', () => {
 
   it('calls onDelete when the delete button is clicked', async () => {
     const user = userEvent.setup();
-    const onDelete = jest.fn();
+    const onDelete = vi.fn();
     render(
-      <WordActions word={buildWord()} onEdit={jest.fn()} onDelete={onDelete} />,
+      <WordActions word={buildWord()} onEdit={vi.fn()} onDelete={onDelete} />,
     );
 
     await user.click(screen.getByTitle('Delete word'));

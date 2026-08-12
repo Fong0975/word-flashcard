@@ -5,10 +5,10 @@ import { MemoryRouter } from 'react-router-dom';
 import { Header } from './Header';
 
 const mockMatchMedia = (matches: boolean) => {
-  window.matchMedia = jest.fn().mockReturnValue({
+  window.matchMedia = vi.fn().mockReturnValue({
     matches,
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
   });
 };
 
@@ -16,7 +16,7 @@ describe('Header', () => {
   afterEach(() => {
     localStorage.clear();
     document.documentElement.classList.remove('dark');
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('renders the app title linking to home', () => {

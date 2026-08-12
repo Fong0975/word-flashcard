@@ -8,8 +8,8 @@ describe('WordInput', () => {
     render(
       <WordInput
         value='apple'
-        onChange={jest.fn()}
-        onSearchChange={jest.fn()}
+        onChange={vi.fn()}
+        onSearchChange={vi.fn()}
         disabled={false}
       />,
     );
@@ -18,8 +18,8 @@ describe('WordInput', () => {
 
   it('calls both onChange and onSearchChange as the user types', async () => {
     const user = userEvent.setup();
-    const onChange = jest.fn();
-    const onSearchChange = jest.fn();
+    const onChange = vi.fn();
+    const onSearchChange = vi.fn();
     render(
       <WordInput
         value=''
@@ -39,8 +39,8 @@ describe('WordInput', () => {
     render(
       <WordInput
         value=''
-        onChange={jest.fn()}
-        onSearchChange={jest.fn()}
+        onChange={vi.fn()}
+        onSearchChange={vi.fn()}
         disabled
       />,
     );
@@ -51,8 +51,8 @@ describe('WordInput', () => {
     render(
       <WordInput
         value=''
-        onChange={jest.fn()}
-        onSearchChange={jest.fn()}
+        onChange={vi.fn()}
+        onSearchChange={vi.fn()}
         disabled={false}
         autoFocus
       />,

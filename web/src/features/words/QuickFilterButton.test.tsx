@@ -6,14 +6,14 @@ import { QuickFilterButton } from './QuickFilterButton';
 describe('QuickFilterButton', () => {
   it('renders the label', () => {
     render(
-      <QuickFilterButton label='Red' isActive={false} onClick={jest.fn()} />,
+      <QuickFilterButton label='Red' isActive={false} onClick={vi.fn()} />,
     );
     expect(screen.getByRole('button', { name: /Red/ })).toBeInTheDocument();
   });
 
   it('calls onClick when clicked', async () => {
     const user = userEvent.setup();
-    const onClick = jest.fn();
+    const onClick = vi.fn();
     render(
       <QuickFilterButton label='Red' isActive={false} onClick={onClick} />,
     );
@@ -23,7 +23,7 @@ describe('QuickFilterButton', () => {
   });
 
   it('renders the label regardless of active state', () => {
-    render(<QuickFilterButton label='Red' isActive onClick={jest.fn()} />);
+    render(<QuickFilterButton label='Red' isActive onClick={vi.fn()} />);
     expect(screen.getByRole('button', { name: /Red/ })).toBeInTheDocument();
   });
 });

@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
+import type { Mock } from 'vitest';
 
 import { SearchOperation } from '../../types';
 import { Word } from '../../types/api';
@@ -9,19 +10,19 @@ import { useWords, type UseWordsReturn } from '../../hooks/useWords';
 
 import { WordsReviewTab } from './WordsReviewTab';
 
-jest.mock('../../hooks/useWords');
+vi.mock('../../hooks/useWords');
 
-const mockNavigate = jest.fn();
+const mockNavigate = vi.fn();
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
 }));
 
 // Child modals are stubbed so these tests stay focused on WordsReviewTab's
 // own glue logic. handleStartQuiz lives in WordsReviewTab.quiz.test.tsx
 // alongside the QuizSetupModal mock, to keep this file under max-lines.
-jest.mock('../shared/components/EntityReviewTab', () => ({
+vi.mock('../shared/components/EntityReviewTab', () => ({
   EntityReviewTab: (props: {
     actions: {
       onNew?: () => void;
@@ -50,7 +51,7 @@ jest.mock('../shared/components/EntityReviewTab', () => ({
   ),
 }));
 
-jest.mock('./WordCard', () => ({
+vi.mock('./WordCard', () => ({
   WordCard: (props: { word: Word; onWordUpdated?: () => void }) => (
     <div>
       <span>Word Card: {props.word.word}</span>
@@ -59,7 +60,7 @@ jest.mock('./WordCard', () => ({
   ),
 }));
 
-jest.mock('./word-form', () => ({
+vi.mock('./word-form', () => ({
   WordFormModal: (props: {
     isOpen: boolean;
     mode: string;
@@ -103,7 +104,7 @@ jest.mock('./word-form', () => ({
     ),
 }));
 
-jest.mock('./WordStatsModal', () => ({
+vi.mock('./WordStatsModal', () => ({
   WordStatsModal: (props: { isOpen: boolean; onClose: () => void }) =>
     !props.isOpen ? null : (
       <div>
@@ -138,22 +139,22 @@ const buildWordsHook = (
   itemsPerPage: 30,
   searchTerm: '',
   totalCount: 0,
-  fetchWords: jest.fn().mockResolvedValue(undefined),
-  fetchEntities: jest.fn().mockResolvedValue(undefined),
-  nextPage: jest.fn().mockResolvedValue(undefined),
-  previousPage: jest.fn().mockResolvedValue(undefined),
-  goToPage: jest.fn().mockResolvedValue(undefined),
-  goToFirst: jest.fn().mockResolvedValue(undefined),
-  goToLast: jest.fn().mockResolvedValue(undefined),
-  refresh: jest.fn().mockResolvedValue(undefined),
-  clearError: jest.fn(),
-  setSearchTerm: jest.fn(),
+  fetchWords: vi.fn().mockResolvedValue(undefined),
+  fetchEntities: vi.fn().mockResolvedValue(undefined),
+  nextPage: vi.fn().mockResolvedValue(undefined),
+  previousPage: vi.fn().mockResolvedValue(undefined),
+  goToPage: vi.fn().mockResolvedValue(undefined),
+  goToFirst: vi.fn().mockResolvedValue(undefined),
+  goToLast: vi.fn().mockResolvedValue(undefined),
+  refresh: vi.fn().mockResolvedValue(undefined),
+  clearError: vi.fn(),
+  setSearchTerm: vi.fn(),
   ...overrides,
 });
 
 const renderTab = (hookOverrides: Partial<UseWordsReturn> = {}) => {
   const hook = buildWordsHook(hookOverrides);
-  (useWords as jest.Mock).mockReturnValue(hook);
+  (useWords as Mock).mockReturnValue(hook);
 
   render(
     <MemoryRouter initialEntries={['/']}>
@@ -165,7 +166,7 @@ const renderTab = (hookOverrides: Partial<UseWordsReturn> = {}) => {
 };
 
 const lastExtraConditions = () => {
-  const calls = (useWords as jest.Mock).mock.calls;
+  const calls = (useWords as Mock).mock.calls;
   return calls[calls.length - 1][0].extraConditions;
 };
 
@@ -185,7 +186,7 @@ describe('WordsReviewTab', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe.each([
@@ -272,7 +273,7 @@ describe('WordsReviewTab', () => {
 
     it('does not throw when the post-save refresh rejects', async () => {
       const user = userEvent.setup();
-      renderTab({ refresh: jest.fn().mockRejectedValue(new Error('x')) });
+      renderTab({ refresh: vi.fn().mockRejectedValue(new Error('x')) });
 
       await clickButtons(user, ['New', 'Save Without New Word']);
 

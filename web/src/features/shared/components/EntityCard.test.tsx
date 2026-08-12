@@ -66,7 +66,7 @@ describe('EntityCard', () => {
 
   it('calls actions.onClick when clicked', async () => {
     const user = userEvent.setup();
-    const onClick = jest.fn();
+    const onClick = vi.fn();
     render(
       <EntityCard
         index={1}
@@ -82,7 +82,7 @@ describe('EntityCard', () => {
   });
 
   it('calls getLeftIndicatorColor with the entity for the color-band indicator', () => {
-    const getLeftIndicatorColor = jest.fn().mockReturnValue('bg-green-500');
+    const getLeftIndicatorColor = vi.fn().mockReturnValue('bg-green-500');
     render(
       <EntityCard
         index={1}
