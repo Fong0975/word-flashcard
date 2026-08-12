@@ -12,7 +12,6 @@
     "react-dom": "^19.2.4",
     "react-markdown": "^10.1.0",
     "react-router-dom": "^7.13.1",
-    "react-scripts": "5.0.1",
     "recharts": "^3.8.1",
     "rehype-raw": "^7.0.0",
     "rehype-sanitize": "^6.0.0",
@@ -20,21 +19,18 @@
     "remark-gfm": "^4.0.1",
     "remark-github-blockquote-alert": "^2.1.0",
     "typescript": "^5.9.3",
-    "vite": "^8.2.1"
+    "vite": "^8.2.1",
+    "autoprefixer": "^10.4.24",
+    "postcss": "^8.5.15",
+    "tailwindcss": "^3.4.15"
   },
   "scripts": {
     "start": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "start:legacy": "react-scripts start",
-    "build:legacy": "react-scripts build",
-    "eject": "react-scripts eject",
     "test": "vitest",
     "test:ci": "vitest run --coverage",
     "test:ctrf": "vitest run --coverage --reporter=default --reporter=vitest-ctrf-json-reporter",
-    "test:legacy": "react-scripts test",
-    "test:ci:legacy": "react-scripts test --watchAll=false --coverage",
-    "test:ctrf:legacy": "react-scripts test --watchAll=false --coverage --reporters=default --reporters=jest-ctrf-json-reporter",
     "lint": "eslint src --ext .ts,.tsx,.js,.jsx",
     "lint:fix": "eslint src --ext .ts,.tsx,.js,.jsx --fix",
     "lint:check": "eslint src --ext .ts,.tsx,.js,.jsx --max-warnings 0",
@@ -54,33 +50,22 @@
       "last 1 safari version"
     ]
   },
-  "overrides": {
-    "@tootallnate/once": "^2.0.1",
-    "nth-check": "^2.1.1",
-    "serialize-javascript": "^7.0.5",
-    "underscore": "^1.13.8",
-    "uuid": "^11.1.1",
-    "resolve-url-loader": "^5.0.0",
-    "@svgr/plugin-svgo": {
-      "svgo": "2.8.3"
-    }
-  },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
-    "@types/jest": "^30.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.67.0",
+    "@typescript-eslint/parser": "^8.67.0",
     "@vitest/coverage-v8": "^4.1.10",
-    "autoprefixer": "^10.4.24",
     "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-prettier": "^5.5.5",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-tailwindcss": "^3.18.2",
-    "jest-ctrf-json-reporter": "0.0.9",
     "jsdom": "^29.1.1",
-    "postcss": "^8.5.15",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
-    "tailwindcss": "^3.4.15",
     "vitest": "^4.1.10",
     "vitest-ctrf-json-reporter": "^0.0.3"
   }
