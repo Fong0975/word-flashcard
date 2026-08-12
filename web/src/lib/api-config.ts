@@ -1,15 +1,15 @@
 // API configuration from environment variables
 export const API_CONFIG = {
   // Get base URL from environment variables
-  // Note: React only exposes environment variables that start with REACT_APP_
+  // Note: Vite only exposes environment variables that start with VITE_
   // For local development, we'll use localhost as default
-  hostname: process.env.REACT_APP_API_HOSTNAME || 'localhost',
-  port: process.env.REACT_APP_API_PORT || '8080',
+  hostname: import.meta.env.VITE_API_HOSTNAME || 'localhost',
+  port: import.meta.env.VITE_API_PORT || '8080',
 
   // Dictionary API configuration
   dictionaryHostname:
-    process.env.REACT_APP_API_HOSTNAME_DICTIONARY || 'localhost',
-  dictionaryPort: process.env.REACT_APP_API_PORT_DICTIONARY || '8081',
+    import.meta.env.VITE_API_HOSTNAME_DICTIONARY || 'localhost',
+  dictionaryPort: import.meta.env.VITE_API_PORT_DICTIONARY || '8081',
 
   // Construct base URL
   get baseURL() {

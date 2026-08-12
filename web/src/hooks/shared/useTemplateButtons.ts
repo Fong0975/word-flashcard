@@ -12,6 +12,10 @@ interface UseTemplateButtonsProps {
   onWarning?: (message: string) => void;
 }
 
+// Statically scanned at build time; only config files that actually exist on
+// disk appear as keys here, regardless of git tracking state.
+const configModules = import.meta.glob<ConfigModule>('../../config/*.json');
+
 /**
  * Loads a `TemplateButton[]` config from `web/src/config/{configFileName}`.
  * The config file is optional (gitignored, developer-provided) — if it's
@@ -26,9 +30,21 @@ export const useTemplateButtons = (props: UseTemplateButtonsProps) => {
 
   useEffect(() => {
     const loadTemplateButtonsConfig = async () => {
+      const loader = configModules[`../../config/${configFileName}`];
+
+      if (!loader) {
+        if (onWarning) {
+          onWarning(
+            `Template buttons config file (${configFileName}) not found, template buttons will be hidden`,
+          );
+        }
+        setTemplateButtonsConfig([]);
+        return;
+      }
+
       try {
-        const configModule = await import(`../../config/${configFileName}`);
-        setTemplateButtonsConfig((configModule as ConfigModule).default || []);
+        const configModule = await loader();
+        setTemplateButtonsConfig(configModule.default || []);
       } catch (error) {
         if (onWarning) {
           onWarning(

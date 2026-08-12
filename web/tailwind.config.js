@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ['./src/**/*.{js,jsx,ts,tsx}', './public/index.html'],
+  content: ['./src/**/*.{js,jsx,ts,tsx}', './index.html'],
   // remark-github-blockquote-alert injects these class names at render time,
   // so they never appear as literal strings in the scanned content above and
   // would otherwise be purged from the build.
