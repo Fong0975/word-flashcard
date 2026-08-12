@@ -4,9 +4,10 @@
   "private": true,
   "dependencies": {
     "@tailwindcss/typography": "^0.5.19",
-    "@types/node": "^16.18.126",
+    "@types/node": "20.19.43",
     "@types/react": "^19.2.10",
     "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.5",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-markdown": "^10.1.0",
@@ -18,7 +19,8 @@
     "remark-breaks": "^4.0.0",
     "remark-gfm": "^4.0.1",
     "remark-github-blockquote-alert": "^2.1.0",
-    "typescript": "^4.9.5"
+    "typescript": "^4.9.5",
+    "vite": "^8.2.1"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -27,6 +29,9 @@
     "test:ci": "react-scripts test --watchAll=false --coverage",
     "test:ctrf": "react-scripts test --watchAll=false --coverage --reporters=default --reporters=jest-ctrf-json-reporter",
     "eject": "react-scripts eject",
+    "dev:vite": "vite",
+    "build:vite": "vite build",
+    "preview:vite": "vite preview",
     "lint": "eslint src --ext .ts,.tsx,.js,.jsx",
     "lint:fix": "eslint src --ext .ts,.tsx,.js,.jsx --fix",
     "lint:check": "eslint src --ext .ts,.tsx,.js,.jsx --max-warnings 0",
@@ -62,15 +67,19 @@
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
     "@types/jest": "^30.0.0",
+    "@vitest/coverage-v8": "^4.1.10",
     "autoprefixer": "^10.4.24",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
     "eslint-plugin-tailwindcss": "^3.18.2",
     "jest-ctrf-json-reporter": "0.0.9",
+    "jsdom": "^29.1.1",
     "postcss": "^8.5.15",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
-    "tailwindcss": "^3.4.15"
+    "tailwindcss": "^3.4.15",
+    "vitest": "^4.1.10",
+    "vitest-ctrf-json-reporter": "^0.0.3"
   },
   "jest": {
     "coverageReporters": [
