@@ -75,8 +75,8 @@ word-flashcard/
 │   ├── postcss.config.js         # PostCSS configuration
 │   ├── tailwind.config.js        # Tailwind CSS configuration
 │   ├── tsconfig.json             # TypeScript configuration
-│   ├── vite.config.ts            # Vite build/dev-server configuration
-│   └── vitest.config.ts          # Vitest test configuration
+│   ├── vite.config.mts           # Vite build/dev-server configuration
+│   └── vitest.config.mts         # Vitest test configuration
 ├── .env.example                  # Environment variables template
 ├── docker-compose.yml            # Definition of multi-container for services in the project
 ├── Dockerfile                    # Dockerfile for backend service

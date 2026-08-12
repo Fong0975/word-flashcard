@@ -23,8 +23,8 @@
   },
   "include": [
     "src",
-    "vite.config.ts",
-    "vitest.config.ts"
+    "vite.config.mts",
+    "vitest.config.mts"
   ],
   "exclude": [
     "src/**/*.test.ts",

@@ -5,6 +5,7 @@ on:
     branches: [ main ]
     paths:
       - 'web/**/*.ts'
+      - 'web/**/*.mts'
       - 'web/**/*.tsx'
       - 'web/**/*.js'
       - 'web/**/*.jsx'
@@ -16,6 +17,7 @@ on:
     branches: [ main ]
     paths:
       - 'web/**/*.ts'
+      - 'web/**/*.mts'
       - 'web/**/*.tsx'
       - 'web/**/*.js'
       - 'web/**/*.jsx'
