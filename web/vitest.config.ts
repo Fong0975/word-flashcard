@@ -30,7 +30,18 @@ export default mergeConfig(
           'src/features/words/word-form/types/word-form.ts',
         ],
       },
-      reporters: ['default', 'vitest-ctrf-json-reporter'],
+      // Only emit the CTRF JSON report when explicitly requested (`npm run
+      // test:ctrf`, used by CI) — not on every `npm test`/`npm run test:ci`,
+      // where it would be dead weight for local development.
+      //
+      // Uses @d2t/vitest-ctrf-json-reporter, not the more obviously-named
+      // `vitest-ctrf-json-reporter`: that package still implements the
+      // Vitest 1.x/2.x `onFinished` reporter hook, which Vitest 4.x never
+      // calls, so it silently produces no output. This one implements the
+      // current `onTestRunEnd` hook.
+      reporters: process.env.CTRF
+        ? ['default', ['@d2t/vitest-ctrf-json-reporter', {}]]
+        : ['default'],
     },
   }),
 );
