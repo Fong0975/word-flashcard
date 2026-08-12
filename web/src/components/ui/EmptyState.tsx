@@ -9,7 +9,9 @@ interface EmptyStateProps {
 }
 
 export const EmptyState: React.FC<EmptyStateProps> = ({
-  onRefresh,
+  // Part of the public prop contract (all call sites pass it) but not yet
+  // wired to a UI affordance here.
+  onRefresh: _onRefresh,
   icon = '📚',
   title = 'No data found',
   description = 'It looks like there are no items in your collection yet. Try adding some items or check your connection.',

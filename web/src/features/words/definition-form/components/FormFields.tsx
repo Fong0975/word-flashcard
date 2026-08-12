@@ -23,7 +23,9 @@ interface FormFieldsProps {
 
 export const FormFields: React.FC<FormFieldsProps> = ({
   formData,
-  isFormValid,
+  // Part of the public prop contract (callers pass the computed validity)
+  // but not yet wired to a UI affordance here.
+  isFormValid: _isFormValid,
   partOfSpeechOptions,
   noteButtonsConfig,
   handlers,

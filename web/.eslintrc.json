@@ -1,18 +1,46 @@
 {
+  "root": true,
+  "env": {
+    "browser": true,
+    "es2021": true,
+    "node": true
+  },
   "extends": [
-    "react-app",
-    "react-app/jest",
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended",
+    "plugin:react/jsx-runtime",
+    "plugin:react-hooks/recommended",
     "prettier"
   ],
-  "plugins": ["prettier", "tailwindcss"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "plugins": ["prettier", "tailwindcss", "@typescript-eslint", "react", "react-hooks", "import"],
+  "settings": {
+    "react": {
+      "version": "detect"
+    },
+    "tailwindcss": {
+      "config": "./tailwind.config.js"
+    }
+  },
   "rules": {
     // TypeScript specific rules
-    "@typescript-eslint/no-unused-vars": "warn",
+    "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
     "@typescript-eslint/no-explicit-any": "warn",
 
     // React specific rules
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
+    // TypeScript's own type checking supersedes PropTypes; react-app's legacy
+    // config excluded this rule for the same reason.
+    "react/prop-types": "off",
 
     // Import/Export rules
     "import/order": ["warn", {
@@ -44,11 +72,12 @@
       "rules": {
         "max-lines": ["warn", { "max": 380, "skipBlankLines": false, "skipComments": false }]
       }
+    },
+    {
+      "files": ["src/**/*.test.{ts,tsx}"],
+      "rules": {
+        "react/display-name": "off"
+      }
     }
-  ],
-  "settings": {
-    "tailwindcss": {
-      "config": "./tailwind.config.js"
-    }
-  }
+  ]
 }

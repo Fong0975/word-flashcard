@@ -45,7 +45,7 @@ export const useTemplateButtons = (props: UseTemplateButtonsProps) => {
       try {
         const configModule = await loader();
         setTemplateButtonsConfig(configModule.default || []);
-      } catch (error) {
+      } catch {
         if (onWarning) {
           onWarning(
             `Template buttons config file (${configFileName}) not found, template buttons will be hidden`,

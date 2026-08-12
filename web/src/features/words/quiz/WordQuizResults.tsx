@@ -76,7 +76,7 @@ export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
           Quiz Complete!
         </h1>
         <p className='text-gray-600 dark:text-gray-300 lg:text-lg'>
-          Great job! Here's a summary of your quiz results.
+          Great job! Here&apos;s a summary of your quiz results.
         </p>
       </div>
 

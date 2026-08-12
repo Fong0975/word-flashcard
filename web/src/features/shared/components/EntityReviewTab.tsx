@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
 
 import { LoadingSpinner } from '../../../components/ui/LoadingSpinner';
 import { ErrorMessage } from '../../../components/ui/ErrorMessage';
@@ -204,8 +204,8 @@ export const EntityReviewTab = <T extends BaseEntity>({
             No {config.entityNamePlural.toLowerCase()} found
           </h3>
           <p className='text-gray-600 dark:text-gray-300'>
-            No {config.entityNamePlural.toLowerCase()} match "{searchTerm}". Try
-            a different search term.
+            No {config.entityNamePlural.toLowerCase()} match &quot;{searchTerm}
+            &quot;. Try a different search term.
           </p>
         </div>
       )}

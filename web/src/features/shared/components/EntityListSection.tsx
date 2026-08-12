@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
 
 import { Pagination } from '../../../components/ui/Pagination';
 import { BaseEntity } from '../../../types';

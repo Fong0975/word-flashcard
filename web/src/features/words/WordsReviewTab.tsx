@@ -23,7 +23,7 @@ import { WordCard } from './WordCard';
 import { QuickFilterButton } from './QuickFilterButton';
 import { WordStatsModal } from './WordStatsModal';
 
-interface WordsReviewTabProps extends BaseComponentProps {}
+type WordsReviewTabProps = BaseComponentProps;
 
 const SESSION_SEARCH_KEY = 'word-review-search';
 const SESSION_QUICK_FILTERS_KEY = 'word-review-quick-filters';
