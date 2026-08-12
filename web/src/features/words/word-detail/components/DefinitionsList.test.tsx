@@ -5,7 +5,7 @@ import { WordDefinition } from '../../../../types/api';
 
 import { DefinitionsList } from './DefinitionsList';
 
-jest.mock('../../../shared/speech');
+vi.mock('../../../shared/speech');
 
 const buildDefinition = (
   overrides: Partial<WordDefinition> = {},
@@ -25,9 +25,9 @@ describe('DefinitionsList', () => {
       <DefinitionsList
         definitions={[]}
         wordText='apple'
-        onEdit={jest.fn()}
-        onDelete={jest.fn()}
-        onAddNew={jest.fn()}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onAddNew={vi.fn()}
       />,
     );
 
@@ -45,9 +45,9 @@ describe('DefinitionsList', () => {
           buildDefinition({ id: 2, definition: 'to eat' }),
         ]}
         wordText='apple'
-        onEdit={jest.fn()}
-        onDelete={jest.fn()}
-        onAddNew={jest.fn()}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onAddNew={vi.fn()}
       />,
     );
 
@@ -58,13 +58,13 @@ describe('DefinitionsList', () => {
 
   it('calls onAddNew when the add button is clicked', async () => {
     const user = userEvent.setup();
-    const onAddNew = jest.fn();
+    const onAddNew = vi.fn();
     render(
       <DefinitionsList
         definitions={[]}
         wordText='apple'
-        onEdit={jest.fn()}
-        onDelete={jest.fn()}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
         onAddNew={onAddNew}
       />,
     );
@@ -78,9 +78,9 @@ describe('DefinitionsList', () => {
       <DefinitionsList
         definitions={[buildDefinition({ id: 1 }), buildDefinition({ id: 2 })]}
         wordText='apple'
-        onEdit={jest.fn()}
-        onDelete={jest.fn()}
-        onAddNew={jest.fn()}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onAddNew={vi.fn()}
       />,
     );
 

@@ -28,7 +28,7 @@ const buildWord = (overrides: Partial<Word> = {}): Word => ({
 describe('WordHeader', () => {
   it('renders the word id, definition count, and practice count', () => {
     render(
-      <WordHeader word={buildWord()} onEdit={jest.fn()} onDelete={jest.fn()} />,
+      <WordHeader word={buildWord()} onEdit={vi.fn()} onDelete={vi.fn()} />,
     );
 
     expect(screen.getByText('Word ID: 7')).toBeInTheDocument();
@@ -40,8 +40,8 @@ describe('WordHeader', () => {
     render(
       <WordHeader
         word={buildWord({ word: 'banana' })}
-        onEdit={jest.fn()}
-        onDelete={jest.fn()}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
       />,
     );
     expect(screen.getByRole('heading', { name: 'banana' })).toBeInTheDocument();
@@ -49,8 +49,8 @@ describe('WordHeader', () => {
 
   it('delegates edit and delete clicks', async () => {
     const user = userEvent.setup();
-    const onEdit = jest.fn();
-    const onDelete = jest.fn();
+    const onEdit = vi.fn();
+    const onDelete = vi.fn();
     render(
       <WordHeader word={buildWord()} onEdit={onEdit} onDelete={onDelete} />,
     );

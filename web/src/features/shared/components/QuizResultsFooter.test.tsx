@@ -6,8 +6,8 @@ import { QuizResultsFooter } from './QuizResultsFooter';
 describe('QuizResultsFooter', () => {
   it('calls onRetakeQuiz and onBackToHome when clicked', async () => {
     const user = userEvent.setup();
-    const onRetakeQuiz = jest.fn();
-    const onBackToHome = jest.fn();
+    const onRetakeQuiz = vi.fn();
+    const onBackToHome = vi.fn();
     render(
       <QuizResultsFooter
         onRetakeQuiz={onRetakeQuiz}

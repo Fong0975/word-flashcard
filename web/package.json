@@ -29,9 +29,12 @@
     "start:legacy": "react-scripts start",
     "build:legacy": "react-scripts build",
     "eject": "react-scripts eject",
-    "test": "react-scripts test",
-    "test:ci": "react-scripts test --watchAll=false --coverage",
-    "test:ctrf": "react-scripts test --watchAll=false --coverage --reporters=default --reporters=jest-ctrf-json-reporter",
+    "test": "vitest",
+    "test:ci": "vitest run --coverage",
+    "test:ctrf": "vitest run --coverage --reporter=default --reporter=vitest-ctrf-json-reporter",
+    "test:legacy": "react-scripts test",
+    "test:ci:legacy": "react-scripts test --watchAll=false --coverage",
+    "test:ctrf:legacy": "react-scripts test --watchAll=false --coverage --reporters=default --reporters=jest-ctrf-json-reporter",
     "lint": "eslint src --ext .ts,.tsx,.js,.jsx",
     "lint:fix": "eslint src --ext .ts,.tsx,.js,.jsx --fix",
     "lint:check": "eslint src --ext .ts,.tsx,.js,.jsx --max-warnings 0",
@@ -80,41 +83,5 @@
     "tailwindcss": "^3.4.15",
     "vitest": "^4.1.10",
     "vitest-ctrf-json-reporter": "^0.0.3"
-  },
-  "jest": {
-    "coverageReporters": [
-      "json",
-      "text",
-      "lcov",
-      "clover",
-      "json-summary"
-    ],
-    "coveragePathIgnorePatterns": [
-      "/node_modules/",
-      "/index\\.(ts|tsx)$",
-      "src/features/questions/question-detail/types/question-detail\\.ts$",
-      "src/features/questions/question-form/types/question-form\\.ts$",
-      "src/features/questions/quiz/types\\.ts$",
-      "src/features/words/definition-form/types/cambridge\\.ts$",
-      "src/features/words/definition-form/types/form\\.ts$",
-      "src/types/api\\.ts$",
-      "src/types/base\\.ts$",
-      "src/types/components\\.ts$",
-      "src/types/hooks\\.ts$",
-      "src/features/words/word-detail/types/word-detail\\.ts$",
-      "src/features/words/word-form/types/word-form\\.ts$"
-    ],
-    "moduleNameMapper": {
-      "^react-router-dom$": "<rootDir>/node_modules/react-router-dom/dist/index.js",
-      "^react-router/dom$": "<rootDir>/node_modules/react-router/dist/development/dom-export.js",
-      "^unist-util-visit-parents/do-not-use-color$": "<rootDir>/node_modules/unist-util-visit-parents/lib/color.js",
-      "^#minpath$": "<rootDir>/node_modules/vfile/lib/minpath.browser.js",
-      "^#minproc$": "<rootDir>/node_modules/vfile/lib/minproc.browser.js",
-      "^#minurl$": "<rootDir>/node_modules/vfile/lib/minurl.browser.js"
-    },
-    "transformIgnorePatterns": [
-      "[/\\\\]node_modules[/\\\\](?!(react-markdown|remark-.*|rehype-.*|mdast-util-.*|hast-util-.*|micromark.*|unist-util-.*|unified|vfile.*|hastscript|bail|trough|zwitch|devlop|ccount|longest-streak|markdown-table|stringify-entities|trim-lines|property-information|space-separated-tokens|comma-separated-tokens|web-namespaces|html-void-elements|html-url-attributes|html-entities|decode-named-character-reference|character-entities.*|character-reference-invalid|parse-entities|is-alphabetical|is-alphanumerical|is-decimal|is-hexadecimal|estree-util-is-identifier-name|entities|parse5|escape-string-regexp|is-plain-obj)[/\\\\]).+\\.(js|jsx|mjs|cjs|ts|tsx)$",
-      "^.+\\.module\\.(css|sass|scss)$"
-    ]
   }
 }

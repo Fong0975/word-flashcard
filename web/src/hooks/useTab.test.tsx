@@ -33,7 +33,7 @@ const buildWrapperWithLocation = (
 
 describe('useTab', () => {
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('defaults to the words tab when no ?tab param is present', () => {
@@ -73,7 +73,7 @@ describe('useTab', () => {
     const { result } = renderHook(() => useTab(), {
       wrapper: buildWrapper(['/']),
     });
-    const dispatchSpy = jest.spyOn(document, 'dispatchEvent');
+    const dispatchSpy = vi.spyOn(document, 'dispatchEvent');
 
     act(() => {
       result.current.switchTab('questions');
@@ -106,7 +106,7 @@ describe('useTab', () => {
     const { result } = renderHook(() => useTab(), {
       wrapper: buildWrapper(['/?tab=notes']),
     });
-    const dispatchSpy = jest.spyOn(document, 'dispatchEvent');
+    const dispatchSpy = vi.spyOn(document, 'dispatchEvent');
 
     act(() => {
       result.current.switchTab('notes');

@@ -8,8 +8,8 @@ describe('QuizErrorScreen', () => {
     render(
       <QuizErrorScreen
         error='Failed to load quiz'
-        onRetry={jest.fn()}
-        onBackToHome={jest.fn()}
+        onRetry={vi.fn()}
+        onBackToHome={vi.fn()}
       />,
     );
     expect(screen.getByText('Failed to load quiz')).toBeInTheDocument();
@@ -17,8 +17,8 @@ describe('QuizErrorScreen', () => {
 
   it('calls onRetry and onBackToHome when clicked', async () => {
     const user = userEvent.setup();
-    const onRetry = jest.fn();
-    const onBackToHome = jest.fn();
+    const onRetry = vi.fn();
+    const onBackToHome = vi.fn();
     render(
       <QuizErrorScreen
         error='Failed to load quiz'

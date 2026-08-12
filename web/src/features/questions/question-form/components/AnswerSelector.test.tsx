@@ -5,13 +5,13 @@ import { AnswerSelector } from './AnswerSelector';
 
 describe('AnswerSelector', () => {
   it('renders the current value', () => {
-    render(<AnswerSelector value='B' onChange={jest.fn()} />);
+    render(<AnswerSelector value='B' onChange={vi.fn()} />);
     expect(screen.getByRole('combobox')).toHaveValue('B');
   });
 
   it('calls onChange with the selected option', async () => {
     const user = userEvent.setup();
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     render(<AnswerSelector value='' onChange={onChange} />);
 
     await user.selectOptions(screen.getByRole('combobox'), 'C');
@@ -19,7 +19,7 @@ describe('AnswerSelector', () => {
   });
 
   it('is disabled when the disabled prop is set', () => {
-    render(<AnswerSelector value='' onChange={jest.fn()} disabled />);
+    render(<AnswerSelector value='' onChange={vi.fn()} disabled />);
     expect(screen.getByRole('combobox')).toBeDisabled();
   });
 });

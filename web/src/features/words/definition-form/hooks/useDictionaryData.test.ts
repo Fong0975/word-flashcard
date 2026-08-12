@@ -1,4 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
+import type { MockInstance } from 'vitest';
 
 import { CambridgeApiResponse, CambridgeDefinition } from '../types';
 import { apiService, ApiError } from '../../../../lib/api';
@@ -17,19 +18,19 @@ const buildResponse = (
 });
 
 describe('useDictionaryData', () => {
-  let consoleErrorSpy: jest.SpyInstance;
+  let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('sets an error immediately when there is no word to look up', async () => {
-    const lookupSpy = jest.spyOn(apiService, 'lookupWord');
+    const lookupSpy = vi.spyOn(apiService, 'lookupWord');
     const { result } = renderHook(() => useDictionaryData(null));
 
     await act(async () => {
@@ -42,7 +43,7 @@ describe('useDictionaryData', () => {
 
   it('fetches and stores dictionary data, expanding the section', async () => {
     const response = buildResponse();
-    jest.spyOn(apiService, 'lookupWord').mockResolvedValue(response);
+    vi.spyOn(apiService, 'lookupWord').mockResolvedValue(response);
     const { result } = renderHook(() => useDictionaryData('apple'));
     expect(result.current.isCollapsed).toBe(true);
 
@@ -56,10 +57,10 @@ describe('useDictionaryData', () => {
   });
 
   it('reports a generic error message on failure', async () => {
-    jest
-      .spyOn(apiService, 'lookupWord')
-      .mockRejectedValue(new Error('network down'));
-    const onShowError = jest.fn();
+    vi.spyOn(apiService, 'lookupWord').mockRejectedValue(
+      new Error('network down'),
+    );
+    const onShowError = vi.fn();
     const { result } = renderHook(() =>
       useDictionaryData('apple', undefined, onShowError),
     );
@@ -75,17 +76,15 @@ describe('useDictionaryData', () => {
   });
 
   it('adds a manual-entry hint when the upstream dictionary is unavailable', async () => {
-    jest
-      .spyOn(apiService, 'lookupWord')
-      .mockRejectedValue(
-        new ApiError(
-          502,
-          'Bad Gateway',
-          'Cambridge is down',
-          undefined,
-          'upstream_unavailable',
-        ),
-      );
+    vi.spyOn(apiService, 'lookupWord').mockRejectedValue(
+      new ApiError(
+        502,
+        'Bad Gateway',
+        'Cambridge is down',
+        undefined,
+        'upstream_unavailable',
+      ),
+    );
     const { result } = renderHook(() => useDictionaryData('apple'));
 
     await act(async () => {
@@ -98,8 +97,8 @@ describe('useDictionaryData', () => {
   });
 
   it('applies pronunciation data to the form and shows a success message', () => {
-    const updateFormData = jest.fn();
-    const onShowSuccess = jest.fn();
+    const updateFormData = vi.fn();
+    const onShowSuccess = vi.fn();
     const { result } = renderHook(() =>
       useDictionaryData('apple', onShowSuccess),
     );
@@ -122,8 +121,8 @@ describe('useDictionaryData', () => {
   });
 
   it('applies definition data to the form and shows a success message', () => {
-    const updateFormData = jest.fn();
-    const onShowSuccess = jest.fn();
+    const updateFormData = vi.fn();
+    const onShowSuccess = vi.fn();
     const { result } = renderHook(() =>
       useDictionaryData('apple', onShowSuccess),
     );
@@ -152,7 +151,7 @@ describe('useDictionaryData', () => {
   });
 
   it('resets the dictionary state', async () => {
-    jest.spyOn(apiService, 'lookupWord').mockResolvedValue(buildResponse());
+    vi.spyOn(apiService, 'lookupWord').mockResolvedValue(buildResponse());
     const { result } = renderHook(() => useDictionaryData('apple'));
     await act(async () => {
       await result.current.fetchDictionaryData();
@@ -178,7 +177,7 @@ describe('useDictionaryData', () => {
   });
 
   it('uses externally-controlled state when provided', () => {
-    const setDictionaryData = jest.fn();
+    const setDictionaryData = vi.fn();
     const { result } = renderHook(() =>
       useDictionaryData('apple', undefined, undefined, {
         dictionaryData: buildResponse({ word: 'external' }),
@@ -186,9 +185,9 @@ describe('useDictionaryData', () => {
         dictionaryError: null,
         isCollapsed: false,
         setDictionaryData,
-        setIsLoadingDictionary: jest.fn(),
-        setDictionaryError: jest.fn(),
-        setIsCollapsed: jest.fn(),
+        setIsLoadingDictionary: vi.fn(),
+        setDictionaryError: vi.fn(),
+        setIsCollapsed: vi.fn(),
       }),
     );
 

@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { Mock, MockInstance } from 'vitest';
 
 import { Word } from '../../../types/api';
 import { FamiliarityLevel } from '../../../types/base';
@@ -18,27 +19,27 @@ const buildWord = (overrides: Partial<Word> = {}): Word => ({
 });
 
 describe('WordFormModal', () => {
-  let consoleErrorSpy: jest.SpyInstance;
+  let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    jest.spyOn(apiService, 'searchWords').mockResolvedValue([]);
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(apiService, 'searchWords').mockResolvedValue([]);
   });
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('renders nothing when closed', () => {
     const { container } = render(
-      <WordFormModal isOpen={false} onClose={jest.fn()} mode='create' />,
+      <WordFormModal isOpen={false} onClose={vi.fn()} mode='create' />,
     );
     expect(container).toBeEmptyDOMElement();
   });
 
   it('shows the create-mode title without the familiarity or reminder sections', () => {
-    render(<WordFormModal isOpen onClose={jest.fn()} mode='create' />);
+    render(<WordFormModal isOpen onClose={vi.fn()} mode='create' />);
 
     expect(
       screen.getByRole('heading', { name: 'Add New Word' }),
@@ -52,7 +53,7 @@ describe('WordFormModal', () => {
     render(
       <WordFormModal
         isOpen
-        onClose={jest.fn()}
+        onClose={vi.fn()}
         mode='edit'
         word={buildWord({ reminder: 'call back' })}
       />,
@@ -69,7 +70,7 @@ describe('WordFormModal', () => {
 
   it('calls onClose when Cancel is clicked', async () => {
     const user = userEvent.setup();
-    const onClose = jest.fn();
+    const onClose = vi.fn();
     render(<WordFormModal isOpen onClose={onClose} mode='create' />);
 
     await user.click(screen.getByRole('button', { name: 'Cancel' }));
@@ -78,11 +79,11 @@ describe('WordFormModal', () => {
 
   it('creates a new word and notifies the parent', async () => {
     const user = userEvent.setup();
-    const createWordSpy = jest
+    const createWordSpy = vi
       .spyOn(apiService, 'createWord')
       .mockResolvedValue(buildWord());
-    const onClose = jest.fn();
-    const onWordSaved = jest.fn();
+    const onClose = vi.fn();
+    const onWordSaved = vi.fn();
     render(
       <WordFormModal
         isOpen
@@ -104,11 +105,11 @@ describe('WordFormModal', () => {
 
   it('blocks submission and shows an error when the word already exists', async () => {
     const user = userEvent.setup();
-    (apiService.searchWords as jest.Mock).mockResolvedValue([
+    (apiService.searchWords as Mock).mockResolvedValue([
       buildWord({ word: 'banana' }),
     ]);
-    const createWordSpy = jest.spyOn(apiService, 'createWord');
-    render(<WordFormModal isOpen onClose={jest.fn()} mode='create' />);
+    const createWordSpy = vi.spyOn(apiService, 'createWord');
+    render(<WordFormModal isOpen onClose={vi.fn()} mode='create' />);
 
     await user.type(screen.getByRole('textbox', { name: 'Word' }), 'banana');
     await user.click(screen.getByRole('button', { name: 'Add Word' }));
@@ -122,9 +123,9 @@ describe('WordFormModal', () => {
   it('navigates to word detail and closes the modal when a suggestion is clicked', async () => {
     const user = userEvent.setup();
     const suggestedWord = buildWord({ id: 2, word: 'apple' });
-    (apiService.searchWords as jest.Mock).mockResolvedValue([suggestedWord]);
-    const onClose = jest.fn();
-    const onOpenWordDetail = jest.fn();
+    (apiService.searchWords as Mock).mockResolvedValue([suggestedWord]);
+    const onClose = vi.fn();
+    const onOpenWordDetail = vi.fn();
     render(
       <WordFormModal
         isOpen
@@ -148,12 +149,7 @@ describe('WordFormModal', () => {
   it('toggles the reminder checkbox', async () => {
     const user = userEvent.setup();
     render(
-      <WordFormModal
-        isOpen
-        onClose={jest.fn()}
-        mode='edit'
-        word={buildWord()}
-      />,
+      <WordFormModal isOpen onClose={vi.fn()} mode='edit' word={buildWord()} />,
     );
 
     const checkbox = screen.getByRole('checkbox');
@@ -173,7 +169,7 @@ describe('WordFormModal', () => {
     render(
       <WordFormModal
         isOpen
-        onClose={jest.fn()}
+        onClose={vi.fn()}
         mode='edit'
         word={buildWord({ reminder: 'call back' })}
       />,

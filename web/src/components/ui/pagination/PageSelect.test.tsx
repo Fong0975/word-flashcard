@@ -9,7 +9,7 @@ describe('PageSelect', () => {
       <PageSelect
         currentPage={2}
         totalPages={3}
-        onPageChange={jest.fn()}
+        onPageChange={vi.fn()}
         loading={false}
       />,
     );
@@ -22,7 +22,7 @@ describe('PageSelect', () => {
 
   it('calls onPageChange with the selected page number', async () => {
     const user = userEvent.setup();
-    const onPageChange = jest.fn();
+    const onPageChange = vi.fn();
     render(
       <PageSelect
         currentPage={1}
@@ -42,7 +42,7 @@ describe('PageSelect', () => {
       <PageSelect
         currentPage={1}
         totalPages={3}
-        onPageChange={jest.fn()}
+        onPageChange={vi.fn()}
         loading
       />,
     );

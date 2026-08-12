@@ -1,4 +1,5 @@
 import { renderHook, waitFor, act } from '@testing-library/react';
+import type { MockInstance } from 'vitest';
 
 import { BaseEntity, SearchLogic } from '../types/base';
 
@@ -14,8 +15,8 @@ const buildApiService = (
   entities: TestEntity[],
   totalCount = entities.length,
 ): ApiServiceConfig<TestEntity> => ({
-  fetchList: jest.fn().mockResolvedValue(entities),
-  getCount: jest.fn().mockResolvedValue({ count: totalCount }),
+  fetchList: vi.fn().mockResolvedValue(entities),
+  getCount: vi.fn().mockResolvedValue({ count: totalCount }),
 });
 
 const clientSearchConfig: SearchConfig<TestEntity> = {
@@ -24,10 +25,10 @@ const clientSearchConfig: SearchConfig<TestEntity> = {
 };
 
 describe('useEntityList', () => {
-  let consoleErrorSpy: jest.SpyInstance;
+  let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -77,8 +78,8 @@ describe('useEntityList', () => {
 
   it('normalizes a non-array response into an empty entity list', async () => {
     const apiService: ApiServiceConfig<TestEntity> = {
-      fetchList: jest.fn().mockResolvedValue(null as unknown as TestEntity[]),
-      getCount: jest.fn().mockResolvedValue({ count: 0 }),
+      fetchList: vi.fn().mockResolvedValue(null as unknown as TestEntity[]),
+      getCount: vi.fn().mockResolvedValue({ count: 0 }),
     };
 
     const { result } = renderHook(() =>
@@ -96,8 +97,8 @@ describe('useEntityList', () => {
 
   it('records a fetch failure in error state instead of throwing', async () => {
     const apiService: ApiServiceConfig<TestEntity> = {
-      fetchList: jest.fn().mockRejectedValue(new Error('boom')),
-      getCount: jest.fn().mockResolvedValue({ count: 0 }),
+      fetchList: vi.fn().mockRejectedValue(new Error('boom')),
+      getCount: vi.fn().mockResolvedValue({ count: 0 }),
     };
 
     const { result } = renderHook(() =>
@@ -118,11 +119,11 @@ describe('useEntityList', () => {
   it('fetches the next page when one is available', async () => {
     const page1 = [buildEntity(1, 'a')];
     const page2 = [buildEntity(2, 'b')];
-    const fetchList = jest
+    const fetchList = vi
       .fn()
       .mockResolvedValueOnce(page1)
       .mockResolvedValueOnce(page2);
-    const getCount = jest.fn().mockResolvedValue({ count: 2 });
+    const getCount = vi.fn().mockResolvedValue({ count: 2 });
 
     const { result } = renderHook(() =>
       useEntityList<TestEntity>({
@@ -191,8 +192,8 @@ describe('useEntityList', () => {
 
   it('resets to page 1 and re-fetches when the search term changes', async () => {
     const entities = [buildEntity(1, 'apple'), buildEntity(2, 'banana')];
-    const fetchList = jest.fn().mockResolvedValue(entities);
-    const getCount = jest.fn().mockResolvedValue({ count: 2 });
+    const fetchList = vi.fn().mockResolvedValue(entities);
+    const getCount = vi.fn().mockResolvedValue({ count: 2 });
 
     const { result } = renderHook(() =>
       useEntityList<TestEntity>({
@@ -217,8 +218,8 @@ describe('useEntityList', () => {
 
   it('sends a server-side search filter built by createSearchFilter', async () => {
     const entities = [buildEntity(1, 'apple')];
-    const fetchList = jest.fn().mockResolvedValue(entities);
-    const getCount = jest.fn().mockResolvedValue({ count: 1 });
+    const fetchList = vi.fn().mockResolvedValue(entities);
+    const getCount = vi.fn().mockResolvedValue({ count: 1 });
     const searchFilter = { conditions: [], logic: SearchLogic.OR };
 
     const serverSearchConfig: SearchConfig<TestEntity> = {
@@ -249,11 +250,11 @@ describe('useEntityList', () => {
   });
 
   it('rejects with the error message when refresh fails, unlike a plain fetch', async () => {
-    const fetchList = jest
+    const fetchList = vi
       .fn()
       .mockResolvedValueOnce([buildEntity(1, 'a')])
       .mockRejectedValueOnce(new Error('refresh failed'));
-    const getCount = jest.fn().mockResolvedValue({ count: 1 });
+    const getCount = vi.fn().mockResolvedValue({ count: 1 });
 
     const { result } = renderHook(() =>
       useEntityList<TestEntity>({

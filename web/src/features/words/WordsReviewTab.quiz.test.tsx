@@ -2,18 +2,19 @@ import { ReactNode } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
+import type { Mock } from 'vitest';
 
 import { Word } from '../../types/api';
 import { useWords, type UseWordsReturn } from '../../hooks/useWords';
 
 import { WordsReviewTab } from './WordsReviewTab';
 
-jest.mock('../../hooks/useWords');
+vi.mock('../../hooks/useWords');
 
-const mockNavigate = jest.fn();
+const mockNavigate = vi.fn();
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
 }));
 
@@ -21,7 +22,7 @@ jest.mock('react-router-dom', () => ({
 // project's max-lines limit. Covers handleStartQuiz (URL building from the
 // quiz setup config) and closing the quiz setup modal, so this file mocks
 // QuizSetupModal directly instead of stubbing it away like the other file.
-jest.mock('../shared/components/EntityReviewTab', () => ({
+vi.mock('../shared/components/EntityReviewTab', () => ({
   EntityReviewTab: (props: {
     actions: { onQuizSetup?: () => void };
     additionalContent?: ReactNode;
@@ -38,21 +39,21 @@ jest.mock('../shared/components/EntityReviewTab', () => ({
   ),
 }));
 
-jest.mock('./WordCard', () => ({
+vi.mock('./WordCard', () => ({
   WordCard: () => null,
 }));
 
-jest.mock('./word-form', () => ({
+vi.mock('./word-form', () => ({
   WordFormModal: () => null,
 }));
 
-jest.mock('./WordStatsModal', () => ({
+vi.mock('./WordStatsModal', () => ({
   WordStatsModal: () => null,
 }));
 
 // Each key below doubles as a test button label; the value is the config
 // handleStartQuiz receives when that button is clicked.
-jest.mock('../shared/components/QuizSetupModal', () => {
+vi.mock('../shared/components/QuizSetupModal', () => {
   const quizConfigs: Record<string, unknown> = {
     'Start All Categories': {
       questionCount: 0,
@@ -107,22 +108,22 @@ const buildWordsHook = (
   itemsPerPage: 30,
   searchTerm: '',
   totalCount: 0,
-  fetchWords: jest.fn().mockResolvedValue(undefined),
-  fetchEntities: jest.fn().mockResolvedValue(undefined),
-  nextPage: jest.fn().mockResolvedValue(undefined),
-  previousPage: jest.fn().mockResolvedValue(undefined),
-  goToPage: jest.fn().mockResolvedValue(undefined),
-  goToFirst: jest.fn().mockResolvedValue(undefined),
-  goToLast: jest.fn().mockResolvedValue(undefined),
-  refresh: jest.fn().mockResolvedValue(undefined),
-  clearError: jest.fn(),
-  setSearchTerm: jest.fn(),
+  fetchWords: vi.fn().mockResolvedValue(undefined),
+  fetchEntities: vi.fn().mockResolvedValue(undefined),
+  nextPage: vi.fn().mockResolvedValue(undefined),
+  previousPage: vi.fn().mockResolvedValue(undefined),
+  goToPage: vi.fn().mockResolvedValue(undefined),
+  goToFirst: vi.fn().mockResolvedValue(undefined),
+  goToLast: vi.fn().mockResolvedValue(undefined),
+  refresh: vi.fn().mockResolvedValue(undefined),
+  clearError: vi.fn(),
+  setSearchTerm: vi.fn(),
   ...overrides,
 });
 
 const renderTab = (hookOverrides: Partial<UseWordsReturn> = {}) => {
   const hook = buildWordsHook(hookOverrides);
-  (useWords as jest.Mock).mockReturnValue(hook);
+  (useWords as Mock).mockReturnValue(hook);
 
   render(
     <MemoryRouter initialEntries={['/']}>
@@ -149,7 +150,7 @@ describe('WordsReviewTab quiz setup', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   // handleStartQuiz: URL built from per-category counts vs. plain count.

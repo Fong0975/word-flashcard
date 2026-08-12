@@ -6,7 +6,7 @@ import { CollapsibleSection } from './CollapsibleSection';
 describe('CollapsibleSection', () => {
   it('renders the title but not children when closed', () => {
     render(
-      <CollapsibleSection title='History' isOpen={false} onToggle={jest.fn()}>
+      <CollapsibleSection title='History' isOpen={false} onToggle={vi.fn()}>
         <p>Section content</p>
       </CollapsibleSection>,
     );
@@ -17,7 +17,7 @@ describe('CollapsibleSection', () => {
 
   it('renders children when open', () => {
     render(
-      <CollapsibleSection title='History' isOpen onToggle={jest.fn()}>
+      <CollapsibleSection title='History' isOpen onToggle={vi.fn()}>
         <p>Section content</p>
       </CollapsibleSection>,
     );
@@ -27,7 +27,7 @@ describe('CollapsibleSection', () => {
 
   it('calls onToggle when the header button is clicked', async () => {
     const user = userEvent.setup();
-    const onToggle = jest.fn();
+    const onToggle = vi.fn();
     render(
       <CollapsibleSection title='History' isOpen={false} onToggle={onToggle}>
         <p>Section content</p>
@@ -40,7 +40,7 @@ describe('CollapsibleSection', () => {
 
   it('sets aria-expanded to false when closed', () => {
     render(
-      <CollapsibleSection title='History' isOpen={false} onToggle={jest.fn()}>
+      <CollapsibleSection title='History' isOpen={false} onToggle={vi.fn()}>
         <p>Section content</p>
       </CollapsibleSection>,
     );
@@ -53,7 +53,7 @@ describe('CollapsibleSection', () => {
 
   it('sets aria-expanded to true when open', () => {
     render(
-      <CollapsibleSection title='History' isOpen onToggle={jest.fn()}>
+      <CollapsibleSection title='History' isOpen onToggle={vi.fn()}>
         <p>Section content</p>
       </CollapsibleSection>,
     );

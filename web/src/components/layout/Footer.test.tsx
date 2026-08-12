@@ -9,7 +9,7 @@ import { Footer } from './Footer';
 describe('Footer', () => {
   afterEach(() => {
     sessionStorage.clear();
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('renders the copyright notice with the current year', () => {
@@ -28,9 +28,9 @@ describe('Footer', () => {
   });
 
   it('shows the fetched API version once available', async () => {
-    jest
-      .spyOn(apiService, 'getInformation')
-      .mockResolvedValue({ version: '2.5.0' });
+    vi.spyOn(apiService, 'getInformation').mockResolvedValue({
+      version: '2.5.0',
+    });
 
     const { container } = render(
       <ApiVersionProvider>

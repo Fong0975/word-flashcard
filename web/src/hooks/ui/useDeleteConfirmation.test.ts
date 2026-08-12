@@ -14,7 +14,7 @@ describe('useDeleteConfirmation', () => {
     const { result } = renderHook(() =>
       useDeleteConfirmation<TestEntity>({
         entity: null,
-        onDelete: jest.fn(),
+        onDelete: vi.fn(),
         getConfirmMessage: entity => `Delete ${entity.name}?`,
       }),
     );
@@ -26,7 +26,7 @@ describe('useDeleteConfirmation', () => {
     const { result } = renderHook(() =>
       useDeleteConfirmation<TestEntity>({
         entity: buildEntity(),
-        onDelete: jest.fn(),
+        onDelete: vi.fn(),
         getConfirmMessage: entity => `Delete ${entity.name}?`,
       }),
     );
@@ -38,7 +38,7 @@ describe('useDeleteConfirmation', () => {
     const { result } = renderHook(() =>
       useDeleteConfirmation<TestEntity>({
         entity: null,
-        onDelete: jest.fn(),
+        onDelete: vi.fn(),
         getConfirmMessage: () => '',
       }),
     );
@@ -54,7 +54,7 @@ describe('useDeleteConfirmation', () => {
     const { result } = renderHook(() =>
       useDeleteConfirmation<TestEntity>({
         entity: buildEntity(),
-        onDelete: jest.fn(),
+        onDelete: vi.fn(),
         getConfirmMessage: () => 'Delete?',
       }),
     );
@@ -71,8 +71,8 @@ describe('useDeleteConfirmation', () => {
   });
 
   it('deletes the entity and reports success', async () => {
-    const onDelete = jest.fn().mockResolvedValue(undefined);
-    const onSuccess = jest.fn();
+    const onDelete = vi.fn().mockResolvedValue(undefined);
+    const onSuccess = vi.fn();
     const entity = buildEntity();
 
     const { result } = renderHook(() =>
@@ -99,8 +99,8 @@ describe('useDeleteConfirmation', () => {
   });
 
   it('reports an error and keeps the dialog open when the delete fails', async () => {
-    const onDelete = jest.fn().mockRejectedValue(new Error('network down'));
-    const onError = jest.fn();
+    const onDelete = vi.fn().mockRejectedValue(new Error('network down'));
+    const onError = vi.fn();
 
     const { result } = renderHook(() =>
       useDeleteConfirmation<TestEntity>({
@@ -127,8 +127,8 @@ describe('useDeleteConfirmation', () => {
   });
 
   it('wraps a non-Error rejection in an Error before reporting it', async () => {
-    const onDelete = jest.fn().mockRejectedValue('rejected as a string');
-    const onError = jest.fn();
+    const onDelete = vi.fn().mockRejectedValue('rejected as a string');
+    const onError = vi.fn();
 
     const { result } = renderHook(() =>
       useDeleteConfirmation<TestEntity>({
@@ -149,7 +149,7 @@ describe('useDeleteConfirmation', () => {
   });
 
   it('does nothing when confirming delete without an entity', async () => {
-    const onDelete = jest.fn();
+    const onDelete = vi.fn();
 
     const { result } = renderHook(() =>
       useDeleteConfirmation<TestEntity>({

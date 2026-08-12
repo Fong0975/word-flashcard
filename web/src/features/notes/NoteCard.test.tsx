@@ -20,13 +20,13 @@ const baseProps = {
   isLast: false,
   isDragging: false,
   isDragOver: false,
-  onMoveUp: jest.fn(),
-  onMoveDown: jest.fn(),
-  onDragStart: jest.fn(),
-  onDragOver: jest.fn(),
-  onDrop: jest.fn(),
-  onDragEnd: jest.fn(),
-  onClick: jest.fn(),
+  onMoveUp: vi.fn(),
+  onMoveDown: vi.fn(),
+  onDragStart: vi.fn(),
+  onDragOver: vi.fn(),
+  onDrop: vi.fn(),
+  onDragEnd: vi.fn(),
+  onClick: vi.fn(),
 };
 
 describe('NoteCard', () => {
@@ -43,7 +43,7 @@ describe('NoteCard', () => {
 
   it('calls onClick when the content is clicked', async () => {
     const user = userEvent.setup();
-    const onClick = jest.fn();
+    const onClick = vi.fn();
     render(<NoteCard {...baseProps} note={buildNote()} onClick={onClick} />);
 
     await user.click(screen.getByText('Grocery list'));
@@ -62,8 +62,8 @@ describe('NoteCard', () => {
 
   it('calls onMoveUp and onMoveDown when clicked', async () => {
     const user = userEvent.setup();
-    const onMoveUp = jest.fn();
-    const onMoveDown = jest.fn();
+    const onMoveUp = vi.fn();
+    const onMoveDown = vi.fn();
     render(
       <NoteCard
         {...baseProps}
@@ -98,9 +98,9 @@ describe('NoteCard', () => {
   });
 
   it('fires drag handlers when reorder controls are enabled', () => {
-    const onDragStart = jest.fn();
-    const onDrop = jest.fn();
-    const onDragEnd = jest.fn();
+    const onDragStart = vi.fn();
+    const onDrop = vi.fn();
+    const onDragEnd = vi.fn();
     render(
       <NoteCard
         {...baseProps}

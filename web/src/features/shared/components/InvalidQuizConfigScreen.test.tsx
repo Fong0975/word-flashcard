@@ -5,24 +5,24 @@ import { MemoryRouter } from 'react-router-dom';
 import { InvalidQuizConfigScreen } from './InvalidQuizConfigScreen';
 
 beforeEach(() => {
-  window.matchMedia = jest.fn().mockReturnValue({
+  window.matchMedia = vi.fn().mockReturnValue({
     matches: false,
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
   });
 });
 
 afterEach(() => {
   localStorage.clear();
   document.documentElement.classList.remove('dark');
-  jest.restoreAllMocks();
+  vi.restoreAllMocks();
 });
 
 describe('InvalidQuizConfigScreen', () => {
   it('renders the invalid configuration message', () => {
     render(
       <MemoryRouter>
-        <InvalidQuizConfigScreen onBackToHome={jest.fn()} />
+        <InvalidQuizConfigScreen onBackToHome={vi.fn()} />
       </MemoryRouter>,
     );
     expect(screen.getByText('Invalid quiz configuration')).toBeInTheDocument();
@@ -30,7 +30,7 @@ describe('InvalidQuizConfigScreen', () => {
 
   it('calls onBackToHome when the body button is clicked', async () => {
     const user = userEvent.setup();
-    const onBackToHome = jest.fn();
+    const onBackToHome = vi.fn();
     render(
       <MemoryRouter>
         <InvalidQuizConfigScreen onBackToHome={onBackToHome} />
@@ -43,7 +43,7 @@ describe('InvalidQuizConfigScreen', () => {
 
   it('calls onBackToHome when the layout back button is clicked', async () => {
     const user = userEvent.setup();
-    const onBackToHome = jest.fn();
+    const onBackToHome = vi.fn();
     render(
       <MemoryRouter>
         <InvalidQuizConfigScreen onBackToHome={onBackToHome} />

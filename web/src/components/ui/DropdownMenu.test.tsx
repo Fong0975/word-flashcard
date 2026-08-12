@@ -6,7 +6,7 @@ import { DropdownMenu, DropdownMenuItem } from './DropdownMenu';
 const buildItems = (
   overrides: Partial<DropdownMenuItem> = {},
 ): DropdownMenuItem[] => [
-  { id: 'edit', label: 'Edit', onClick: jest.fn(), ...overrides },
+  { id: 'edit', label: 'Edit', onClick: vi.fn(), ...overrides },
 ];
 
 describe('DropdownMenu', () => {
@@ -29,7 +29,7 @@ describe('DropdownMenu', () => {
 
   it('invokes the item handler and closes the menu on click', async () => {
     const user = userEvent.setup();
-    const onClick = jest.fn();
+    const onClick = vi.fn();
     render(
       <DropdownMenu
         trigger={<button>Menu</button>}
@@ -46,7 +46,7 @@ describe('DropdownMenu', () => {
 
   it('does not invoke the handler for a disabled item and keeps the menu open', async () => {
     const user = userEvent.setup();
-    const onClick = jest.fn();
+    const onClick = vi.fn();
     render(
       <DropdownMenu
         trigger={<button>Menu</button>}

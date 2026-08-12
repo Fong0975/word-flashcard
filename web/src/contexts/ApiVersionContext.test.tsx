@@ -1,20 +1,21 @@
 import { renderHook, waitFor } from '@testing-library/react';
+import type { MockInstance } from 'vitest';
 
 import { apiService } from '../lib/api';
 
 import { ApiVersionProvider, useApiVersion } from './ApiVersionContext';
 
 describe('ApiVersionContext', () => {
-  let consoleErrorSpy: jest.SpyInstance;
+  let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
     sessionStorage.clear();
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('defaults to a null apiVersion outside of a provider', () => {
@@ -24,7 +25,7 @@ describe('ApiVersionContext', () => {
 
   it('reads a previously cached version from sessionStorage without fetching', () => {
     sessionStorage.setItem('api_version', '1.2.3');
-    const getInformationSpy = jest.spyOn(apiService, 'getInformation');
+    const getInformationSpy = vi.spyOn(apiService, 'getInformation');
 
     const { result } = renderHook(() => useApiVersion(), {
       wrapper: ApiVersionProvider,
@@ -35,9 +36,9 @@ describe('ApiVersionContext', () => {
   });
 
   it('fetches and caches the version when nothing is cached', async () => {
-    jest
-      .spyOn(apiService, 'getInformation')
-      .mockResolvedValue({ version: '2.0.0' });
+    vi.spyOn(apiService, 'getInformation').mockResolvedValue({
+      version: '2.0.0',
+    });
 
     const { result } = renderHook(() => useApiVersion(), {
       wrapper: ApiVersionProvider,
@@ -50,7 +51,7 @@ describe('ApiVersionContext', () => {
 
   it('leaves the version null and logs the error when the fetch fails', async () => {
     const error = new Error('network down');
-    jest.spyOn(apiService, 'getInformation').mockRejectedValue(error);
+    vi.spyOn(apiService, 'getInformation').mockRejectedValue(error);
 
     const { result } = renderHook(() => useApiVersion(), {
       wrapper: ApiVersionProvider,

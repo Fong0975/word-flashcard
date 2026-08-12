@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { Mock } from 'vitest';
 
 import {
   useCopyToClipboard,
@@ -8,9 +9,9 @@ import {
 
 import { CopyButton } from './CopyButton';
 
-jest.mock('../../hooks/ui/useCopyToClipboard');
+vi.mock('../../hooks/ui/useCopyToClipboard');
 
-const mockedUseCopyToClipboard = useCopyToClipboard as jest.Mock;
+const mockedUseCopyToClipboard = useCopyToClipboard as Mock;
 
 const buildHookReturn = (
   overrides: Partial<UseCopyToClipboardReturn> = {},
@@ -18,8 +19,8 @@ const buildHookReturn = (
   copySuccess: false,
   copyError: null,
   isSupported: true,
-  copyToClipboard: jest.fn().mockResolvedValue(undefined),
-  resetState: jest.fn(),
+  copyToClipboard: vi.fn().mockResolvedValue(undefined),
+  resetState: vi.fn(),
   ...overrides,
 });
 
@@ -36,7 +37,7 @@ describe('CopyButton', () => {
   });
 
   it('calls copyToClipboard with the given text when clicked', async () => {
-    const copyToClipboard = jest.fn().mockResolvedValue(undefined);
+    const copyToClipboard = vi.fn().mockResolvedValue(undefined);
     mockedUseCopyToClipboard.mockReturnValue(
       buildHookReturn({ copyToClipboard }),
     );
@@ -59,7 +60,7 @@ describe('CopyButton', () => {
   });
 
   it('does not call copyToClipboard when disabled', async () => {
-    const copyToClipboard = jest.fn();
+    const copyToClipboard = vi.fn();
     mockedUseCopyToClipboard.mockReturnValue(
       buildHookReturn({ copyToClipboard }),
     );
@@ -94,7 +95,7 @@ describe('CopyButton', () => {
   });
 
   it('calls onCopySuccess when copy succeeds', async () => {
-    const onCopySuccess = jest.fn();
+    const onCopySuccess = vi.fn();
     mockedUseCopyToClipboard.mockReturnValue(
       buildHookReturn({ copySuccess: true }),
     );
@@ -107,7 +108,7 @@ describe('CopyButton', () => {
   });
 
   it('calls onCopyError with the error when copy fails', async () => {
-    const onCopyError = jest.fn();
+    const onCopyError = vi.fn();
     mockedUseCopyToClipboard.mockReturnValue(
       buildHookReturn({ copyError: 'oops' }),
     );

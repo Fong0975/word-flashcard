@@ -26,18 +26,16 @@ const noop = () => {};
 
 describe('WordQuiz quiz_session_id', () => {
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('sends the same quiz_session_id when resubmitting a familiarity after navigating back', async () => {
     const user = userEvent.setup();
-    jest
-      .spyOn(apiService, 'getRandomWords')
-      .mockResolvedValue([
-        buildWord({ id: 1, word: 'apple' }),
-        buildWord({ id: 2, word: 'banana' }),
-      ]);
-    const updateSpy = jest
+    vi.spyOn(apiService, 'getRandomWords').mockResolvedValue([
+      buildWord({ id: 1, word: 'apple' }),
+      buildWord({ id: 2, word: 'banana' }),
+    ]);
+    const updateSpy = vi
       .spyOn(apiService, 'updateWordFields')
       .mockResolvedValue(buildWord());
 

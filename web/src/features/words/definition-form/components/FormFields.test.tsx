@@ -17,14 +17,14 @@ const buildFormData = (
 });
 
 const buildHandlers = () => ({
-  handlePartOfSpeechChange: jest.fn(),
-  handleDefinitionChange: jest.fn(),
-  handleNotesChange: jest.fn(),
-  appendToNotes: jest.fn(),
-  handleExamplesChange: jest.fn(),
-  addExampleInput: jest.fn(),
-  removeExampleInput: jest.fn(),
-  handlePhoneticsChange: jest.fn(),
+  handlePartOfSpeechChange: vi.fn(),
+  handleDefinitionChange: vi.fn(),
+  handleNotesChange: vi.fn(),
+  appendToNotes: vi.fn(),
+  handleExamplesChange: vi.fn(),
+  addExampleInput: vi.fn(),
+  removeExampleInput: vi.fn(),
+  handlePhoneticsChange: vi.fn(),
 });
 
 describe('FormFields', () => {

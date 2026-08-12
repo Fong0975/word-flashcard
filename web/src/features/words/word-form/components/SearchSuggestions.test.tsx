@@ -32,7 +32,7 @@ describe('SearchSuggestions', () => {
       <SearchSuggestions
         searchState={buildSearchState({ showSuggestions: false })}
         mode='create'
-        onSuggestionClick={jest.fn()}
+        onSuggestionClick={vi.fn()}
       />,
     );
     expect(container).toBeEmptyDOMElement();
@@ -40,7 +40,7 @@ describe('SearchSuggestions', () => {
 
   it('renders suggestions as clickable buttons in create mode', async () => {
     const user = userEvent.setup();
-    const onSuggestionClick = jest.fn();
+    const onSuggestionClick = vi.fn();
     const word = buildWord({ word: 'apple' });
     render(
       <SearchSuggestions
@@ -61,7 +61,7 @@ describe('SearchSuggestions', () => {
           suggestions: [buildWord({ word: 'apple' })],
         })}
         mode='edit'
-        onSuggestionClick={jest.fn()}
+        onSuggestionClick={vi.fn()}
       />,
     );
 
@@ -76,7 +76,7 @@ describe('SearchSuggestions', () => {
       <SearchSuggestions
         searchState={buildSearchState({ isLoading: true })}
         mode='create'
-        onSuggestionClick={jest.fn()}
+        onSuggestionClick={vi.fn()}
       />,
     );
 

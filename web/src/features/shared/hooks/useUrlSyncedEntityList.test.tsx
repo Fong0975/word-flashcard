@@ -1,6 +1,7 @@
 import { FC, ReactNode } from 'react';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import type { Mock } from 'vitest';
 
 import { EntityListHook, BaseEntity } from '../../../types';
 
@@ -23,15 +24,15 @@ const buildEntityListHook = (
   itemsPerPage: 10,
   searchTerm: '',
   totalCount: 50,
-  fetchEntities: jest.fn().mockResolvedValue(undefined),
-  nextPage: jest.fn().mockResolvedValue(undefined),
-  previousPage: jest.fn().mockResolvedValue(undefined),
-  goToPage: jest.fn().mockResolvedValue(undefined),
-  goToFirst: jest.fn().mockResolvedValue(undefined),
-  goToLast: jest.fn().mockResolvedValue(undefined),
-  refresh: jest.fn().mockResolvedValue(undefined),
-  clearError: jest.fn(),
-  setSearchTerm: jest.fn(),
+  fetchEntities: vi.fn().mockResolvedValue(undefined),
+  nextPage: vi.fn().mockResolvedValue(undefined),
+  previousPage: vi.fn().mockResolvedValue(undefined),
+  goToPage: vi.fn().mockResolvedValue(undefined),
+  goToFirst: vi.fn().mockResolvedValue(undefined),
+  goToLast: vi.fn().mockResolvedValue(undefined),
+  refresh: vi.fn().mockResolvedValue(undefined),
+  clearError: vi.fn(),
+  setSearchTerm: vi.fn(),
   ...overrides,
 });
 
@@ -226,7 +227,7 @@ describe('useUrlSyncedEntityList', () => {
         }),
       { wrapper: buildWrapper(['/']), initialProps: { filtersKey: '' } },
     );
-    (entityListHook.fetchEntities as jest.Mock).mockClear();
+    (entityListHook.fetchEntities as Mock).mockClear();
 
     rerender({ filtersKey: 'red' });
 

@@ -1,4 +1,5 @@
 import { renderHook, waitFor } from '@testing-library/react';
+import type { MockInstance } from 'vitest';
 
 import { Word } from '../../../../types/api';
 import { FamiliarityLevel } from '../../../../types/base';
@@ -16,20 +17,20 @@ const buildWord = (id: number): Word => ({
 });
 
 describe('useWordQuizData', () => {
-  let consoleErrorSpy: jest.SpyInstance;
+  let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   describe('standard mode (total count with familiarity filter)', () => {
     it('requests the given count filtered by the selected familiarity levels', async () => {
-      const getRandomWordsSpy = jest
+      const getRandomWordsSpy = vi
         .spyOn(apiService, 'getRandomWords')
         .mockResolvedValue([buildWord(1)]);
       // Declared outside the renderHook callback so the reference stays
@@ -56,7 +57,7 @@ describe('useWordQuizData', () => {
 
     it('transitions to the quiz state with the fetched words', async () => {
       const words = [buildWord(1), buildWord(2)];
-      jest.spyOn(apiService, 'getRandomWords').mockResolvedValue(words);
+      vi.spyOn(apiService, 'getRandomWords').mockResolvedValue(words);
       const selectedFamiliarity = [FamiliarityLevel.RED];
 
       const { result } = renderHook(() =>
@@ -68,7 +69,7 @@ describe('useWordQuizData', () => {
     });
 
     it('sets an error without calling the API for a non-positive count', async () => {
-      const getRandomWordsSpy = jest.spyOn(apiService, 'getRandomWords');
+      const getRandomWordsSpy = vi.spyOn(apiService, 'getRandomWords');
       const selectedFamiliarity = [FamiliarityLevel.RED];
 
       const { result } = renderHook(() =>
@@ -82,7 +83,7 @@ describe('useWordQuizData', () => {
     });
 
     it('sets an error and stays out of the quiz state when no words are returned', async () => {
-      jest.spyOn(apiService, 'getRandomWords').mockResolvedValue([]);
+      vi.spyOn(apiService, 'getRandomWords').mockResolvedValue([]);
       const selectedFamiliarity = [FamiliarityLevel.RED];
 
       const { result } = renderHook(() =>
@@ -98,10 +99,10 @@ describe('useWordQuizData', () => {
     });
 
     it('sets an error and calls onError when the fetch fails', async () => {
-      jest
-        .spyOn(apiService, 'getRandomWords')
-        .mockRejectedValue(new Error('network down'));
-      const onError = jest.fn();
+      vi.spyOn(apiService, 'getRandomWords').mockRejectedValue(
+        new Error('network down'),
+      );
+      const onError = vi.fn();
       const selectedFamiliarity = [FamiliarityLevel.RED];
 
       const { result } = renderHook(() =>
@@ -117,7 +118,7 @@ describe('useWordQuizData', () => {
 
   describe('per-category mode', () => {
     it('issues a single request with the per-category counts and their sum', async () => {
-      const getRandomWordsSpy = jest
+      const getRandomWordsSpy = vi
         .spyOn(apiService, 'getRandomWords')
         .mockResolvedValue([buildWord(1)]);
       const selectedFamiliarity: FamiliarityLevel[] = [];
@@ -140,7 +141,7 @@ describe('useWordQuizData', () => {
 
     it('uses the words returned by the backend', async () => {
       const words = [buildWord(1), buildWord(2), buildWord(3)];
-      jest.spyOn(apiService, 'getRandomWords').mockResolvedValue(words);
+      vi.spyOn(apiService, 'getRandomWords').mockResolvedValue(words);
       const selectedFamiliarity: FamiliarityLevel[] = [];
       const perCategoryCounts = { red: 1, yellow: 0, green: 2 };
 

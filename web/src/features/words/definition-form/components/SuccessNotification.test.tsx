@@ -6,14 +6,14 @@ import { SuccessNotification } from './SuccessNotification';
 describe('SuccessNotification', () => {
   it('renders the message', () => {
     render(
-      <SuccessNotification message='Definition added!' onClose={jest.fn()} />,
+      <SuccessNotification message='Definition added!' onClose={vi.fn()} />,
     );
     expect(screen.getByText('Definition added!')).toBeInTheDocument();
   });
 
   it('calls onClose when the close button is clicked', async () => {
     const user = userEvent.setup();
-    const onClose = jest.fn();
+    const onClose = vi.fn();
     render(<SuccessNotification message='Saved!' onClose={onClose} />);
 
     await user.click(screen.getByRole('button'));

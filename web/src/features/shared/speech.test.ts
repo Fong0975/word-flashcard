@@ -1,3 +1,5 @@
+import type { Mock } from 'vitest';
+
 import { speakText } from './speech';
 
 type MockUtterance = { text: string; lang: string };
@@ -15,11 +17,11 @@ describe('speakText', () => {
   });
 
   it('speaks the given text with the default locale', () => {
-    const speak = jest.fn();
-    const cancel = jest.fn();
+    const speak = vi.fn();
+    const cancel = vi.fn();
     (
       window as unknown as {
-        speechSynthesis: { speak: jest.Mock; cancel: jest.Mock };
+        speechSynthesis: { speak: Mock; cancel: Mock };
       }
     ).speechSynthesis = { speak, cancel };
     (
@@ -44,11 +46,11 @@ describe('speakText', () => {
   });
 
   it('applies a custom locale', () => {
-    const speak = jest.fn();
-    const cancel = jest.fn();
+    const speak = vi.fn();
+    const cancel = vi.fn();
     (
       window as unknown as {
-        speechSynthesis: { speak: jest.Mock; cancel: jest.Mock };
+        speechSynthesis: { speak: Mock; cancel: Mock };
       }
     ).speechSynthesis = { speak, cancel };
     (
@@ -70,11 +72,11 @@ describe('speakText', () => {
   });
 
   it('cancels any speech already in progress before speaking', () => {
-    const speak = jest.fn();
-    const cancel = jest.fn();
+    const speak = vi.fn();
+    const cancel = vi.fn();
     (
       window as unknown as {
-        speechSynthesis: { speak: jest.Mock; cancel: jest.Mock };
+        speechSynthesis: { speak: Mock; cancel: Mock };
       }
     ).speechSynthesis = { speak, cancel };
     (

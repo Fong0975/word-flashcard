@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { MockInstance } from 'vitest';
 
 import { WordStatsResponse, WordTrendPoint } from '../../types/api';
 import { apiService } from '../../lib/api';
@@ -28,39 +29,39 @@ const buildTrendPoint = (
 });
 
 describe('WordStatsModal', () => {
-  let consoleErrorSpy: jest.SpyInstance;
+  let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    jest.spyOn(apiService, 'getWordsTrend').mockResolvedValue([]);
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(apiService, 'getWordsTrend').mockResolvedValue([]);
   });
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('renders nothing when closed', () => {
     const { container } = render(
-      <WordStatsModal isOpen={false} onClose={jest.fn()} />,
+      <WordStatsModal isOpen={false} onClose={vi.fn()} />,
     );
     expect(container).toBeEmptyDOMElement();
   });
 
   it('shows an error message when the stats request fails', async () => {
-    jest
-      .spyOn(apiService, 'getWordStats')
-      .mockRejectedValue(new Error('network down'));
+    vi.spyOn(apiService, 'getWordStats').mockRejectedValue(
+      new Error('network down'),
+    );
 
-    render(<WordStatsModal isOpen onClose={jest.fn()} />);
+    render(<WordStatsModal isOpen onClose={vi.fn()} />);
 
     expect(await screen.findByText('network down')).toBeInTheDocument();
   });
 
   it('shows the familiarity distribution by default', async () => {
-    jest.spyOn(apiService, 'getWordStats').mockResolvedValue(buildStats());
+    vi.spyOn(apiService, 'getWordStats').mockResolvedValue(buildStats());
 
-    render(<WordStatsModal isOpen onClose={jest.fn()} />);
+    render(<WordStatsModal isOpen onClose={vi.fn()} />);
 
     expect(
       await screen.findByText('Familiarity distribution — 6 words total'),
@@ -72,9 +73,9 @@ describe('WordStatsModal', () => {
 
   it('switches to the practice count tab when selected', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getWordStats').mockResolvedValue(buildStats());
+    vi.spyOn(apiService, 'getWordStats').mockResolvedValue(buildStats());
 
-    render(<WordStatsModal isOpen onClose={jest.fn()} />);
+    render(<WordStatsModal isOpen onClose={vi.fn()} />);
     await screen.findByText('Familiarity distribution — 6 words total');
 
     await user.click(screen.getByRole('button', { name: 'Practice Count' }));
@@ -87,9 +88,9 @@ describe('WordStatsModal', () => {
 
   it('switches back to the familiarity tab after viewing another tab', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getWordStats').mockResolvedValue(buildStats());
+    vi.spyOn(apiService, 'getWordStats').mockResolvedValue(buildStats());
 
-    render(<WordStatsModal isOpen onClose={jest.fn()} />);
+    render(<WordStatsModal isOpen onClose={vi.fn()} />);
     await screen.findByText('Familiarity distribution — 6 words total');
 
     await user.click(screen.getByRole('button', { name: 'Practice Count' }));
@@ -106,8 +107,8 @@ describe('WordStatsModal', () => {
 
   it('switches to the trend tab and renders the chart when there is practice activity', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getWordStats').mockResolvedValue(buildStats());
-    jest.spyOn(apiService, 'getWordsTrend').mockResolvedValue([
+    vi.spyOn(apiService, 'getWordStats').mockResolvedValue(buildStats());
+    vi.spyOn(apiService, 'getWordsTrend').mockResolvedValue([
       buildTrendPoint({ date: '2026-07-09', practice_count: 2 }),
       buildTrendPoint({
         date: '2026-07-10',
@@ -117,7 +118,7 @@ describe('WordStatsModal', () => {
       }),
     ]);
 
-    render(<WordStatsModal isOpen onClose={jest.fn()} />);
+    render(<WordStatsModal isOpen onClose={vi.fn()} />);
     await screen.findByText('Familiarity distribution — 6 words total');
 
     await user.click(screen.getByRole('button', { name: 'Trend' }));
@@ -137,15 +138,13 @@ describe('WordStatsModal', () => {
 
   it('shows the empty state on the trend tab when there is no practice activity', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getWordStats').mockResolvedValue(buildStats());
-    jest
-      .spyOn(apiService, 'getWordsTrend')
-      .mockResolvedValue([
-        buildTrendPoint(),
-        buildTrendPoint({ date: '2026-07-11' }),
-      ]);
+    vi.spyOn(apiService, 'getWordStats').mockResolvedValue(buildStats());
+    vi.spyOn(apiService, 'getWordsTrend').mockResolvedValue([
+      buildTrendPoint(),
+      buildTrendPoint({ date: '2026-07-11' }),
+    ]);
 
-    render(<WordStatsModal isOpen onClose={jest.fn()} />);
+    render(<WordStatsModal isOpen onClose={vi.fn()} />);
     await screen.findByText('Familiarity distribution — 6 words total');
 
     await user.click(screen.getByRole('button', { name: 'Trend' }));
@@ -157,15 +156,15 @@ describe('WordStatsModal', () => {
 
   it('shows the loading spinner while the trend request is pending', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getWordStats').mockResolvedValue(buildStats());
+    vi.spyOn(apiService, 'getWordStats').mockResolvedValue(buildStats());
     let resolveTrend: (points: WordTrendPoint[]) => void = () => {};
-    jest.spyOn(apiService, 'getWordsTrend').mockReturnValue(
+    vi.spyOn(apiService, 'getWordsTrend').mockReturnValue(
       new Promise(resolve => {
         resolveTrend = resolve;
       }),
     );
 
-    render(<WordStatsModal isOpen onClose={jest.fn()} />);
+    render(<WordStatsModal isOpen onClose={vi.fn()} />);
     await screen.findByText('Familiarity distribution — 6 words total');
 
     await user.click(screen.getByRole('button', { name: 'Trend' }));
@@ -181,12 +180,12 @@ describe('WordStatsModal', () => {
 
   it('shows an error message on the trend tab when the trend request fails', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getWordStats').mockResolvedValue(buildStats());
-    jest
-      .spyOn(apiService, 'getWordsTrend')
-      .mockRejectedValue(new Error('network down'));
+    vi.spyOn(apiService, 'getWordStats').mockResolvedValue(buildStats());
+    vi.spyOn(apiService, 'getWordsTrend').mockRejectedValue(
+      new Error('network down'),
+    );
 
-    render(<WordStatsModal isOpen onClose={jest.fn()} />);
+    render(<WordStatsModal isOpen onClose={vi.fn()} />);
     await screen.findByText('Familiarity distribution — 6 words total');
 
     await user.click(screen.getByRole('button', { name: 'Trend' }));

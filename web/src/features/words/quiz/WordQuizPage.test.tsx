@@ -7,10 +7,10 @@ import { FamiliarityLevel } from '../../../types/base';
 
 import { WordQuizPage } from './WordQuizPage';
 
-const mockNavigate = jest.fn();
+const mockNavigate = vi.fn();
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
 }));
 
@@ -19,7 +19,7 @@ jest.mock('react-router-dom', () => ({
 // stay focused on WordQuizPage's own responsibility: parsing/validating the
 // URL config, switching between the quiz/results views, and wiring the exit
 // guard.
-jest.mock('./WordQuiz', () => ({
+vi.mock('./WordQuiz', () => ({
   WordQuiz: (props: {
     selectedFamiliarity: readonly string[];
     questionCount: number;
@@ -41,7 +41,7 @@ jest.mock('./WordQuiz', () => ({
   ),
 }));
 
-jest.mock('./WordQuizResults', () => ({
+vi.mock('./WordQuizResults', () => ({
   WordQuizResults: (props: { results: WordQuizResult[] }) => (
     <div>Results: {props.results.length}</div>
   ),
@@ -74,10 +74,10 @@ describe('WordQuizPage', () => {
     mockNavigate.mockClear();
     // DetailPageLayout renders the real Header, whose useDarkMode hook reads
     // window.matchMedia; jsdom doesn't implement it, so stub it out.
-    window.matchMedia = jest.fn().mockReturnValue({
+    window.matchMedia = vi.fn().mockReturnValue({
       matches: false,
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
     });
   });
 

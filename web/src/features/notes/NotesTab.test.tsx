@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
+import type { Mock, MockInstance } from 'vitest';
 
 import { EntityListHook } from '../../types';
 import { Note } from '../../types/api';
@@ -9,12 +10,12 @@ import { useNotes } from '../../hooks/useNotes';
 
 import { NotesTab } from './NotesTab';
 
-jest.mock('../../hooks/useNotes');
+vi.mock('../../hooks/useNotes');
 
-const mockNavigate = jest.fn();
+const mockNavigate = vi.fn();
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
 }));
 
@@ -45,23 +46,23 @@ const buildNotesHook = (overrides: NotesHookOverrides = {}) => {
     itemsPerPage: 30,
     searchTerm: '',
     totalCount: notes.length,
-    fetchEntities: jest.fn().mockResolvedValue(undefined),
-    fetchNotes: jest.fn().mockResolvedValue(undefined),
-    nextPage: jest.fn().mockResolvedValue(undefined),
-    previousPage: jest.fn().mockResolvedValue(undefined),
-    goToPage: jest.fn().mockResolvedValue(undefined),
-    goToFirst: jest.fn().mockResolvedValue(undefined),
-    goToLast: jest.fn().mockResolvedValue(undefined),
-    refresh: jest.fn().mockResolvedValue(undefined),
-    clearError: jest.fn(),
-    setSearchTerm: jest.fn(),
+    fetchEntities: vi.fn().mockResolvedValue(undefined),
+    fetchNotes: vi.fn().mockResolvedValue(undefined),
+    nextPage: vi.fn().mockResolvedValue(undefined),
+    previousPage: vi.fn().mockResolvedValue(undefined),
+    goToPage: vi.fn().mockResolvedValue(undefined),
+    goToFirst: vi.fn().mockResolvedValue(undefined),
+    goToLast: vi.fn().mockResolvedValue(undefined),
+    refresh: vi.fn().mockResolvedValue(undefined),
+    clearError: vi.fn(),
+    setSearchTerm: vi.fn(),
     ...overrides,
   };
 };
 
 const renderTab = (overrides: NotesHookOverrides = {}) => {
   const hook = buildNotesHook(overrides);
-  (useNotes as jest.Mock).mockReturnValue(hook);
+  (useNotes as Mock).mockReturnValue(hook);
 
   render(
     <MemoryRouter>
@@ -73,16 +74,16 @@ const renderTab = (overrides: NotesHookOverrides = {}) => {
 };
 
 describe('NotesTab', () => {
-  let consoleErrorSpy: jest.SpyInstance;
+  let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
     mockNavigate.mockClear();
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('shows a bare spinner while first loading, with no notes yet', () => {
@@ -197,7 +198,7 @@ describe('NotesTab', () => {
 
   it('moving a note up persists only the changed sort orders', async () => {
     const user = userEvent.setup();
-    const updateSpy = jest
+    const updateSpy = vi
       .spyOn(apiService, 'updateNote')
       .mockResolvedValue(buildNote());
     renderTab({
@@ -221,7 +222,7 @@ describe('NotesTab', () => {
   });
 
   it('reorders via drag and drop', async () => {
-    const updateSpy = jest
+    const updateSpy = vi
       .spyOn(apiService, 'updateNote')
       .mockResolvedValue(buildNote());
     renderTab({
@@ -252,9 +253,9 @@ describe('NotesTab', () => {
 
   it('rolls back the order and shows an error toast on failure', async () => {
     const user = userEvent.setup();
-    jest
-      .spyOn(apiService, 'updateNote')
-      .mockRejectedValue(new Error('save failed'));
+    vi.spyOn(apiService, 'updateNote').mockRejectedValue(
+      new Error('save failed'),
+    );
     renderTab({
       notes: [
         buildNote({ id: 1, title: 'A', sort_order: 1 }),

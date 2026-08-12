@@ -1,4 +1,5 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
+import type { MockInstance } from 'vitest';
 
 import { Word } from '../../../../types/api';
 import {
@@ -22,17 +23,17 @@ const buildWord = (overrides: Partial<Word> = {}): Word => ({
 });
 
 describe('useWordSearch', () => {
-  let consoleErrorSpy: jest.SpyInstance;
+  let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
-    jest.useFakeTimers();
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    vi.useFakeTimers();
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
     consoleErrorSpy.mockRestore();
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('resets the search state immediately for a blank value', () => {
@@ -50,7 +51,7 @@ describe('useWordSearch', () => {
   });
 
   it('searches for the word after the debounce delay', async () => {
-    const searchWordsSpy = jest
+    const searchWordsSpy = vi
       .spyOn(apiService, 'searchWords')
       .mockResolvedValue([]);
     const { result } = renderHook(() => useWordSearch({ mode: 'create' }));
@@ -61,7 +62,7 @@ describe('useWordSearch', () => {
     expect(searchWordsSpy).not.toHaveBeenCalled();
 
     await act(async () => {
-      jest.advanceTimersByTime(300);
+      await vi.advanceTimersByTimeAsync(300);
     });
 
     expect(searchWordsSpy).toHaveBeenCalledWith({
@@ -78,16 +79,17 @@ describe('useWordSearch', () => {
   it('filters out an exact match and shows the remaining suggestions', async () => {
     const exactMatch = buildWord({ id: 1, word: 'cat' });
     const suggestion = buildWord({ id: 2, word: 'catalog' });
-    jest
-      .spyOn(apiService, 'searchWords')
-      .mockResolvedValue([exactMatch, suggestion]);
+    vi.spyOn(apiService, 'searchWords').mockResolvedValue([
+      exactMatch,
+      suggestion,
+    ]);
     const { result } = renderHook(() => useWordSearch({ mode: 'create' }));
 
     act(() => {
       result.current.handleWordChange('cat');
     });
     await act(async () => {
-      jest.advanceTimersByTime(300);
+      await vi.advanceTimersByTimeAsync(300);
     });
 
     await waitFor(() =>
@@ -99,14 +101,14 @@ describe('useWordSearch', () => {
 
   it('hides suggestions once every result is filtered out', async () => {
     const exactMatch = buildWord({ id: 1, word: 'cat' });
-    jest.spyOn(apiService, 'searchWords').mockResolvedValue([exactMatch]);
+    vi.spyOn(apiService, 'searchWords').mockResolvedValue([exactMatch]);
     const { result } = renderHook(() => useWordSearch({ mode: 'create' }));
 
     act(() => {
       result.current.handleWordChange('cat');
     });
     await act(async () => {
-      jest.advanceTimersByTime(300);
+      await vi.advanceTimersByTimeAsync(300);
     });
 
     await waitFor(() =>
@@ -116,10 +118,10 @@ describe('useWordSearch', () => {
   });
 
   it('reports a formatted error and resets state when the search fails', async () => {
-    jest
-      .spyOn(apiService, 'searchWords')
-      .mockRejectedValue(new Error('network down'));
-    const onError = jest.fn();
+    vi.spyOn(apiService, 'searchWords').mockRejectedValue(
+      new Error('network down'),
+    );
+    const onError = vi.fn();
     const { result } = renderHook(() =>
       useWordSearch({ mode: 'create', onError }),
     );
@@ -128,7 +130,7 @@ describe('useWordSearch', () => {
       result.current.handleWordChange('cat');
     });
     await act(async () => {
-      jest.advanceTimersByTime(300);
+      await vi.advanceTimersByTimeAsync(300);
     });
 
     await waitFor(() =>
@@ -145,14 +147,14 @@ describe('useWordSearch', () => {
 
   it('resetSearch clears the search state', async () => {
     const suggestion = buildWord({ id: 2, word: 'catalog' });
-    jest.spyOn(apiService, 'searchWords').mockResolvedValue([suggestion]);
+    vi.spyOn(apiService, 'searchWords').mockResolvedValue([suggestion]);
     const { result } = renderHook(() => useWordSearch({ mode: 'create' }));
 
     act(() => {
       result.current.handleWordChange('cat');
     });
     await act(async () => {
-      jest.advanceTimersByTime(300);
+      await vi.advanceTimersByTimeAsync(300);
     });
     await waitFor(() =>
       expect(result.current.searchState.suggestions).toHaveLength(1),
@@ -169,8 +171,8 @@ describe('useWordSearch', () => {
     });
   });
 
-  it('cancels the pending search on unmount', () => {
-    const searchWordsSpy = jest
+  it('cancels the pending search on unmount', async () => {
+    const searchWordsSpy = vi
       .spyOn(apiService, 'searchWords')
       .mockResolvedValue([]);
     const { result, unmount } = renderHook(() =>
@@ -182,8 +184,8 @@ describe('useWordSearch', () => {
     });
     unmount();
 
-    act(() => {
-      jest.advanceTimersByTime(300);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(300);
     });
     expect(searchWordsSpy).not.toHaveBeenCalled();
   });

@@ -11,22 +11,22 @@ const buildCompositionEvent = (value: string) =>
 
 describe('useDebouncedSearchInput', () => {
   beforeEach(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it('initializes inputValue from searchTerm', () => {
     const { result } = renderHook(() =>
-      useDebouncedSearchInput({ searchTerm: 'apple', onCommit: jest.fn() }),
+      useDebouncedSearchInput({ searchTerm: 'apple', onCommit: vi.fn() }),
     );
     expect(result.current.inputValue).toBe('apple');
   });
 
   it('commits the value after the debounce delay', () => {
-    const onCommit = jest.fn();
+    const onCommit = vi.fn();
     const { result } = renderHook(() =>
       useDebouncedSearchInput({ searchTerm: '', onCommit, debounceMs: 300 }),
     );
@@ -38,24 +38,24 @@ describe('useDebouncedSearchInput', () => {
     expect(onCommit).not.toHaveBeenCalled();
 
     act(() => {
-      jest.advanceTimersByTime(300);
+      vi.advanceTimersByTime(300);
     });
     expect(onCommit).toHaveBeenCalledWith('cat');
   });
 
   it('resets the debounce timer on rapid changes, keeping only the last value', () => {
-    const onCommit = jest.fn();
+    const onCommit = vi.fn();
     const { result } = renderHook(() =>
       useDebouncedSearchInput({ searchTerm: '', onCommit, debounceMs: 300 }),
     );
 
     act(() => {
       result.current.handleChange(buildChangeEvent('c'));
-      jest.advanceTimersByTime(200);
+      vi.advanceTimersByTime(200);
       result.current.handleChange(buildChangeEvent('ca'));
-      jest.advanceTimersByTime(200);
+      vi.advanceTimersByTime(200);
       result.current.handleChange(buildChangeEvent('cat'));
-      jest.advanceTimersByTime(300);
+      vi.advanceTimersByTime(300);
     });
 
     expect(onCommit).toHaveBeenCalledTimes(1);
@@ -63,7 +63,7 @@ describe('useDebouncedSearchInput', () => {
   });
 
   it('does not schedule a commit while an IME composition is in progress', () => {
-    const onCommit = jest.fn();
+    const onCommit = vi.fn();
     const { result } = renderHook(() =>
       useDebouncedSearchInput({ searchTerm: '', onCommit, debounceMs: 300 }),
     );
@@ -71,7 +71,7 @@ describe('useDebouncedSearchInput', () => {
     act(() => {
       result.current.handleCompositionStart();
       result.current.handleChange(buildChangeEvent('composing'));
-      jest.advanceTimersByTime(300);
+      vi.advanceTimersByTime(300);
     });
 
     expect(onCommit).not.toHaveBeenCalled();
@@ -79,7 +79,7 @@ describe('useDebouncedSearchInput', () => {
   });
 
   it('schedules a commit once the composition ends, updating the value right away', () => {
-    const onCommit = jest.fn();
+    const onCommit = vi.fn();
     const { result } = renderHook(() =>
       useDebouncedSearchInput({ searchTerm: '', onCommit, debounceMs: 300 }),
     );
@@ -93,13 +93,13 @@ describe('useDebouncedSearchInput', () => {
     expect(onCommit).not.toHaveBeenCalled();
 
     act(() => {
-      jest.advanceTimersByTime(300);
+      vi.advanceTimersByTime(300);
     });
     expect(onCommit).toHaveBeenCalledWith('cat');
   });
 
   it('clearSearch resets the input and commits an empty string immediately', () => {
-    const onCommit = jest.fn();
+    const onCommit = vi.fn();
     const { result } = renderHook(() =>
       useDebouncedSearchInput({
         searchTerm: 'cat',
@@ -119,7 +119,7 @@ describe('useDebouncedSearchInput', () => {
   it('syncs inputValue when searchTerm changes externally', () => {
     const { result, rerender } = renderHook(
       ({ searchTerm }: { searchTerm: string }) =>
-        useDebouncedSearchInput({ searchTerm, onCommit: jest.fn() }),
+        useDebouncedSearchInput({ searchTerm, onCommit: vi.fn() }),
       { initialProps: { searchTerm: 'apple' } },
     );
     expect(result.current.inputValue).toBe('apple');
@@ -129,7 +129,7 @@ describe('useDebouncedSearchInput', () => {
   });
 
   it('cancels the pending commit on unmount', () => {
-    const onCommit = jest.fn();
+    const onCommit = vi.fn();
     const { result, unmount } = renderHook(() =>
       useDebouncedSearchInput({ searchTerm: '', onCommit, debounceMs: 300 }),
     );
@@ -140,7 +140,7 @@ describe('useDebouncedSearchInput', () => {
     unmount();
 
     act(() => {
-      jest.advanceTimersByTime(300);
+      vi.advanceTimersByTime(300);
     });
     expect(onCommit).not.toHaveBeenCalled();
   });

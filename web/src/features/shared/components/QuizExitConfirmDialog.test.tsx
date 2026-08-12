@@ -8,8 +8,8 @@ describe('QuizExitConfirmDialog', () => {
     const { container } = render(
       <QuizExitConfirmDialog
         isOpen={false}
-        onConfirm={jest.fn()}
-        onCancel={jest.fn()}
+        onConfirm={vi.fn()}
+        onCancel={vi.fn()}
       />,
     );
     expect(container).toBeEmptyDOMElement();
@@ -17,11 +17,7 @@ describe('QuizExitConfirmDialog', () => {
 
   it('renders the confirmation message when open', () => {
     render(
-      <QuizExitConfirmDialog
-        isOpen
-        onConfirm={jest.fn()}
-        onCancel={jest.fn()}
-      />,
+      <QuizExitConfirmDialog isOpen onConfirm={vi.fn()} onCancel={vi.fn()} />,
     );
     expect(
       screen.getByRole('heading', { name: 'Exit Quiz' }),
@@ -31,13 +27,9 @@ describe('QuizExitConfirmDialog', () => {
 
   it('calls onCancel when continuing the quiz', async () => {
     const user = userEvent.setup();
-    const onCancel = jest.fn();
+    const onCancel = vi.fn();
     render(
-      <QuizExitConfirmDialog
-        isOpen
-        onConfirm={jest.fn()}
-        onCancel={onCancel}
-      />,
+      <QuizExitConfirmDialog isOpen onConfirm={vi.fn()} onCancel={onCancel} />,
     );
 
     await user.click(screen.getByRole('button', { name: 'Continue Quiz' }));
@@ -46,13 +38,9 @@ describe('QuizExitConfirmDialog', () => {
 
   it('calls onConfirm when exiting the quiz', async () => {
     const user = userEvent.setup();
-    const onConfirm = jest.fn();
+    const onConfirm = vi.fn();
     render(
-      <QuizExitConfirmDialog
-        isOpen
-        onConfirm={onConfirm}
-        onCancel={jest.fn()}
-      />,
+      <QuizExitConfirmDialog isOpen onConfirm={onConfirm} onCancel={vi.fn()} />,
     );
 
     await user.click(screen.getByRole('button', { name: 'Exit Quiz' }));

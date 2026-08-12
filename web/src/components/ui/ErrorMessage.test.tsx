@@ -8,8 +8,8 @@ describe('ErrorMessage', () => {
     render(
       <ErrorMessage
         error='Network error'
-        onRetry={jest.fn()}
-        onDismiss={jest.fn()}
+        onRetry={vi.fn()}
+        onDismiss={vi.fn()}
       />,
     );
 
@@ -22,8 +22,8 @@ describe('ErrorMessage', () => {
       <ErrorMessage
         error='Network error'
         title='Failed to load words'
-        onRetry={jest.fn()}
-        onDismiss={jest.fn()}
+        onRetry={vi.fn()}
+        onDismiss={vi.fn()}
       />,
     );
 
@@ -32,12 +32,12 @@ describe('ErrorMessage', () => {
 
   it('calls onRetry when "Try again" is clicked', async () => {
     const user = userEvent.setup();
-    const onRetry = jest.fn();
+    const onRetry = vi.fn();
     render(
       <ErrorMessage
         error='Network error'
         onRetry={onRetry}
-        onDismiss={jest.fn()}
+        onDismiss={vi.fn()}
       />,
     );
 
@@ -47,11 +47,11 @@ describe('ErrorMessage', () => {
 
   it('calls onDismiss when "Dismiss" is clicked', async () => {
     const user = userEvent.setup();
-    const onDismiss = jest.fn();
+    const onDismiss = vi.fn();
     render(
       <ErrorMessage
         error='Network error'
-        onRetry={jest.fn()}
+        onRetry={vi.fn()}
         onDismiss={onDismiss}
       />,
     );

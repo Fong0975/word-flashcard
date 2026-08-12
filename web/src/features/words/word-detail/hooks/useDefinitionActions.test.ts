@@ -1,4 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
+import type { MockInstance } from 'vitest';
 
 import { WordDefinition } from '../../../../types/api';
 import { apiService } from '../../../../lib/api';
@@ -19,21 +20,21 @@ const buildDefinition = (
 });
 
 describe('useDefinitionActions', () => {
-  let consoleErrorSpy: jest.SpyInstance;
+  let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('handleNew does not throw', () => {
     const callbacks: DefinitionActionsCallbacks = {
-      onEdit: jest.fn(),
-      onDelete: jest.fn(),
+      onEdit: vi.fn(),
+      onDelete: vi.fn(),
     };
     const { result } = renderHook(() => useDefinitionActions({ callbacks }));
 
@@ -41,10 +42,10 @@ describe('useDefinitionActions', () => {
   });
 
   it('delegates edit requests to the onEdit callback', () => {
-    const onEdit = jest.fn();
+    const onEdit = vi.fn();
     const callbacks: DefinitionActionsCallbacks = {
       onEdit,
-      onDelete: jest.fn(),
+      onDelete: vi.fn(),
     };
     const { result } = renderHook(() => useDefinitionActions({ callbacks }));
     const definition = buildDefinition();
@@ -57,13 +58,13 @@ describe('useDefinitionActions', () => {
   });
 
   it('deletes the definition and notifies onWordUpdated', async () => {
-    const deleteDefinitionSpy = jest
+    const deleteDefinitionSpy = vi
       .spyOn(apiService, 'deleteDefinition')
       .mockResolvedValue(undefined);
-    const onWordUpdated = jest.fn();
+    const onWordUpdated = vi.fn();
     const callbacks: DefinitionActionsCallbacks = {
-      onEdit: jest.fn(),
-      onDelete: jest.fn(),
+      onEdit: vi.fn(),
+      onDelete: vi.fn(),
       onWordUpdated,
     };
     const { result } = renderHook(() => useDefinitionActions({ callbacks }));
@@ -77,13 +78,13 @@ describe('useDefinitionActions', () => {
   });
 
   it('reports a formatted error message when deletion fails', async () => {
-    jest
-      .spyOn(apiService, 'deleteDefinition')
-      .mockRejectedValue(new Error('network down'));
-    const onError = jest.fn();
+    vi.spyOn(apiService, 'deleteDefinition').mockRejectedValue(
+      new Error('network down'),
+    );
+    const onError = vi.fn();
     const callbacks: DefinitionActionsCallbacks = {
-      onEdit: jest.fn(),
-      onDelete: jest.fn(),
+      onEdit: vi.fn(),
+      onDelete: vi.fn(),
     };
     const { result } = renderHook(() =>
       useDefinitionActions({ callbacks, onError }),

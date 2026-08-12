@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { MockInstance } from 'vitest';
 
 import { Word, WordPracticeLogEntry } from '../../../../types/api';
 import { FamiliarityLevel } from '../../../../types/base';
@@ -28,19 +29,19 @@ const buildEntry = (
 });
 
 describe('WordHistorySection', () => {
-  let consoleErrorSpy: jest.SpyInstance;
+  let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('renders collapsed by default and does not fetch', () => {
-    const getWordLogsSpy = jest.spyOn(apiService, 'getWordLogs');
+    const getWordLogsSpy = vi.spyOn(apiService, 'getWordLogs');
 
     render(<WordHistorySection word={buildWord()} />);
 
@@ -50,7 +51,7 @@ describe('WordHistorySection', () => {
 
   it('fetches and renders entries when expanded', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getWordLogs').mockResolvedValue([
+    vi.spyOn(apiService, 'getWordLogs').mockResolvedValue([
       buildEntry({ id: 1 }),
       buildEntry({
         id: 2,
@@ -75,7 +76,7 @@ describe('WordHistorySection', () => {
   it('shows a loading state while fetching', async () => {
     const user = userEvent.setup();
     let resolveFetch: (value: WordPracticeLogEntry[]) => void = () => {};
-    jest.spyOn(apiService, 'getWordLogs').mockReturnValue(
+    vi.spyOn(apiService, 'getWordLogs').mockReturnValue(
       new Promise(resolve => {
         resolveFetch = resolve;
       }),
@@ -96,9 +97,9 @@ describe('WordHistorySection', () => {
 
   it('shows an error message when the request fails', async () => {
     const user = userEvent.setup();
-    jest
-      .spyOn(apiService, 'getWordLogs')
-      .mockRejectedValue(new Error('network down'));
+    vi.spyOn(apiService, 'getWordLogs').mockRejectedValue(
+      new Error('network down'),
+    );
 
     render(<WordHistorySection word={buildWord()} />);
     await user.click(
@@ -110,7 +111,7 @@ describe('WordHistorySection', () => {
 
   it('shows the empty state when there is no history', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apiService, 'getWordLogs').mockResolvedValue([]);
+    vi.spyOn(apiService, 'getWordLogs').mockResolvedValue([]);
 
     render(<WordHistorySection word={buildWord()} />);
     await user.click(

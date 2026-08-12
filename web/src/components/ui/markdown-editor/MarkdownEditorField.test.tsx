@@ -10,7 +10,7 @@ describe('MarkdownEditorField', () => {
         id='notes'
         label='Notes'
         value=''
-        onChange={jest.fn()}
+        onChange={vi.fn()}
       />,
     );
 
@@ -19,7 +19,7 @@ describe('MarkdownEditorField', () => {
 
   it('calls onChange as the user types', async () => {
     const user = userEvent.setup();
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const { rerender } = render(
       <MarkdownEditorField value='' onChange={onChange} />,
     );
@@ -33,7 +33,7 @@ describe('MarkdownEditorField', () => {
 
   it('shows a placeholder message in preview mode when empty', async () => {
     const user = userEvent.setup();
-    render(<MarkdownEditorField value='' onChange={jest.fn()} />);
+    render(<MarkdownEditorField value='' onChange={vi.fn()} />);
 
     await user.click(screen.getByRole('button', { name: 'Preview' }));
 
@@ -42,7 +42,7 @@ describe('MarkdownEditorField', () => {
 
   it('renders the value as markdown in preview mode', async () => {
     const user = userEvent.setup();
-    render(<MarkdownEditorField value='**bold**' onChange={jest.fn()} />);
+    render(<MarkdownEditorField value='**bold**' onChange={vi.fn()} />);
 
     await user.click(screen.getByRole('button', { name: 'Preview' }));
 
@@ -52,7 +52,7 @@ describe('MarkdownEditorField', () => {
 
   it('applies bold formatting to an empty value at the cursor', async () => {
     const user = userEvent.setup();
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     render(<MarkdownEditorField value='' onChange={onChange} />);
 
     await user.click(screen.getByRole('button', { name: 'Bold' }));
@@ -62,11 +62,11 @@ describe('MarkdownEditorField', () => {
 
   it('renders template buttons and forwards selections when onAppendTemplate is provided', async () => {
     const user = userEvent.setup();
-    const onAppendTemplate = jest.fn();
+    const onAppendTemplate = vi.fn();
     render(
       <MarkdownEditorField
         value=''
-        onChange={jest.fn()}
+        onChange={vi.fn()}
         templateButtons={[{ label: 'Divider', value: '---' }]}
         onAppendTemplate={onAppendTemplate}
       />,
@@ -80,7 +80,7 @@ describe('MarkdownEditorField', () => {
     render(
       <MarkdownEditorField
         value=''
-        onChange={jest.fn()}
+        onChange={vi.fn()}
         templateButtons={[{ label: 'Divider', value: '---' }]}
       />,
     );
@@ -91,7 +91,7 @@ describe('MarkdownEditorField', () => {
   });
 
   it('disables the textarea when disabled is set', () => {
-    render(<MarkdownEditorField value='' onChange={jest.fn()} disabled />);
+    render(<MarkdownEditorField value='' onChange={vi.fn()} disabled />);
     expect(screen.getByRole('textbox')).toBeDisabled();
   });
 });

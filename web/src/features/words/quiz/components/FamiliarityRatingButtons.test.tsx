@@ -7,7 +7,7 @@ import { FamiliarityRatingButtons } from './FamiliarityRatingButtons';
 
 describe('FamiliarityRatingButtons', () => {
   it('renders a button for every familiarity level', () => {
-    render(<FamiliarityRatingButtons onSelect={jest.fn()} />);
+    render(<FamiliarityRatingButtons onSelect={vi.fn()} />);
 
     expect(screen.getByText('Unfamiliar')).toBeInTheDocument();
     expect(screen.getByText('Somewhat Familiar')).toBeInTheDocument();
@@ -16,7 +16,7 @@ describe('FamiliarityRatingButtons', () => {
 
   it('calls onSelect with the corresponding familiarity level', async () => {
     const user = userEvent.setup();
-    const onSelect = jest.fn();
+    const onSelect = vi.fn();
     render(<FamiliarityRatingButtons onSelect={onSelect} />);
 
     await user.click(screen.getByText('Unfamiliar'));
@@ -30,7 +30,7 @@ describe('FamiliarityRatingButtons', () => {
   });
 
   it('disables all three buttons when disabled is true', () => {
-    render(<FamiliarityRatingButtons onSelect={jest.fn()} disabled />);
+    render(<FamiliarityRatingButtons onSelect={vi.fn()} disabled />);
 
     expect(screen.getByRole('button', { name: 'Unfamiliar' })).toBeDisabled();
     expect(
@@ -41,7 +41,7 @@ describe('FamiliarityRatingButtons', () => {
 
   it('shows a spinner on the button matching loadingLevel and does not call onSelect when clicked while disabled', async () => {
     const user = userEvent.setup();
-    const onSelect = jest.fn();
+    const onSelect = vi.fn();
     render(
       <FamiliarityRatingButtons
         onSelect={onSelect}
@@ -60,7 +60,7 @@ describe('FamiliarityRatingButtons', () => {
   });
 
   it('renders normally when disabled and loadingLevel are left undefined', () => {
-    render(<FamiliarityRatingButtons onSelect={jest.fn()} />);
+    render(<FamiliarityRatingButtons onSelect={vi.fn()} />);
 
     expect(screen.getByRole('button', { name: 'Unfamiliar' })).toBeEnabled();
     expect(

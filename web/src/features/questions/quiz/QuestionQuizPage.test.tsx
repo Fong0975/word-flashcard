@@ -6,11 +6,11 @@ import { QuestionQuizResult } from '../../../types/api';
 
 import { QuestionQuizPage } from './QuestionQuizPage';
 
-const mockNavigate = jest.fn();
-const mockActionClick = jest.fn();
+const mockNavigate = vi.fn();
+const mockActionClick = vi.fn();
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
 }));
 
@@ -19,7 +19,7 @@ jest.mock('react-router-dom', () => ({
 // QuestionQuizPage's own responsibility: URL config validation, the
 // quiz/results state machine, the dynamically-reported footer action, and
 // the exit guard.
-jest.mock('./QuestionQuiz', () => ({
+vi.mock('./QuestionQuiz', () => ({
   QuestionQuiz: (props: {
     onQuizComplete: (results: QuestionQuizResult[]) => void;
     onNextAction?: (
@@ -63,7 +63,7 @@ jest.mock('./QuestionQuiz', () => ({
   ),
 }));
 
-jest.mock('./QuestionQuizResults', () => ({
+vi.mock('./QuestionQuizResults', () => ({
   QuestionQuizResults: (props: { results: QuestionQuizResult[] }) => (
     <div>Results: {props.results.length}</div>
   ),
@@ -100,10 +100,10 @@ describe('QuestionQuizPage', () => {
     mockActionClick.mockClear();
     // DetailPageLayout renders the real Header, whose useDarkMode hook reads
     // window.matchMedia; jsdom doesn't implement it, so stub it out.
-    window.matchMedia = jest.fn().mockReturnValue({
+    window.matchMedia = vi.fn().mockReturnValue({
       matches: false,
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
     });
   });
 

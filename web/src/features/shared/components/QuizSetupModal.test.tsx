@@ -11,8 +11,8 @@ describe('QuizSetupModal', () => {
       render(
         <QuizSetupModal
           isOpen
-          onClose={jest.fn()}
-          onStartQuiz={jest.fn()}
+          onClose={vi.fn()}
+          onStartQuiz={vi.fn()}
           title='Question Quiz Setup'
           entityName='question'
         />,
@@ -27,8 +27,8 @@ describe('QuizSetupModal', () => {
 
     it('starts the quiz with the question count and closes', async () => {
       const user = userEvent.setup();
-      const onStartQuiz = jest.fn();
-      const onClose = jest.fn();
+      const onStartQuiz = vi.fn();
+      const onClose = vi.fn();
       render(
         <QuizSetupModal
           isOpen
@@ -50,8 +50,8 @@ describe('QuizSetupModal', () => {
       render(
         <QuizSetupModal
           isOpen
-          onClose={jest.fn()}
-          onStartQuiz={jest.fn()}
+          onClose={vi.fn()}
+          onStartQuiz={vi.fn()}
           title='Question Quiz Setup'
           entityName='question'
         />,
@@ -65,12 +65,12 @@ describe('QuizSetupModal', () => {
 
     it('calls onClose when Cancel is clicked', async () => {
       const user = userEvent.setup();
-      const onClose = jest.fn();
+      const onClose = vi.fn();
       render(
         <QuizSetupModal
           isOpen
           onClose={onClose}
-          onStartQuiz={jest.fn()}
+          onStartQuiz={vi.fn()}
           title='Question Quiz Setup'
           entityName='question'
         />,
@@ -87,8 +87,8 @@ describe('QuizSetupModal', () => {
         render(
           <QuizSetupModal
             isOpen
-            onClose={jest.fn()}
-            onStartQuiz={jest.fn()}
+            onClose={vi.fn()}
+            onStartQuiz={vi.fn()}
             title='Question Quiz Setup'
             entityName='question'
           />,
@@ -108,8 +108,8 @@ describe('QuizSetupModal', () => {
       render(
         <QuizSetupModal
           isOpen
-          onClose={jest.fn()}
-          onStartQuiz={jest.fn()}
+          onClose={vi.fn()}
+          onStartQuiz={vi.fn()}
           title='Word Quiz Setup'
           entityName='word'
           enableFamiliaritySelection
@@ -124,11 +124,11 @@ describe('QuizSetupModal', () => {
 
     it('starts the quiz with per-category counts by default', async () => {
       const user = userEvent.setup();
-      const onStartQuiz = jest.fn();
+      const onStartQuiz = vi.fn();
       render(
         <QuizSetupModal
           isOpen
-          onClose={jest.fn()}
+          onClose={vi.fn()}
           onStartQuiz={onStartQuiz}
           title='Word Quiz Setup'
           entityName='word'
@@ -149,8 +149,8 @@ describe('QuizSetupModal', () => {
       render(
         <QuizSetupModal
           isOpen
-          onClose={jest.fn()}
-          onStartQuiz={jest.fn()}
+          onClose={vi.fn()}
+          onStartQuiz={vi.fn()}
           title='Word Quiz Setup'
           entityName='word'
           enableFamiliaritySelection
@@ -170,8 +170,8 @@ describe('QuizSetupModal', () => {
       render(
         <QuizSetupModal
           isOpen
-          onClose={jest.fn()}
-          onStartQuiz={jest.fn()}
+          onClose={vi.fn()}
+          onStartQuiz={vi.fn()}
           title='Word Quiz Setup'
           entityName='word'
           enableFamiliaritySelection
@@ -190,8 +190,8 @@ describe('QuizSetupModal', () => {
       render(
         <QuizSetupModal
           isOpen
-          onClose={jest.fn()}
-          onStartQuiz={jest.fn()}
+          onClose={vi.fn()}
+          onStartQuiz={vi.fn()}
           title='Word Quiz Setup'
           entityName='word'
           enableFamiliaritySelection
@@ -214,8 +214,8 @@ describe('QuizSetupModal', () => {
       render(
         <QuizSetupModal
           isOpen
-          onClose={jest.fn()}
-          onStartQuiz={jest.fn()}
+          onClose={vi.fn()}
+          onStartQuiz={vi.fn()}
           title='Word Quiz Setup'
           entityName='word'
           enableFamiliaritySelection
@@ -237,8 +237,8 @@ describe('QuizSetupModal', () => {
       render(
         <QuizSetupModal
           isOpen
-          onClose={jest.fn()}
-          onStartQuiz={jest.fn()}
+          onClose={vi.fn()}
+          onStartQuiz={vi.fn()}
           title='Word Quiz Setup'
           entityName='word'
           enableFamiliaritySelection
@@ -255,11 +255,11 @@ describe('QuizSetupModal', () => {
 
     it('starts the quiz with the selected familiarity levels in total mode', async () => {
       const user = userEvent.setup();
-      const onStartQuiz = jest.fn();
+      const onStartQuiz = vi.fn();
       render(
         <QuizSetupModal
           isOpen
-          onClose={jest.fn()}
+          onClose={vi.fn()}
           onStartQuiz={onStartQuiz}
           title='Word Quiz Setup'
           entityName='word'

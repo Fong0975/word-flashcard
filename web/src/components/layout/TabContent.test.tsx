@@ -2,13 +2,13 @@ import { render, screen } from '@testing-library/react';
 
 import { TabContent } from './TabContent';
 
-jest.mock('../../features/words/WordsReviewTab', () => ({
+vi.mock('../../features/words/WordsReviewTab', () => ({
   WordsReviewTab: () => <div>Words Panel</div>,
 }));
-jest.mock('../../features/questions/QuestionsReviewTab', () => ({
+vi.mock('../../features/questions/QuestionsReviewTab', () => ({
   QuestionsReviewTab: () => <div>Questions Panel</div>,
 }));
-jest.mock('../../features/notes/NotesTab', () => ({
+vi.mock('../../features/notes/NotesTab', () => ({
   NotesTab: () => <div>Notes Panel</div>,
 }));
 

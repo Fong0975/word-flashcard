@@ -36,12 +36,12 @@ const uploadFile = async (content: string) => {
 
 describe('DataManagementMenu', () => {
   beforeEach(() => {
-    window.URL.createObjectURL = jest.fn(() => 'blob:mock-url');
-    window.URL.revokeObjectURL = jest.fn();
+    window.URL.createObjectURL = vi.fn(() => 'blob:mock-url');
+    window.URL.revokeObjectURL = vi.fn();
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('renders a settings button with a Data section and Import/Export items', () => {
@@ -61,10 +61,10 @@ describe('DataManagementMenu', () => {
 
   it('downloads the export and shows a success toast', async () => {
     const user = userEvent.setup();
-    const exportSpy = jest
+    const exportSpy = vi
       .spyOn(apiService, 'exportData')
       .mockResolvedValue(samplePayload);
-    const clickSpy = jest
+    const clickSpy = vi
       .spyOn(HTMLAnchorElement.prototype, 'click')
       .mockImplementation(() => {});
 
@@ -79,9 +79,9 @@ describe('DataManagementMenu', () => {
 
   it('shows an error toast when export fails', async () => {
     const user = userEvent.setup();
-    jest
-      .spyOn(apiService, 'exportData')
-      .mockRejectedValue(new Error('network down'));
+    vi.spyOn(apiService, 'exportData').mockRejectedValue(
+      new Error('network down'),
+    );
 
     render(<DataManagementMenu />);
     await user.click(screen.getByRole('menuitem', { name: 'Export' }));
@@ -117,7 +117,7 @@ describe('DataManagementMenu', () => {
 
   it('cancelling the confirmation dialog does not call importData', async () => {
     const user = userEvent.setup();
-    const importSpy = jest.spyOn(apiService, 'importData');
+    const importSpy = vi.spyOn(apiService, 'importData');
 
     render(<DataManagementMenu />);
     await uploadFile(JSON.stringify(samplePayload));
@@ -129,7 +129,7 @@ describe('DataManagementMenu', () => {
 
   it('confirming the dialog restores the data and shows a summary toast', async () => {
     const user = userEvent.setup();
-    const importSpy = jest
+    const importSpy = vi
       .spyOn(apiService, 'importData')
       .mockResolvedValue(sampleSummary);
 
@@ -148,9 +148,9 @@ describe('DataManagementMenu', () => {
 
   it('shows an error toast and keeps the dialog open when import fails', async () => {
     const user = userEvent.setup();
-    jest
-      .spyOn(apiService, 'importData')
-      .mockRejectedValue(new Error('restore failed'));
+    vi.spyOn(apiService, 'importData').mockRejectedValue(
+      new Error('restore failed'),
+    );
 
     render(<DataManagementMenu />);
     await uploadFile(JSON.stringify(samplePayload));

@@ -24,13 +24,13 @@ describe('useControllableState', () => {
 
   it('uses the external value when controlled', () => {
     const { result } = renderHook(() =>
-      useControllableState<string>('external', jest.fn(), 'default'),
+      useControllableState<string>('external', vi.fn(), 'default'),
     );
     expect(result.current[0]).toBe('external');
   });
 
   it('calls the external setter instead of updating internal state when controlled', () => {
-    const externalSetValue = jest.fn();
+    const externalSetValue = vi.fn();
     const { result } = renderHook(() =>
       useControllableState<string>('external', externalSetValue, 'default'),
     );

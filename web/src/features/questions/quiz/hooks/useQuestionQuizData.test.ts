@@ -1,4 +1,5 @@
 import { renderHook, waitFor } from '@testing-library/react';
+import type { MockInstance } from 'vitest';
 
 import { Question } from '../../../../types/api';
 import { apiService } from '../../../../lib/api';
@@ -21,19 +22,19 @@ const buildQuestion = (overrides: Partial<Question> = {}): Question => ({
 });
 
 describe('useQuestionQuizData', () => {
-  let consoleErrorSpy: jest.SpyInstance;
+  let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('requests the given count while excluding recently-practiced questions', async () => {
-    const getRandomQuestionsSpy = jest
+    const getRandomQuestionsSpy = vi
       .spyOn(apiService, 'getRandomQuestions')
       .mockResolvedValue([buildQuestion()]);
 
@@ -49,7 +50,7 @@ describe('useQuestionQuizData', () => {
 
   it('transitions to the quiz state with the fetched questions', async () => {
     const questions = [buildQuestion({ id: 1 }), buildQuestion({ id: 2 })];
-    jest.spyOn(apiService, 'getRandomQuestions').mockResolvedValue(questions);
+    vi.spyOn(apiService, 'getRandomQuestions').mockResolvedValue(questions);
 
     const { result } = renderHook(() =>
       useQuestionQuizData({ questionCount: 10 }),
@@ -61,7 +62,7 @@ describe('useQuestionQuizData', () => {
   });
 
   it('sets an error and stays out of the quiz state when no questions are returned', async () => {
-    jest.spyOn(apiService, 'getRandomQuestions').mockResolvedValue([]);
+    vi.spyOn(apiService, 'getRandomQuestions').mockResolvedValue([]);
 
     const { result } = renderHook(() =>
       useQuestionQuizData({ questionCount: 10 }),
@@ -76,10 +77,10 @@ describe('useQuestionQuizData', () => {
   });
 
   it('sets an error and calls onError when the fetch fails', async () => {
-    jest
-      .spyOn(apiService, 'getRandomQuestions')
-      .mockRejectedValue(new Error('network down'));
-    const onError = jest.fn();
+    vi.spyOn(apiService, 'getRandomQuestions').mockRejectedValue(
+      new Error('network down'),
+    );
+    const onError = vi.fn();
 
     const { result } = renderHook(() =>
       useQuestionQuizData({ questionCount: 10, onError }),
@@ -93,7 +94,7 @@ describe('useQuestionQuizData', () => {
   });
 
   it('re-fetches when questionCount changes', async () => {
-    const getRandomQuestionsSpy = jest
+    const getRandomQuestionsSpy = vi
       .spyOn(apiService, 'getRandomQuestions')
       .mockResolvedValue([buildQuestion()]);
 

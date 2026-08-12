@@ -7,9 +7,9 @@ describe('MarkdownToolbar', () => {
   it('renders every format button and the Edit/Preview toggle', () => {
     render(
       <MarkdownToolbar
-        onFormat={jest.fn()}
+        onFormat={vi.fn()}
         isPreview={false}
-        onTogglePreview={jest.fn()}
+        onTogglePreview={vi.fn()}
       />,
     );
 
@@ -31,12 +31,12 @@ describe('MarkdownToolbar', () => {
 
   it('calls onFormat with the clicked action', async () => {
     const user = userEvent.setup();
-    const onFormat = jest.fn();
+    const onFormat = vi.fn();
     render(
       <MarkdownToolbar
         onFormat={onFormat}
         isPreview={false}
-        onTogglePreview={jest.fn()}
+        onTogglePreview={vi.fn()}
       />,
     );
 
@@ -50,10 +50,10 @@ describe('MarkdownToolbar', () => {
   it('disables format buttons while disabled or in preview mode', () => {
     render(
       <MarkdownToolbar
-        onFormat={jest.fn()}
+        onFormat={vi.fn()}
         disabled
         isPreview={false}
-        onTogglePreview={jest.fn()}
+        onTogglePreview={vi.fn()}
       />,
     );
     expect(screen.getByRole('button', { name: 'Bold' })).toBeDisabled();
@@ -62,9 +62,9 @@ describe('MarkdownToolbar', () => {
   it('disables format buttons in preview mode even when not otherwise disabled', () => {
     render(
       <MarkdownToolbar
-        onFormat={jest.fn()}
+        onFormat={vi.fn()}
         isPreview
-        onTogglePreview={jest.fn()}
+        onTogglePreview={vi.fn()}
       />,
     );
     expect(screen.getByRole('button', { name: 'Bold' })).toBeDisabled();
@@ -73,10 +73,10 @@ describe('MarkdownToolbar', () => {
   it('does not disable the Edit/Preview toggle itself', () => {
     render(
       <MarkdownToolbar
-        onFormat={jest.fn()}
+        onFormat={vi.fn()}
         disabled
         isPreview
-        onTogglePreview={jest.fn()}
+        onTogglePreview={vi.fn()}
       />,
     );
     expect(screen.getByRole('button', { name: 'Edit' })).not.toBeDisabled();
@@ -85,10 +85,10 @@ describe('MarkdownToolbar', () => {
 
   it('toggles preview mode when Edit/Preview is clicked', async () => {
     const user = userEvent.setup();
-    const onTogglePreview = jest.fn();
+    const onTogglePreview = vi.fn();
     render(
       <MarkdownToolbar
-        onFormat={jest.fn()}
+        onFormat={vi.fn()}
         isPreview={false}
         onTogglePreview={onTogglePreview}
       />,

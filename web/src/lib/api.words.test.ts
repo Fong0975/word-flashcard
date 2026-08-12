@@ -1,3 +1,5 @@
+import type { Mock } from 'vitest';
+
 import { FamiliarityLevel, SearchOperation, SearchLogic } from '../types/base';
 import { CreateWordRequest, UpdateWordRequest } from '../types/api';
 
@@ -6,10 +8,10 @@ import { API_CONFIG, API_ENDPOINTS } from './api-config';
 import { buildMockResponse } from './apiTestHelpers';
 
 describe('ApiService - words', () => {
-  let fetchMock: jest.Mock;
+  let fetchMock: Mock;
 
   beforeEach(() => {
-    fetchMock = jest.fn();
+    fetchMock = vi.fn();
     global.fetch = fetchMock as unknown as typeof fetch;
   });
 

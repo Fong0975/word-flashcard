@@ -1,12 +1,14 @@
+import type { Mock } from 'vitest';
+
 import { apiService, ApiError } from './api';
 import { API_CONFIG, API_ENDPOINTS, DICTIONARY_ENDPOINTS } from './api-config';
 import { buildMockResponse } from './apiTestHelpers';
 
 describe('ApiService', () => {
-  let fetchMock: jest.Mock;
+  let fetchMock: Mock;
 
   beforeEach(() => {
-    fetchMock = jest.fn();
+    fetchMock = vi.fn();
     global.fetch = fetchMock as unknown as typeof fetch;
   });
 
@@ -57,7 +59,7 @@ describe('ApiService', () => {
         status: 500,
         statusText: 'Internal Server Error',
       });
-      (response.json as jest.Mock).mockRejectedValue(new Error('not json'));
+      (response.json as Mock).mockRejectedValue(new Error('not json'));
       fetchMock.mockResolvedValueOnce(response);
 
       await expect(apiService.getInformation()).rejects.toMatchObject({

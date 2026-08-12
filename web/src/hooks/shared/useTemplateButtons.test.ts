@@ -4,7 +4,7 @@ import { useTemplateButtons } from './useTemplateButtons';
 
 describe('useTemplateButtons', () => {
   it('resolves to an empty config and warns when the config file does not exist', async () => {
-    const onWarning = jest.fn();
+    const onWarning = vi.fn();
     const { result } = renderHook(() =>
       useTemplateButtons({
         configFileName: 'doesNotExist.json',

@@ -6,8 +6,8 @@ class MockAudioElement {
   static instances: MockAudioElement[] = [];
   currentTime = 0;
   src: string;
-  play = jest.fn().mockResolvedValue(undefined);
-  pause = jest.fn();
+  play = vi.fn().mockResolvedValue(undefined);
+  pause = vi.fn();
   private listeners: Record<string, Array<() => void>> = {};
 
   constructor(src: string) {
@@ -143,7 +143,7 @@ describe('useAudio', () => {
 
   it('sets an error message when play() rejects', async () => {
     class RejectingAudio extends MockAudioElement {
-      play = jest.fn().mockRejectedValue(new Error('blocked by browser'));
+      play = vi.fn().mockRejectedValue(new Error('blocked by browser'));
     }
     (global as unknown as { Audio: typeof Audio }).Audio =
       RejectingAudio as unknown as typeof Audio;

@@ -6,7 +6,7 @@ import { AddDefinitionButton } from './AddDefinitionButton';
 describe('AddDefinitionButton', () => {
   it('calls onClick when clicked', async () => {
     const user = userEvent.setup();
-    const onClick = jest.fn();
+    const onClick = vi.fn();
     render(<AddDefinitionButton onClick={onClick} />);
 
     await user.click(screen.getByTitle('Add new definition'));

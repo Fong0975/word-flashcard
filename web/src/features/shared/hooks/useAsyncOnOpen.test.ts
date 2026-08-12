@@ -1,12 +1,13 @@
 import { renderHook, waitFor } from '@testing-library/react';
+import type { MockInstance } from 'vitest';
 
 import { useAsyncOnOpen } from './useAsyncOnOpen';
 
 describe('useAsyncOnOpen', () => {
-  let consoleErrorSpy: jest.SpyInstance;
+  let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -14,7 +15,7 @@ describe('useAsyncOnOpen', () => {
   });
 
   it('does not fetch while closed', () => {
-    const fetcher = jest.fn();
+    const fetcher = vi.fn();
     renderHook(() =>
       useAsyncOnOpen({ isOpen: false, fetcher, errorMessage: 'failed' }),
     );
@@ -22,7 +23,7 @@ describe('useAsyncOnOpen', () => {
   });
 
   it('fetches and stores data when opened', async () => {
-    const fetcher = jest.fn().mockResolvedValue({ word: 'apple' });
+    const fetcher = vi.fn().mockResolvedValue({ word: 'apple' });
     const { result } = renderHook(() =>
       useAsyncOnOpen({ isOpen: true, fetcher, errorMessage: 'failed' }),
     );
@@ -35,7 +36,7 @@ describe('useAsyncOnOpen', () => {
   });
 
   it('sets an error message when the fetch fails', async () => {
-    const fetcher = jest.fn().mockRejectedValue(new Error('network down'));
+    const fetcher = vi.fn().mockRejectedValue(new Error('network down'));
     const { result } = renderHook(() =>
       useAsyncOnOpen({ isOpen: true, fetcher, errorMessage: 'Lookup failed' }),
     );
@@ -46,7 +47,7 @@ describe('useAsyncOnOpen', () => {
   });
 
   it('uses the fallback error message for a non-Error rejection', async () => {
-    const fetcher = jest.fn().mockRejectedValue('boom');
+    const fetcher = vi.fn().mockRejectedValue('boom');
     const { result } = renderHook(() =>
       useAsyncOnOpen({ isOpen: true, fetcher, errorMessage: 'Lookup failed' }),
     );
@@ -56,7 +57,7 @@ describe('useAsyncOnOpen', () => {
   });
 
   it('re-fetches each time isOpen transitions to true', async () => {
-    const fetcher = jest.fn().mockResolvedValue('data');
+    const fetcher = vi.fn().mockResolvedValue('data');
     const { result, rerender } = renderHook(
       ({ isOpen }: { isOpen: boolean }) =>
         useAsyncOnOpen({ isOpen, fetcher, errorMessage: 'failed' }),

@@ -20,13 +20,13 @@ const buildDefinition = (
 describe('DefinitionActions', () => {
   it('calls onEdit with the definition when the edit button is clicked', async () => {
     const user = userEvent.setup();
-    const onEdit = jest.fn();
+    const onEdit = vi.fn();
     const definition = buildDefinition();
     render(
       <DefinitionActions
         definition={definition}
         onEdit={onEdit}
-        onDelete={jest.fn()}
+        onDelete={vi.fn()}
       />,
     );
 
@@ -39,8 +39,8 @@ describe('DefinitionActions', () => {
     render(
       <DefinitionActions
         definition={buildDefinition()}
-        onEdit={jest.fn()}
-        onDelete={jest.fn()}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
       />,
     );
 
@@ -52,12 +52,12 @@ describe('DefinitionActions', () => {
 
   it('calls onDelete with the definition when confirmed', async () => {
     const user = userEvent.setup();
-    const onDelete = jest.fn();
+    const onDelete = vi.fn();
     const definition = buildDefinition();
     render(
       <DefinitionActions
         definition={definition}
-        onEdit={jest.fn()}
+        onEdit={vi.fn()}
         onDelete={onDelete}
       />,
     );
@@ -71,11 +71,11 @@ describe('DefinitionActions', () => {
 
   it('closes the dialog without deleting when cancelled', async () => {
     const user = userEvent.setup();
-    const onDelete = jest.fn();
+    const onDelete = vi.fn();
     render(
       <DefinitionActions
         definition={buildDefinition()}
-        onEdit={jest.fn()}
+        onEdit={vi.fn()}
         onDelete={onDelete}
       />,
     );

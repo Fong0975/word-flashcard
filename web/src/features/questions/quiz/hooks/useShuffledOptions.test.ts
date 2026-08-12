@@ -21,11 +21,11 @@ const buildQuestion = (overrides: Partial<Question> = {}): Question => ({
 
 describe('useShuffledOptions', () => {
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('relabels the shuffled options and tracks the new position of the correct answer', () => {
-    jest.spyOn(Math, 'random').mockReturnValue(0);
+    vi.spyOn(Math, 'random').mockReturnValue(0);
     const question = buildQuestion();
     const { result } = renderHook(() => useShuffledOptions(question));
 
@@ -39,7 +39,7 @@ describe('useShuffledOptions', () => {
   });
 
   it('keeps the same labels and answer when the shuffle is a no-op', () => {
-    jest.spyOn(Math, 'random').mockReturnValue(0.999999);
+    vi.spyOn(Math, 'random').mockReturnValue(0.999999);
     const question = buildQuestion();
     const { result } = renderHook(() => useShuffledOptions(question));
 
@@ -53,7 +53,7 @@ describe('useShuffledOptions', () => {
   });
 
   it('re-shuffles when the question changes', () => {
-    jest.spyOn(Math, 'random').mockReturnValue(0.999999);
+    vi.spyOn(Math, 'random').mockReturnValue(0.999999);
     const first = buildQuestion({ id: 1 });
     const { result, rerender } = renderHook(
       ({ question }: { question: Question }) => useShuffledOptions(question),
@@ -61,7 +61,7 @@ describe('useShuffledOptions', () => {
     );
     expect(result.current.shuffledAnswer).toBe('A');
 
-    jest.spyOn(Math, 'random').mockReturnValue(0);
+    vi.spyOn(Math, 'random').mockReturnValue(0);
     const second = buildQuestion({ id: 2, answer: 'B' });
     rerender({ question: second });
 

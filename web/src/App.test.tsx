@@ -8,34 +8,34 @@ import App from './App';
 // stubbed so this file stays focused on App's one real responsibility: the
 // routing table itself, which isn't protected by TypeScript (a typo'd path
 // or a component wired to the wrong route wouldn't be caught at compile time).
-jest.mock('./components', () => ({
+vi.mock('./components', () => ({
   Header: () => <div>Header Stub</div>,
   TabNavigation: () => <div>TabNavigation Stub</div>,
   TabContent: () => <div>TabContent Stub</div>,
   Footer: () => <div>Footer Stub</div>,
 }));
 
-jest.mock('./features/words/word-detail/WordDetailPage', () => ({
+vi.mock('./features/words/word-detail/WordDetailPage', () => ({
   WordDetailPage: () => <div>WordDetailPage Stub</div>,
 }));
 
-jest.mock('./features/words/quiz/WordQuizPage', () => ({
+vi.mock('./features/words/quiz/WordQuizPage', () => ({
   WordQuizPage: () => <div>WordQuizPage Stub</div>,
 }));
 
-jest.mock('./features/questions/question-detail/QuestionDetailPage', () => ({
+vi.mock('./features/questions/question-detail/QuestionDetailPage', () => ({
   QuestionDetailPage: () => <div>QuestionDetailPage Stub</div>,
 }));
 
-jest.mock('./features/questions/quiz/QuestionQuizPage', () => ({
+vi.mock('./features/questions/quiz/QuestionQuizPage', () => ({
   QuestionQuizPage: () => <div>QuestionQuizPage Stub</div>,
 }));
 
-jest.mock('./features/notes/note-detail/NoteDetailPage', () => ({
+vi.mock('./features/notes/note-detail/NoteDetailPage', () => ({
   NoteDetailPage: () => <div>NoteDetailPage Stub</div>,
 }));
 
-jest.mock('./features/notes/note-form/NoteCreatePage', () => ({
+vi.mock('./features/notes/note-form/NoteCreatePage', () => ({
   NoteCreatePage: () => <div>NoteCreatePage Stub</div>,
 }));
 

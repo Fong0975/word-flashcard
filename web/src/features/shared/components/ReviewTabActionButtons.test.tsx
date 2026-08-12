@@ -11,7 +11,7 @@ describe('ReviewTabActionButtons', () => {
 
   it('renders and triggers the Quiz button when enabled', async () => {
     const user = userEvent.setup();
-    const onQuizSetup = jest.fn();
+    const onQuizSetup = vi.fn();
     render(
       <ReviewTabActionButtons
         showQuiz
@@ -28,7 +28,7 @@ describe('ReviewTabActionButtons', () => {
     render(
       <ReviewTabActionButtons
         showQuiz={false}
-        onQuizSetup={jest.fn()}
+        onQuizSetup={vi.fn()}
         isRefreshing={false}
       />,
     );
@@ -39,7 +39,7 @@ describe('ReviewTabActionButtons', () => {
 
   it('renders and triggers the Refresh button', async () => {
     const user = userEvent.setup();
-    const onRefresh = jest.fn();
+    const onRefresh = vi.fn();
     render(
       <ReviewTabActionButtons
         showQuiz={false}
@@ -57,7 +57,7 @@ describe('ReviewTabActionButtons', () => {
     render(
       <ReviewTabActionButtons
         showQuiz={false}
-        onRefresh={jest.fn()}
+        onRefresh={vi.fn()}
         isRefreshing
       />,
     );
@@ -68,7 +68,7 @@ describe('ReviewTabActionButtons', () => {
 
   it('renders and triggers the Add button', async () => {
     const user = userEvent.setup();
-    const onNew = jest.fn();
+    const onNew = vi.fn();
     render(
       <ReviewTabActionButtons
         showQuiz={false}
