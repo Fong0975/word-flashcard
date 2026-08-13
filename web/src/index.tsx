@@ -5,6 +5,7 @@ import { BrowserRouter } from 'react-router-dom';
 import './index.css';
 import App from './App';
 import { ApiVersionProvider } from './contexts/ApiVersionContext';
+import { registerServiceWorker } from './registerServiceWorker';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement,
@@ -18,3 +19,5 @@ root.render(
     </BrowserRouter>
   </React.StrictMode>,
 );
+
+registerServiceWorker();

@@ -93,15 +93,21 @@ describe('NotesTab', () => {
     expect(screen.queryByText('Note Review')).not.toBeInTheDocument();
   });
 
-  it('shows the error state and retries via refresh', async () => {
+  it('shows the error state, retries via refresh, and clears on dismiss', async () => {
     const user = userEvent.setup();
-    const { refresh } = renderTab({ error: 'Failed to load notes.' });
+    const { refresh, clearError } = renderTab({
+      error: 'Failed to load notes.',
+    });
 
     expect(screen.getByText('Failed to load notes.')).toBeInTheDocument();
+    expect(screen.getByText('Note Review')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Search notes...')).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: 'Retry' }));
-
+    await user.click(screen.getByRole('button', { name: 'Try again' }));
     expect(refresh).toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: 'Dismiss' }));
+    expect(clearError).toHaveBeenCalled();
   });
 
   it('shows the "no notes yet" empty state', () => {

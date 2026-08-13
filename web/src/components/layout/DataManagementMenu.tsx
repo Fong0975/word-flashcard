@@ -154,8 +154,22 @@ export const DataManagementMenu: React.FC = () => {
                 type='button'
                 role='menuitem'
                 onClick={handleImportClick}
-                className='block w-full py-1.5 pl-8 pr-4 text-left text-xs text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-white'
+                className='flex w-full items-center gap-1.5 py-1.5 pl-8 pr-4 text-left text-xs text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-white'
               >
+                <svg
+                  viewBox='0 0 24 24'
+                  className='h-4 w-4'
+                  fill='none'
+                  stroke='currentColor'
+                  strokeWidth={1.5}
+                  aria-hidden='true'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    d='M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M12 3v11.5M7.5 10l4.5 4.5 4.5-4.5'
+                  />
+                </svg>
                 Import
               </button>
               <button
@@ -163,8 +177,22 @@ export const DataManagementMenu: React.FC = () => {
                 role='menuitem'
                 onClick={handleExportClick}
                 disabled={isExporting}
-                className='block w-full py-1.5 pl-8 pr-4 text-left text-xs text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-white'
+                className='flex w-full items-center gap-1.5 py-1.5 pl-8 pr-4 text-left text-xs text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-white'
               >
+                <svg
+                  viewBox='0 0 24 24'
+                  className='h-4 w-4'
+                  fill='none'
+                  stroke='currentColor'
+                  strokeWidth={1.5}
+                  aria-hidden='true'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    d='M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M12 14.5V3M7.5 7.5 12 3l4.5 4.5'
+                  />
+                </svg>
                 {isExporting ? 'Exporting…' : 'Export'}
               </button>
             </div>
