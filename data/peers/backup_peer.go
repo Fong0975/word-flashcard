@@ -204,7 +204,7 @@ func restoreTable[T any](tx *sql.Tx, pf squirrel.PlaceholderFormat, table string
 // as it does today for the existing Insert()/structToMap() path.
 func allColumnsWithValues(row interface{}) ([]string, []interface{}, error) {
 	value := reflect.ValueOf(row)
-	if value.Kind() == reflect.Ptr {
+	if value.Kind() == reflect.Pointer {
 		if value.IsNil() {
 			return nil, nil, fmt.Errorf("row must not be nil")
 		}

@@ -81,7 +81,7 @@ func structToMap(data interface{}) (map[string]interface{}, error) {
 	}
 
 	value := reflect.ValueOf(data)
-	if value.Kind() == reflect.Ptr {
+	if value.Kind() == reflect.Pointer {
 		value = value.Elem()
 	}
 
@@ -139,7 +139,7 @@ func camelToSnake(str string) string {
 // scanToStruct scans database rows into a struct slice
 func scanToStruct(rows *sql.Rows, dest interface{}) error {
 	destValue := reflect.ValueOf(dest)
-	if destValue.Kind() != reflect.Ptr {
+	if destValue.Kind() != reflect.Pointer {
 		return fmt.Errorf("dest must be a pointer")
 	}
 
@@ -149,7 +149,7 @@ func scanToStruct(rows *sql.Rows, dest interface{}) error {
 	}
 
 	elementType := destValue.Type().Elem()
-	if elementType.Kind() == reflect.Ptr {
+	if elementType.Kind() == reflect.Pointer {
 		elementType = elementType.Elem()
 	}
 
@@ -184,7 +184,7 @@ func scanToStruct(rows *sql.Rows, dest interface{}) error {
 		}
 
 		// Append to slice
-		if destValue.Type().Elem().Kind() == reflect.Ptr {
+		if destValue.Type().Elem().Kind() == reflect.Pointer {
 			destValue.Set(reflect.Append(destValue, elem.Addr()))
 		} else {
 			destValue.Set(reflect.Append(destValue, elem))
