@@ -6,6 +6,7 @@ import { apiService } from '../../lib/api';
 import { getApiErrorMessage } from '../../lib/apiErrorMessage';
 import { useNotes } from '../../hooks/useNotes';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { ErrorMessage } from '../../components/ui/ErrorMessage';
 import { ToastContainer } from '../../components/ui';
 import { useToast } from '../../hooks/ui/useToast';
 
@@ -139,21 +140,6 @@ export const NotesTab: React.FC = () => {
     );
   }
 
-  if (notesHook.error) {
-    return (
-      <div className='py-8 text-center'>
-        <p className='mb-4 text-red-500 dark:text-red-400'>{notesHook.error}</p>
-        <button
-          type='button'
-          onClick={() => notesHook.refresh().catch(() => {})}
-          className='rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700'
-        >
-          Retry
-        </button>
-      </div>
-    );
-  }
-
   return (
     <div className='space-y-6'>
       {/* Header */}
@@ -263,6 +249,15 @@ export const NotesTab: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Error State */}
+      {notesHook.error && (
+        <ErrorMessage
+          error={notesHook.error}
+          onRetry={() => notesHook.refresh().catch(() => {})}
+          onDismiss={notesHook.clearError}
+        />
+      )}
 
       {/* Total count */}
       {notesHook.totalCount > 0 && (

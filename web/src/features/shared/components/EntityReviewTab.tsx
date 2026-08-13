@@ -198,16 +198,12 @@ export const EntityReviewTab = <T extends BaseEntity>({
 
       {/* Empty State - No search results */}
       {!loading && entities.length === 0 && searchTerm && (
-        <div className='py-8 text-center'>
-          <div className='mb-3 text-4xl'>🔍</div>
-          <h3 className='mb-2 text-lg font-medium text-gray-900 dark:text-white'>
-            No {config.entityNamePlural.toLowerCase()} found
-          </h3>
-          <p className='text-gray-600 dark:text-gray-300'>
-            No {config.entityNamePlural.toLowerCase()} match &quot;{searchTerm}
-            &quot;. Try a different search term.
-          </p>
-        </div>
+        <EmptyState
+          icon='🔍'
+          title={`No ${config.entityNamePlural.toLowerCase()} found`}
+          description={`No ${config.entityNamePlural.toLowerCase()} match "${searchTerm}". Try a different search term.`}
+          onRefresh={refresh}
+        />
       )}
 
       {/* Entity List */}
