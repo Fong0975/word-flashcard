@@ -37,7 +37,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Full database snapshot",
                         "schema": {
-                            "$ref": "#/definitions/models.DataExport"
+                            "$ref": "#/definitions/word-flashcard_internal_models.DataExport"
                         }
                     },
                     "500": {
@@ -68,7 +68,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.DataExport"
+                            "$ref": "#/definitions/word-flashcard_internal_models.DataExport"
                         }
                     }
                 ],
@@ -76,7 +76,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Row counts written per table",
                         "schema": {
-                            "$ref": "#/definitions/models.ImportSummary"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ImportSummary"
                         }
                     },
                     "400": {
@@ -1626,73 +1626,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "models.DataExport": {
-            "type": "object",
-            "properties": {
-                "exported_at": {
-                    "type": "string"
-                },
-                "notes": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/word-flashcard_data_models.Note"
-                    }
-                },
-                "question_answer_logs": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/word-flashcard_data_models.QuestionAnswerLog"
-                    }
-                },
-                "questions": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/word-flashcard_data_models.Question"
-                    }
-                },
-                "word_definitions": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/word-flashcard_data_models.WordDefinition"
-                    }
-                },
-                "word_practice_logs": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/word-flashcard_data_models.WordPracticeLog"
-                    }
-                },
-                "words": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/word-flashcard_data_models.Word"
-                    }
-                }
-            }
-        },
-        "models.ImportSummary": {
-            "type": "object",
-            "properties": {
-                "notes": {
-                    "type": "integer"
-                },
-                "question_answer_logs": {
-                    "type": "integer"
-                },
-                "questions": {
-                    "type": "integer"
-                },
-                "word_definitions": {
-                    "type": "integer"
-                },
-                "word_practice_logs": {
-                    "type": "integer"
-                },
-                "words": {
-                    "type": "integer"
-                }
-            }
-        },
         "word-flashcard_data_models.Note": {
             "type": "object",
             "properties": {
@@ -1890,6 +1823,50 @@ const docTemplate = `{
                 }
             }
         },
+        "word-flashcard_internal_models.DataExport": {
+            "type": "object",
+            "properties": {
+                "exported_at": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/word-flashcard_data_models.Note"
+                    }
+                },
+                "question_answer_logs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/word-flashcard_data_models.QuestionAnswerLog"
+                    }
+                },
+                "questions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/word-flashcard_data_models.Question"
+                    }
+                },
+                "word_definitions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/word-flashcard_data_models.WordDefinition"
+                    }
+                },
+                "word_practice_logs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/word-flashcard_data_models.WordPracticeLog"
+                    }
+                },
+                "words": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/word-flashcard_data_models.Word"
+                    }
+                }
+            }
+        },
         "word-flashcard_internal_models.DefinitionInfo": {
             "type": "object",
             "properties": {
@@ -1956,6 +1933,29 @@ const docTemplate = `{
             "properties": {
                 "status": {
                     "type": "string"
+                }
+            }
+        },
+        "word-flashcard_internal_models.ImportSummary": {
+            "type": "object",
+            "properties": {
+                "notes": {
+                    "type": "integer"
+                },
+                "question_answer_logs": {
+                    "type": "integer"
+                },
+                "questions": {
+                    "type": "integer"
+                },
+                "word_definitions": {
+                    "type": "integer"
+                },
+                "word_practice_logs": {
+                    "type": "integer"
+                },
+                "words": {
+                    "type": "integer"
                 }
             }
         },
