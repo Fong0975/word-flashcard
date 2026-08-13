@@ -89,7 +89,7 @@ word-flashcard/
 
 ## Prerequisites
 
-- Go `1.23.7` or higher
+- Go `1.25.6` or higher
 - Node.js `20.19+` and npm (required by [Vite](https://vite.dev/), which the frontend build tooling in `web/` is built on)
 - Internet connection for fetching dictionary data
 - MySQL or PostgreSQL database

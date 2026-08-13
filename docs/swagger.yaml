@@ -1,49 +1,5 @@
 basePath: /
 definitions:
-  models.DataExport:
-    properties:
-      exported_at:
-        type: string
-      notes:
-        items:
-          $ref: '#/definitions/word-flashcard_data_models.Note'
-        type: array
-      question_answer_logs:
-        items:
-          $ref: '#/definitions/word-flashcard_data_models.QuestionAnswerLog'
-        type: array
-      questions:
-        items:
-          $ref: '#/definitions/word-flashcard_data_models.Question'
-        type: array
-      word_definitions:
-        items:
-          $ref: '#/definitions/word-flashcard_data_models.WordDefinition'
-        type: array
-      word_practice_logs:
-        items:
-          $ref: '#/definitions/word-flashcard_data_models.WordPracticeLog'
-        type: array
-      words:
-        items:
-          $ref: '#/definitions/word-flashcard_data_models.Word'
-        type: array
-    type: object
-  models.ImportSummary:
-    properties:
-      notes:
-        type: integer
-      question_answer_logs:
-        type: integer
-      questions:
-        type: integer
-      word_definitions:
-        type: integer
-      word_practice_logs:
-        type: integer
-      words:
-        type: integer
-    type: object
   word-flashcard_data_models.Note:
     properties:
       content:
@@ -173,6 +129,35 @@ definitions:
       range:
         type: string
     type: object
+  word-flashcard_internal_models.DataExport:
+    properties:
+      exported_at:
+        type: string
+      notes:
+        items:
+          $ref: '#/definitions/word-flashcard_data_models.Note'
+        type: array
+      question_answer_logs:
+        items:
+          $ref: '#/definitions/word-flashcard_data_models.QuestionAnswerLog'
+        type: array
+      questions:
+        items:
+          $ref: '#/definitions/word-flashcard_data_models.Question'
+        type: array
+      word_definitions:
+        items:
+          $ref: '#/definitions/word-flashcard_data_models.WordDefinition'
+        type: array
+      word_practice_logs:
+        items:
+          $ref: '#/definitions/word-flashcard_data_models.WordPracticeLog'
+        type: array
+      words:
+        items:
+          $ref: '#/definitions/word-flashcard_data_models.Word'
+        type: array
+    type: object
   word-flashcard_internal_models.DefinitionInfo:
     properties:
       definition:
@@ -220,6 +205,21 @@ definitions:
     properties:
       status:
         type: string
+    type: object
+  word-flashcard_internal_models.ImportSummary:
+    properties:
+      notes:
+        type: integer
+      question_answer_logs:
+        type: integer
+      questions:
+        type: integer
+      word_definitions:
+        type: integer
+      word_practice_logs:
+        type: integer
+      words:
+        type: integer
     type: object
   word-flashcard_internal_models.InformationResponse:
     properties:
@@ -475,7 +475,7 @@ paths:
         "200":
           description: Full database snapshot
           schema:
-            $ref: '#/definitions/models.DataExport'
+            $ref: '#/definitions/word-flashcard_internal_models.DataExport'
         "500":
           description: Internal server error - Failed to fetch data from database
           schema:
@@ -495,14 +495,14 @@ paths:
         name: export
         required: true
         schema:
-          $ref: '#/definitions/models.DataExport'
+          $ref: '#/definitions/word-flashcard_internal_models.DataExport'
       produces:
       - application/json
       responses:
         "200":
           description: Row counts written per table
           schema:
-            $ref: '#/definitions/models.ImportSummary'
+            $ref: '#/definitions/word-flashcard_internal_models.ImportSummary'
         "400":
           description: Bad request - Invalid or incomplete request body
           schema:
