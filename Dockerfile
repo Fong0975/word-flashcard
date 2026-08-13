@@ -1,5 +1,5 @@
 # Multi-stage build for Go backend
-FROM golang:1.25.6-alpine AS builder
+FROM golang:1.25.12-alpine AS builder
 
 # Set working directory
 WORKDIR /app
