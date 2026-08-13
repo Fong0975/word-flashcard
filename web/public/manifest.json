@@ -1,6 +1,7 @@
 {
   "short_name": "Flashcard",
   "name": "Flashcard App",
+  "description": "Begin your learning journey and enhance your learning effectiveness with flashcards.",
   "icons": [
     {
       "src": "favicon.ico",
@@ -18,7 +19,9 @@
       "sizes": "512x512"
     }
   ],
+  "id": "/",
   "start_url": ".",
+  "scope": "/",
   "display": "standalone",
   "theme_color": "#1f2937",
   "background_color": "#1f2937"
