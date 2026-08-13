@@ -1,5 +1,318 @@
 basePath: /
 definitions:
+  models.AccuracyBucket:
+    properties:
+      count:
+        type: integer
+      practice_count_breakdown:
+        items:
+          $ref: '#/definitions/models.PracticeCountBucket'
+        type: array
+      range:
+        type: string
+    type: object
+  models.CambridgeDefinition:
+    properties:
+      example:
+        items:
+          $ref: '#/definitions/models.CambridgeExample'
+        type: array
+      id:
+        type: integer
+      pos:
+        type: string
+      text:
+        type: string
+      translation:
+        type: string
+    type: object
+  models.CambridgeExample:
+    properties:
+      id:
+        type: integer
+      text:
+        type: string
+      translation:
+        type: string
+    type: object
+  models.CambridgePronunciation:
+    properties:
+      lang:
+        type: string
+      pos:
+        type: string
+      pron:
+        type: string
+      url:
+        type: string
+    type: object
+  models.CambridgeResponse:
+    properties:
+      definition:
+        items:
+          $ref: '#/definitions/models.CambridgeDefinition'
+        type: array
+      pos:
+        items:
+          type: string
+        type: array
+      pronunciation:
+        items:
+          $ref: '#/definitions/models.CambridgePronunciation'
+        type: array
+      verbs:
+        items:
+          $ref: '#/definitions/models.CambridgeVerb'
+        type: array
+      word:
+        type: string
+    type: object
+  models.CambridgeVerb:
+    properties:
+      id:
+        type: integer
+      text:
+        type: string
+      type:
+        type: string
+    type: object
+  models.DataExport:
+    properties:
+      exported_at:
+        type: string
+      notes:
+        items:
+          $ref: '#/definitions/word-flashcard_data_models.Note'
+        type: array
+      question_answer_logs:
+        items:
+          $ref: '#/definitions/models.QuestionAnswerLog'
+        type: array
+      questions:
+        items:
+          $ref: '#/definitions/word-flashcard_data_models.Question'
+        type: array
+      word_definitions:
+        items:
+          $ref: '#/definitions/word-flashcard_data_models.WordDefinition'
+        type: array
+      word_practice_logs:
+        items:
+          $ref: '#/definitions/models.WordPracticeLog'
+        type: array
+      words:
+        items:
+          $ref: '#/definitions/word-flashcard_data_models.Word'
+        type: array
+    type: object
+  models.ErrorCode:
+    enum:
+    - invalid_request
+    - validation_error
+    - not_found
+    - conflict
+    - internal_error
+    - upstream_unavailable
+    type: string
+    x-enum-varnames:
+    - ErrCodeInvalidRequest
+    - ErrCodeValidationError
+    - ErrCodeNotFound
+    - ErrCodeConflict
+    - ErrCodeInternalError
+    - ErrCodeUpstreamUnavailable
+  models.ErrorResponse:
+    properties:
+      code:
+        $ref: '#/definitions/models.ErrorCode'
+      error:
+        type: string
+    type: object
+  models.HealthResponse:
+    properties:
+      status:
+        type: string
+    type: object
+  models.ImportSummary:
+    properties:
+      notes:
+        type: integer
+      question_answer_logs:
+        type: integer
+      questions:
+        type: integer
+      word_definitions:
+        type: integer
+      word_practice_logs:
+        type: integer
+      words:
+        type: integer
+    type: object
+  models.InformationResponse:
+    properties:
+      version:
+        type: string
+    type: object
+  models.PracticeCountBucket:
+    properties:
+      count:
+        type: integer
+      range:
+        type: string
+    type: object
+  models.QuestionAnswerLog:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      is_correct:
+        type: boolean
+      question_id:
+        type: integer
+      selected_option:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.QuestionAnswerLogEntry:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      is_correct:
+        type: boolean
+      selected_option:
+        type: string
+    type: object
+  models.QuestionRandomRequest:
+    properties:
+      count:
+        maximum: 1000
+        minimum: 1
+        type: integer
+      exclude_recent_days:
+        type: integer
+    required:
+    - count
+    type: object
+  models.QuestionStats:
+    properties:
+      accuracy_distribution:
+        items:
+          $ref: '#/definitions/models.AccuracyBucket'
+        type: array
+    type: object
+  models.QuestionTrendPoint:
+    properties:
+      accuracy_rate:
+        type: number
+      date:
+        type: string
+      practice_count:
+        type: integer
+    type: object
+  models.SearchCondition:
+    properties:
+      key:
+        type: string
+      operator:
+        type: string
+      value:
+        type: string
+    required:
+    - key
+    - operator
+    type: object
+  models.SearchFilter:
+    properties:
+      conditions:
+        items:
+          $ref: '#/definitions/models.SearchCondition'
+        minItems: 1
+        type: array
+      logic:
+        description: '"AND" or "OR"'
+        type: string
+    required:
+    - conditions
+    - logic
+    type: object
+  models.WordFamiliarityDistribution:
+    properties:
+      green:
+        type: integer
+      red:
+        type: integer
+      yellow:
+        type: integer
+    type: object
+  models.WordPracticeLog:
+    properties:
+      created_at:
+        type: string
+      familiarity:
+        type: string
+      id:
+        type: integer
+      previous_familiarity:
+        type: string
+      quiz_session_id:
+        type: string
+      updated_at:
+        type: string
+      word_id:
+        type: integer
+    type: object
+  models.WordPracticeLogEntry:
+    properties:
+      created_at:
+        type: string
+      familiarity:
+        type: string
+      id:
+        type: integer
+      previous_familiarity:
+        type: string
+    type: object
+  models.WordRandomRequest:
+    properties:
+      count:
+        maximum: 1000
+        minimum: 1
+        type: integer
+      familiarity_levels:
+        items:
+          type: string
+        type: array
+      per_category_counts:
+        additionalProperties:
+          type: integer
+        type: object
+    required:
+    - count
+    type: object
+  models.WordStats:
+    properties:
+      familiarity_distribution:
+        $ref: '#/definitions/models.WordFamiliarityDistribution'
+      practice_count_distribution:
+        items:
+          $ref: '#/definitions/models.PracticeCountBucket'
+        type: array
+    type: object
+  models.WordTrendPoint:
+    properties:
+      avg_familiarity_score:
+        type: number
+      date:
+        type: string
+      improvement_rate:
+        type: number
+      practice_count:
+        type: integer
+    type: object
   word-flashcard_data_models.Note:
     properties:
       content:
@@ -46,21 +359,6 @@ definitions:
       updated_at:
         type: string
     type: object
-  word-flashcard_data_models.QuestionAnswerLog:
-    properties:
-      created_at:
-        type: string
-      id:
-        type: integer
-      is_correct:
-        type: boolean
-      question_id:
-        type: integer
-      selected_option:
-        type: string
-      updated_at:
-        type: string
-    type: object
   word-flashcard_data_models.Word:
     properties:
       count_practise:
@@ -101,140 +399,6 @@ definitions:
       word_id:
         type: integer
     type: object
-  word-flashcard_data_models.WordPracticeLog:
-    properties:
-      created_at:
-        type: string
-      familiarity:
-        type: string
-      id:
-        type: integer
-      previous_familiarity:
-        type: string
-      quiz_session_id:
-        type: string
-      updated_at:
-        type: string
-      word_id:
-        type: integer
-    type: object
-  word-flashcard_internal_models.AccuracyBucket:
-    properties:
-      count:
-        type: integer
-      practice_count_breakdown:
-        items:
-          $ref: '#/definitions/word-flashcard_internal_models.PracticeCountBucket'
-        type: array
-      range:
-        type: string
-    type: object
-  word-flashcard_internal_models.DataExport:
-    properties:
-      exported_at:
-        type: string
-      notes:
-        items:
-          $ref: '#/definitions/word-flashcard_data_models.Note'
-        type: array
-      question_answer_logs:
-        items:
-          $ref: '#/definitions/word-flashcard_data_models.QuestionAnswerLog'
-        type: array
-      questions:
-        items:
-          $ref: '#/definitions/word-flashcard_data_models.Question'
-        type: array
-      word_definitions:
-        items:
-          $ref: '#/definitions/word-flashcard_data_models.WordDefinition'
-        type: array
-      word_practice_logs:
-        items:
-          $ref: '#/definitions/word-flashcard_data_models.WordPracticeLog'
-        type: array
-      words:
-        items:
-          $ref: '#/definitions/word-flashcard_data_models.Word'
-        type: array
-    type: object
-  word-flashcard_internal_models.DefinitionInfo:
-    properties:
-      definition:
-        type: string
-      example:
-        items:
-          type: string
-        type: array
-    type: object
-  word-flashcard_internal_models.DictionaryResponse:
-    properties:
-      meanings:
-        items:
-          $ref: '#/definitions/word-flashcard_internal_models.MeaningInfo'
-        type: array
-      phonetics:
-        items:
-          $ref: '#/definitions/word-flashcard_internal_models.PhoneticInfo'
-        type: array
-    type: object
-  word-flashcard_internal_models.ErrorCode:
-    enum:
-    - invalid_request
-    - validation_error
-    - not_found
-    - conflict
-    - internal_error
-    - upstream_unavailable
-    type: string
-    x-enum-varnames:
-    - ErrCodeInvalidRequest
-    - ErrCodeValidationError
-    - ErrCodeNotFound
-    - ErrCodeConflict
-    - ErrCodeInternalError
-    - ErrCodeUpstreamUnavailable
-  word-flashcard_internal_models.ErrorResponse:
-    properties:
-      code:
-        $ref: '#/definitions/word-flashcard_internal_models.ErrorCode'
-      error:
-        type: string
-    type: object
-  word-flashcard_internal_models.HealthResponse:
-    properties:
-      status:
-        type: string
-    type: object
-  word-flashcard_internal_models.ImportSummary:
-    properties:
-      notes:
-        type: integer
-      question_answer_logs:
-        type: integer
-      questions:
-        type: integer
-      word_definitions:
-        type: integer
-      word_practice_logs:
-        type: integer
-      words:
-        type: integer
-    type: object
-  word-flashcard_internal_models.InformationResponse:
-    properties:
-      version:
-        type: string
-    type: object
-  word-flashcard_internal_models.MeaningInfo:
-    properties:
-      definitions:
-        items:
-          $ref: '#/definitions/word-flashcard_internal_models.DefinitionInfo'
-        type: array
-      partOfSpeech:
-        type: string
-    type: object
   word-flashcard_internal_models.Note:
     properties:
       content:
@@ -246,20 +410,6 @@ definitions:
       title:
         type: string
       updated_at:
-        type: string
-    type: object
-  word-flashcard_internal_models.PhoneticInfo:
-    properties:
-      audio:
-        type: string
-      language:
-        type: string
-    type: object
-  word-flashcard_internal_models.PracticeCountBucket:
-    properties:
-      count:
-        type: integer
-      range:
         type: string
     type: object
   word-flashcard_internal_models.Question:
@@ -290,70 +440,6 @@ definitions:
         type: string
       selected_option:
         type: string
-    type: object
-  word-flashcard_internal_models.QuestionAnswerLogEntry:
-    properties:
-      created_at:
-        type: string
-      id:
-        type: integer
-      is_correct:
-        type: boolean
-      selected_option:
-        type: string
-    type: object
-  word-flashcard_internal_models.QuestionRandomRequest:
-    properties:
-      count:
-        maximum: 1000
-        minimum: 1
-        type: integer
-      exclude_recent_days:
-        type: integer
-    required:
-    - count
-    type: object
-  word-flashcard_internal_models.QuestionStats:
-    properties:
-      accuracy_distribution:
-        items:
-          $ref: '#/definitions/word-flashcard_internal_models.AccuracyBucket'
-        type: array
-    type: object
-  word-flashcard_internal_models.QuestionTrendPoint:
-    properties:
-      accuracy_rate:
-        type: number
-      date:
-        type: string
-      practice_count:
-        type: integer
-    type: object
-  word-flashcard_internal_models.SearchCondition:
-    properties:
-      key:
-        type: string
-      operator:
-        type: string
-      value:
-        type: string
-    required:
-    - key
-    - operator
-    type: object
-  word-flashcard_internal_models.SearchFilter:
-    properties:
-      conditions:
-        items:
-          $ref: '#/definitions/word-flashcard_internal_models.SearchCondition'
-        minItems: 1
-        type: array
-      logic:
-        description: '"AND" or "OR"'
-        type: string
-    required:
-    - conditions
-    - logic
     type: object
   word-flashcard_internal_models.Word:
     properties:
@@ -394,63 +480,6 @@ definitions:
         additionalProperties: true
         type: object
     type: object
-  word-flashcard_internal_models.WordFamiliarityDistribution:
-    properties:
-      green:
-        type: integer
-      red:
-        type: integer
-      yellow:
-        type: integer
-    type: object
-  word-flashcard_internal_models.WordPracticeLogEntry:
-    properties:
-      created_at:
-        type: string
-      familiarity:
-        type: string
-      id:
-        type: integer
-      previous_familiarity:
-        type: string
-    type: object
-  word-flashcard_internal_models.WordRandomRequest:
-    properties:
-      count:
-        maximum: 1000
-        minimum: 1
-        type: integer
-      familiarity_levels:
-        items:
-          type: string
-        type: array
-      per_category_counts:
-        additionalProperties:
-          type: integer
-        type: object
-    required:
-    - count
-    type: object
-  word-flashcard_internal_models.WordStats:
-    properties:
-      familiarity_distribution:
-        $ref: '#/definitions/word-flashcard_internal_models.WordFamiliarityDistribution'
-      practice_count_distribution:
-        items:
-          $ref: '#/definitions/word-flashcard_internal_models.PracticeCountBucket'
-        type: array
-    type: object
-  word-flashcard_internal_models.WordTrendPoint:
-    properties:
-      avg_familiarity_score:
-        type: number
-      date:
-        type: string
-      improvement_rate:
-        type: number
-      practice_count:
-        type: integer
-    type: object
 host: localhost:8080
 info:
   contact:
@@ -475,11 +504,11 @@ paths:
         "200":
           description: Full database snapshot
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.DataExport'
+            $ref: '#/definitions/models.DataExport'
         "500":
           description: Internal server error - Failed to fetch data from database
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       tags:
       - data
   /api/data/import:
@@ -495,31 +524,36 @@ paths:
         name: export
         required: true
         schema:
-          $ref: '#/definitions/word-flashcard_internal_models.DataExport'
+          $ref: '#/definitions/models.DataExport'
       produces:
       - application/json
       responses:
         "200":
           description: Row counts written per table
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ImportSummary'
+            $ref: '#/definitions/models.ImportSummary'
         "400":
           description: Bad request - Invalid or incomplete request body
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal server error - Failed to restore data into database
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       tags:
       - data
-  /api/dictionary/{word}:
+  /api/dictionary/{language}/{word}:
     get:
       consumes:
       - application/json
-      description: Get dictionary definition and pronunciation for a given word from
-        Cambridge Dictionary API
+      description: Get dictionary definition and pronunciation for a given word by
+        scraping Cambridge Dictionary
       parameters:
+      - description: Dictionary language slug (only en-tw is currently supported)
+        in: path
+        name: language
+        required: true
+        type: string
       - description: Word to search for
         in: path
         name: word
@@ -531,19 +565,19 @@ paths:
         "200":
           description: Dictionary definition found successfully
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.DictionaryResponse'
+            $ref: '#/definitions/models.CambridgeResponse'
         "400":
-          description: Bad request - Missing word parameter
+          description: Bad request - Missing word parameter or unsupported language
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "404":
           description: Not found - Word not found in the dictionary
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "502":
-          description: Bad gateway - Dictionary service unavailable
+          description: Bad gateway - Cambridge Dictionary is currently unavailable
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       summary: Search dictionary for word definition
       tags:
       - dictionary
@@ -558,7 +592,7 @@ paths:
         "200":
           description: Server is healthy
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.HealthResponse'
+            $ref: '#/definitions/models.HealthResponse'
       summary: Health check endpoint
       tags:
       - health
@@ -573,11 +607,11 @@ paths:
         "200":
           description: Application information
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.InformationResponse'
+            $ref: '#/definitions/models.InformationResponse'
         "500":
           description: Internal server error - VERSION file not found or unreadable
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       summary: Application information endpoint
       tags:
       - health
@@ -610,11 +644,11 @@ paths:
         "400":
           description: Bad request - Invalid query parameters
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal server error - Failed to fetch data from database
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       tags:
       - notes
     post:
@@ -638,15 +672,15 @@ paths:
         "400":
           description: Bad request - Invalid request body
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "409":
           description: Conflict - A note with this title already exists
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal server error - Failed to insert data into database
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       tags:
       - notes
   /api/notes/{id}:
@@ -664,15 +698,15 @@ paths:
         "400":
           description: Bad request - Invalid note ID
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "404":
           description: Not found - Note not found
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal server error - Failed to delete data from database
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       tags:
       - notes
     get:
@@ -693,15 +727,15 @@ paths:
         "400":
           description: Bad request - Invalid note ID
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "404":
           description: Not found - Note not found
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal server error - Failed to fetch data from database
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       tags:
       - notes
     put:
@@ -730,19 +764,19 @@ paths:
         "400":
           description: Bad request - Invalid note ID or request body
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "404":
           description: Not found - Note not found
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "409":
           description: Conflict - A note with this title already exists
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal server error - Failed to update data in database
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       tags:
       - notes
   /api/notes/count:
@@ -761,7 +795,7 @@ paths:
         "500":
           description: Internal server error - Failed to count notes in database
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       tags:
       - notes
   /api/notes/search:
@@ -776,7 +810,7 @@ paths:
         name: searchFilter
         required: true
         schema:
-          $ref: '#/definitions/word-flashcard_internal_models.SearchFilter'
+          $ref: '#/definitions/models.SearchFilter'
       - description: 'Maximum number of records to return (default: 100, max: 1000)'
         in: query
         name: limit
@@ -801,11 +835,11 @@ paths:
         "400":
           description: Bad request - Invalid request body, filter, or query parameters
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal server error - Failed to fetch data from database
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       tags:
       - notes
   /api/questions:
@@ -840,11 +874,11 @@ paths:
         "400":
           description: Bad request - Invalid query parameters
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal server error - Failed to fetch data from database
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       tags:
       - questions
     post:
@@ -868,11 +902,11 @@ paths:
         "400":
           description: Bad request - Invalid request body
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal server error - Failed to insert data into database
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       tags:
       - questions
   /api/questions/{id}:
@@ -894,15 +928,15 @@ paths:
         "400":
           description: Bad request - Invalid question ID
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "404":
           description: Not found - Question not found
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal server error - Failed to delete data from database
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       tags:
       - questions
     get:
@@ -925,15 +959,15 @@ paths:
         "400":
           description: Bad request - Invalid query parameters
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "404":
           description: Not found - Question not found
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal server error - Failed to fetch data from database
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       tags:
       - questions
     put:
@@ -962,15 +996,15 @@ paths:
         "400":
           description: Bad request - Invalid question ID or request body
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "404":
           description: Not found - Question not found
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal server error - Failed to update data in database
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       tags:
       - questions
   /api/questions/{id}/logs:
@@ -994,16 +1028,16 @@ paths:
           description: Recent answer log entries
           schema:
             items:
-              $ref: '#/definitions/word-flashcard_internal_models.QuestionAnswerLogEntry'
+              $ref: '#/definitions/models.QuestionAnswerLogEntry'
             type: array
         "400":
           description: Bad request - Invalid question ID or limit parameter
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal server error - Failed to fetch data from database
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       tags:
       - questions
   /api/questions/count:
@@ -1024,7 +1058,7 @@ paths:
         "500":
           description: Internal server error - Failed to count questions in database
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       tags:
       - questions
   /api/questions/random:
@@ -1038,7 +1072,7 @@ paths:
         name: randomFilter
         required: true
         schema:
-          $ref: '#/definitions/word-flashcard_internal_models.QuestionRandomRequest'
+          $ref: '#/definitions/models.QuestionRandomRequest'
       produces:
       - application/json
       responses:
@@ -1051,11 +1085,11 @@ paths:
         "400":
           description: Bad request - Invalid request body or count parameter
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal server error - Failed to fetch data from database
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       tags:
       - questions
   /api/questions/stats:
@@ -1068,11 +1102,11 @@ paths:
         "200":
           description: Question accuracy distribution
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.QuestionStats'
+            $ref: '#/definitions/models.QuestionStats'
         "500":
           description: Internal server error - Failed to fetch questions
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       tags:
       - questions
   /api/questions/trend:
@@ -1091,16 +1125,16 @@ paths:
           description: Daily trend points, ascending by date
           schema:
             items:
-              $ref: '#/definitions/word-flashcard_internal_models.QuestionTrendPoint'
+              $ref: '#/definitions/models.QuestionTrendPoint'
             type: array
         "400":
           description: Bad request - Invalid days parameter
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal server error - Failed to fetch data from database
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       tags:
       - questions
   /api/words:
@@ -1130,11 +1164,11 @@ paths:
         "400":
           description: Bad request - Invalid query parameters
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal server error - Failed to fetch data from database
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       tags:
       - words
     post:
@@ -1158,15 +1192,15 @@ paths:
         "400":
           description: Bad request - Invalid request body
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "409":
           description: Conflict - A word with this text already exists
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal server error - Failed to insert data into database
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       tags:
       - words
   /api/words/{id}:
@@ -1188,15 +1222,15 @@ paths:
         "400":
           description: Bad request - Invalid word ID
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "404":
           description: Not found - Word not found
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal server error - Failed to delete data from database
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       tags:
       - words
     put:
@@ -1225,19 +1259,19 @@ paths:
         "400":
           description: Bad request - Invalid word ID or request body
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "404":
           description: Not found - Word not found
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "409":
           description: Conflict - A word with this text already exists
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal server error - Failed to update data in database
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       tags:
       - words
   /api/words/{id}/logs:
@@ -1261,16 +1295,16 @@ paths:
           description: Recent practice log entries
           schema:
             items:
-              $ref: '#/definitions/word-flashcard_internal_models.WordPracticeLogEntry'
+              $ref: '#/definitions/models.WordPracticeLogEntry'
             type: array
         "400":
           description: Bad request - Invalid word ID or limit parameter
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal server error - Failed to fetch data from database
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       tags:
       - words
   /api/words/count:
@@ -1285,7 +1319,7 @@ paths:
         name: searchFilter
         required: true
         schema:
-          $ref: '#/definitions/word-flashcard_internal_models.SearchFilter'
+          $ref: '#/definitions/models.SearchFilter'
       produces:
       - application/json
       responses:
@@ -1299,11 +1333,11 @@ paths:
         "400":
           description: Bad request - Invalid request body or filter
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal server error - Failed to fetch data from database
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       tags:
       - words
   /api/words/definition/{id}:
@@ -1325,15 +1359,15 @@ paths:
         "400":
           description: Bad request - Invalid definition ID
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "404":
           description: Not found - Word definition not found
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal server error - Failed to delete data from database
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       tags:
       - words
     post:
@@ -1362,11 +1396,11 @@ paths:
         "400":
           description: Bad request - Invalid word ID or request body
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal server error - Failed to insert data into database
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       tags:
       - words
     put:
@@ -1395,15 +1429,15 @@ paths:
         "400":
           description: Bad request - Invalid definition ID or request body
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "404":
           description: Not found - Word definition not found
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal server error - Failed to update data in database
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       tags:
       - words
   /api/words/random:
@@ -1420,7 +1454,7 @@ paths:
         name: randomRequest
         required: true
         schema:
-          $ref: '#/definitions/word-flashcard_internal_models.WordRandomRequest'
+          $ref: '#/definitions/models.WordRandomRequest'
       produces:
       - application/json
       responses:
@@ -1433,11 +1467,11 @@ paths:
         "400":
           description: Bad request - Invalid request body or count parameter
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal server error - Failed to fetch data from database
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       tags:
       - words
   /api/words/search:
@@ -1453,7 +1487,7 @@ paths:
         name: searchFilter
         required: true
         schema:
-          $ref: '#/definitions/word-flashcard_internal_models.SearchFilter'
+          $ref: '#/definitions/models.SearchFilter'
       - description: 'Maximum number of records to return (default: 100, max: 1000)'
         in: query
         name: limit
@@ -1478,11 +1512,11 @@ paths:
         "400":
           description: Bad request - Invalid request body, filter, or query parameters
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal server error - Failed to fetch data from database
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       tags:
       - words
   /api/words/stats:
@@ -1494,11 +1528,11 @@ paths:
         "200":
           description: Word familiarity distribution
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.WordStats'
+            $ref: '#/definitions/models.WordStats'
         "500":
           description: Internal server error - Failed to count words
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       tags:
       - words
   /api/words/trend:
@@ -1518,16 +1552,16 @@ paths:
           description: Daily trend points, ascending by date
           schema:
             items:
-              $ref: '#/definitions/word-flashcard_internal_models.WordTrendPoint'
+              $ref: '#/definitions/models.WordTrendPoint'
             type: array
         "400":
           description: Bad request - Invalid days parameter
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal server error - Failed to fetch data from database
           schema:
-            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
       tags:
       - words
 schemes:
