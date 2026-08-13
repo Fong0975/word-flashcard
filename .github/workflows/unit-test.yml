@@ -98,8 +98,11 @@ jobs:
         if [ -f coverage.out ]; then
           # Exclude files with no unit-testable logic (dev-only seed script,
           # thin CRUD peers already covered indirectly via mocks/utils/database,
-          # swaggo/swag-generated docs boilerplate).
-          grep -v -E "word-flashcard/data/demo\.go|word-flashcard/data/peers/(base|note_peer|question_peer|word_peer|word_definitions_peer|question_answer_log_peer|word_practice_log_peer)\.go|word-flashcard/docs/docs\.go" coverage.out > coverage.filtered.out
+          # swaggo/swag-generated docs boilerplate, testify/mockery-style mock
+          # doubles with no independent logic, and pure declarative table-schema
+          # definitions with no branching) whose coverage is structurally
+          # unattributable under `go test ./...` without `-coverpkg=./...`.
+          grep -v -E "word-flashcard/data/demo\.go|word-flashcard/data/peers/(base|note_peer|question_peer|word_peer|word_definitions_peer|question_answer_log_peer|word_practice_log_peer)\.go|word-flashcard/docs/docs\.go|word-flashcard/(data|internal)/mocks/.*_mock\.go|word-flashcard/data/schema/.*\.go" coverage.out > coverage.filtered.out
           mv coverage.filtered.out coverage.out
           go tool cover -func=coverage.out | tee coverage-func.txt
         else
