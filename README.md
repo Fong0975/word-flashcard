@@ -176,8 +176,6 @@ Create a `.env` file in the `web/` directory with the following configuration:
 # API Configuration
 VITE_API_HOSTNAME=localhost
 VITE_API_PORT=8080
-VITE_API_HOSTNAME_DICTIONARY=localhost
-VITE_API_PORT_DICTIONARY=8081
 ```
 
 For detailed database configuration and usage, see [Database Documentation](utils/database/README.md).
@@ -385,7 +383,5 @@ Use the Docker to deploy the services for the production environment.
 | .env     | BACKUP_DIR                        | Automatic backup output directory inside the container                         | backups <br/> (bound via its own `./backups:/root/backups` volume, so backup files persist on the physical host)  |
 | web/.env | VITE_API_HOSTNAME                 | Hostname for the API service in the frontend                                   | api.flashcard.com                                                                                                 |
 | web/.env | VITE_API_PORT                     | Port for the API service in the frontend configuration                         | 8080                                                                                                              |
-| web/.env | VITE_API_HOSTNAME_DICTIONARY      | Hostname for the Cambridge Dictionary API in the frontend configuration        | dictionary.flashcard.com                                                                                          |
-| web/.env | VITE_API_PORT_DICTIONARY          | Port for the Cambridge Dictionary API in the frontend configuration            | 8081                                                                                                              |
 
 3. Use `docker\docker-compose.yml` to build the Docker containers.

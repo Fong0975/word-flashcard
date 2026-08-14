@@ -30,7 +30,7 @@ import {
   ApiRequestOptions,
 } from '../types/base';
 
-import { API_CONFIG, API_ENDPOINTS, DICTIONARY_ENDPOINTS } from './api-config';
+import { API_CONFIG, API_ENDPOINTS } from './api-config';
 
 // Export/import move the entire database in one request, so they're given a
 // longer default timeout than the rest of the API (still overridable via
@@ -88,14 +88,12 @@ class ApiService {
     };
   }
 
-  // Shared fetch logic for both the primary API and the dictionary API,
-  // which only differ in which base URL they hit.
-  private async requestFrom<T>(
-    baseURL: string,
+  // Generic request method
+  private async request<T>(
     endpoint: string,
     options: RequestInit & ApiRequestOptions = {},
   ): Promise<T> {
-    const url = `${baseURL}${endpoint}`;
+    const url = `${this.baseURL}${endpoint}`;
 
     // Merge default options with provided options
     const requestOptions: RequestInit = {
@@ -166,22 +164,6 @@ class ApiService {
         error instanceof Error ? error.message : 'Unknown error',
       );
     }
-  }
-
-  // Generic request method
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit & ApiRequestOptions = {},
-  ): Promise<T> {
-    return this.requestFrom<T>(this.baseURL, endpoint, options);
-  }
-
-  // Dictionary API request method (uses different base URL)
-  private async dictionaryRequest<T>(
-    endpoint: string,
-    options: RequestInit & ApiRequestOptions = {},
-  ): Promise<T> {
-    return this.requestFrom<T>(API_CONFIG.dictionaryBaseURL, endpoint, options);
   }
 
   // GET request
@@ -507,10 +489,7 @@ class ApiService {
     word: string,
     options?: ApiRequestOptions,
   ): Promise<T> {
-    return this.dictionaryRequest<T>(DICTIONARY_ENDPOINTS.lookup(word), {
-      method: 'GET',
-      ...options,
-    });
+    return this.get<T>(API_ENDPOINTS.dictionaryLookup(word), options);
   }
 }
 
