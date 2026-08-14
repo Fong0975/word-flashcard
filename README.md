@@ -56,12 +56,12 @@ word-flashcard/
 │   ├── routers/                  # Route configuration
 │   └── scheduler/                # Background jobs (automatic backup scheduler)
 ├── utils/                         # Utility modules
-│   ├── cambridge-dictionary-api/ # Cambridge Dictionary API sub-service
+│   ├── cambridge-dictionary-api/ # (Deprecated) Cambridge Dictionary API sub-service, no longer used
 │   ├── config/                   # Configuration module
 │   ├── database/                 # Database module with MySQL/PostgreSQL support
 │   ├── log/                      # Logging module
 │   ├── conversion_utils.go       # Type conversion utilities
-│   ├── dictionary-testing.json   # Mockoon file for Cambridge Dictionary API sub-service
+│   ├── dictionary-testing.json   # (Deprecated) Mockoon file for the Cambridge Dictionary API sub-service
 │   └── pointer_utils.go          # Pointer utility functions
 ├── web/                           # React frontend application
 │   ├── public/                   # Public assets
@@ -107,11 +107,6 @@ go mod tidy
 Install the Node.js dependencies:
 
 ```bash
-# Install Cambridge Dictionary API dependencies
-cd utils/cambridge-dictionary-api
-npm install
-cd ../..
-
 # Install React frontend dependencies
 cd web
 npm install
@@ -130,7 +125,6 @@ Create a `.env` file in the project root directory with the following configurat
 # Services Port
 # (They will also be used during Docker Compose operations)
 APP_PORT=8080
-CAMBRIDGE_API_PORT=8081
 FRONTEND_PORT=3000
 
 # Logging Configuration
@@ -182,15 +176,6 @@ For detailed database configuration and usage, see [Database Documentation](util
 
 ### 3. Start the Services
 
-First, start the sub-service:
-
-#### Cambridge Dictionary API
-- The service will start on port `8081` by default.
-```bash
-cd utils/cambridge-dictionary-api
-npm run dev
-```
-
 #### Main Service
 - The service will start on port `8080` by default.
 ```bash
@@ -203,8 +188,6 @@ go run main.go
 cd web
 npm start
 ```
-
-**Note**: All sub-services must be running before starting the main service to ensure full functionality.
 
 ### 4. Access the Application
 
@@ -376,7 +359,6 @@ Use the Docker to deploy the services for the production environment.
 | File     | Variable                          | Description                                                                    | Sample Value                                                                                                      |
 |----------|-----------------------------------|--------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------|
 | .env     | APP_PORT                          | Port for the main application service (default expose port for docker-compose) | 8080                                                                                                              |
-| .env     | CAMBRIDGE_API_PORT                | Port for the Cambridge Dictionary API (default expose port for docker-compose) | 8081                                                                                                              |
 | .env     | FRONTEND_PORT                     | Port for the React frontend service (default expose port for docker-compose)   | 3000                                                                                                              |
 | .env     | LOG_FILE_PATH                     | Log file path inside the container                                             | logs/word-flashcard.log <br/> (Docker binds volumes by default, storing log files in the physical root directory) |
 | .env     | BACKUP_ENABLED                    | Whether the automatic backup scheduler runs (startup backup + periodic checks) | true                                                                                                               |
