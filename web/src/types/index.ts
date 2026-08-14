@@ -35,8 +35,6 @@ declare global {
   interface ImportMetaEnv {
     readonly VITE_API_HOSTNAME?: string;
     readonly VITE_API_PORT?: string;
-    readonly VITE_API_HOSTNAME_DICTIONARY?: string;
-    readonly VITE_API_PORT_DICTIONARY?: string;
   }
 
   /**

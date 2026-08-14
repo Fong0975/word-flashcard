@@ -1,7 +1,7 @@
 import type { Mock } from 'vitest';
 
 import { apiService, ApiError } from './api';
-import { API_CONFIG, API_ENDPOINTS, DICTIONARY_ENDPOINTS } from './api-config';
+import { API_CONFIG, API_ENDPOINTS } from './api-config';
 import { buildMockResponse } from './apiTestHelpers';
 
 describe('ApiService', () => {
@@ -100,13 +100,13 @@ describe('ApiService', () => {
   });
 
   describe('dictionary lookup', () => {
-    it('hits the dictionary base URL for lookupWord', async () => {
+    it('hits the main API base URL for lookupWord', async () => {
       fetchMock.mockResolvedValueOnce(buildMockResponse({ word: 'apple' }));
 
       await apiService.lookupWord('apple');
 
       expect(fetchMock).toHaveBeenCalledWith(
-        `${API_CONFIG.dictionaryBaseURL}${DICTIONARY_ENDPOINTS.lookup('apple')}`,
+        `${API_CONFIG.baseURL}${API_ENDPOINTS.dictionaryLookup('apple')}`,
         expect.objectContaining({ method: 'GET' }),
       );
     });
@@ -118,7 +118,7 @@ describe('ApiService', () => {
 
       const [url] = fetchMock.mock.calls[0];
       expect(url).toBe(
-        `${API_CONFIG.dictionaryBaseURL}${DICTIONARY_ENDPOINTS.lookup("don't stop")}`,
+        `${API_CONFIG.baseURL}${API_ENDPOINTS.dictionaryLookup("don't stop")}`,
       );
       expect(url).toContain(encodeURIComponent("don't stop"));
     });

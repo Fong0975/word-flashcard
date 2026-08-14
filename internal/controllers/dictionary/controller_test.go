@@ -1,16 +1,11 @@
 package dictionary
 
 import (
-	"encoding/json"
 	"io"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
-	"os"
-	"strings"
 	"testing"
-
-	"word-flashcard/internal/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/suite"
@@ -22,7 +17,6 @@ type ControllerTestSuite struct {
 	controller          *Controller
 	router              *gin.Engine
 	mockCambridgeServer *httptest.Server
-	originalPort        string
 }
 
 // TestControllerTestSuite runs the ControllerTestSuite
@@ -44,10 +38,8 @@ func (suite *ControllerTestSuite) SetupTest() {
 	suite.router = gin.New()
 
 	// Register dictionary route
-	suite.router.GET("/api/dictionary/:word", suite.controller.SearchWord)
+	suite.router.GET("/api/dictionary/:language/:word", suite.controller.SearchWord)
 
-	// Store original port and setup mock server
-	suite.originalPort = os.Getenv("CAMBRIDGE_API_PORT")
 	suite.setupMockCambridgeServer()
 }
 
@@ -55,12 +47,6 @@ func (suite *ControllerTestSuite) SetupTest() {
 func (suite *ControllerTestSuite) TearDownTest() {
 	if suite.mockCambridgeServer != nil {
 		suite.mockCambridgeServer.Close()
-	}
-	// Restore original environment variable
-	if suite.originalPort != "" {
-		os.Setenv("CAMBRIDGE_API_PORT", suite.originalPort)
-	} else {
-		os.Unsetenv("CAMBRIDGE_API_PORT")
 	}
 }
 
@@ -73,51 +59,22 @@ func setupTestLogging() {
 	slog.SetDefault(logger)
 }
 
-// setupMockCambridgeServer creates a mock server that simulates Cambridge API responses
+// setupMockCambridgeServer creates a mock server that simulates Cambridge Dictionary
+// pages and points the controller's cambridgeBaseURL at it, replacing the real
+// dictionary.cambridge.org origin for the duration of the test.
 func (suite *ControllerTestSuite) setupMockCambridgeServer() {
 	suite.mockCambridgeServer = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Mock Cambridge API response for successful word lookup
-		if strings.Contains(r.URL.Path, "/api/dictionary/en-tw/hello") {
-			mockResponse := models.CambridgeResponse{
-				Word: "hello",
-				POS:  []string{"noun", "verb"},
-				Pronunciation: []models.CambridgePronunciation{
-					{
-						POS:  "noun",
-						Lang: "en",
-						URL:  "http://example.com/audio/hello.mp3",
-						Pron: "/həˈloʊ/",
-					},
-				},
-				Definition: []models.CambridgeDefinition{
-					{
-						ID:          1,
-						POS:         "noun",
-						Text:        "a greeting",
-						Translation: "問候",
-						Example: []models.CambridgeExample{
-							{
-								ID:          1,
-								Text:        "hello there!",
-								Translation: "你好！",
-							},
-						},
-					},
-				},
-			}
-
-			w.Header().Set("Content-Type", "application/json")
+		switch r.URL.Path {
+		case "/us/dictionary/english-chinese-traditional/hello":
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
 			w.WriteHeader(http.StatusOK)
-			json.NewEncoder(w).Encode(mockResponse)
-		} else {
+			_, _ = w.Write([]byte(helloFixtureHTML))
+		case "/us/dictionary/english-chinese-traditional/upstreamerror":
+			w.WriteHeader(http.StatusInternalServerError)
+		default:
 			w.WriteHeader(http.StatusNotFound)
 		}
 	}))
 
-	// Extract port from mock server URL and set environment variable
-	// The mock server URL format is http://127.0.0.1:port
-	serverURL := suite.mockCambridgeServer.URL
-	// Extract port from URL like "http://127.0.0.1:12345"
-	port := serverURL[len("http://127.0.0.1:"):]
-	os.Setenv("CAMBRIDGE_API_PORT", port)
+	suite.controller.cambridgeBaseURL = suite.mockCambridgeServer.URL
 }

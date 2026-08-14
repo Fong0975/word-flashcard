@@ -87,7 +87,7 @@ func SetupAPIRoutesWithDependencies(router *gin.Engine, deps *ControllerDependen
 	apiGroup.GET("/information", deps.HealthController.InformationCheck)
 
 	// Dictionary routes
-	apiGroup.GET("/dictionary/:word", deps.DictionaryController.SearchWord)
+	apiGroup.GET("/dictionary/:language/:word", deps.DictionaryController.SearchWord)
 
 	// Words routes
 	apiGroup.GET("/words", deps.WordController.ListWords)

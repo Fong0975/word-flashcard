@@ -56,12 +56,12 @@ word-flashcard/
 │   ├── routers/                  # Route configuration
 │   └── scheduler/                # Background jobs (automatic backup scheduler)
 ├── utils/                         # Utility modules
-│   ├── cambridge-dictionary-api/ # Cambridge Dictionary API sub-service
+│   ├── cambridge-dictionary-api/ # (Deprecated) Cambridge Dictionary API sub-service, no longer used
 │   ├── config/                   # Configuration module
 │   ├── database/                 # Database module with MySQL/PostgreSQL support
 │   ├── log/                      # Logging module
 │   ├── conversion_utils.go       # Type conversion utilities
-│   ├── dictionary-testing.json   # Mockoon file for Cambridge Dictionary API sub-service
+│   ├── dictionary-testing.json   # (Deprecated) Mockoon file for the Cambridge Dictionary API sub-service
 │   └── pointer_utils.go          # Pointer utility functions
 ├── web/                           # React frontend application
 │   ├── public/                   # Public assets
@@ -107,11 +107,6 @@ go mod tidy
 Install the Node.js dependencies:
 
 ```bash
-# Install Cambridge Dictionary API dependencies
-cd utils/cambridge-dictionary-api
-npm install
-cd ../..
-
 # Install React frontend dependencies
 cd web
 npm install
@@ -130,7 +125,6 @@ Create a `.env` file in the project root directory with the following configurat
 # Services Port
 # (They will also be used during Docker Compose operations)
 APP_PORT=8080
-CAMBRIDGE_API_PORT=8081
 FRONTEND_PORT=3000
 
 # Logging Configuration
@@ -176,22 +170,11 @@ Create a `.env` file in the `web/` directory with the following configuration:
 # API Configuration
 VITE_API_HOSTNAME=localhost
 VITE_API_PORT=8080
-VITE_API_HOSTNAME_DICTIONARY=localhost
-VITE_API_PORT_DICTIONARY=8081
 ```
 
 For detailed database configuration and usage, see [Database Documentation](utils/database/README.md).
 
 ### 3. Start the Services
-
-First, start the sub-service:
-
-#### Cambridge Dictionary API
-- The service will start on port `8081` by default.
-```bash
-cd utils/cambridge-dictionary-api
-npm run dev
-```
 
 #### Main Service
 - The service will start on port `8080` by default.
@@ -205,8 +188,6 @@ go run main.go
 cd web
 npm start
 ```
-
-**Note**: All sub-services must be running before starting the main service to ensure full functionality.
 
 ### 4. Access the Application
 
@@ -378,14 +359,11 @@ Use the Docker to deploy the services for the production environment.
 | File     | Variable                          | Description                                                                    | Sample Value                                                                                                      |
 |----------|-----------------------------------|--------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------|
 | .env     | APP_PORT                          | Port for the main application service (default expose port for docker-compose) | 8080                                                                                                              |
-| .env     | CAMBRIDGE_API_PORT                | Port for the Cambridge Dictionary API (default expose port for docker-compose) | 8081                                                                                                              |
 | .env     | FRONTEND_PORT                     | Port for the React frontend service (default expose port for docker-compose)   | 3000                                                                                                              |
 | .env     | LOG_FILE_PATH                     | Log file path inside the container                                             | logs/word-flashcard.log <br/> (Docker binds volumes by default, storing log files in the physical root directory) |
 | .env     | BACKUP_ENABLED                    | Whether the automatic backup scheduler runs (startup backup + periodic checks) | true                                                                                                               |
 | .env     | BACKUP_DIR                        | Automatic backup output directory inside the container                         | backups <br/> (bound via its own `./backups:/root/backups` volume, so backup files persist on the physical host)  |
 | web/.env | VITE_API_HOSTNAME                 | Hostname for the API service in the frontend                                   | api.flashcard.com                                                                                                 |
 | web/.env | VITE_API_PORT                     | Port for the API service in the frontend configuration                         | 8080                                                                                                              |
-| web/.env | VITE_API_HOSTNAME_DICTIONARY      | Hostname for the Cambridge Dictionary API in the frontend configuration        | dictionary.flashcard.com                                                                                          |
-| web/.env | VITE_API_PORT_DICTIONARY          | Port for the Cambridge Dictionary API in the frontend configuration            | 8081                                                                                                              |
 
 3. Use `docker\docker-compose.yml` to build the Docker containers.

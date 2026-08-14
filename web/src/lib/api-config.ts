@@ -6,19 +6,9 @@ export const API_CONFIG = {
   hostname: import.meta.env.VITE_API_HOSTNAME || 'localhost',
   port: import.meta.env.VITE_API_PORT || '8080',
 
-  // Dictionary API configuration
-  dictionaryHostname:
-    import.meta.env.VITE_API_HOSTNAME_DICTIONARY || 'localhost',
-  dictionaryPort: import.meta.env.VITE_API_PORT_DICTIONARY || '8081',
-
   // Construct base URL
   get baseURL() {
     return `http://${this.hostname}:${this.port}/api`;
-  },
-
-  // Construct dictionary base URL
-  get dictionaryBaseURL() {
-    return `http://${this.dictionaryHostname}:${this.dictionaryPort}/api`;
   },
 
   // Default request timeout
@@ -58,9 +48,6 @@ export const API_ENDPOINTS = {
   notesCount: '/notes/count',
   dataExport: '/data/export',
   dataImport: '/data/import',
-} as const;
-
-// Dictionary API endpoints
-export const DICTIONARY_ENDPOINTS = {
-  lookup: (word: string) => `/dictionary/en-tw/${encodeURIComponent(word)}`,
+  dictionaryLookup: (word: string) =>
+    `/dictionary/en-tw/${encodeURIComponent(word)}`,
 } as const;
