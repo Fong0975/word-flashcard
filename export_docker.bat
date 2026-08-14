@@ -22,7 +22,7 @@ mkdir "%DEST_DIR%"
 :: Excluding: Git files, build artifacts, dependencies, IDE configs, linting configs, and cache files.
 
 robocopy "./" "%DEST_DIR%" /E ^
-    /XD .git .github dist node_modules .vscode .idea .claude coverage ctrf .cache backups assets cambridge-dictionary-api "%DEST_DIR%" ^
+    /XD .git .github dist node_modules .vscode .idea .claude coverage ctrf .cache backups "%~dp0assets" cambridge-dictionary-api "%DEST_DIR%" ^
     /XF .gitignore README.md *.bat *.log *_test.go .env ^
     .eslintrc.json .prettierrc.json .prettierignore .eslintcache .golangci.yml ^
     *.tsbuildinfo *.code-workspace npm-debug.log* yarn-debug.log* yarn-error.log* ^
@@ -34,6 +34,23 @@ robocopy "./" "%DEST_DIR%" /E ^
 if %ERRORLEVEL% LEQ 1 (
     echo.
     echo Files have been refreshed in: %DEST_DIR%/
+
+    :: Recreate the backups directory (excluded from robocopy above) and seed
+    :: it with the most recent top-level backup JSON, if any exist, so the
+    :: bind mount target exists on first docker-compose startup.
+    echo Preparing backups directory...
+    if not exist "%DEST_DIR%\backups" mkdir "%DEST_DIR%\backups"
+
+    set "LATEST_BACKUP="
+    for /f "delims=" %%F in ('dir /b /a:-d /o:-d "backups\*.json" 2^>nul') do (
+        if not defined LATEST_BACKUP set "LATEST_BACKUP=%%F"
+    )
+    if defined LATEST_BACKUP (
+        echo Copying latest backup into %DEST_DIR%\backups\: %LATEST_BACKUP%
+        copy /y "backups\%LATEST_BACKUP%" "%DEST_DIR%\backups\%LATEST_BACKUP%" >nul
+    ) else (
+        echo No backup JSON files found in backups\. Leaving %DEST_DIR%\backups\ empty.
+    )
 
     :: Check for environment configuration files and rename them
     echo Checking for environment configuration files...

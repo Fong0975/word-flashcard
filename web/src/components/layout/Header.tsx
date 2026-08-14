@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 import { useDarkMode } from '../../hooks/useDarkMode';
-import { logo } from '../../assets/images';
+import logo from '../../assets/images/logo.png';
 
 import { DataManagementMenu } from './DataManagementMenu';
 
