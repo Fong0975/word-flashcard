@@ -15,6 +15,11 @@ const (
 // option was selected. selected_option must always refer to the question's
 // own option_a-d ordering, not the shuffled order shown during the quiz, so
 // per-option error rates can be derived correctly.
+//
+// question_id intentionally carries no FK constraint: deleting a question
+// must never touch its answer history, so stats/trend charts stay unchanged
+// after deletion. This means question_id can end up referencing a question
+// that no longer exists -- that is expected, not a data integrity bug.
 func QuestionAnswerLogsTable() *domain.TableDefinition {
 	return &domain.TableDefinition{
 		Name: QUESTION_ANSWER_LOG_TABLE_NAME,
@@ -31,10 +36,6 @@ func QuestionAnswerLogsTable() *domain.TableDefinition {
 				Type:    domain.IntType,
 				NotNull: true,
 				Index:   true,
-				ForeignKey: &domain.ForeignKey{
-					Table:  QUESTION_TABLE_NAME,
-					Column: QUESTION_ID,
-				},
 			},
 			{
 				Name:    QUESTION_ANSWER_LOG_SELECTED_OPTION,

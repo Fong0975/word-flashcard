@@ -37,13 +37,13 @@ const docTemplate = `{
                     "200": {
                         "description": "Full database snapshot",
                         "schema": {
-                            "$ref": "#/definitions/models.DataExport"
+                            "$ref": "#/definitions/word-flashcard_internal_models.DataExport"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to fetch data from database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -68,7 +68,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.DataExport"
+                            "$ref": "#/definitions/word-flashcard_internal_models.DataExport"
                         }
                     }
                 ],
@@ -76,19 +76,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Row counts written per table",
                         "schema": {
-                            "$ref": "#/definitions/models.ImportSummary"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ImportSummary"
                         }
                     },
                     "400": {
                         "description": "Bad request - Invalid or incomplete request body",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to restore data into database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -127,25 +127,25 @@ const docTemplate = `{
                     "200": {
                         "description": "Dictionary definition found successfully",
                         "schema": {
-                            "$ref": "#/definitions/models.CambridgeResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.CambridgeResponse"
                         }
                     },
                     "400": {
                         "description": "Bad request - Missing word parameter or unsupported language",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not found - Word not found in the dictionary",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "502": {
                         "description": "Bad gateway - Cambridge Dictionary is currently unavailable",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -168,7 +168,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Server is healthy",
                         "schema": {
-                            "$ref": "#/definitions/models.HealthResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.HealthResponse"
                         }
                     }
                 }
@@ -191,13 +191,13 @@ const docTemplate = `{
                     "200": {
                         "description": "Application information",
                         "schema": {
-                            "$ref": "#/definitions/models.InformationResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.InformationResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - VERSION file not found or unreadable",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -245,13 +245,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid query parameters",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to fetch data from database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -288,19 +288,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid request body",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict - A note with this title already exists",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to insert data into database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -329,7 +329,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal server error - Failed to count notes in database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -354,7 +354,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.SearchFilter"
+                            "$ref": "#/definitions/word-flashcard_internal_models.SearchFilter"
                         }
                     },
                     {
@@ -389,13 +389,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid request body, filter, or query parameters",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to fetch data from database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -429,19 +429,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid note ID",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not found - Note not found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to fetch data from database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -485,25 +485,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid note ID or request body",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not found - Note not found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict - A note with this title already exists",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to update data in database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -529,19 +529,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid note ID",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not found - Note not found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to delete data from database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -592,13 +592,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid query parameters",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to fetch data from database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -635,13 +635,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid request body",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to insert data into database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -673,7 +673,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal server error - Failed to count questions in database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -698,7 +698,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.QuestionRandomRequest"
+                            "$ref": "#/definitions/word-flashcard_internal_models.QuestionRandomRequest"
                         }
                     }
                 ],
@@ -715,13 +715,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid request body or count parameter",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to fetch data from database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -740,13 +740,13 @@ const docTemplate = `{
                     "200": {
                         "description": "Question accuracy distribution",
                         "schema": {
-                            "$ref": "#/definitions/models.QuestionStats"
+                            "$ref": "#/definitions/word-flashcard_internal_models.QuestionStats"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to fetch questions",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -775,20 +775,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.QuestionTrendPoint"
+                                "$ref": "#/definitions/word-flashcard_internal_models.QuestionTrendPoint"
                             }
                         }
                     },
                     "400": {
                         "description": "Bad request - Invalid days parameter",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to fetch data from database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -825,19 +825,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid query parameters",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not found - Question not found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to fetch data from database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -881,19 +881,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid question ID or request body",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not found - Question not found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to update data in database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -925,19 +925,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid question ID",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not found - Question not found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to delete data from database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -973,20 +973,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.QuestionAnswerLogEntry"
+                                "$ref": "#/definitions/word-flashcard_internal_models.QuestionAnswerLogEntry"
                             }
                         }
                     },
                     "400": {
                         "description": "Bad request - Invalid question ID or limit parameter",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to fetch data from database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -1031,13 +1031,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid query parameters",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to fetch data from database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -1074,19 +1074,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid request body",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict - A word with this text already exists",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to insert data into database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -1111,7 +1111,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.SearchFilter"
+                            "$ref": "#/definitions/word-flashcard_internal_models.SearchFilter"
                         }
                     }
                 ],
@@ -1129,13 +1129,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid request body or filter",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to fetch data from database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -1181,19 +1181,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid definition ID or request body",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not found - Word definition not found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to update data in database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -1237,13 +1237,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid word ID or request body",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to insert data into database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -1275,19 +1275,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid definition ID",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not found - Word definition not found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to delete data from database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -1312,7 +1312,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.WordRandomRequest"
+                            "$ref": "#/definitions/word-flashcard_internal_models.WordRandomRequest"
                         }
                     }
                 ],
@@ -1329,13 +1329,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid request body or count parameter",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to fetch data from database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -1360,7 +1360,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.SearchFilter"
+                            "$ref": "#/definitions/word-flashcard_internal_models.SearchFilter"
                         }
                     },
                     {
@@ -1395,13 +1395,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid request body, filter, or query parameters",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to fetch data from database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -1420,13 +1420,13 @@ const docTemplate = `{
                     "200": {
                         "description": "Word familiarity distribution",
                         "schema": {
-                            "$ref": "#/definitions/models.WordStats"
+                            "$ref": "#/definitions/word-flashcard_internal_models.WordStats"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to count words",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -1455,20 +1455,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.WordTrendPoint"
+                                "$ref": "#/definitions/word-flashcard_internal_models.WordTrendPoint"
                             }
                         }
                     },
                     "400": {
                         "description": "Bad request - Invalid days parameter",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to fetch data from database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -1514,25 +1514,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid word ID or request body",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not found - Word not found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict - A word with this text already exists",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to update data in database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -1564,19 +1564,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request - Invalid word ID",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not found - Word not found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to delete data from database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -1612,20 +1612,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.WordPracticeLogEntry"
+                                "$ref": "#/definitions/word-flashcard_internal_models.WordPracticeLogEntry"
                             }
                         }
                     },
                     "400": {
                         "description": "Bad request - Invalid word ID or limit parameter",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error - Failed to fetch data from database",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -1633,479 +1633,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "models.AccuracyBucket": {
-            "type": "object",
-            "properties": {
-                "count": {
-                    "type": "integer"
-                },
-                "practice_count_breakdown": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.PracticeCountBucket"
-                    }
-                },
-                "range": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.CambridgeDefinition": {
-            "type": "object",
-            "properties": {
-                "example": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.CambridgeExample"
-                    }
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "pos": {
-                    "type": "string"
-                },
-                "text": {
-                    "type": "string"
-                },
-                "translation": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.CambridgeExample": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "text": {
-                    "type": "string"
-                },
-                "translation": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.CambridgePronunciation": {
-            "type": "object",
-            "properties": {
-                "lang": {
-                    "type": "string"
-                },
-                "pos": {
-                    "type": "string"
-                },
-                "pron": {
-                    "type": "string"
-                },
-                "url": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.CambridgeResponse": {
-            "type": "object",
-            "properties": {
-                "definition": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.CambridgeDefinition"
-                    }
-                },
-                "pos": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "pronunciation": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.CambridgePronunciation"
-                    }
-                },
-                "verbs": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.CambridgeVerb"
-                    }
-                },
-                "word": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.CambridgeVerb": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "text": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.DataExport": {
-            "type": "object",
-            "properties": {
-                "exported_at": {
-                    "type": "string"
-                },
-                "notes": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/word-flashcard_data_models.Note"
-                    }
-                },
-                "question_answer_logs": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.QuestionAnswerLog"
-                    }
-                },
-                "questions": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/word-flashcard_data_models.Question"
-                    }
-                },
-                "word_definitions": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/word-flashcard_data_models.WordDefinition"
-                    }
-                },
-                "word_practice_logs": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.WordPracticeLog"
-                    }
-                },
-                "words": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/word-flashcard_data_models.Word"
-                    }
-                }
-            }
-        },
-        "models.ErrorCode": {
-            "type": "string",
-            "enum": [
-                "invalid_request",
-                "validation_error",
-                "not_found",
-                "conflict",
-                "internal_error",
-                "upstream_unavailable"
-            ],
-            "x-enum-varnames": [
-                "ErrCodeInvalidRequest",
-                "ErrCodeValidationError",
-                "ErrCodeNotFound",
-                "ErrCodeConflict",
-                "ErrCodeInternalError",
-                "ErrCodeUpstreamUnavailable"
-            ]
-        },
-        "models.ErrorResponse": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "$ref": "#/definitions/models.ErrorCode"
-                },
-                "error": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.HealthResponse": {
-            "type": "object",
-            "properties": {
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.ImportSummary": {
-            "type": "object",
-            "properties": {
-                "notes": {
-                    "type": "integer"
-                },
-                "question_answer_logs": {
-                    "type": "integer"
-                },
-                "questions": {
-                    "type": "integer"
-                },
-                "word_definitions": {
-                    "type": "integer"
-                },
-                "word_practice_logs": {
-                    "type": "integer"
-                },
-                "words": {
-                    "type": "integer"
-                }
-            }
-        },
-        "models.InformationResponse": {
-            "type": "object",
-            "properties": {
-                "version": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.PracticeCountBucket": {
-            "type": "object",
-            "properties": {
-                "count": {
-                    "type": "integer"
-                },
-                "range": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.QuestionAnswerLog": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "is_correct": {
-                    "type": "boolean"
-                },
-                "question_id": {
-                    "type": "integer"
-                },
-                "selected_option": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.QuestionAnswerLogEntry": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "is_correct": {
-                    "type": "boolean"
-                },
-                "selected_option": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.QuestionRandomRequest": {
-            "type": "object",
-            "required": [
-                "count"
-            ],
-            "properties": {
-                "count": {
-                    "type": "integer",
-                    "maximum": 1000,
-                    "minimum": 1
-                },
-                "exclude_recent_days": {
-                    "type": "integer"
-                }
-            }
-        },
-        "models.QuestionStats": {
-            "type": "object",
-            "properties": {
-                "accuracy_distribution": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.AccuracyBucket"
-                    }
-                }
-            }
-        },
-        "models.QuestionTrendPoint": {
-            "type": "object",
-            "properties": {
-                "accuracy_rate": {
-                    "type": "number"
-                },
-                "date": {
-                    "type": "string"
-                },
-                "practice_count": {
-                    "type": "integer"
-                }
-            }
-        },
-        "models.SearchCondition": {
-            "type": "object",
-            "required": [
-                "key",
-                "operator"
-            ],
-            "properties": {
-                "key": {
-                    "type": "string"
-                },
-                "operator": {
-                    "type": "string"
-                },
-                "value": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.SearchFilter": {
-            "type": "object",
-            "required": [
-                "conditions",
-                "logic"
-            ],
-            "properties": {
-                "conditions": {
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                        "$ref": "#/definitions/models.SearchCondition"
-                    }
-                },
-                "logic": {
-                    "description": "\"AND\" or \"OR\"",
-                    "type": "string"
-                }
-            }
-        },
-        "models.WordFamiliarityDistribution": {
-            "type": "object",
-            "properties": {
-                "green": {
-                    "type": "integer"
-                },
-                "red": {
-                    "type": "integer"
-                },
-                "yellow": {
-                    "type": "integer"
-                }
-            }
-        },
-        "models.WordPracticeLog": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "familiarity": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "previous_familiarity": {
-                    "type": "string"
-                },
-                "quiz_session_id": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "word_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "models.WordPracticeLogEntry": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "familiarity": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "previous_familiarity": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.WordRandomRequest": {
-            "type": "object",
-            "required": [
-                "count"
-            ],
-            "properties": {
-                "count": {
-                    "type": "integer",
-                    "maximum": 1000,
-                    "minimum": 1
-                },
-                "familiarity_levels": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "per_category_counts": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "integer"
-                    }
-                }
-            }
-        },
-        "models.WordStats": {
-            "type": "object",
-            "properties": {
-                "familiarity_distribution": {
-                    "$ref": "#/definitions/models.WordFamiliarityDistribution"
-                },
-                "practice_count_distribution": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.PracticeCountBucket"
-                    }
-                }
-            }
-        },
-        "models.WordTrendPoint": {
-            "type": "object",
-            "properties": {
-                "avg_familiarity_score": {
-                    "type": "number"
-                },
-                "date": {
-                    "type": "string"
-                },
-                "improvement_rate": {
-                    "type": "number"
-                },
-                "practice_count": {
-                    "type": "integer"
-                }
-            }
-        },
         "word-flashcard_data_models.Note": {
             "type": "object",
             "properties": {
@@ -2176,6 +1703,29 @@ const docTemplate = `{
                 }
             }
         },
+        "word-flashcard_data_models.QuestionAnswerLog": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_correct": {
+                    "type": "boolean"
+                },
+                "question_id": {
+                    "type": "integer"
+                },
+                "selected_option": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
         "word-flashcard_data_models.Word": {
             "type": "object",
             "properties": {
@@ -2237,6 +1787,262 @@ const docTemplate = `{
                 }
             }
         },
+        "word-flashcard_data_models.WordPracticeLog": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "familiarity": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "previous_familiarity": {
+                    "type": "string"
+                },
+                "quiz_session_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "word_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "word-flashcard_internal_models.AccuracyBucket": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "practice_count_breakdown": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/word-flashcard_internal_models.PracticeCountBucket"
+                    }
+                },
+                "range": {
+                    "type": "string"
+                }
+            }
+        },
+        "word-flashcard_internal_models.CambridgeDefinition": {
+            "type": "object",
+            "properties": {
+                "example": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/word-flashcard_internal_models.CambridgeExample"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "pos": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "translation": {
+                    "type": "string"
+                }
+            }
+        },
+        "word-flashcard_internal_models.CambridgeExample": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "translation": {
+                    "type": "string"
+                }
+            }
+        },
+        "word-flashcard_internal_models.CambridgePronunciation": {
+            "type": "object",
+            "properties": {
+                "lang": {
+                    "type": "string"
+                },
+                "pos": {
+                    "type": "string"
+                },
+                "pron": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "word-flashcard_internal_models.CambridgeResponse": {
+            "type": "object",
+            "properties": {
+                "definition": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/word-flashcard_internal_models.CambridgeDefinition"
+                    }
+                },
+                "pos": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "pronunciation": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/word-flashcard_internal_models.CambridgePronunciation"
+                    }
+                },
+                "verbs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/word-flashcard_internal_models.CambridgeVerb"
+                    }
+                },
+                "word": {
+                    "type": "string"
+                }
+            }
+        },
+        "word-flashcard_internal_models.CambridgeVerb": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "word-flashcard_internal_models.DataExport": {
+            "type": "object",
+            "properties": {
+                "exported_at": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/word-flashcard_data_models.Note"
+                    }
+                },
+                "question_answer_logs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/word-flashcard_data_models.QuestionAnswerLog"
+                    }
+                },
+                "questions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/word-flashcard_data_models.Question"
+                    }
+                },
+                "word_definitions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/word-flashcard_data_models.WordDefinition"
+                    }
+                },
+                "word_practice_logs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/word-flashcard_data_models.WordPracticeLog"
+                    }
+                },
+                "words": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/word-flashcard_data_models.Word"
+                    }
+                }
+            }
+        },
+        "word-flashcard_internal_models.ErrorCode": {
+            "type": "string",
+            "enum": [
+                "invalid_request",
+                "validation_error",
+                "not_found",
+                "conflict",
+                "internal_error",
+                "upstream_unavailable"
+            ],
+            "x-enum-varnames": [
+                "ErrCodeInvalidRequest",
+                "ErrCodeValidationError",
+                "ErrCodeNotFound",
+                "ErrCodeConflict",
+                "ErrCodeInternalError",
+                "ErrCodeUpstreamUnavailable"
+            ]
+        },
+        "word-flashcard_internal_models.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "$ref": "#/definitions/word-flashcard_internal_models.ErrorCode"
+                },
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "word-flashcard_internal_models.HealthResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "word-flashcard_internal_models.ImportSummary": {
+            "type": "object",
+            "properties": {
+                "notes": {
+                    "type": "integer"
+                },
+                "question_answer_logs": {
+                    "type": "integer"
+                },
+                "questions": {
+                    "type": "integer"
+                },
+                "word_definitions": {
+                    "type": "integer"
+                },
+                "word_practice_logs": {
+                    "type": "integer"
+                },
+                "words": {
+                    "type": "integer"
+                }
+            }
+        },
+        "word-flashcard_internal_models.InformationResponse": {
+            "type": "object",
+            "properties": {
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
         "word-flashcard_internal_models.Note": {
             "type": "object",
             "properties": {
@@ -2253,6 +2059,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "word-flashcard_internal_models.PracticeCountBucket": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "range": {
                     "type": "string"
                 }
             }
@@ -2297,6 +2114,102 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "selected_option": {
+                    "type": "string"
+                }
+            }
+        },
+        "word-flashcard_internal_models.QuestionAnswerLogEntry": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_correct": {
+                    "type": "boolean"
+                },
+                "selected_option": {
+                    "type": "string"
+                }
+            }
+        },
+        "word-flashcard_internal_models.QuestionRandomRequest": {
+            "type": "object",
+            "required": [
+                "count"
+            ],
+            "properties": {
+                "count": {
+                    "type": "integer",
+                    "maximum": 1000,
+                    "minimum": 1
+                },
+                "exclude_recent_days": {
+                    "type": "integer"
+                }
+            }
+        },
+        "word-flashcard_internal_models.QuestionStats": {
+            "type": "object",
+            "properties": {
+                "accuracy_distribution": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/word-flashcard_internal_models.AccuracyBucket"
+                    }
+                }
+            }
+        },
+        "word-flashcard_internal_models.QuestionTrendPoint": {
+            "type": "object",
+            "properties": {
+                "accuracy_rate": {
+                    "type": "number"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "practice_count": {
+                    "type": "integer"
+                }
+            }
+        },
+        "word-flashcard_internal_models.SearchCondition": {
+            "type": "object",
+            "required": [
+                "key",
+                "operator"
+            ],
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "operator": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "word-flashcard_internal_models.SearchFilter": {
+            "type": "object",
+            "required": [
+                "conditions",
+                "logic"
+            ],
+            "properties": {
+                "conditions": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/word-flashcard_internal_models.SearchCondition"
+                    }
+                },
+                "logic": {
+                    "description": "\"AND\" or \"OR\"",
                     "type": "string"
                 }
             }
@@ -2357,6 +2270,93 @@ const docTemplate = `{
                 "phonetics": {
                     "type": "object",
                     "additionalProperties": true
+                }
+            }
+        },
+        "word-flashcard_internal_models.WordFamiliarityDistribution": {
+            "type": "object",
+            "properties": {
+                "green": {
+                    "type": "integer"
+                },
+                "red": {
+                    "type": "integer"
+                },
+                "yellow": {
+                    "type": "integer"
+                }
+            }
+        },
+        "word-flashcard_internal_models.WordPracticeLogEntry": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "familiarity": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "previous_familiarity": {
+                    "type": "string"
+                }
+            }
+        },
+        "word-flashcard_internal_models.WordRandomRequest": {
+            "type": "object",
+            "required": [
+                "count"
+            ],
+            "properties": {
+                "count": {
+                    "type": "integer",
+                    "maximum": 1000,
+                    "minimum": 1
+                },
+                "familiarity_levels": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "per_category_counts": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "word-flashcard_internal_models.WordStats": {
+            "type": "object",
+            "properties": {
+                "familiarity_distribution": {
+                    "$ref": "#/definitions/word-flashcard_internal_models.WordFamiliarityDistribution"
+                },
+                "practice_count_distribution": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/word-flashcard_internal_models.PracticeCountBucket"
+                    }
+                }
+            }
+        },
+        "word-flashcard_internal_models.WordTrendPoint": {
+            "type": "object",
+            "properties": {
+                "avg_familiarity_score": {
+                    "type": "number"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "improvement_rate": {
+                    "type": "number"
+                },
+                "practice_count": {
+                    "type": "integer"
                 }
             }
         }

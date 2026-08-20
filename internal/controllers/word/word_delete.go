@@ -47,7 +47,9 @@ func (wc *Controller) DeleteWord(c *gin.Context) {
 		}
 	}
 
-	// Delete the word
+	// Delete the word. word_practice_logs rows referencing this word are
+	// intentionally left in place (no FK constraint, no cascade) so that
+	// stats/trend charts stay unchanged after deletion.
 	where := squirrel.Eq{schema.WORD_ID: wordID}
 	effected, err := wc.wordPeer.Delete(where)
 	if err != nil {

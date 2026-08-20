@@ -19,6 +19,11 @@ const (
 // same (word_id, quiz_session_id) pair -- i.e. the user navigating back and
 // re-answering the same question within one quiz attempt -- corrects the
 // existing row in place instead of adding a duplicate (see UpdateWord).
+//
+// word_id intentionally carries no FK constraint: deleting a word must
+// never touch its practice history, so stats/trend charts stay unchanged
+// after deletion. This means word_id can end up referencing a word that no
+// longer exists -- that is expected, not a data integrity bug.
 func WordPracticeLogsTable() *domain.TableDefinition {
 	return &domain.TableDefinition{
 		Name: WORD_PRACTICE_LOG_TABLE_NAME,
@@ -35,10 +40,6 @@ func WordPracticeLogsTable() *domain.TableDefinition {
 				Type:    domain.IntType,
 				NotNull: true,
 				Index:   true,
-				ForeignKey: &domain.ForeignKey{
-					Table:  WORD_TABLE_NAME,
-					Column: WORD_ID,
-				},
 			},
 			{
 				Name:    WORD_PRACTICE_LOG_FAMILIARITY,
