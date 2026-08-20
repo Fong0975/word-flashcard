@@ -31,6 +31,9 @@ func (qc *Controller) DeleteQuestions(c *gin.Context) {
 	}
 
 	// ================ 2. Delete data from database ================
+	// question_answer_logs rows referencing this question are intentionally
+	// left in place (no FK constraint, no cascade) so that stats/trend
+	// charts stay unchanged after deletion.
 	where := squirrel.Eq{schema.QUESTION_ID: questionID}
 	effected, err := qc.questionPeer.Delete(where)
 	if err != nil {
