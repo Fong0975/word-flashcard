@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { Modal } from '../../components/ui/Modal';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
+import { ToastContainer } from '../../components/ui';
 import { apiService } from '../../lib/api';
 import { BackupFile } from '../../types/backups';
 import { useAsyncOnOpen } from '../shared/hooks/useAsyncOnOpen';
+import { useToast } from '../../hooks/ui/useToast';
 import { formatDateTimeParts } from '../../utils/dateFormat';
 
 interface BackupsModalProps {
@@ -19,6 +21,10 @@ const JSON_EXTENSION = '.json';
 /** Strips the trailing ".json" extension for display, e.g. in the Name column. */
 const stripJsonExtension = (name: string): string =>
   name.endsWith(JSON_EXTENSION) ? name.slice(0, -JSON_EXTENSION.length) : name;
+
+/** Extracts a human-readable message from a caught value. */
+const errorMessage = (error: unknown): string =>
+  error instanceof Error ? error.message : 'Unknown error';
 
 /** Formats a byte count as a human-readable size (e.g. "482 KB"). */
 const formatFileSize = (bytes: number): string => {
@@ -54,6 +60,26 @@ export const BackupsModal: React.FC<BackupsModalProps> = ({
     fetcher: () => apiService.getBackupFiles(),
     errorMessage: 'Failed to load backup files.',
   });
+
+  const [isCreating, setIsCreating] = useState(false);
+  const { toasts, showSuccess, showError, removeToast } = useToast();
+
+  const handleCreateBackupClick = async (): Promise<void> => {
+    if (isCreating) {
+      return;
+    }
+
+    setIsCreating(true);
+    try {
+      await apiService.triggerBackup();
+      showSuccess('Backup created.');
+      refetch();
+    } catch (err) {
+      showError(`Backup failed: ${errorMessage(err)}`);
+    } finally {
+      setIsCreating(false);
+    }
+  };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title='Backups' maxWidth='lg'>
@@ -136,6 +162,40 @@ export const BackupsModal: React.FC<BackupsModalProps> = ({
           </table>
         </div>
       )}
+
+      <div className='mt-4 flex justify-end border-t border-gray-200 pt-3 dark:border-gray-700'>
+        <button
+          type='button'
+          onClick={handleCreateBackupClick}
+          disabled={isCreating}
+          className='flex items-center gap-2 rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
+        >
+          {isCreating && (
+            <svg
+              className='h-4 w-4 animate-spin text-white'
+              fill='none'
+              viewBox='0 0 24 24'
+            >
+              <circle
+                className='opacity-25'
+                cx='12'
+                cy='12'
+                r='10'
+                stroke='currentColor'
+                strokeWidth='4'
+              />
+              <path
+                className='opacity-75'
+                fill='currentColor'
+                d='m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+              />
+            </svg>
+          )}
+          {isCreating ? 'Backing Up…' : 'Backup Now'}
+        </button>
+      </div>
+
+      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
     </Modal>
   );
 };

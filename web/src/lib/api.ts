@@ -489,6 +489,17 @@ class ApiService {
     return this.get<BackupFile[]>(API_ENDPOINTS.dataBackups, options);
   }
 
+  async triggerBackup(options?: ApiRequestOptions): Promise<BackupFile> {
+    return this.post<BackupFile>(
+      API_ENDPOINTS.dataBackups,
+      {},
+      {
+        timeout: DATA_TRANSFER_TIMEOUT_MS,
+        ...options,
+      },
+    );
+  }
+
   // Dictionary API methods
   async lookupWord<T = unknown>(
     word: string,

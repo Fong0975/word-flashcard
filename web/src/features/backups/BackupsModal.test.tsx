@@ -116,4 +116,97 @@ describe('BackupsModal', () => {
     expect(screen.queryByText('old-backup')).not.toBeInTheDocument();
     await waitFor(() => expect(getBackupFiles).toHaveBeenCalledTimes(2));
   });
+
+  it('renders a "Backup Now" button', async () => {
+    vi.spyOn(apiService, 'getBackupFiles').mockResolvedValue([]);
+
+    render(<BackupsModal isOpen onClose={vi.fn()} />);
+
+    expect(
+      await screen.findByRole('button', { name: 'Backup Now' }),
+    ).toBeInTheDocument();
+  });
+
+  it('clicking Backup Now triggers a backup then refetches the table', async () => {
+    const user = userEvent.setup();
+    const getBackupFiles = vi
+      .spyOn(apiService, 'getBackupFiles')
+      .mockResolvedValueOnce([buildBackup({ name: 'old-backup.json' })])
+      .mockResolvedValueOnce([
+        buildBackup({ name: 'old-backup.json' }),
+        buildBackup({ name: 'new-backup.json' }),
+      ]);
+    const triggerBackup = vi
+      .spyOn(apiService, 'triggerBackup')
+      .mockResolvedValue(buildBackup({ name: 'new-backup.json' }));
+
+    render(<BackupsModal isOpen onClose={vi.fn()} />);
+    expect(await screen.findByText('old-backup')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Backup Now' }));
+
+    expect(triggerBackup).toHaveBeenCalledTimes(1);
+    expect(await screen.findByText('new-backup')).toBeInTheDocument();
+    await waitFor(() => expect(getBackupFiles).toHaveBeenCalledTimes(2));
+  });
+
+  it('shows a success toast after creating a backup', async () => {
+    const user = userEvent.setup();
+    vi.spyOn(apiService, 'getBackupFiles').mockResolvedValue([]);
+    vi.spyOn(apiService, 'triggerBackup').mockResolvedValue(buildBackup());
+
+    render(<BackupsModal isOpen onClose={vi.fn()} />);
+    await screen.findByText('No backup files yet.');
+
+    await user.click(screen.getByRole('button', { name: 'Backup Now' }));
+
+    expect(await screen.findByText('Backup created.')).toBeInTheDocument();
+  });
+
+  it('shows an error toast and does not refetch when triggering a backup fails', async () => {
+    const user = userEvent.setup();
+    const getBackupFiles = vi
+      .spyOn(apiService, 'getBackupFiles')
+      .mockResolvedValue([buildBackup()]);
+    vi.spyOn(apiService, 'triggerBackup').mockRejectedValue(
+      new Error('disk full'),
+    );
+
+    render(<BackupsModal isOpen onClose={vi.fn()} />);
+    await screen.findByText('word-flashcard-backup-20260101-000000');
+
+    await user.click(screen.getByRole('button', { name: 'Backup Now' }));
+
+    expect(
+      await screen.findByText('Backup failed: disk full'),
+    ).toBeInTheDocument();
+    expect(getBackupFiles).toHaveBeenCalledTimes(1);
+  });
+
+  it('disables the Backup Now button while the request is in flight', async () => {
+    const user = userEvent.setup();
+    vi.spyOn(apiService, 'getBackupFiles').mockResolvedValue([]);
+    let resolveTrigger: (value: BackupFile) => void;
+    vi.spyOn(apiService, 'triggerBackup').mockReturnValue(
+      new Promise<BackupFile>(resolve => {
+        resolveTrigger = resolve;
+      }),
+    );
+
+    render(<BackupsModal isOpen onClose={vi.fn()} />);
+    await screen.findByText('No backup files yet.');
+
+    const button = screen.getByRole('button', { name: 'Backup Now' });
+    await user.click(button);
+
+    expect(
+      await screen.findByRole('button', { name: 'Backing Up…' }),
+    ).toBeDisabled();
+
+    resolveTrigger!(buildBackup());
+
+    expect(
+      await screen.findByRole('button', { name: 'Backup Now' }),
+    ).not.toBeDisabled();
+  });
 });
