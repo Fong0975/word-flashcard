@@ -113,6 +113,7 @@ func (s *apiRoutesTestSuite) TestAPIRouteMappings() {
 		{"GET", "/api/data/export", "BackupController.ExportData", "ExportData", "BackupController"},
 		{"POST", "/api/data/import", "BackupController.ImportData", "ImportData", "BackupController"},
 		{"GET", "/api/data/backups", "BackupController.ListBackups", "ListBackups", "BackupController"},
+		{"POST", "/api/data/backups", "BackupController.TriggerBackup", "TriggerBackup", "BackupController"},
 	}
 
 	// Test each route mapping calls the correct method

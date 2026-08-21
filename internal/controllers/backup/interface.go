@@ -7,4 +7,5 @@ type ControllerInterface interface {
 	ExportData(c *gin.Context)
 	ImportData(c *gin.Context)
 	ListBackups(c *gin.Context)
+	TriggerBackup(c *gin.Context)
 }

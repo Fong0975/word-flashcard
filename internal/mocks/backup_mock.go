@@ -40,3 +40,12 @@ func (m *MockBackupController) ListBackups(c *gin.Context) {
 		"status":     "ok",
 	})
 }
+
+// TriggerBackup mock implementation
+func (m *MockBackupController) TriggerBackup(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"method":     "TriggerBackup",
+		"controller": "BackupController",
+		"status":     "ok",
+	})
+}

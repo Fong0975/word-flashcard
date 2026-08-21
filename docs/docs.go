@@ -26,7 +26,7 @@ const docTemplate = `{
     "paths": {
         "/api/data/backups": {
             "get": {
-                "description": "List every scheduled backup file (word-flashcard-backup-*.json) directly inside the backup directory, sorted by name descending (newest first, since the name embeds a sortable yyyyMMdd-HHmmss timestamp)",
+                "description": "List every scheduled backup file (word-flashcard-backup-*.json) directly inside the backup directory, sorted by name descending (newest first)",
                 "produces": [
                     "application/json"
                 ],
@@ -45,6 +45,29 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal server error - Failed to read the backup directory",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Writes a new scheduled-style backup file (word-flashcard-backup-*.json) into the backup directory right now, using the same logic the periodic scheduler uses -- it does not affect or reset the scheduler's own timing.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "data"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The newly created backup file",
+                        "schema": {
+                            "$ref": "#/definitions/models.BackupFile"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to write the backup file",
                         "schema": {
                             "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
                         }

@@ -129,4 +129,5 @@ func SetupAPIRoutesWithDependencies(router *gin.Engine, deps *ControllerDependen
 	apiGroup.GET("/data/export", deps.BackupController.ExportData)
 	apiGroup.POST("/data/import", deps.BackupController.ImportData)
 	apiGroup.GET("/data/backups", deps.BackupController.ListBackups)
+	apiGroup.POST("/data/backups", deps.BackupController.TriggerBackup)
 }
