@@ -36,7 +36,7 @@ const buildFormData = (
 describe('formatQuestionForCopy', () => {
   it('formats a question with all options', () => {
     expect(formatQuestionForCopy(buildQuestion())).toBe(
-      'What is 2 + 2?\nA. 4\nB. 3\nC. 5\nD. 6',
+      'What is 2 + 2?\n(A) 4\n(B) 3\n(C) 5\n(D) 6',
     );
   });
 
@@ -45,7 +45,9 @@ describe('formatQuestionForCopy', () => {
       option_c: undefined,
       option_d: undefined,
     });
-    expect(formatQuestionForCopy(question)).toBe('What is 2 + 2?\nA. 4\nB. 3');
+    expect(formatQuestionForCopy(question)).toBe(
+      'What is 2 + 2?\n(A) 4\n(B) 3',
+    );
   });
 
   it('returns an empty string for a falsy question', () => {
@@ -56,7 +58,7 @@ describe('formatQuestionForCopy', () => {
 describe('formatFormDataForCopy', () => {
   it('formats form data with all options', () => {
     expect(formatFormDataForCopy(buildFormData())).toBe(
-      'What is 2 + 2?\nA. 4\nB. 3\nC. 5\nD. 6',
+      'What is 2 + 2?\n(A) 4\n(B) 3\n(C) 5\n(D) 6',
     );
   });
 
@@ -64,7 +66,9 @@ describe('formatFormDataForCopy', () => {
     const formData = buildFormData();
     formData.options.C = '';
     formData.options.D = '';
-    expect(formatFormDataForCopy(formData)).toBe('What is 2 + 2?\nA. 4\nB. 3');
+    expect(formatFormDataForCopy(formData)).toBe(
+      'What is 2 + 2?\n(A) 4\n(B) 3',
+    );
   });
 
   it('returns an empty string for falsy form data', () => {
