@@ -21,6 +21,34 @@
     "host": "localhost:8080",
     "basePath": "/",
     "paths": {
+        "/api/data/backups": {
+            "get": {
+                "description": "List every scheduled backup file (word-flashcard-backup-*.json) directly inside the backup directory, sorted by name descending (newest first, since the name embeds a sortable yyyyMMdd-HHmmss timestamp)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "data"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of backup files",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.BackupFile"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to read the backup directory",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/data/export": {
             "get": {
                 "description": "Returns every row of every table as a single JSON document, including ids and timestamps, suitable for a later POST /api/data/import restore.",
@@ -1630,6 +1658,20 @@
         }
     },
     "definitions": {
+        "models.BackupFile": {
+            "type": "object",
+            "properties": {
+                "modified_at": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "size_bytes": {
+                    "type": "integer"
+                }
+            }
+        },
         "word-flashcard_data_models.Note": {
             "type": "object",
             "properties": {

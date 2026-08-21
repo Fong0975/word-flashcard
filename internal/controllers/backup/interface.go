@@ -6,4 +6,5 @@ import "github.com/gin-gonic/gin"
 type ControllerInterface interface {
 	ExportData(c *gin.Context)
 	ImportData(c *gin.Context)
+	ListBackups(c *gin.Context)
 }

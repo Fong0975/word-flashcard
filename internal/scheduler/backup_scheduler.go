@@ -5,9 +5,7 @@ package scheduler
 import (
 	"log/slog"
 	"os"
-	"path/filepath"
 	"sort"
-	"strings"
 	"time"
 
 	"word-flashcard/internal/controllers/backup"
@@ -165,7 +163,7 @@ func pruneOldBackups(dir string, retain int) error {
 		return nil
 	}
 
-	files, err := listBackupFiles(dir)
+	files, err := backup.ListBackupFiles(dir)
 	if err != nil {
 		return err
 	}
@@ -175,75 +173,34 @@ func pruneOldBackups(dir string, retain int) error {
 
 	// Newest first, so files[retain:] is exactly what should be removed.
 	sort.Slice(files, func(i, j int) bool {
-		return files[i].modTime.After(files[j].modTime)
+		return files[i].ModTime.After(files[j].ModTime)
 	})
 
 	for _, f := range files[retain:] {
-		if err := os.Remove(f.path); err != nil {
-			slog.Error("Failed to remove old backup file", "error", err, "path", f.path)
+		if err := os.Remove(f.Path); err != nil {
+			slog.Error("Failed to remove old backup file", "error", err, "path", f.Path)
 			continue
 		}
-		slog.Info("Pruned old backup file", "path", f.path)
+		slog.Info("Pruned old backup file", "path", f.Path)
 	}
 
 	return nil
 }
 
-type backupFileInfo struct {
-	path    string
-	modTime time.Time
-}
-
-// listBackupFiles returns every backup.BackupFilePrefix-prefixed *.json
-// file directly inside dir. A missing directory is reported as no files,
-// not an error -- that's simply the "no backups yet" state.
-func listBackupFiles(dir string) ([]backupFileInfo, error) {
-	entries, err := os.ReadDir(dir)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil, nil
-		}
-		return nil, err
-	}
-
-	var files []backupFileInfo
-	for _, entry := range entries {
-		if entry.IsDir() || !isBackupFileName(entry.Name()) {
-			continue
-		}
-
-		info, err := entry.Info()
-		if err != nil {
-			return nil, err
-		}
-
-		files = append(files, backupFileInfo{
-			path:    filepath.Join(dir, entry.Name()),
-			modTime: info.ModTime(),
-		})
-	}
-
-	return files, nil
-}
-
 // newestBackupModTime returns the modification time of the most recently
 // modified backup file in dir, and whether any backup file was found at all.
 func newestBackupModTime(dir string) (newest time.Time, found bool, err error) {
-	files, err := listBackupFiles(dir)
+	files, err := backup.ListBackupFiles(dir)
 	if err != nil {
 		return time.Time{}, false, err
 	}
 
 	for _, f := range files {
-		if !found || f.modTime.After(newest) {
-			newest = f.modTime
+		if !found || f.ModTime.After(newest) {
+			newest = f.ModTime
 			found = true
 		}
 	}
 
 	return newest, found, nil
-}
-
-func isBackupFileName(name string) bool {
-	return strings.HasPrefix(name, backup.BackupFilePrefix) && strings.HasSuffix(name, ".json")
 }

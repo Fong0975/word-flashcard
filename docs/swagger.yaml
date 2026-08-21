@@ -1,5 +1,14 @@
 basePath: /
 definitions:
+  models.BackupFile:
+    properties:
+      modified_at:
+        type: string
+      name:
+        type: string
+      size_bytes:
+        type: integer
+    type: object
   word-flashcard_data_models.Note:
     properties:
       content:
@@ -494,6 +503,26 @@ info:
   title: Word Flashcard API
   version: "1.0"
 paths:
+  /api/data/backups:
+    get:
+      description: List every scheduled backup file (word-flashcard-backup-*.json)
+        directly inside the backup directory, sorted by name descending (newest first,
+        since the name embeds a sortable yyyyMMdd-HHmmss timestamp)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of backup files
+          schema:
+            items:
+              $ref: '#/definitions/models.BackupFile'
+            type: array
+        "500":
+          description: Internal server error - Failed to read the backup directory
+          schema:
+            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+      tags:
+      - data
   /api/data/export:
     get:
       description: Returns every row of every table as a single JSON document, including

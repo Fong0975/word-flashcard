@@ -31,3 +31,12 @@ func (m *MockBackupController) ImportData(c *gin.Context) {
 		"status":     "ok",
 	})
 }
+
+// ListBackups mock implementation
+func (m *MockBackupController) ListBackups(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"method":     "ListBackups",
+		"controller": "BackupController",
+		"status":     "ok",
+	})
+}
