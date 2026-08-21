@@ -524,8 +524,8 @@ paths:
       - data
     post:
       description: Writes a new scheduled-style backup file (word-flashcard-backup-*.json)
-        into the backup directory right now, using the same logic the periodic scheduler
-        uses -- it does not affect or reset the scheduler's own timing.
+        right now; this becomes the newest file, so it delays the next automatic scheduled
+        backup.
       produces:
       - application/json
       responses:
@@ -535,6 +535,33 @@ paths:
             $ref: '#/definitions/models.BackupFile'
         "500":
           description: Internal server error - Failed to write the backup file
+          schema:
+            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+      tags:
+      - data
+  /api/data/backups/{name}:
+    get:
+      description: Downloads one backup file's raw contents by its exact file name,
+        with a Content-Disposition attachment header.
+      parameters:
+      - description: Backup file name, e.g. word-flashcard-backup-20260101-000000.json
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Raw backup file contents
+          schema:
+            type: file
+        "400":
+          description: Invalid request - name is not a valid backup file name
+          schema:
+            $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
+        "404":
+          description: Not found - no backup file with that name exists
           schema:
             $ref: '#/definitions/word-flashcard_internal_models.ErrorResponse'
       tags:
