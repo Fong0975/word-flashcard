@@ -4,6 +4,7 @@ import { Modal } from '../../components/ui/Modal';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { ToastContainer } from '../../components/ui';
 import { apiService } from '../../lib/api';
+import { API_CONFIG, API_ENDPOINTS } from '../../lib/api-config';
 import { BackupFile } from '../../types/backups';
 import { useAsyncOnOpen } from '../shared/hooks/useAsyncOnOpen';
 import { useToast } from '../../hooks/ui/useToast';
@@ -142,7 +143,13 @@ export const BackupsModal: React.FC<BackupsModalProps> = ({
                     className='border-b border-gray-100 last:border-0 dark:border-gray-700/50'
                   >
                     <td className='break-all py-2 pl-2 pr-4 text-gray-900 dark:text-white'>
-                      {stripJsonExtension(backup.name)}
+                      <a
+                        href={`${API_CONFIG.baseURL}${API_ENDPOINTS.downloadBackup(backup.name)}`}
+                        download={backup.name}
+                        className='text-blue-600 hover:underline dark:text-blue-400'
+                      >
+                        {stripJsonExtension(backup.name)}
+                      </a>
                     </td>
                     <td className='whitespace-nowrap py-2 pr-4 text-gray-500 dark:text-gray-400'>
                       {formatFileSize(backup.size_bytes)}

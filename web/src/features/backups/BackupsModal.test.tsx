@@ -98,6 +98,28 @@ describe('BackupsModal', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('links each backup file name to its download URL', async () => {
+    vi.spyOn(apiService, 'getBackupFiles').mockResolvedValue([
+      buildBackup({ name: 'word-flashcard-backup-20260101-000000.json' }),
+    ]);
+
+    render(<BackupsModal isOpen onClose={vi.fn()} />);
+
+    const link = await screen.findByRole('link', {
+      name: 'word-flashcard-backup-20260101-000000',
+    });
+    expect(link).toHaveAttribute(
+      'href',
+      expect.stringContaining(
+        '/data/backups/word-flashcard-backup-20260101-000000.json',
+      ),
+    );
+    expect(link).toHaveAttribute(
+      'download',
+      'word-flashcard-backup-20260101-000000.json',
+    );
+  });
+
   it('clicking Refresh re-fetches and shows the latest data', async () => {
     const user = userEvent.setup();
     const getBackupFiles = vi

@@ -49,6 +49,7 @@ export const API_ENDPOINTS = {
   dataExport: '/data/export',
   dataImport: '/data/import',
   dataBackups: '/data/backups',
+  downloadBackup: (name: string) => `/data/backups/${encodeURIComponent(name)}`,
   dictionaryLookup: (word: string) =>
     `/dictionary/en-tw/${encodeURIComponent(word)}`,
 } as const;
