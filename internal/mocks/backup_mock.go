@@ -31,3 +31,30 @@ func (m *MockBackupController) ImportData(c *gin.Context) {
 		"status":     "ok",
 	})
 }
+
+// ListBackups mock implementation
+func (m *MockBackupController) ListBackups(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"method":     "ListBackups",
+		"controller": "BackupController",
+		"status":     "ok",
+	})
+}
+
+// TriggerBackup mock implementation
+func (m *MockBackupController) TriggerBackup(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"method":     "TriggerBackup",
+		"controller": "BackupController",
+		"status":     "ok",
+	})
+}
+
+// DownloadBackup mock implementation
+func (m *MockBackupController) DownloadBackup(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"method":     "DownloadBackup",
+		"controller": "BackupController",
+		"status":     "ok",
+	})
+}

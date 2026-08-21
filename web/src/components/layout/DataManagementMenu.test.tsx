@@ -44,7 +44,7 @@ describe('DataManagementMenu', () => {
     vi.restoreAllMocks();
   });
 
-  it('renders a settings button with a Data section and Import/Export items', () => {
+  it('renders a settings button with a Data section and Import/Export/Backups items', () => {
     render(<DataManagementMenu />);
 
     expect(
@@ -57,6 +57,24 @@ describe('DataManagementMenu', () => {
     expect(
       screen.getByRole('menuitem', { name: 'Export' }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole('menuitem', { name: 'Backups' }),
+    ).toBeInTheDocument();
+  });
+
+  it('opens the backups modal and loads the list when the Backups item is clicked', async () => {
+    const user = userEvent.setup();
+    const backupsSpy = vi
+      .spyOn(apiService, 'getBackupFiles')
+      .mockResolvedValue([]);
+
+    render(<DataManagementMenu />);
+    await user.click(screen.getByRole('menuitem', { name: 'Backups' }));
+
+    expect(
+      await screen.findByRole('heading', { name: 'Backups' }),
+    ).toBeInTheDocument();
+    await waitFor(() => expect(backupsSpy).toHaveBeenCalledTimes(1));
   });
 
   it('downloads the export and shows a success toast', async () => {

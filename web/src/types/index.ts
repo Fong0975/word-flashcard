@@ -26,6 +26,9 @@ export * from './api';
 // ===== DATA EXPORT/IMPORT TYPES =====
 export * from './data-export';
 
+// ===== BACKUP FILE TYPES =====
+export * from './backups';
+
 // ===== GLOBAL TYPE AUGMENTATIONS =====
 
 declare global {

@@ -1,6 +1,7 @@
 import {
   formatShortDate,
   formatDateTime,
+  formatDateTimeParts,
   formatNoteDate,
   formatNoteDateTime,
 } from './dateFormat';
@@ -30,6 +31,15 @@ describe('formatDateTime', () => {
     expect(numbersIn(formatDateTime(CROSS_DAY_ISO))).toEqual(
       numbersIn('7/20/2026 1:30:00'),
     );
+  });
+});
+
+describe('formatDateTimeParts', () => {
+  it('splits the date and time in Asia/Taipei into separate strings, with the time in 24-hour format', () => {
+    const { date, time } = formatDateTimeParts(CROSS_DAY_ISO);
+    expect(numbersIn(date)).toEqual(numbersIn('7/20/2026'));
+    expect(time).toBe('01:30');
+    expect(time).not.toMatch(/AM|PM/i);
   });
 });
 

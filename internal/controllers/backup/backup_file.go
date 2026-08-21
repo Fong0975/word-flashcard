@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -40,4 +41,55 @@ func (bc *Controller) WriteBackupFile(dir string) (string, error) {
 	}
 
 	return path, nil
+}
+
+// BackupFileInfo describes one on-disk backup file found by ListBackupFiles.
+type BackupFileInfo struct {
+	Path    string
+	Name    string
+	Size    int64
+	ModTime time.Time
+}
+
+// ListBackupFiles returns every BackupFilePrefix-prefixed *.json file found
+// directly inside dir -- subdirectories and any other file are ignored. A
+// missing directory is reported as no files, not an error, since that's
+// simply the "no backups yet" state. The result order is unspecified;
+// callers that care about ordering (e.g. newest first) must sort it
+// themselves.
+func ListBackupFiles(dir string) ([]BackupFileInfo, error) {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	var files []BackupFileInfo
+	for _, entry := range entries {
+		if entry.IsDir() || !IsBackupFileName(entry.Name()) {
+			continue
+		}
+
+		info, err := entry.Info()
+		if err != nil {
+			return nil, err
+		}
+
+		files = append(files, BackupFileInfo{
+			Path:    filepath.Join(dir, entry.Name()),
+			Name:    entry.Name(),
+			Size:    info.Size(),
+			ModTime: info.ModTime(),
+		})
+	}
+
+	return files, nil
+}
+
+// IsBackupFileName reports whether name matches the naming convention
+// WriteBackupFile uses (BackupFilePrefix, ending in ".json").
+func IsBackupFileName(name string) bool {
+	return strings.HasPrefix(name, BackupFilePrefix) && strings.HasSuffix(name, ".json")
 }

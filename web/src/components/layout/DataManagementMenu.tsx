@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 
+import { BackupsModal } from '../../features/backups/BackupsModal';
 import { useToast } from '../../hooks/ui/useToast';
 import { apiService } from '../../lib/api';
 import { DataExportPayload, ImportSummary } from '../../types/data-export';
@@ -45,6 +46,7 @@ export const DataManagementMenu: React.FC = () => {
   const [pendingImport, setPendingImport] = useState<DataExportPayload | null>(
     null,
   );
+  const [isBackupsModalOpen, setIsBackupsModalOpen] = useState(false);
 
   const handleExportClick = async (): Promise<void> => {
     if (isExporting) {
@@ -153,6 +155,28 @@ export const DataManagementMenu: React.FC = () => {
               <button
                 type='button'
                 role='menuitem'
+                onClick={() => setIsBackupsModalOpen(true)}
+                className='flex w-full items-center gap-1.5 py-1.5 pl-8 pr-4 text-left text-xs text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-white'
+              >
+                <svg
+                  viewBox='0 0 24 24'
+                  className='h-4 w-4'
+                  fill='none'
+                  stroke='currentColor'
+                  strokeWidth={1.5}
+                  aria-hidden='true'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    d='M20.25 7.5l-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5C21.75 5.254 21.246 4.75 20.625 4.75H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z'
+                  />
+                </svg>
+                Backups
+              </button>
+              <button
+                type='button'
+                role='menuitem'
                 onClick={handleImportClick}
                 className='flex w-full items-center gap-1.5 py-1.5 pl-8 pr-4 text-left text-xs text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-white'
               >
@@ -219,6 +243,11 @@ export const DataManagementMenu: React.FC = () => {
         isConfirming={isImporting}
         onConfirm={handleImportConfirm}
         onCancel={handleImportCancel}
+      />
+
+      <BackupsModal
+        isOpen={isBackupsModalOpen}
+        onClose={() => setIsBackupsModalOpen(false)}
       />
 
       <ToastContainer toasts={toasts} onRemoveToast={removeToast} />

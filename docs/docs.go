@@ -24,6 +24,97 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/data/backups": {
+            "get": {
+                "description": "List every scheduled backup file (word-flashcard-backup-*.json) directly inside the backup directory, sorted by name descending (newest first)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "data"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of backup files",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.BackupFile"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to read the backup directory",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Writes a new scheduled-style backup file (word-flashcard-backup-*.json) right now; this becomes the newest file, so it delays the next automatic scheduled backup.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "data"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The newly created backup file",
+                        "schema": {
+                            "$ref": "#/definitions/models.BackupFile"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to write the backup file",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/data/backups/{name}": {
+            "get": {
+                "description": "Downloads one backup file's raw contents by its exact file name, with a Content-Disposition attachment header.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "data"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Backup file name, e.g. word-flashcard-backup-20260101-000000.json",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Raw backup file contents",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request - name is not a valid backup file name",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found - no backup file with that name exists",
+                        "schema": {
+                            "$ref": "#/definitions/word-flashcard_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/data/export": {
             "get": {
                 "description": "Returns every row of every table as a single JSON document, including ids and timestamps, suitable for a later POST /api/data/import restore.",
@@ -1633,6 +1724,20 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "models.BackupFile": {
+            "type": "object",
+            "properties": {
+                "modified_at": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "size_bytes": {
+                    "type": "integer"
+                }
+            }
+        },
         "word-flashcard_data_models.Note": {
             "type": "object",
             "properties": {
