@@ -7,15 +7,15 @@ export const formatQuestionForCopy = (question: Question): string => {
   }
 
   let content = `${question.question}\n`;
-  content += `A. ${question.option_a}\n`;
+  content += `(A) ${question.option_a}\n`;
   if (question.option_b) {
-    content += `B. ${question.option_b}\n`;
+    content += `(B) ${question.option_b}\n`;
   }
   if (question.option_c) {
-    content += `C. ${question.option_c}\n`;
+    content += `(C) ${question.option_c}\n`;
   }
   if (question.option_d) {
-    content += `D. ${question.option_d}\n`;
+    content += `(D) ${question.option_d}\n`;
   }
 
   return content.trim();
@@ -27,15 +27,15 @@ export const formatFormDataForCopy = (formData: QuestionFormData): string => {
   }
 
   let content = `${formData.question || ''}\n`;
-  content += `A. ${formData.options.A || ''}\n`;
+  content += `(A) ${formData.options.A || ''}\n`;
   if (formData.options.B) {
-    content += `B. ${formData.options.B}\n`;
+    content += `(B) ${formData.options.B}\n`;
   }
   if (formData.options.C) {
-    content += `C. ${formData.options.C}\n`;
+    content += `(C) ${formData.options.C}\n`;
   }
   if (formData.options.D) {
-    content += `D. ${formData.options.D}\n`;
+    content += `(D) ${formData.options.D}\n`;
   }
 
   return content.trim();

@@ -47,7 +47,7 @@ describe('useQuestionStats', () => {
       { key: 'D', value: '6' },
     ]);
     expect(result.current.formattedQuestionText).toBe(
-      'What is 2 + 2?\nA. 4\nB. 3\nC. 5\nD. 6',
+      'What is 2 + 2?\n(A) 4\n(B) 3\n(C) 5\n(D) 6',
     );
   });
 
