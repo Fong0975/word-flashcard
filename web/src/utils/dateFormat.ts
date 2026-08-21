@@ -15,6 +15,27 @@ export const formatDateTime = (iso: string): string =>
   new Date(iso).toLocaleString(undefined, { timeZone: TAIPEI_TIME_ZONE });
 
 /**
+ * Formats an ISO timestamp as separate date and time strings, with the
+ * time rendered in 24-hour format (no AM/PM), always in the Asia/Taipei
+ * timezone. Intended for compact table columns that stack date and time
+ * on separate lines instead of one long combined string.
+ */
+export const formatDateTimeParts = (
+  iso: string,
+): { date: string; time: string } => {
+  const value = new Date(iso);
+  return {
+    date: value.toLocaleDateString(undefined, { timeZone: TAIPEI_TIME_ZONE }),
+    time: value.toLocaleTimeString(undefined, {
+      timeZone: TAIPEI_TIME_ZONE,
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }),
+  };
+};
+
+/**
  * Formats a nullable ISO timestamp as a short date (e.g. "Jul 20, 2026"),
  * always rendered in the Asia/Taipei timezone. Returns '-' when `dateStr`
  * is null.

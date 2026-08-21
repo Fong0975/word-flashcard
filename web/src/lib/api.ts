@@ -23,6 +23,7 @@ import {
   NotesSearchParams,
 } from '../types/api';
 import { DataExportPayload, ImportSummary } from '../types/data-export';
+import { BackupFile } from '../types/backups';
 import {
   SearchFilter,
   ApiErrorCode,
@@ -482,6 +483,10 @@ class ApiService {
       timeout: DATA_TRANSFER_TIMEOUT_MS,
       ...options,
     });
+  }
+
+  async getBackupFiles(options?: ApiRequestOptions): Promise<BackupFile[]> {
+    return this.get<BackupFile[]>(API_ENDPOINTS.dataBackups, options);
   }
 
   // Dictionary API methods

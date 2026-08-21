@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook, waitFor, act } from '@testing-library/react';
 import type { MockInstance } from 'vitest';
 
 import { useAsyncOnOpen } from './useAsyncOnOpen';
@@ -69,5 +69,26 @@ describe('useAsyncOnOpen', () => {
     rerender({ isOpen: false });
     rerender({ isOpen: true });
     await waitFor(() => expect(fetcher).toHaveBeenCalledTimes(2));
+  });
+
+  it('refetch re-runs the fetcher and updates data without isOpen changing', async () => {
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce('first')
+      .mockResolvedValueOnce('second');
+    const { result } = renderHook(() =>
+      useAsyncOnOpen({ isOpen: true, fetcher, errorMessage: 'failed' }),
+    );
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.data).toBe('first');
+
+    act(() => {
+      result.current.refetch();
+    });
+
+    expect(result.current.loading).toBe(true);
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.data).toBe('second');
+    expect(fetcher).toHaveBeenCalledTimes(2);
   });
 });

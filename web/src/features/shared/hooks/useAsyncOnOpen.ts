@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import { getApiErrorMessage } from '../../../lib/apiErrorMessage';
 
@@ -12,11 +12,15 @@ interface UseAsyncOnOpenReturn<T> {
   data: T | null;
   loading: boolean;
   error: string | null;
+  /** Re-runs fetcher on demand, e.g. from a manual refresh button. */
+  refetch: () => void;
 }
 
 /**
  * Fetches data whenever `isOpen` becomes true (e.g. a modal opening),
- * tracking loading/error state around the request.
+ * tracking loading/error state around the request. Also exposes `refetch`
+ * for re-running the same fetch on demand without waiting for `isOpen` to
+ * transition again.
  */
 export const useAsyncOnOpen = <T>({
   isOpen,
@@ -27,18 +31,22 @@ export const useAsyncOnOpen = <T>({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
+  const runFetch = useCallback(() => {
     setLoading(true);
     setError(null);
     fetcher()
       .then(result => setData(result))
       .catch(err => setError(getApiErrorMessage(err, errorMessage)))
       .finally(() => setLoading(false));
+  }, [fetcher, errorMessage]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+    runFetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
-  return { data, loading, error };
+  return { data, loading, error, refetch: runFetch };
 };

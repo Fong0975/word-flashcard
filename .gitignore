@@ -17,8 +17,9 @@ dist/*
 # log file
 *.log
 
-# automatic backup output
-backups/
+# automatic backup output (repo root only -- do not match nested dirs like
+# web/src/features/backups/)
+/backups/
 
 # Code coverage profiles and other test artifacts
 *.out
