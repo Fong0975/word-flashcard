@@ -1,6 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 
-import { Header, TabNavigation, TabContent, Footer } from './components';
+import { Header, TabNavigation, TabContent } from './components';
 import { useTab } from './hooks/useTab';
 import { WordDetailPage } from './features/words/word-detail/WordDetailPage';
 import { WordQuizPage } from './features/words/quiz/WordQuizPage';
@@ -35,8 +35,6 @@ function HomePage() {
           <TabContent currentTab={currentTab} />
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }
