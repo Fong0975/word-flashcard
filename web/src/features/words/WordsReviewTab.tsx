@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { lazy, Suspense, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { useWords } from '../../hooks/useWords';
@@ -11,6 +11,7 @@ import { EntityReviewTab } from '../shared/components/EntityReviewTab';
 import { useQuickFilters } from '../shared/hooks/useQuickFilters';
 import { useUrlSyncedEntityList } from '../shared/hooks/useUrlSyncedEntityList';
 import { ToastContainer } from '../../components/ui';
+import { ModalLoadingFallback } from '../../components/ui/ModalLoadingFallback';
 import {
   QuizSetupModal,
   QuizSetupConfig,
@@ -21,7 +22,12 @@ import { SearchCondition, SearchOperation } from '../../types/base';
 import { WordFormModal } from './word-form';
 import { WordCard } from './WordCard';
 import { QuickFilterButton } from './QuickFilterButton';
-import { WordStatsModal } from './WordStatsModal';
+
+// Pulls in `recharts`, so it's only downloaded once the stats modal is
+// actually opened rather than as part of the main bundle.
+const WordStatsModal = lazy(() =>
+  import('./WordStatsModal').then(m => ({ default: m.WordStatsModal })),
+);
 
 type WordsReviewTabProps = BaseComponentProps;
 
@@ -246,10 +252,14 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
         additionalContent={
           <>
             {/* Word Stats Modal */}
-            <WordStatsModal
-              isOpen={isStatsOpen}
-              onClose={() => setIsStatsOpen(false)}
-            />
+            {isStatsOpen && (
+              <Suspense fallback={<ModalLoadingFallback />}>
+                <WordStatsModal
+                  isOpen={isStatsOpen}
+                  onClose={() => setIsStatsOpen(false)}
+                />
+              </Suspense>
+            )}
 
             {/* Add Word Modal */}
             <WordFormModal

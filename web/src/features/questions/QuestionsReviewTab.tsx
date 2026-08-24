@@ -1,4 +1,6 @@
 import React, {
+  lazy,
+  Suspense,
   useMemo,
   useCallback,
   useEffect,
@@ -14,11 +16,19 @@ import {
 } from '../../hooks/shared/useModalManager';
 import { EntityReviewTab } from '../shared/components/EntityReviewTab';
 import { QuizSetupModal } from '../shared/components/QuizSetupModal';
+import { ModalLoadingFallback } from '../../components/ui/ModalLoadingFallback';
 import { Question } from '../../types/api';
 
 import { QuestionCard } from './QuestionCard';
 import { QuestionFormModal } from './question-form/QuestionFormModal';
-import { QuestionStatsModal } from './QuestionStatsModal';
+
+// Pulls in `recharts`, so it's only downloaded once the stats modal is
+// actually opened rather than as part of the main bundle.
+const QuestionStatsModal = lazy(() =>
+  import('./QuestionStatsModal').then(m => ({
+    default: m.QuestionStatsModal,
+  })),
+);
 
 const SORT_OPTIONS = [
   { label: 'Default', value: '' },
@@ -247,10 +257,14 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({
       additionalContent={
         <>
           {/* Question Stats Modal */}
-          <QuestionStatsModal
-            isOpen={isStatsOpen}
-            onClose={() => setIsStatsOpen(false)}
-          />
+          {isStatsOpen && (
+            <Suspense fallback={<ModalLoadingFallback />}>
+              <QuestionStatsModal
+                isOpen={isStatsOpen}
+                onClose={() => setIsStatsOpen(false)}
+              />
+            </Suspense>
+          )}
 
           {/* Add Question Modal */}
           <QuestionFormModal

@@ -250,7 +250,9 @@ describe('QuestionsReviewTab', () => {
 
       await user.click(screen.getByRole('button', { name: 'Total Count' }));
 
-      expect(screen.getByText('Stats Open')).toBeInTheDocument();
+      // The stats modal is lazy-loaded, so it only appears after the
+      // dynamic import (mocked here) resolves.
+      expect(await screen.findByText('Stats Open')).toBeInTheDocument();
     });
 
     it('opens the add-question modal via New', async () => {

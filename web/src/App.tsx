@@ -1,13 +1,42 @@
+import { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 
 import { Header, TabNavigation, TabContent } from './components';
+import { LoadingSpinner } from './components/ui/LoadingSpinner';
 import { useTab } from './hooks/useTab';
-import { WordDetailPage } from './features/words/word-detail/WordDetailPage';
-import { WordQuizPage } from './features/words/quiz/WordQuizPage';
-import { QuestionDetailPage } from './features/questions/question-detail/QuestionDetailPage';
-import { QuestionQuizPage } from './features/questions/quiz/QuestionQuizPage';
-import { NoteDetailPage } from './features/notes/note-detail/NoteDetailPage';
-import { NoteCreatePage } from './features/notes/note-form/NoteCreatePage';
+
+// Code-split every routed page other than the home page itself, so the
+// initial bundle only ships what the home page needs.
+const WordDetailPage = lazy(() =>
+  import('./features/words/word-detail/WordDetailPage').then(m => ({
+    default: m.WordDetailPage,
+  })),
+);
+const WordQuizPage = lazy(() =>
+  import('./features/words/quiz/WordQuizPage').then(m => ({
+    default: m.WordQuizPage,
+  })),
+);
+const QuestionDetailPage = lazy(() =>
+  import('./features/questions/question-detail/QuestionDetailPage').then(m => ({
+    default: m.QuestionDetailPage,
+  })),
+);
+const QuestionQuizPage = lazy(() =>
+  import('./features/questions/quiz/QuestionQuizPage').then(m => ({
+    default: m.QuestionQuizPage,
+  })),
+);
+const NoteDetailPage = lazy(() =>
+  import('./features/notes/note-detail/NoteDetailPage').then(m => ({
+    default: m.NoteDetailPage,
+  })),
+);
+const NoteCreatePage = lazy(() =>
+  import('./features/notes/note-form/NoteCreatePage').then(m => ({
+    default: m.NoteCreatePage,
+  })),
+);
 
 function HomePage() {
   const { currentTab, switchTab } = useTab();
@@ -41,15 +70,23 @@ function HomePage() {
 
 function App() {
   return (
-    <Routes>
-      <Route path='/' element={<HomePage />} />
-      <Route path='/word/quiz' element={<WordQuizPage />} />
-      <Route path='/word/:wordText' element={<WordDetailPage />} />
-      <Route path='/question/quiz' element={<QuestionQuizPage />} />
-      <Route path='/question/:id' element={<QuestionDetailPage />} />
-      <Route path='/note/new' element={<NoteCreatePage />} />
-      <Route path='/note/:id' element={<NoteDetailPage />} />
-    </Routes>
+    <Suspense
+      fallback={
+        <div className='flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900'>
+          <LoadingSpinner />
+        </div>
+      }
+    >
+      <Routes>
+        <Route path='/' element={<HomePage />} />
+        <Route path='/word/quiz' element={<WordQuizPage />} />
+        <Route path='/word/:wordText' element={<WordDetailPage />} />
+        <Route path='/question/quiz' element={<QuestionQuizPage />} />
+        <Route path='/question/:id' element={<QuestionDetailPage />} />
+        <Route path='/note/new' element={<NoteCreatePage />} />
+        <Route path='/note/:id' element={<NoteDetailPage />} />
+      </Routes>
+    </Suspense>
   );
 }
 
