@@ -3,16 +3,15 @@ import { MemoryRouter } from 'react-router-dom';
 
 import App from './App';
 
-// HomePage's own composition (Header/TabNavigation/TabContent/Footer) and
-// every routed page each have their own dedicated tests; here they're
-// stubbed so this file stays focused on App's one real responsibility: the
-// routing table itself, which isn't protected by TypeScript (a typo'd path
-// or a component wired to the wrong route wouldn't be caught at compile time).
+// HomePage's own composition (Header/TabNavigation/TabContent) and every
+// routed page each have their own dedicated tests; here they're stubbed so
+// this file stays focused on App's one real responsibility: the routing
+// table itself, which isn't protected by TypeScript (a typo'd path or a
+// component wired to the wrong route wouldn't be caught at compile time).
 vi.mock('./components', () => ({
   Header: () => <div>Header Stub</div>,
   TabNavigation: () => <div>TabNavigation Stub</div>,
   TabContent: () => <div>TabContent Stub</div>,
-  Footer: () => <div>Footer Stub</div>,
 }));
 
 vi.mock('./features/words/word-detail/WordDetailPage', () => ({
@@ -53,7 +52,6 @@ describe('App routing', () => {
     expect(screen.getByText('Header Stub')).toBeInTheDocument();
     expect(screen.getByText('TabNavigation Stub')).toBeInTheDocument();
     expect(screen.getByText('TabContent Stub')).toBeInTheDocument();
-    expect(screen.getByText('Footer Stub')).toBeInTheDocument();
     expect(screen.getByText('Welcome to use Flashcard')).toBeInTheDocument();
   });
 

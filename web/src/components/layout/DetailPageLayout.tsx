@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { Header } from './Header';
-import { Footer } from './Footer';
 
 interface DetailPageLayoutProps {
   onBack: () => void;
@@ -69,6 +68,5 @@ export const DetailPageLayout: React.FC<DetailPageLayoutProps> = ({
         </div>
       </div>
     </main>
-    <Footer />
   </div>
 );

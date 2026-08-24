@@ -31,7 +31,9 @@ describe('Header', () => {
     expect(link).toHaveAttribute('href', '/');
   });
 
-  it('renders a link to the GitHub repository', () => {
+  it('renders the info entry point', () => {
+    // Full coverage of the info panel's version/copyright/GitHub-link
+    // content lives in InfoMenu.test.tsx; this just checks Header wires it in.
     mockMatchMedia(false);
     render(
       <MemoryRouter>
@@ -39,9 +41,7 @@ describe('Header', () => {
       </MemoryRouter>,
     );
 
-    expect(
-      screen.getByRole('link', { name: 'View source on GitHub' }),
-    ).toHaveAttribute('href', 'https://github.com/Fong0975/word-flashcard');
+    expect(screen.getByRole('button', { name: 'Info' })).toBeInTheDocument();
   });
 
   it('renders the data management settings entry point', () => {
