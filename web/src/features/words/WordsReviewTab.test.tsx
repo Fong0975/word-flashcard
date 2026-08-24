@@ -312,7 +312,9 @@ describe('WordsReviewTab', () => {
 
       await user.click(screen.getByRole('button', { name: 'Total Count' }));
 
-      expect(screen.getByText('Stats Open')).toBeInTheDocument();
+      // The stats modal is lazy-loaded, so it only appears after the
+      // dynamic import (mocked here) resolves.
+      expect(await screen.findByText('Stats Open')).toBeInTheDocument();
     });
 
     it('closes the stats modal via Close Stats', async () => {
@@ -320,7 +322,7 @@ describe('WordsReviewTab', () => {
       renderTab();
 
       await clickButtons(user, ['Total Count']);
-      expect(screen.getByText('Stats Open')).toBeInTheDocument();
+      expect(await screen.findByText('Stats Open')).toBeInTheDocument();
 
       await clickButtons(user, ['Close Stats']);
       expect(screen.queryByText('Stats Open')).not.toBeInTheDocument();

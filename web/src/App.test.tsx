@@ -62,9 +62,11 @@ describe('App routing', () => {
     ['/question/1', 'QuestionDetailPage Stub'],
     ['/note/new', 'NoteCreatePage Stub'],
     ['/note/1', 'NoteDetailPage Stub'],
-  ])('routes %s to the correct page', (path, expectedText) => {
+  ])('routes %s to the correct page', async (path, expectedText) => {
     renderAt(path);
 
-    expect(screen.getByText(expectedText)).toBeInTheDocument();
+    // Each routed page is lazy-loaded, so it only appears after the
+    // dynamic import (mocked here) resolves.
+    expect(await screen.findByText(expectedText)).toBeInTheDocument();
   });
 });

@@ -28,6 +28,39 @@ export default defineConfig({
   ],
   build: {
     outDir: 'build',
+    rollupOptions: {
+      output: {
+        // Keep rarely-changing vendor code in its own chunks so it stays
+        // under the 500 kB warning threshold and caches independently of
+        // app code between deploys.
+        manualChunks(id) {
+          if (!id.includes('node_modules')) {
+            return undefined;
+          }
+          if (
+            id.includes('/react/') ||
+            id.includes('/react-dom/') ||
+            id.includes('/react-router-dom/') ||
+            id.includes('/react-router/') ||
+            id.includes('/scheduler/')
+          ) {
+            return 'vendor-react';
+          }
+          // `react-markdown` pulls in the whole unified/remark/rehype
+          // ecosystem as transitive deps; they all follow these package
+          // naming prefixes, so match broadly rather than listing every
+          // individual dependency.
+          if (
+            /[\\/](react-markdown|remark|rehype|mdast|hast|micromark|unist|vfile|unified)[^\\/]*[\\/]/.test(
+              id,
+            )
+          ) {
+            return 'vendor-markdown';
+          }
+          return undefined;
+        },
+      },
+    },
   },
   server: {
     port: 3000,
