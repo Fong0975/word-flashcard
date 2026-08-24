@@ -124,7 +124,7 @@ export const DataManagementMenu: React.FC = () => {
         >
           <svg
             viewBox='0 0 24 24'
-            className='h-5 w-5'
+            className='h-5 w-5 transition-transform duration-300 ease-out group-focus-within:rotate-90 group-hover:rotate-90'
             fill='none'
             stroke='currentColor'
             strokeWidth={1.5}

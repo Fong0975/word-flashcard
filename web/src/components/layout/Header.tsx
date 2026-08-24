@@ -32,14 +32,17 @@ export const Header: React.FC = () => {
           <div className='flex items-center space-x-1'>
             <button
               onClick={toggleTheme}
-              className='rounded-md p-2 text-gray-500 transition-colors duration-200 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white'
+              className='group rounded-md p-2 text-gray-500 transition-colors duration-200 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white'
               aria-label={
                 isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'
               }
             >
+              {/* Moon: shown in light mode; hovering tilts it, like peeking at the night ahead */}
               <svg
                 viewBox='0 0 24 24'
-                className={isDarkMode ? 'hidden h-5 w-5' : 'block h-5 w-5'}
+                className={`transition-transform duration-300 ease-out group-hover:-rotate-12 ${
+                  isDarkMode ? 'hidden h-5 w-5' : 'block h-5 w-5'
+                }`}
                 fill='none'
                 stroke='currentColor'
                 strokeWidth={1.5}
@@ -51,9 +54,12 @@ export const Header: React.FC = () => {
                   d='M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z'
                 />
               </svg>
+              {/* Sun: shown in dark mode; hovering spins it like rays sweeping round */}
               <svg
                 viewBox='0 0 24 24'
-                className={isDarkMode ? 'block h-5 w-5' : 'hidden h-5 w-5'}
+                className={`transition-transform duration-500 ease-out group-hover:rotate-180 ${
+                  isDarkMode ? 'block h-5 w-5' : 'hidden h-5 w-5'
+                }`}
                 fill='none'
                 stroke='currentColor'
                 strokeWidth={1.5}
@@ -66,8 +72,8 @@ export const Header: React.FC = () => {
                 />
               </svg>
             </button>
-            <InfoMenu />
             <DataManagementMenu />
+            <InfoMenu />
           </div>
         </div>
       </div>

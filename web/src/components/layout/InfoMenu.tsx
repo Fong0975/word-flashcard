@@ -23,7 +23,7 @@ export const InfoMenu: React.FC = () => {
       >
         <svg
           viewBox='0 0 24 24'
-          className='h-5 w-5'
+          className='h-5 w-5 scale-100 transition-transform duration-300 ease-out group-focus-within:-translate-y-0.5 group-focus-within:scale-110 group-hover:-translate-y-0.5 group-hover:scale-110'
           fill='none'
           stroke='currentColor'
           strokeWidth={1.5}
