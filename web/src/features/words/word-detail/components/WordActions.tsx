@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { Word } from '../../../../types/api';
+import { CopyButton } from '../../../../components/ui/CopyButton';
 
 interface WordActionsProps {
   word: Word;
@@ -57,6 +58,11 @@ export const WordActions: React.FC<WordActionsProps> = ({
           />
         </svg>
       </button>
+      <CopyButton
+        text={word.word}
+        title='Copy word to clipboard'
+        successText='Word copied!'
+      />
       <button
         type='button'
         onClick={onDelete}
