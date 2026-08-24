@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 
+import { useWordLinkSuggestion } from '../../../hooks/useWordLinkSuggestion';
 import { TemplateButton } from '../../../types/components';
 import { MarkdownContent } from '../MarkdownContent';
 import { TemplateButtonRow } from '../TemplateButtonRow';
@@ -16,6 +17,8 @@ import {
   MarkdownFormatResult,
 } from './markdownFormatting';
 import { MarkdownToolbar, MarkdownFormatAction } from './MarkdownToolbar';
+import { insertWordLink } from './wordLinkFormatting';
+import { WordLinkSuggestionPopup } from './WordLinkSuggestionPopup';
 
 const FORMAT_HANDLERS: Record<
   MarkdownFormatAction,
@@ -65,6 +68,8 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
 }) => {
   const [isPreview, setIsPreview] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { suggestion, notifyChange, dismissSuggestion } =
+    useWordLinkSuggestion();
 
   const handleFormat = (action: MarkdownFormatAction) => {
     const textarea = textareaRef.current;
@@ -77,6 +82,36 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
 
     onChange(result.value);
 
+    requestAnimationFrame(() => {
+      textarea.focus();
+      textarea.setSelectionRange(result.selectionStart, result.selectionEnd);
+    });
+  };
+
+  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    onChange(e.target.value);
+    if (!disabled) {
+      notifyChange(e.target.value, e.target.selectionStart);
+    }
+  };
+
+  const handleInsertWordLink = () => {
+    const textarea = textareaRef.current;
+    if (!suggestion) {
+      return;
+    }
+
+    const result = insertWordLink(
+      value,
+      suggestion.insertPosition,
+      suggestion.word,
+    );
+    onChange(result.value);
+    dismissSuggestion();
+
+    if (!textarea) {
+      return;
+    }
     requestAnimationFrame(() => {
       textarea.focus();
       textarea.setSelectionRange(result.selectionStart, result.selectionEnd);
@@ -113,7 +148,7 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
       id={id}
       ref={textareaRef}
       value={value}
-      onChange={e => onChange(e.target.value)}
+      onChange={handleTextareaChange}
       rows={rows}
       className={textareaClassName}
       placeholder={placeholder}
@@ -162,6 +197,14 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
           <span>Markdown is supported</span>
         </div>
       </div>
+
+      {suggestion && (
+        <WordLinkSuggestionPopup
+          word={suggestion.word}
+          onInsert={handleInsertWordLink}
+          onDismiss={dismissSuggestion}
+        />
+      )}
     </div>
   );
 };

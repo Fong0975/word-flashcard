@@ -7,7 +7,6 @@ import {
 
 import {
   createWordSearchFilter,
-  createExactWordSearchFilter,
   filterSearchSuggestions,
 } from './searchFilters';
 
@@ -26,17 +25,6 @@ describe('createWordSearchFilter', () => {
     expect(createWordSearchFilter('app')).toEqual({
       conditions: [
         { key: 'word', operator: SearchOperation.LIKE, value: '%app%' },
-      ],
-      logic: SearchLogic.OR,
-    });
-  });
-});
-
-describe('createExactWordSearchFilter', () => {
-  it('uses the raw word value without wildcards', () => {
-    expect(createExactWordSearchFilter('apple')).toEqual({
-      conditions: [
-        { key: 'word', operator: SearchOperation.LIKE, value: 'apple' },
       ],
       logic: SearchLogic.OR,
     });

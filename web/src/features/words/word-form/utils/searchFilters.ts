@@ -1,6 +1,8 @@
 import { Word } from '../../../../types/api';
 import { SearchOperation, SearchLogic } from '../../../../types/base';
 
+export { createExactWordSearchFilter } from '../../../../utils/searchFilters';
+
 export const createWordSearchFilter = (searchTerm: string) => {
   return {
     conditions: [
@@ -8,19 +10,6 @@ export const createWordSearchFilter = (searchTerm: string) => {
         key: 'word',
         operator: SearchOperation.LIKE,
         value: `%${searchTerm}%`,
-      },
-    ],
-    logic: SearchLogic.OR,
-  };
-};
-
-export const createExactWordSearchFilter = (word: string) => {
-  return {
-    conditions: [
-      {
-        key: 'word',
-        operator: SearchOperation.LIKE,
-        value: word,
       },
     ],
     logic: SearchLogic.OR,

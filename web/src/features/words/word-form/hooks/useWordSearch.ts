@@ -1,13 +1,12 @@
 import { useState, useCallback, useEffect } from 'react';
 
+import { useDebounce } from '../../../../hooks/useDebounce';
 import { apiService } from '../../../../lib/api';
 import { getApiErrorMessage } from '../../../../lib/apiErrorMessage';
 import { Word } from '../../../../types/api';
 import { WordSearchState } from '../types';
 import { createWordSearchFilter, filterSearchSuggestions } from '../utils';
 import { MAX_SUGGESTIONS, SEARCH_DEBOUNCE_MS } from '../utils/constants';
-
-import { useDebounce } from './useDebounce';
 
 interface UseWordSearchProps {
   mode: 'create' | 'edit';
