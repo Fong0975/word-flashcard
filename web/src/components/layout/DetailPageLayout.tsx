@@ -18,7 +18,7 @@ export const DetailPageLayout: React.FC<DetailPageLayoutProps> = ({
   body,
   footer,
 }) => (
-  <div className='flex h-screen flex-col overflow-hidden bg-gray-50 pt-[env(safe-area-inset-top)] transition-colors duration-300 dark:bg-gray-900'>
+  <div className='flex h-screen flex-col overflow-hidden bg-gray-50 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[env(safe-area-inset-top)] transition-colors duration-300 dark:bg-gray-900 sm:pb-0'>
     <Header />
     <main className='flex flex-1 flex-col overflow-hidden'>
       <div className='mx-auto flex min-h-0 w-full max-w-4xl flex-1 flex-col px-4 py-4 sm:px-3 lg:px-10'>

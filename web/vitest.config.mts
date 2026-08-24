@@ -26,8 +26,12 @@ export default mergeConfig(
           'src/types/base.ts',
           'src/types/components.ts',
           'src/types/hooks.ts',
+          'src/types/backups.ts',
+          'src/types/data-export.ts',
           'src/features/words/word-detail/types/word-detail.ts',
           'src/features/words/word-form/types/word-form.ts',
+          'src/assets/images/**',
+          'src/config/*.json',
         ],
       },
       // Only emit the CTRF JSON report when explicitly requested (`npm run
