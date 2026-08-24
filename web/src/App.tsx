@@ -42,7 +42,7 @@ function HomePage() {
   const { currentTab, switchTab } = useTab();
 
   return (
-    <div className='flex min-h-screen flex-col bg-gray-50 pt-[env(safe-area-inset-top)] transition-colors duration-300 dark:bg-gray-900'>
+    <div className='flex min-h-screen flex-col bg-gray-50 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[env(safe-area-inset-top)] transition-colors duration-300 dark:bg-gray-900 sm:pb-0'>
       <Header />
 
       {/* Main Content Area */}
