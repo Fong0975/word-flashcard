@@ -37,8 +37,8 @@ services:
       timeout: 10s
       retries: 3
     volumes:
-      - .:/root/logs
-      - ./backups:/root/backups
+      - ${LOG_HOST_DIR:-.}:/root/logs
+      - ${BACKUP_HOST_DIR:-./backups}:/root/backups
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -66,7 +66,3 @@ services:
       interval: 10s
       timeout: 10s
       retries: 3
-
-volumes:
-  logs:
-    driver: local
