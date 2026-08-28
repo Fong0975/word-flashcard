@@ -19,7 +19,10 @@
 .env.test.local
 .env.production.local
 
-# Config files (exclude actual config, keep examples)
+# Template buttons config files (exclude actual config, keep examples)
+# Live in public/config/ -- served as static assets and fetched at runtime by
+# useTemplateButtons, so they can be swapped via a Docker volume without a
+# rebuild (see docker-compose.yml's TEMPLATE_CONFIG_HOST_DIR).
 definitionFormModalNoteButtonsConfig.json
 questionFormModalNotesButtonsConfig.json
 questionFormModalReferenceButtonsConfig.json

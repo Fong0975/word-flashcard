@@ -351,19 +351,26 @@ The built React application will be available in the `web/build/` directory.
 
 ## Docker Deployment
 
-Use the Docker to deploy the services for the production environment.
+Use Docker to deploy the services for the production environment. Both services build their images from source (`Dockerfile` / `web/Dockerfile`) rather than pulling a pre-built image, and neither Dockerfile depends on a physical `.env` file being present at build time — configuration is passed in as container environment variables and Docker build args instead, resolved from a single `.env` file next to whichever `docker-compose.yml` you use. This also means the stack can be deployed directly from a fresh clone of this repository (e.g. a Portainer stack pointed at this repo), not only via the `export_docker.bat` snapshot below.
 
-1. Run the `export_docker.bat` script to copy files required by the Docker host into the `docker/` directory.
-2. Clone `.env.example` and `web/.env.example` into `.env` and `web/.env` respectively, then modify their contents to suit the Docker container.
+Pick one of the following:
 
-| File     | Variable                          | Description                                                                    | Sample Value                                                                                                      |
-|----------|-----------------------------------|--------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------|
-| .env     | APP_PORT                          | Port for the main application service (default expose port for docker-compose) | 8080                                                                                                              |
-| .env     | FRONTEND_PORT                     | Port for the React frontend service (default expose port for docker-compose)   | 3000                                                                                                              |
-| .env     | LOG_FILE_PATH                     | Log file path inside the container                                             | logs/word-flashcard.log <br/> (Docker binds volumes by default, storing log files in the physical root directory) |
-| .env     | BACKUP_ENABLED                    | Whether the automatic backup scheduler runs (startup backup + periodic checks) | true                                                                                                               |
-| .env     | BACKUP_DIR                        | Automatic backup output directory inside the container                         | backups <br/> (bound via its own `./backups:/root/backups` volume, so backup files persist on the physical host)  |
-| web/.env | VITE_API_HOSTNAME                 | Hostname for the API service in the frontend                                   | api.flashcard.com                                                                                                 |
-| web/.env | VITE_API_PORT                     | Port for the API service in the frontend configuration                         | 8080                                                                                                              |
+- **Directly from the repository root** — copy `.env.example` to `.env`, fill in the values, then run `docker compose build && docker compose up -d` from the repo root.
+- **Via the `export_docker.bat` snapshot** — copy `.env.example` to `.env.production` in the repo root and fill in the values, run `export_docker.bat` to copy everything the Docker host needs (including renaming `.env.production` to `.env`) into the `docker/` directory, then run `docker compose build && docker compose up -d` from inside `docker/`.
 
-3. Use `docker\docker-compose.yml` to build the Docker containers.
+`web/.env` is not used by either path — the frontend's API host/port are baked into the build as Docker build args instead (see `VITE_API_HOSTNAME`/`VITE_API_PORT` below).
+
+| Variable                 | Description                                                                                                              | Sample Value                     |
+|---------------------------|---------------------------------------------------------------------------------------------------------------------------|-----------------------------------|
+| APP_PORT                  | Port for the main application service (default expose port for docker-compose)                                           | 8080                              |
+| FRONTEND_PORT              | Port for the React frontend service (default expose port for docker-compose)                                             | 3000                              |
+| VITE_API_HOSTNAME          | Hostname for the API service, baked into the frontend build via a Docker build arg                                        | api.flashcard.com                 |
+| VITE_API_PORT              | Port for the API service, baked into the frontend build via a Docker build arg                                            | 8080                              |
+| LOG_HOST_DIR               | Host directory bind-mounted into the backend container's log output; defaults to `.` (wherever `docker-compose.yml` runs from) — override with an absolute path when that directory isn't stable (e.g. deployed via Portainer) | /opt/word-flashcard                |
+| LOG_FILE_PATH              | Log file path inside the container                                                                                        | logs/word-flashcard.log           |
+| BACKUP_ENABLED             | Whether the automatic backup scheduler runs (startup backup + periodic checks)                                            | true                              |
+| BACKUP_HOST_DIR            | Host directory bind-mounted into the backend container's backup output; defaults to `./backups`, same override behavior as `LOG_HOST_DIR` | /opt/word-flashcard/backups        |
+| BACKUP_DIR                 | Automatic backup output directory inside the container                                                                   | backups                           |
+| TEMPLATE_CONFIG_HOST_DIR   | Host directory bind-mounted over the frontend's optional template-buttons config files (`*ButtonsConfig.json`), so they can be swapped without rebuilding the image; defaults to `./web/public/config` | /opt/word-flashcard/config         |
+
+See `.env.example` for the full list of backend variables, including database and backup schedule settings not covered above.
