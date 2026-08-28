@@ -55,17 +55,9 @@ if %ERRORLEVEL% LEQ 1 (
     :: Check for environment configuration files and rename them
     echo Checking for environment configuration files...
 
-    if exist "%DEST_DIR%\.env.production.backend" (
-        echo Found .env.production.backend, renaming to .env in %DEST_DIR%/
-        move "%DEST_DIR%\.env.production.backend" "%DEST_DIR%\.env"
-    )
-
-    if exist "%DEST_DIR%\.env.production.frontend" (
-        echo Found .env.production.frontend, renaming to .env in %DEST_DIR%/web/
-        if not exist "%DEST_DIR%\web" (
-            mkdir "%DEST_DIR%\web"
-        )
-        move "%DEST_DIR%\.env.production.frontend" "%DEST_DIR%\web\.env"
+    if exist "%DEST_DIR%\.env.production" (
+        echo Found .env.production, renaming to .env in %DEST_DIR%/
+        move "%DEST_DIR%\.env.production" "%DEST_DIR%\.env"
     )
 
     echo.

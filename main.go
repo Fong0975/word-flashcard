@@ -80,9 +80,12 @@ func main() {
 }
 
 func bootstrap() error {
-	// Load .env file first
+	// Load .env file if present. Its absence is expected in container
+	// deployments where config is injected as real environment variables
+	// (e.g. Docker Compose `environment:`/Portainer stack variables) instead
+	// of a physical file, so this is non-fatal.
 	if err := godotenv.Load(); err != nil {
-		return fmt.Errorf(".env file not found, using default values: %v", err)
+		fmt.Println(".env file not found, using existing environment variables:", err)
 	}
 
 	// Initialize logger after loading .env
