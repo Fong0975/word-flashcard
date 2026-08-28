@@ -2,6 +2,8 @@ import React from 'react';
 
 interface WordLinkSuggestionPopupProps {
   word: string;
+  /** Set while cascading through multiple blur-detected missed suggestions; omitted/null for a single typing-detected one. */
+  progress?: { current: number; total: number } | null;
   onInsert: () => void;
   onDismiss: () => void;
 }
@@ -13,7 +15,7 @@ interface WordLinkSuggestionPopupProps {
  */
 export const WordLinkSuggestionPopup: React.FC<
   WordLinkSuggestionPopupProps
-> = ({ word, onInsert, onDismiss }) => {
+> = ({ word, progress, onInsert, onDismiss }) => {
   return (
     <div className='mt-2'>
       <div className='rounded-md border border-blue-200 bg-blue-50 p-3 dark:border-blue-700 dark:bg-blue-900/20'>
@@ -34,6 +36,11 @@ export const WordLinkSuggestionPopup: React.FC<
           <div className='flex-1'>
             <p className='mb-2 text-sm text-blue-800 dark:text-blue-200'>
               Found &ldquo;{word}&rdquo; in your word bank — add a link?
+              {progress && progress.total > 1 && (
+                <span className='ml-1 text-blue-600 dark:text-blue-400'>
+                  ({progress.current} of {progress.total})
+                </span>
+              )}
             </p>
             <div className='flex gap-2'>
               <button

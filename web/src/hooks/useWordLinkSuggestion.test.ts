@@ -74,7 +74,7 @@ describe('useWordLinkSuggestion', () => {
     await waitFor(() => expect(result.current.suggestion).not.toBeNull());
 
     act(() => {
-      result.current.dismissSuggestion();
+      result.current.dismissSuggestion('`apple`');
     });
     searchWordsSpy.mockClear();
 
@@ -227,7 +227,7 @@ describe('useWordLinkSuggestion', () => {
     );
 
     act(() => {
-      result.current.dismissSuggestion();
+      result.current.dismissSuggestion('`apple`');
     });
 
     expect(result.current.suggestion).toBeNull();

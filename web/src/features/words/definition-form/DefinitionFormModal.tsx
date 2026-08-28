@@ -190,6 +190,7 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
             partOfSpeechOptions={formLogic.constants.PART_OF_SPEECH_OPTIONS}
             noteButtonsConfig={noteButtonsConfig}
             handlers={formLogic.handlers}
+            wordText={wordText}
           />
         </div>
 

@@ -1,6 +1,9 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { apiService } from '../../../../lib/api';
+import { Word } from '../../../../types/api';
+import { FamiliarityLevel } from '../../../../types/base';
 import { DefinitionForm } from '../types';
 
 import { FormFields } from './FormFields';
@@ -13,6 +16,16 @@ const buildFormData = (
   examples: [''],
   notes: '',
   phonetics: {},
+  ...overrides,
+});
+
+const buildWord = (overrides: Partial<Word> = {}): Word => ({
+  id: 1,
+  word: 'apple',
+  familiarity: FamiliarityLevel.GREEN,
+  reminder: null,
+  count_practise: 0,
+  definitions: [],
   ...overrides,
 });
 
@@ -35,6 +48,7 @@ describe('FormFields', () => {
         isFormValid={false}
         partOfSpeechOptions={['noun', 'verb']}
         noteButtonsConfig={[]}
+        wordText={null}
         handlers={buildHandlers()}
       />,
     );
@@ -53,6 +67,7 @@ describe('FormFields', () => {
         isFormValid={false}
         partOfSpeechOptions={['noun', 'verb']}
         noteButtonsConfig={[]}
+        wordText={null}
         handlers={handlers}
       />,
     );
@@ -71,6 +86,7 @@ describe('FormFields', () => {
         isFormValid={false}
         partOfSpeechOptions={['noun']}
         noteButtonsConfig={[]}
+        wordText={null}
         handlers={buildHandlers()}
       />,
     );
@@ -87,6 +103,7 @@ describe('FormFields', () => {
         isFormValid={false}
         partOfSpeechOptions={[]}
         noteButtonsConfig={[]}
+        wordText={null}
         handlers={buildHandlers()}
       />,
     );
@@ -103,6 +120,7 @@ describe('FormFields', () => {
         isFormValid={false}
         partOfSpeechOptions={[]}
         noteButtonsConfig={[]}
+        wordText={null}
         handlers={handlers}
       />,
     );
@@ -121,6 +139,7 @@ describe('FormFields', () => {
         isFormValid={false}
         partOfSpeechOptions={[]}
         noteButtonsConfig={[]}
+        wordText={null}
         handlers={buildHandlers()}
       />,
     );
@@ -137,6 +156,7 @@ describe('FormFields', () => {
         isFormValid={false}
         partOfSpeechOptions={[]}
         noteButtonsConfig={[]}
+        wordText={null}
         handlers={handlers}
       />,
     );
@@ -155,6 +175,7 @@ describe('FormFields', () => {
         isFormValid={false}
         partOfSpeechOptions={[]}
         noteButtonsConfig={[]}
+        wordText={null}
         handlers={handlers}
       />,
     );
@@ -174,6 +195,7 @@ describe('FormFields', () => {
         isFormValid={false}
         partOfSpeechOptions={[]}
         noteButtonsConfig={[]}
+        wordText={null}
         handlers={handlers}
       />,
     );
@@ -189,5 +211,59 @@ describe('FormFields', () => {
       'b',
     );
     expect(handlers.handlePhoneticsChange).toHaveBeenCalledWith('us', 'b');
+  });
+
+  describe('word-link suggestions in notes', () => {
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('excludes the word being edited, whether typed or only caught on blur', () => {
+      const searchWordsSpy = vi
+        .spyOn(apiService, 'searchWords')
+        .mockResolvedValue([buildWord({ word: 'apple' })]);
+      render(
+        <FormFields
+          formData={buildFormData()}
+          isFormValid={false}
+          partOfSpeechOptions={[]}
+          noteButtonsConfig={[]}
+          wordText='apple'
+          handlers={buildHandlers()}
+        />,
+      );
+
+      const notes = screen.getByPlaceholderText('Enter additional notes...');
+      fireEvent.change(notes, { target: { value: '`apple`' } });
+      fireEvent.blur(notes);
+
+      expect(searchWordsSpy).not.toHaveBeenCalled();
+      expect(
+        screen.queryByRole('button', { name: 'Add link' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('still suggests a different saved word despite wordText excluding the current one', async () => {
+      vi.spyOn(apiService, 'searchWords').mockResolvedValue([
+        buildWord({ word: 'banana' }),
+      ]);
+      render(
+        <FormFields
+          formData={buildFormData()}
+          isFormValid={false}
+          partOfSpeechOptions={[]}
+          noteButtonsConfig={[]}
+          wordText='apple'
+          handlers={buildHandlers()}
+        />,
+      );
+
+      const notes = screen.getByPlaceholderText('Enter additional notes...');
+      fireEvent.change(notes, { target: { value: '`banana`' } });
+
+      expect(
+        await screen.findByRole('button', { name: 'Add link' }),
+      ).toBeInTheDocument();
+    });
   });
 });
