@@ -35,6 +35,32 @@ export const detectCompletedBacktickWord = (
 };
 
 /**
+ * Scans the entire value for backtick-wrapped words (e.g. `` `apple` ``),
+ * returning every valid pair in document order. Unlike
+ * `detectCompletedBacktickWord`, this isn't cursor-driven — it's meant for a
+ * one-off full-text sweep (e.g. on blur) to catch pairs that were completed
+ * without the cursor ever landing right after the closing backtick, such as
+ * pasting a word into an existing empty `` ` ` `` pair.
+ */
+export const findAllBacktickWords = (value: string): BacktickWordMatch[] => {
+  const matches: BacktickWordMatch[] = [];
+  const pattern = /`([^`\n]*)`/g;
+  let m: RegExpExecArray | null;
+  while ((m = pattern.exec(value)) !== null) {
+    const word = m[1].trim();
+    if (!word) {
+      continue;
+    }
+    matches.push({
+      word,
+      openIndex: m.index,
+      closeIndex: m.index + m[0].length - 1,
+    });
+  }
+  return matches;
+};
+
+/**
  * Whether a word-link (`([link](/word/...))`) already sits right after
  * `position`, so an existing link isn't duplicated or re-prompted for.
  */

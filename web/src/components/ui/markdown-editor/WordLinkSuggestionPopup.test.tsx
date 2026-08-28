@@ -45,4 +45,30 @@ describe('WordLinkSuggestionPopup', () => {
     await user.click(screen.getByRole('button', { name: 'Skip' }));
     expect(onDismiss).toHaveBeenCalledTimes(1);
   });
+
+  it('does not show queue progress when there is only one candidate', () => {
+    render(
+      <WordLinkSuggestionPopup
+        word='apple'
+        progress={{ current: 1, total: 1 }}
+        onInsert={vi.fn()}
+        onDismiss={vi.fn()}
+      />,
+    );
+
+    expect(screen.queryByText(/of 1/)).not.toBeInTheDocument();
+  });
+
+  it('shows queue progress when cascading through multiple missed candidates', () => {
+    render(
+      <WordLinkSuggestionPopup
+        word='banana'
+        progress={{ current: 2, total: 3 }}
+        onInsert={vi.fn()}
+        onDismiss={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText(/2 of 3/)).toBeInTheDocument();
+  });
 });

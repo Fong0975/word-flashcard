@@ -1,5 +1,6 @@
 import {
   detectCompletedBacktickWord,
+  findAllBacktickWords,
   hasWordLinkAfter,
   insertWordLink,
 } from './wordLinkFormatting';
@@ -42,6 +43,53 @@ describe('detectCompletedBacktickWord', () => {
     expect(detectCompletedBacktickWord(value, cursorPosition)).toEqual(
       expected,
     );
+  });
+});
+
+describe('findAllBacktickWords', () => {
+  it.each([
+    [
+      'returns an empty array when there are no backtick pairs',
+      'no backticks here',
+      [],
+    ],
+    [
+      'returns a single match for one pair',
+      'Check `cat` now',
+      [{ word: 'cat', openIndex: 6, closeIndex: 10 }],
+    ],
+    [
+      'returns every pair in document order',
+      '`apple` and `banana` and `cherry`',
+      [
+        { word: 'apple', openIndex: 0, closeIndex: 6 },
+        { word: 'banana', openIndex: 12, closeIndex: 19 },
+        { word: 'cherry', openIndex: 25, closeIndex: 32 },
+      ],
+    ],
+    [
+      'trims surrounding whitespace but keeps the word',
+      '` apple `',
+      [{ word: 'apple', openIndex: 0, closeIndex: 8 }],
+    ],
+    ['skips a pair whose content is empty', '``', []],
+    ['skips a pair whose content is whitespace only', '`   `', []],
+    ['skips a pair whose content contains a newline', '`foo\nbar`', []],
+    [
+      'skips an empty pair but keeps the valid ones around it',
+      '`apple` `` `banana`',
+      [
+        { word: 'apple', openIndex: 0, closeIndex: 6 },
+        { word: 'banana', openIndex: 11, closeIndex: 18 },
+      ],
+    ],
+    [
+      'ignores a trailing unmatched backtick',
+      '`apple` and `stray',
+      [{ word: 'apple', openIndex: 0, closeIndex: 6 }],
+    ],
+  ] as const)('%s', (_description, value, expected) => {
+    expect(findAllBacktickWords(value)).toEqual(expected);
   });
 });
 

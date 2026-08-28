@@ -68,8 +68,13 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
 }) => {
   const [isPreview, setIsPreview] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { suggestion, notifyChange, dismissSuggestion } =
-    useWordLinkSuggestion();
+  const {
+    suggestion,
+    queueProgress,
+    notifyChange,
+    notifyBlur,
+    dismissSuggestion,
+  } = useWordLinkSuggestion();
 
   const handleFormat = (action: MarkdownFormatAction) => {
     const textarea = textareaRef.current;
@@ -95,6 +100,12 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
     }
   };
 
+  const handleTextareaBlur = () => {
+    if (!disabled) {
+      notifyBlur(value);
+    }
+  };
+
   const handleInsertWordLink = () => {
     const textarea = textareaRef.current;
     if (!suggestion) {
@@ -107,7 +118,7 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
       suggestion.word,
     );
     onChange(result.value);
-    dismissSuggestion();
+    dismissSuggestion(result.value);
 
     if (!textarea) {
       return;
@@ -149,6 +160,7 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
       ref={textareaRef}
       value={value}
       onChange={handleTextareaChange}
+      onBlur={handleTextareaBlur}
       rows={rows}
       className={textareaClassName}
       placeholder={placeholder}
@@ -201,8 +213,9 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
       {suggestion && (
         <WordLinkSuggestionPopup
           word={suggestion.word}
+          progress={queueProgress}
           onInsert={handleInsertWordLink}
-          onDismiss={dismissSuggestion}
+          onDismiss={() => dismissSuggestion(value)}
         />
       )}
     </div>

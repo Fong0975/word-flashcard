@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { apiService } from '../../../lib/api';
@@ -171,6 +171,79 @@ describe('MarkdownEditorField', () => {
       expect(
         screen.queryByRole('button', { name: 'Add link' }),
       ).not.toBeInTheDocument();
+    });
+
+    it('surfaces a suggestion on blur for a word pasted into an existing empty backtick pair', async () => {
+      vi.spyOn(apiService, 'searchWords').mockResolvedValue([
+        buildWord({ word: 'apple' }),
+      ]);
+      const user = userEvent.setup();
+      render(<ControlledMarkdownEditorField />);
+      const textarea = screen.getByRole('textbox');
+
+      // Types an empty `` ` ` `` pair, moves the cursor back between the two
+      // backticks, then pastes into it — the cursor ends up right after the
+      // pasted word, not after the closing backtick, so the typing-driven
+      // detection never fires.
+      await user.type(textarea, '``{ArrowLeft}');
+      await user.paste('apple');
+
+      expect(textarea).toHaveValue('`apple`');
+      expect(
+        screen.queryByRole('button', { name: 'Add link' }),
+      ).not.toBeInTheDocument();
+
+      fireEvent.blur(textarea);
+
+      expect(
+        await screen.findByRole('button', { name: 'Add link' }),
+      ).toBeInTheDocument();
+    });
+
+    it('surfaces multiple missed suggestions in sequence on blur, with progress', async () => {
+      vi.spyOn(apiService, 'searchWords').mockImplementation(
+        async (params = {}) => {
+          const queriedWord = params.searchFilter?.conditions[0]?.value;
+          return queriedWord === 'apple' || queriedWord === 'banana'
+            ? [buildWord({ word: queriedWord })]
+            : [];
+        },
+      );
+      const user = userEvent.setup();
+      render(<ControlledMarkdownEditorField />);
+      const textarea = screen.getByRole('textbox');
+
+      // Simulates pasting a whole block of text containing two backtick
+      // words at once, ending on a space so the typing-driven detection
+      // doesn't fire for either pair.
+      fireEvent.change(textarea, { target: { value: '`apple` `banana` ' } });
+      expect(
+        screen.queryByRole('button', { name: 'Add link' }),
+      ).not.toBeInTheDocument();
+
+      fireEvent.blur(textarea);
+
+      const firstInsert = await screen.findByRole('button', {
+        name: 'Add link',
+      });
+      expect(screen.getByText(/1 of 2/)).toBeInTheDocument();
+      await user.click(firstInsert);
+
+      const secondInsert = await screen.findByRole('button', {
+        name: 'Add link',
+      });
+      expect(screen.getByText(/2 of 2/)).toBeInTheDocument();
+      await user.click(secondInsert);
+
+      expect(
+        screen.queryByRole('button', { name: 'Add link' }),
+      ).not.toBeInTheDocument();
+      expect((textarea as HTMLTextAreaElement).value).toContain(
+        '([link](/word/apple))',
+      );
+      expect((textarea as HTMLTextAreaElement).value).toContain(
+        '([link](/word/banana))',
+      );
     });
   });
 });
