@@ -13,6 +13,16 @@ const ControlledMarkdownEditorField = () => {
   return <MarkdownEditorField value={value} onChange={setValue} />;
 };
 
+const buildWord = (overrides: Partial<Word> = {}): Word => ({
+  id: 1,
+  word: 'apple',
+  familiarity: FamiliarityLevel.GREEN,
+  reminder: null,
+  count_practise: 0,
+  definitions: [],
+  ...overrides,
+});
+
 describe('MarkdownEditorField', () => {
   it('associates the label with the textarea', () => {
     render(
@@ -106,16 +116,6 @@ describe('MarkdownEditorField', () => {
   });
 
   describe('word link suggestions', () => {
-    const buildWord = (overrides: Partial<Word> = {}): Word => ({
-      id: 1,
-      word: 'apple',
-      familiarity: FamiliarityLevel.GREEN,
-      reminder: null,
-      count_practise: 0,
-      definitions: [],
-      ...overrides,
-    });
-
     afterEach(() => {
       vi.restoreAllMocks();
     });
@@ -244,6 +244,46 @@ describe('MarkdownEditorField', () => {
       expect((textarea as HTMLTextAreaElement).value).toContain(
         '([link](/word/banana))',
       );
+    });
+  });
+
+  describe('excludeWord', () => {
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('does not suggest a link for the word passed as excludeWord, typed or missed until blur', () => {
+      const searchWordsSpy = vi
+        .spyOn(apiService, 'searchWords')
+        .mockResolvedValue([buildWord({ word: 'apple' })]);
+      render(
+        <MarkdownEditorField value='' onChange={vi.fn()} excludeWord='apple' />,
+      );
+
+      const textarea = screen.getByRole('textbox');
+      fireEvent.change(textarea, { target: { value: '`apple`' } });
+      fireEvent.blur(textarea);
+
+      expect(searchWordsSpy).not.toHaveBeenCalled();
+      expect(
+        screen.queryByRole('button', { name: 'Add link' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('still suggests a different saved word despite excludeWord being set', async () => {
+      vi.spyOn(apiService, 'searchWords').mockResolvedValue([
+        buildWord({ word: 'banana' }),
+      ]);
+      render(
+        <MarkdownEditorField value='' onChange={vi.fn()} excludeWord='apple' />,
+      );
+
+      const textarea = screen.getByRole('textbox');
+      fireEvent.change(textarea, { target: { value: '`banana`' } });
+
+      expect(
+        await screen.findByRole('button', { name: 'Add link' }),
+      ).toBeInTheDocument();
     });
   });
 });

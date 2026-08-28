@@ -70,8 +70,14 @@ interface UseWordLinkSuggestionResult {
  * `` ` ` `` pair, where the cursor never lands right after the closing
  * backtick. Multiple missed candidates are surfaced one at a time via
  * `queueProgress`, advancing each time `dismissSuggestion` is called.
+ *
+ * @param excludeWord Never suggested, e.g. the word whose own definition is
+ *   being edited — linking a word to itself makes no sense. Case-insensitive;
+ *   read fresh on every call, so it can change across renders.
  */
-export const useWordLinkSuggestion = (): UseWordLinkSuggestionResult => {
+export const useWordLinkSuggestion = (
+  excludeWord?: string | null,
+): UseWordLinkSuggestionResult => {
   const [suggestion, setSuggestion] = useState<WordLinkSuggestion | null>(null);
   const [queueProgress, setQueueProgress] =
     useState<WordLinkQueueProgress | null>(null);
@@ -80,6 +86,13 @@ export const useWordLinkSuggestion = (): UseWordLinkSuggestionResult => {
   const pendingQueueRef = useRef<PendingQueueItem[]>([]);
   const queueTotalRef = useRef(0);
   const queueTokenRef = useRef(0);
+  const excludeWordRef = useRef(excludeWord);
+  excludeWordRef.current = excludeWord;
+
+  const isExcludedWord = (word: string): boolean => {
+    const exclude = excludeWordRef.current;
+    return !!exclude && word.toLowerCase() === exclude.toLowerCase();
+  };
 
   const performLookup = useCallback(async (match: BacktickWordMatch) => {
     try {
@@ -207,6 +220,9 @@ export const useWordLinkSuggestion = (): UseWordLinkSuggestionResult => {
       if (!match) {
         return;
       }
+      if (isExcludedWord(match.word)) {
+        return;
+      }
       if (dismissedWordsRef.current.has(match.word.toLowerCase())) {
         return;
       }
@@ -239,6 +255,9 @@ export const useWordLinkSuggestion = (): UseWordLinkSuggestionResult => {
       const candidates = findAllBacktickWords(value).filter(m => {
         const key = m.word.toLowerCase();
         if (seen.has(key)) {
+          return false;
+        }
+        if (isExcludedWord(m.word)) {
           return false;
         }
         if (dismissedWordsRef.current.has(key)) {

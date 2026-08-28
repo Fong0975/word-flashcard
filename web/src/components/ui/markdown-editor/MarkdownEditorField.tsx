@@ -50,6 +50,8 @@ interface MarkdownEditorFieldProps {
   unescapeLiteralNewlines?: boolean;
   templateButtons?: TemplateButton[];
   onAppendTemplate?: (textToAppend: string) => void;
+  /** Never offered as a word-link suggestion, e.g. the word whose own definition is being edited. */
+  excludeWord?: string | null;
 }
 
 export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
@@ -65,6 +67,7 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
   unescapeLiteralNewlines = false,
   templateButtons = [],
   onAppendTemplate,
+  excludeWord,
 }) => {
   const [isPreview, setIsPreview] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -74,7 +77,7 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
     notifyChange,
     notifyBlur,
     dismissSuggestion,
-  } = useWordLinkSuggestion();
+  } = useWordLinkSuggestion(excludeWord);
 
   const handleFormat = (action: MarkdownFormatAction) => {
     const textarea = textareaRef.current;

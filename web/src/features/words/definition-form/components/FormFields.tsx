@@ -9,6 +9,8 @@ interface FormFieldsProps {
   isFormValid: boolean;
   partOfSpeechOptions: string[];
   noteButtonsConfig: TemplateButton[];
+  /** The word this definition belongs to; excluded from its own notes' word-link suggestions. */
+  wordText: string | null;
   handlers: {
     handlePartOfSpeechChange: (pos: string, checked: boolean) => void;
     handleDefinitionChange: (definition: string) => void;
@@ -28,6 +30,7 @@ export const FormFields: React.FC<FormFieldsProps> = ({
   isFormValid: _isFormValid,
   partOfSpeechOptions,
   noteButtonsConfig,
+  wordText,
   handlers,
 }) => {
   return (
@@ -158,6 +161,7 @@ export const FormFields: React.FC<FormFieldsProps> = ({
           unescapeLiteralNewlines
           templateButtons={noteButtonsConfig}
           onAppendTemplate={handlers.appendToNotes}
+          excludeWord={wordText}
         />
       </div>
 
