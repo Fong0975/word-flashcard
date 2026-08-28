@@ -13,6 +13,12 @@ RUN npm install --verbose --omit=dev
 # Copy source code
 COPY . .
 
+# API host/port the built app should call, baked in at build time by Vite.
+ARG VITE_API_HOSTNAME=localhost
+ARG VITE_API_PORT=8080
+ENV VITE_API_HOSTNAME=$VITE_API_HOSTNAME
+ENV VITE_API_PORT=$VITE_API_PORT
+
 # Build the application
 RUN DISABLE_ESLINT_PLUGIN=true npm run build
 
