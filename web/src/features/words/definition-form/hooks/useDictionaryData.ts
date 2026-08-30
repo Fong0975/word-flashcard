@@ -129,7 +129,7 @@ export const useDictionaryData = (
       definition: CambridgeDefinition,
       updateFormData?: (updates: Partial<DefinitionForm>) => void,
     ) => {
-      const examples = definition.example.map(
+      const examples = (definition.example ?? []).map(
         ex => `${ex.text} ${ex.translation}`,
       );
 
