@@ -33,7 +33,6 @@ yarn-debug.log*
 
 # Docker files from subdirectories
 web/Dockerfile
-utils/cambridge-dictionary-api/Dockerfile
 
 # Temporary files
 *.tmp

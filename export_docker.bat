@@ -22,7 +22,7 @@ mkdir "%DEST_DIR%"
 :: Excluding: Git files, build artifacts, dependencies, IDE configs, linting configs, and cache files.
 
 robocopy "./" "%DEST_DIR%" /E ^
-    /XD .git .github dist node_modules .vscode .idea .claude coverage ctrf .cache "%~dp0backups" "%~dp0assets" cambridge-dictionary-api "%DEST_DIR%" ^
+    /XD .git .github dist node_modules .vscode .idea .claude coverage ctrf .cache "%~dp0backups" "%~dp0assets" "%DEST_DIR%" ^
     /XF .gitignore README.md *.bat *.log *_test.go .env ^
     .eslintrc.json .prettierrc.json .prettierignore .eslintcache .golangci.yml ^
     *.tsbuildinfo *.code-workspace npm-debug.log* yarn-debug.log* yarn-error.log* ^
