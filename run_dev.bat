@@ -2,17 +2,11 @@
 echo Starting development environment...
 echo.
 
-REM Start first cmd window - Run Node.js API service
-start "Cambridge Dictionary API" cmd /k "cd utils/cambridge-dictionary-api && node index.js"
+REM Start first cmd window - Run Go main program
+start "Go Main App" cmd /k "go run main.go"
 
 REM Wait 1 second for first window to start
 timeout /t 1 /nobreak >nul
 
-REM Start second cmd window - Run Go main program
-start "Go Main App" cmd /k "go run main.go"
-
-REM Wait 1 second for second window to start
-timeout /t 1 /nobreak >nul
-
-REM Start third cmd window - Run React frontend dev server
+REM Start second cmd window - Run React frontend dev server
 start "React Frontend" cmd /k "cd web && npm start"

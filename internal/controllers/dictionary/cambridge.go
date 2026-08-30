@@ -30,15 +30,14 @@ type languageConfig struct {
 }
 
 // supportedLanguages lists the slug languages this controller knows how to fetch.
-// Mirrors the language table in utils/cambridge-dictionary-api/data.js; only en-tw
-// is implemented for now, but the map keeps the route contract ready for the rest
-// (en, uk, en-cn) to be added later without a breaking change.
+// Only en-tw is implemented for now, but the map keeps the route contract ready
+// for the rest (en, uk, en-cn) to be added later without a breaking change.
 var supportedLanguages = map[string]languageConfig{
 	"en-tw": {nation: "us", language: "english-chinese-traditional"},
 }
 
 // fetchWordDataFromCambridge scrapes the Cambridge Dictionary page for word and
-// parses it into the same shape utils/cambridge-dictionary-api returns.
+// parses it into the response shape returned by the dictionary API.
 func (dc *Controller) fetchWordDataFromCambridge(word, slugLanguage string) (*models.CambridgeResponse, error) {
 	word = strings.TrimSpace(word)
 	if word == "" {
@@ -80,7 +79,7 @@ func (dc *Controller) fetchWordDataFromCambridge(word, slugLanguage string) (*mo
 }
 
 // parseCambridgeDocument extracts word data from a parsed Cambridge Dictionary page,
-// mirroring the cheerio selectors used by utils/cambridge-dictionary-api/data.js.
+// mirroring the cheerio selectors used by the original dictionary scraping logic.
 func parseCambridgeDocument(doc *goquery.Document, siteURL, word string) (*models.CambridgeResponse, error) {
 	headword := strings.TrimSpace(doc.Find(".hw.dhw").First().Text())
 	if headword == "" {

@@ -56,12 +56,10 @@ word-flashcard/
 │   ├── routers/                  # Route configuration
 │   └── scheduler/                # Background jobs (automatic backup scheduler)
 ├── utils/                         # Utility modules
-│   ├── cambridge-dictionary-api/ # (Deprecated) Cambridge Dictionary API sub-service, no longer used
 │   ├── config/                   # Configuration module
 │   ├── database/                 # Database module with MySQL/PostgreSQL support
 │   ├── log/                      # Logging module
 │   ├── conversion_utils.go       # Type conversion utilities
-│   ├── dictionary-testing.json   # (Deprecated) Mockoon file for the Cambridge Dictionary API sub-service
 │   └── pointer_utils.go          # Pointer utility functions
 ├── web/                           # React frontend application
 │   ├── public/                   # Public assets
