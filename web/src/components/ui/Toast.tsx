@@ -134,7 +134,7 @@ export const Toast: React.FC<ToastProps> = ({
 
   return (
     <div
-      className={`animate-slide-in-right relative mb-4 flex min-h-16 w-96 transform cursor-pointer flex-col justify-center overflow-hidden rounded-lg border p-2 shadow-lg transition-all duration-300 hover:shadow-xl md:p-4 ${getTypeStyles()} `}
+      className={`animate-slide-in-right relative mb-4 flex min-h-16 w-full transform cursor-pointer flex-col justify-center overflow-hidden rounded-lg border p-2 shadow-lg transition-all duration-300 hover:shadow-xl sm:w-96 md:p-4 ${getTypeStyles()} `}
       role='alert'
       onClick={() => onClose(id)}
       onKeyDown={e => {
@@ -199,7 +199,7 @@ export const ToastContainer: React.FC<ToastContainerProps> = ({
 
   return createPortal(
     <div
-      className='fixed bottom-4 right-4 z-50 space-y-4'
+      className='fixed bottom-4 left-8 right-8 z-50 space-y-4 sm:left-auto'
       aria-live='polite'
       aria-label='Notifications'
     >
