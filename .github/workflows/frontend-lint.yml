@@ -82,6 +82,11 @@ jobs:
         cd web
         npm run lint:check
 
+    - name: Build frontend
+      run: |
+        cd web
+        npm run build
+
     # Update final status for manual triggers only
     - name: Update Final Status
       if: always() && github.event_name == 'workflow_dispatch'
