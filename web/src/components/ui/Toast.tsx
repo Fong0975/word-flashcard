@@ -134,7 +134,7 @@ export const Toast: React.FC<ToastProps> = ({
 
   return (
     <div
-      className={`animate-slide-in-right relative mb-4 w-full max-w-sm transform cursor-pointer overflow-hidden rounded-lg border p-2 shadow-lg transition-all duration-300 hover:shadow-xl md:p-4 ${getTypeStyles()} `}
+      className={`animate-slide-in-right relative mb-4 flex min-h-16 w-96 transform cursor-pointer flex-col justify-center overflow-hidden rounded-lg border p-2 shadow-lg transition-all duration-300 hover:shadow-xl md:p-4 ${getTypeStyles()} `}
       role='alert'
       onClick={() => onClose(id)}
       onKeyDown={e => {
