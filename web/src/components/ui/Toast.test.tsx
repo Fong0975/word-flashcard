@@ -55,6 +55,30 @@ describe('Toast', () => {
     expect(alert).toContainHTML('M11.25 11.25l.041-.02');
     expect(screen.getByText('FYI')).toHaveClass('text-blue-800');
   });
+
+  it('renders a progress bar timed to the auto-dismiss duration', () => {
+    render(
+      <Toast
+        id='1'
+        message='Saved'
+        type='success'
+        duration={1500}
+        onClose={vi.fn()}
+      />,
+    );
+
+    const progressBar = screen.getByTestId('toast-progress-bar');
+    expect(progressBar).toHaveClass('bg-green-400');
+    expect(progressBar).toHaveStyle({ animationDuration: '1500ms' });
+  });
+
+  it('defaults the progress bar duration to 4000ms', () => {
+    render(<Toast id='1' message='Saved' type='info' onClose={vi.fn()} />);
+
+    expect(screen.getByTestId('toast-progress-bar')).toHaveStyle({
+      animationDuration: '4000ms',
+    });
+  });
 });
 
 describe('ToastContainer', () => {

@@ -117,9 +117,24 @@ export const Toast: React.FC<ToastProps> = ({
     }
   };
 
+  const getProgressBarColor = () => {
+    switch (type) {
+      case 'success':
+        return 'bg-green-400 dark:bg-green-500';
+      case 'error':
+        return 'bg-red-400 dark:bg-red-500';
+      case 'warning':
+        return 'bg-yellow-400 dark:bg-yellow-500';
+      case 'info':
+        return 'bg-blue-400 dark:bg-blue-500';
+      default:
+        return 'bg-gray-400 dark:bg-gray-500';
+    }
+  };
+
   return (
     <div
-      className={`animate-slide-in-right mb-4 w-full max-w-sm transform cursor-pointer rounded-lg border p-2 shadow-lg transition-all duration-300 hover:shadow-xl md:p-4 ${getTypeStyles()} `}
+      className={`animate-slide-in-right relative mb-4 w-full max-w-sm transform cursor-pointer overflow-hidden rounded-lg border p-2 shadow-lg transition-all duration-300 hover:shadow-xl md:p-4 ${getTypeStyles()} `}
       role='alert'
       onClick={() => onClose(id)}
       onKeyDown={e => {
@@ -147,6 +162,11 @@ export const Toast: React.FC<ToastProps> = ({
           {message}
         </div>
       </div>
+      <div
+        className={`animate-toast-progress absolute bottom-0 left-0 h-1 w-full ${getProgressBarColor()}`}
+        style={{ animationDuration: `${duration}ms` }}
+        data-testid='toast-progress-bar'
+      />
     </div>
   );
 };
