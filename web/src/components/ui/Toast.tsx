@@ -2,10 +2,13 @@
  * Toast notification component for displaying temporary messages
  *
  * Displays toast messages in the bottom-right corner of the screen with auto-dismiss
- * and manual close functionality.
+ * and manual close functionality. `ToastContainer` portals into `document.body` so it
+ * always renders relative to the viewport, even when mounted inside a Modal whose
+ * content box establishes its own containing block via a CSS `transform`.
  */
 
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 export interface ToastProps {
   readonly id: string;
@@ -114,9 +117,24 @@ export const Toast: React.FC<ToastProps> = ({
     }
   };
 
+  const getProgressBarColor = () => {
+    switch (type) {
+      case 'success':
+        return 'bg-green-400 dark:bg-green-500';
+      case 'error':
+        return 'bg-red-400 dark:bg-red-500';
+      case 'warning':
+        return 'bg-yellow-400 dark:bg-yellow-500';
+      case 'info':
+        return 'bg-blue-400 dark:bg-blue-500';
+      default:
+        return 'bg-gray-400 dark:bg-gray-500';
+    }
+  };
+
   return (
     <div
-      className={`animate-slide-in-right mb-4 w-full max-w-sm transform cursor-pointer rounded-lg border p-2 shadow-lg transition-all duration-300 hover:shadow-xl md:p-4 ${getTypeStyles()} `}
+      className={`animate-slide-in-right relative mb-4 flex min-h-16 w-96 transform cursor-pointer flex-col justify-center overflow-hidden rounded-lg border p-2 shadow-lg transition-all duration-300 hover:shadow-xl md:p-4 ${getTypeStyles()} `}
       role='alert'
       onClick={() => onClose(id)}
       onKeyDown={e => {
@@ -144,6 +162,11 @@ export const Toast: React.FC<ToastProps> = ({
           {message}
         </div>
       </div>
+      <div
+        className={`animate-toast-progress absolute bottom-0 left-0 h-1 w-full ${getProgressBarColor()}`}
+        style={{ animationDuration: `${duration}ms` }}
+        data-testid='toast-progress-bar'
+      />
     </div>
   );
 };
@@ -174,7 +197,7 @@ export const ToastContainer: React.FC<ToastContainerProps> = ({
     return null;
   }
 
-  return (
+  return createPortal(
     <div
       className='fixed bottom-4 right-4 z-50 space-y-4'
       aria-live='polite'
@@ -190,6 +213,7 @@ export const ToastContainer: React.FC<ToastContainerProps> = ({
           onClose={onRemoveToast}
         />
       ))}
-    </div>
+    </div>,
+    document.body,
   );
 };

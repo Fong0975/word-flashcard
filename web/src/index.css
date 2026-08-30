@@ -162,3 +162,17 @@ button:focus {
 .animate-slide-out-right {
   animation: slide-out-right 0.3s ease-in forwards;
 }
+
+@keyframes toast-progress {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+.animate-toast-progress {
+  animation: toast-progress linear forwards;
+  transform-origin: left;
+}

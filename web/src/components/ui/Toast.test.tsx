@@ -55,6 +55,30 @@ describe('Toast', () => {
     expect(alert).toContainHTML('M11.25 11.25l.041-.02');
     expect(screen.getByText('FYI')).toHaveClass('text-blue-800');
   });
+
+  it('renders a progress bar timed to the auto-dismiss duration', () => {
+    render(
+      <Toast
+        id='1'
+        message='Saved'
+        type='success'
+        duration={1500}
+        onClose={vi.fn()}
+      />,
+    );
+
+    const progressBar = screen.getByTestId('toast-progress-bar');
+    expect(progressBar).toHaveClass('bg-green-400');
+    expect(progressBar).toHaveStyle({ animationDuration: '1500ms' });
+  });
+
+  it('defaults the progress bar duration to 4000ms', () => {
+    render(<Toast id='1' message='Saved' type='info' onClose={vi.fn()} />);
+
+    expect(screen.getByTestId('toast-progress-bar')).toHaveStyle({
+      animationDuration: '4000ms',
+    });
+  });
 });
 
 describe('ToastContainer', () => {
@@ -83,5 +107,21 @@ describe('ToastContainer', () => {
 
     await user.click(alerts[0]);
     expect(onRemoveToast).toHaveBeenCalledWith('1');
+  });
+
+  it('portals the toast outside of a transformed ancestor', () => {
+    const { container } = render(
+      <div style={{ transform: 'translate(0, 0)' }}>
+        <ToastContainer
+          toasts={[{ id: '1', message: 'Saved', type: 'success' }]}
+          onRemoveToast={vi.fn()}
+        />
+      </div>,
+    );
+
+    expect(container.querySelector('[role="alert"]')).toBeNull();
+    expect(screen.getByRole('alert')).toBe(
+      document.body.querySelector('[role="alert"]'),
+    );
   });
 });
