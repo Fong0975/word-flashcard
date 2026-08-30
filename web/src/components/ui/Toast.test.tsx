@@ -84,4 +84,20 @@ describe('ToastContainer', () => {
     await user.click(alerts[0]);
     expect(onRemoveToast).toHaveBeenCalledWith('1');
   });
+
+  it('portals the toast outside of a transformed ancestor', () => {
+    const { container } = render(
+      <div style={{ transform: 'translate(0, 0)' }}>
+        <ToastContainer
+          toasts={[{ id: '1', message: 'Saved', type: 'success' }]}
+          onRemoveToast={vi.fn()}
+        />
+      </div>,
+    );
+
+    expect(container.querySelector('[role="alert"]')).toBeNull();
+    expect(screen.getByRole('alert')).toBe(
+      document.body.querySelector('[role="alert"]'),
+    );
+  });
 });

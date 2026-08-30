@@ -2,10 +2,13 @@
  * Toast notification component for displaying temporary messages
  *
  * Displays toast messages in the bottom-right corner of the screen with auto-dismiss
- * and manual close functionality.
+ * and manual close functionality. `ToastContainer` portals into `document.body` so it
+ * always renders relative to the viewport, even when mounted inside a Modal whose
+ * content box establishes its own containing block via a CSS `transform`.
  */
 
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 export interface ToastProps {
   readonly id: string;
@@ -174,7 +177,7 @@ export const ToastContainer: React.FC<ToastContainerProps> = ({
     return null;
   }
 
-  return (
+  return createPortal(
     <div
       className='fixed bottom-4 right-4 z-50 space-y-4'
       aria-live='polite'
@@ -190,6 +193,7 @@ export const ToastContainer: React.FC<ToastContainerProps> = ({
           onClose={onRemoveToast}
         />
       ))}
-    </div>
+    </div>,
+    document.body,
   );
 };
