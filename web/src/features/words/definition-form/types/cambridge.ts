@@ -20,7 +20,7 @@ export interface CambridgeDefinition {
   pos: string;
   text: string;
   translation: string;
-  example: CambridgeExample[];
+  example: CambridgeExample[] | null;
 }
 
 export interface CambridgeApiResponse {

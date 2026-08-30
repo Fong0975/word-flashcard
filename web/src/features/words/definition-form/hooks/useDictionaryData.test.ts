@@ -150,6 +150,34 @@ describe('useDictionaryData', () => {
     );
   });
 
+  it('applies definition data with no examples without throwing', () => {
+    const updateFormData = vi.fn();
+    const onShowSuccess = vi.fn();
+    const { result } = renderHook(() =>
+      useDictionaryData('apple', onShowSuccess),
+    );
+    const definition: CambridgeDefinition = {
+      id: 1,
+      pos: 'noun',
+      text: 'a fruit',
+      translation: '蘋果',
+      example: null,
+    };
+
+    act(() => {
+      result.current.applyDefinition(definition, updateFormData);
+    });
+
+    expect(updateFormData).toHaveBeenCalledWith({
+      part_of_speech: ['noun'],
+      definition: '蘋果 a fruit',
+      examples: [],
+    });
+    expect(onShowSuccess).toHaveBeenCalledWith(
+      'Applied part of speech, definition successfully!',
+    );
+  });
+
   it('resets the dictionary state', async () => {
     vi.spyOn(apiService, 'lookupWord').mockResolvedValue(buildResponse());
     const { result } = renderHook(() => useDictionaryData('apple'));
