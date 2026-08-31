@@ -1,7 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { DetailPageLayout } from '../../components/layout';
+import { useLogUnread } from '../../contexts/LogUnreadContext';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { ErrorMessage } from '../../components/ui/ErrorMessage';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
@@ -30,6 +31,15 @@ const ITEMS_PER_PAGE = 50;
 export const LogsPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { markRead } = useLogUnread();
+
+  // Opening the page counts as having seen the logs, so the watermark is
+  // advanced immediately. It is global: it ignores whatever level or date
+  // filter happens to be applied, marking everything written before now as
+  // read.
+  useEffect(() => {
+    markRead();
+  }, [markRead]);
 
   const urlPage = useMemo(() => {
     const page = parseInt(searchParams.get('page') || '1', 10);

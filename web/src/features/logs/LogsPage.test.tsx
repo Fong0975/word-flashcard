@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import type { MockInstance } from 'vitest';
 
+import { LogUnreadProvider } from '../../contexts/LogUnreadContext';
 import { apiService } from '../../lib/api';
 import { LogEntry } from '../../types/logs';
 
@@ -154,6 +155,23 @@ describe('LogsPage', () => {
         screen.queryAllByRole('navigation', { name: 'Pagination' }).length,
       ).toBeGreaterThan(0),
     );
+  });
+
+  it('marks the logs read on open, clearing the unread indicator', async () => {
+    const markLogsRead = vi
+      .spyOn(apiService, 'markLogsRead')
+      .mockResolvedValue({ last_read_at: '2026-08-31T09:00:00Z' });
+    vi.spyOn(apiService, 'getUnreadLogsCount').mockResolvedValue({ count: 5 });
+
+    render(
+      <MemoryRouter initialEntries={['/logs']}>
+        <LogUnreadProvider>
+          <LogsPage />
+        </LogUnreadProvider>
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => expect(markLogsRead).toHaveBeenCalled());
   });
 
   it('navigates home from the back button', async () => {

@@ -1,5 +1,7 @@
 import React, { useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
+import { useLogUnread } from '../../contexts/LogUnreadContext';
 import { BackupsModal } from '../../features/backups/BackupsModal';
 import { useToast } from '../../hooks/ui/useToast';
 import { apiService } from '../../lib/api';
@@ -35,10 +37,16 @@ const formatImportSummary = (summary: ImportSummary): string =>
 /**
  * Settings dropdown in the header, offering a full-database JSON export
  * (download) and import (destructive restore, gated behind a confirmation
- * dialog since it replaces every existing row on the server).
+ * dialog since it replaces every existing row on the server), plus an entry
+ * point to the backend log viewer.
+ *
+ * When unread log entries are waiting, a dot is shown on both the trigger
+ * (visible with the menu closed) and the Logs item itself.
  */
 export const DataManagementMenu: React.FC = () => {
   const { toasts, showSuccess, showError, removeToast } = useToast();
+  const navigate = useNavigate();
+  const { unreadCount } = useLogUnread();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [isExporting, setIsExporting] = useState(false);
@@ -118,10 +126,16 @@ export const DataManagementMenu: React.FC = () => {
       <div className='group relative'>
         <button
           type='button'
-          className='rounded-md p-2 text-gray-500 transition-colors duration-200 focus:outline-none group-focus-within:bg-gray-100 group-focus-within:text-gray-900 group-hover:bg-gray-100 group-hover:text-gray-900 dark:text-gray-400 dark:group-focus-within:bg-gray-700 dark:group-focus-within:text-white dark:group-hover:bg-gray-700 dark:group-hover:text-white'
-          aria-label='Settings'
+          className='relative rounded-md p-2 text-gray-500 transition-colors duration-200 focus:outline-none group-focus-within:bg-gray-100 group-focus-within:text-gray-900 group-hover:bg-gray-100 group-hover:text-gray-900 dark:text-gray-400 dark:group-focus-within:bg-gray-700 dark:group-focus-within:text-white dark:group-hover:bg-gray-700 dark:group-hover:text-white'
+          aria-label={unreadCount > 0 ? 'Settings (unread logs)' : 'Settings'}
           aria-haspopup='true'
         >
+          {unreadCount > 0 && (
+            <span
+              className='absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500'
+              aria-hidden='true'
+            />
+          )}
           <svg
             viewBox='0 0 24 24'
             className='h-5 w-5 transition-transform duration-300 ease-out group-focus-within:rotate-90 group-hover:rotate-90'
@@ -218,6 +232,39 @@ export const DataManagementMenu: React.FC = () => {
                   />
                 </svg>
                 {isExporting ? 'Exporting…' : 'Export'}
+              </button>
+            </div>
+            <div className='border-t border-gray-100 py-1 dark:border-gray-700'>
+              <span className='block px-4 py-1 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500'>
+                System
+              </span>
+              <button
+                type='button'
+                role='menuitem'
+                onClick={() => navigate('/logs')}
+                className='flex w-full items-center gap-1.5 py-1.5 pl-8 pr-4 text-left text-xs text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-white'
+              >
+                <svg
+                  viewBox='0 0 24 24'
+                  className='h-4 w-4'
+                  fill='none'
+                  stroke='currentColor'
+                  strokeWidth={1.5}
+                  aria-hidden='true'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    d='M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5A3.375 3.375 0 0 0 10.125 2.25H8.25m6 13.5H9m4.5-3.75H9m1.5-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z'
+                  />
+                </svg>
+                Logs
+                {unreadCount > 0 && (
+                  <span
+                    className='ml-auto h-2 w-2 shrink-0 rounded-full bg-red-500'
+                    aria-hidden='true'
+                  />
+                )}
               </button>
             </div>
           </div>
