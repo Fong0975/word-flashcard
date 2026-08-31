@@ -21,10 +21,17 @@ interface LogFiltersProps {
   onKeywordClear: () => void;
 }
 
-const dateInputClassName =
-  'rounded-md border border-gray-300 bg-white px-2 py-1 text-xs text-gray-700 ' +
+// Padding is left out here (and applied per input below) so the search box
+// can carry its own, more generous padding without a conflicting padding
+// class from this shared base -- Tailwind utilities have equal specificity,
+// so whichever one the build happens to emit last would otherwise silently
+// win.
+const inputBaseClassName =
+  'rounded-md border border-gray-300 bg-white text-xs text-gray-700 ' +
   'focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 ' +
   'dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200';
+
+const dateInputClassName = `px-2 py-1 ${inputBaseClassName}`;
 
 /** Level pills, keyword search and an inclusive datetime range for the log list. */
 export const LogFilters: React.FC<LogFiltersProps> = ({
@@ -53,7 +60,10 @@ export const LogFilters: React.FC<LogFiltersProps> = ({
       ))}
     </div>
 
-    <div className='relative'>
+    {/* Always full width, so in a flex-wrap row this item never has room to
+        share a line with the level pills -- it drops to its own line on
+        every breakpoint instead of only when space happens to run out. */}
+    <div className='relative w-full'>
       <input
         type='text'
         value={keyword}
@@ -62,14 +72,14 @@ export const LogFilters: React.FC<LogFiltersProps> = ({
         onCompositionEnd={onKeywordCompositionEnd}
         placeholder='Search message or source...'
         aria-label='Search logs'
-        className={`w-48 pr-6 ${dateInputClassName}`}
+        className={`w-full py-1.5 pl-3 pr-8 ${inputBaseClassName}`}
       />
       {keyword && (
         <button
           type='button'
           onClick={onKeywordClear}
           aria-label='Clear search'
-          className='absolute inset-y-0 right-1.5 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
+          className='absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
         >
           <svg
             className='h-3 w-3'
@@ -88,6 +98,11 @@ export const LogFilters: React.FC<LogFiltersProps> = ({
       )}
     </div>
 
+    {/* From and To are separate flex items (rather than one group) so they
+        can wrap onto their own lines independently -- bundled together, a
+        narrow phone screen has no room to fit both native datetime-local
+        controls on one line, and with nothing to wrap around they'd instead
+        overflow the card. */}
     <div className='flex items-center gap-1.5'>
       <label
         htmlFor='log-from'
@@ -100,8 +115,10 @@ export const LogFilters: React.FC<LogFiltersProps> = ({
         type='datetime-local'
         value={from}
         onChange={event => onFromChange(event.target.value)}
-        className={dateInputClassName}
+        className={`w-40 max-w-full ${dateInputClassName}`}
       />
+    </div>
+    <div className='flex items-center gap-1.5'>
       <label
         htmlFor='log-to'
         className='text-xs text-gray-500 dark:text-gray-400'
@@ -113,7 +130,7 @@ export const LogFilters: React.FC<LogFiltersProps> = ({
         type='datetime-local'
         value={to}
         onChange={event => onToChange(event.target.value)}
-        className={dateInputClassName}
+        className={`w-40 max-w-full ${dateInputClassName}`}
       />
     </div>
   </div>
