@@ -24,6 +24,7 @@ import {
 } from '../types/api';
 import { DataExportPayload, ImportSummary } from '../types/data-export';
 import { BackupFile } from '../types/backups';
+import { LogEntry, LogReadState, LogsQueryParams } from '../types/logs';
 import {
   SearchFilter,
   ApiErrorCode,
@@ -71,6 +72,36 @@ const buildListQueryString = (params: {
 
   if (params.sort) {
     searchParams.append('sort', params.sort);
+  }
+
+  const query = searchParams.toString();
+  return query ? `?${query}` : '';
+};
+
+// Builds the `?limit=&offset=&level=&from=&to=` query string the log
+// endpoints take. Levels go over as one comma-separated `level` parameter,
+// matching the backend's ParseFilterParams.
+const buildLogsQueryString = (params: LogsQueryParams): string => {
+  const searchParams = new URLSearchParams();
+
+  if (params.limit !== undefined) {
+    searchParams.append('limit', params.limit.toString());
+  }
+
+  if (params.offset !== undefined) {
+    searchParams.append('offset', params.offset.toString());
+  }
+
+  if (params.levels && params.levels.length > 0) {
+    searchParams.append('level', params.levels.join(','));
+  }
+
+  if (params.from) {
+    searchParams.append('from', params.from);
+  }
+
+  if (params.to) {
+    searchParams.append('to', params.to);
   }
 
   const query = searchParams.toString();
@@ -498,6 +529,38 @@ class ApiService {
         ...options,
       },
     );
+  }
+
+  // Backend log viewer API methods
+  async getLogs(
+    params: LogsQueryParams = {},
+    options?: ApiRequestOptions,
+  ): Promise<LogEntry[]> {
+    const endpoint = `${API_ENDPOINTS.logs}${buildLogsQueryString(params)}`;
+
+    return this.get<LogEntry[]>(endpoint, options);
+  }
+
+  async getLogsCount(
+    params: LogsQueryParams = {},
+    options?: ApiRequestOptions,
+  ): Promise<{ count: number }> {
+    // limit/offset are meaningless for a count, so they're dropped rather
+    // than sent for the backend to ignore.
+    const { levels, from, to } = params;
+    const endpoint = `${API_ENDPOINTS.logsCount}${buildLogsQueryString({ levels, from, to })}`;
+
+    return this.get<{ count: number }>(endpoint, options);
+  }
+
+  async getUnreadLogsCount(
+    options?: ApiRequestOptions,
+  ): Promise<{ count: number }> {
+    return this.get<{ count: number }>(API_ENDPOINTS.logsUnread, options);
+  }
+
+  async markLogsRead(options?: ApiRequestOptions): Promise<LogReadState> {
+    return this.post<LogReadState>(API_ENDPOINTS.logsRead, {}, options);
   }
 
   // Dictionary API methods

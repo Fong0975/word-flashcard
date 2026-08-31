@@ -37,6 +37,11 @@ const NoteCreatePage = lazy(() =>
     default: m.NoteCreatePage,
   })),
 );
+const LogsPage = lazy(() =>
+  import('./features/logs/LogsPage').then(m => ({
+    default: m.LogsPage,
+  })),
+);
 
 function HomePage() {
   const { currentTab, switchTab } = useTab();
@@ -85,6 +90,7 @@ function App() {
         <Route path='/question/:id' element={<QuestionDetailPage />} />
         <Route path='/note/new' element={<NoteCreatePage />} />
         <Route path='/note/:id' element={<NoteDetailPage />} />
+        <Route path='/logs' element={<LogsPage />} />
       </Routes>
     </Suspense>
   );

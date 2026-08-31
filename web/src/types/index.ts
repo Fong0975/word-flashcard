@@ -28,6 +28,7 @@ export * from './data-export';
 
 // ===== BACKUP FILE TYPES =====
 export * from './backups';
+export * from './logs';
 
 // ===== GLOBAL TYPE AUGMENTATIONS =====
 
