@@ -216,3 +216,76 @@ func TestCountEntries(t *testing.T) {
 		})
 	}
 }
+
+func TestCountUnread(t *testing.T) {
+	tests := []struct {
+		name     string
+		since    time.Time
+		minLevel string
+		want     int
+	}{
+		{name: "zero watermark counts every entry at the level", minLevel: LevelWarn, want: 2},
+		{name: "watermark below everything", since: at(20, 44, 9), minLevel: LevelWarn, want: 2},
+		{
+			name:     "watermark is exclusive at its own entry",
+			since:    at(20, 44, 11),
+			minLevel: LevelWarn,
+			want:     1,
+		},
+		{name: "watermark above everything", since: at(20, 44, 59), minLevel: LevelWarn, want: 0},
+		{name: "a stricter level excludes warnings", minLevel: LevelError, want: 1},
+		{name: "a permissive level counts everything", minLevel: LevelDebug, want: 4},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := CountUnread(writeScanFixture(t), tt.since, tt.minLevel)
+			if err != nil {
+				t.Fatalf("CountUnread() error = %v", err)
+			}
+			if got != tt.want {
+				t.Errorf("CountUnread() = %d, want %d", got, tt.want)
+			}
+		})
+	}
+}
+
+// TestCountUnreadStopsAtTheWatermark proves the scan really does stop at the
+// first already-read entry instead of reading the whole rotation set. The
+// rotated file is given a deliberately impossible timestamp -- newer than
+// anything in the current file -- so it would be counted if the walk ever
+// reached it. That early exit is what makes the endpoint cheap to poll.
+func TestCountUnreadStopsAtTheWatermark(t *testing.T) {
+	dir := t.TempDir()
+	files := map[string]string{
+		"app.log": "2026/08/30 20:44:12 | WARN | c.go:3 | C\n" +
+			"2026/08/30 20:44:13 | WARN | d.go:4 | D\n",
+		"app-2026-08-30T10-00-00.000.log": "2026/08/30 23:00:00 | ERROR | z.go:9 | Z\n",
+	}
+	for name, content := range files {
+		if err := os.WriteFile(filepath.Join(dir, name), []byte(content), 0o644); err != nil {
+			t.Fatalf("failed to write %s: %v", name, err)
+		}
+	}
+	path := filepath.Join(dir, "app.log")
+
+	// Stopping at C leaves only D counted; without the early exit Z would
+	// also be counted, giving 2.
+	got, err := CountUnread(path, at(20, 44, 12), LevelWarn)
+	if err != nil {
+		t.Fatalf("CountUnread() error = %v", err)
+	}
+	if got != 1 {
+		t.Errorf("CountUnread() = %d, want 1 (scan should stop at the watermark)", got)
+	}
+
+	// With a watermark below everything there is nothing to stop at, so the
+	// rotated file is reached and Z is counted.
+	got, err = CountUnread(path, at(20, 0, 0), LevelWarn)
+	if err != nil {
+		t.Fatalf("CountUnread() error = %v", err)
+	}
+	if got != 3 {
+		t.Errorf("CountUnread() = %d, want 3 (whole set scanned)", got)
+	}
+}

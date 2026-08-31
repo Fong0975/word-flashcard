@@ -124,3 +124,32 @@ func CountEntries(logFilePath string, filter Filter) (int, error) {
 
 	return total, nil
 }
+
+// CountUnread returns how many entries are newer than since and at least as
+// severe as minLevel.
+//
+// Because walkEntries visits entries newest first and the log is written in
+// chronological order, the first entry at or before the watermark means
+// every remaining entry has already been read -- so the scan stops there
+// instead of reading the rest of the rotation set. That early exit is what
+// makes this endpoint cheap enough for the frontend to poll. The exception
+// is the very first call, when the watermark is the zero time and there is
+// nothing to stop at.
+func CountUnread(logFilePath string, since time.Time, minLevel string) (int, error) {
+	total := 0
+	err := walkEntries(logFilePath, Filter{}, func(entry models.LogEntry) bool {
+		if !entry.Timestamp.After(since) {
+			return false
+		}
+		if AtLeastLevel(entry.Level, minLevel) {
+			total++
+		}
+
+		return true
+	})
+	if err != nil {
+		return 0, err
+	}
+
+	return total, nil
+}

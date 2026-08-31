@@ -5,6 +5,7 @@ import (
 	"word-flashcard/internal/controllers/backup"
 	"word-flashcard/internal/controllers/dictionary"
 	"word-flashcard/internal/controllers/health"
+	"word-flashcard/internal/controllers/logs"
 	"word-flashcard/internal/controllers/note"
 	"word-flashcard/internal/controllers/question"
 	"word-flashcard/internal/controllers/word"
@@ -21,6 +22,7 @@ type ControllerDependencies struct {
 	QuestionController   question.ControllerInterface
 	NoteController       note.ControllerInterface
 	BackupController     backup.ControllerInterface
+	LogsController       logs.ControllerInterface
 }
 
 // SetupAPIRoutes configures all API routes with default controllers
@@ -70,6 +72,7 @@ func SetupAPIRoutes(router *gin.Engine) {
 		QuestionController:   questionController,
 		NoteController:       noteController,
 		BackupController:     backupController,
+		LogsController:       logs.New(),
 	}
 
 	// Setup routes with dependencies
@@ -131,4 +134,10 @@ func SetupAPIRoutesWithDependencies(router *gin.Engine, deps *ControllerDependen
 	apiGroup.GET("/data/backups", deps.BackupController.ListBackups)
 	apiGroup.POST("/data/backups", deps.BackupController.TriggerBackup)
 	apiGroup.GET("/data/backups/:name", deps.BackupController.DownloadBackup)
+
+	// Backend log routes
+	apiGroup.GET("/logs", deps.LogsController.ListLogs)
+	apiGroup.GET("/logs/count", deps.LogsController.CountLogs)
+	apiGroup.GET("/logs/unread", deps.LogsController.UnreadLogs)
+	apiGroup.POST("/logs/read", deps.LogsController.MarkLogsRead)
 }

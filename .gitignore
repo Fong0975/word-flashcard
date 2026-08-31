@@ -17,6 +17,9 @@ dist/*
 # log file
 *.log
 
+# backend log viewer read watermark
+.log-read-state.json
+
 # automatic backup output (repo root only -- do not match nested dirs like
 # web/src/features/backups/)
 /backups/
