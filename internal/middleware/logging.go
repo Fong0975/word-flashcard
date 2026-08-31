@@ -4,6 +4,10 @@ import (
 	"context"
 	"log/slog"
 	"regexp"
+	"slices"
+	"strings"
+
+	"word-flashcard/utils/config"
 
 	"github.com/gin-gonic/gin"
 )
@@ -47,10 +51,50 @@ func LoggingMiddleware() gin.HandlerFunc {
 	})
 }
 
-// CORSMiddleware returns a gin middleware that handles CORS headers
+// parseAllowedOrigins reads the ALLOWED_ORIGINS allow-list (comma-separated),
+// ignoring blank entries so a trailing comma or an empty value is harmless.
+// An empty result means "no allow-list configured".
+func parseAllowedOrigins() []string {
+	var origins []string
+	for _, origin := range strings.Split(config.GetOrDefault("ALLOWED_ORIGINS", ""), ",") {
+		if origin = strings.TrimSpace(origin); origin != "" {
+			origins = append(origins, origin)
+		}
+	}
+
+	return origins
+}
+
+// CORSMiddleware returns a gin middleware that handles CORS headers.
+//
+// With ALLOWED_ORIGINS unset it echoes the historical "Access-Control-Allow-Origin: *",
+// so existing deployments keep working untouched. Once the variable lists
+// origins, only those are echoed back, which stops an unrelated website the
+// user happens to be browsing from reading this API through their browser.
+//
+// Note what this does and does not buy: it is enforced by the browser, so it
+// blocks cross-origin reads from a page, but it is no barrier at all to a
+// direct request (curl, or any non-browser client) from inside the network.
+// The API still has no authentication.
+//
+// The allow-list is read once, when the middleware is built, since it cannot
+// change without a restart anyway.
 func CORSMiddleware() gin.HandlerFunc {
+	allowedOrigins := parseAllowedOrigins()
+
 	return func(c *gin.Context) {
-		c.Header("Access-Control-Allow-Origin", "*")
+		if len(allowedOrigins) == 0 {
+			c.Header("Access-Control-Allow-Origin", "*")
+		} else {
+			// The response now differs by origin, so caches must key on it --
+			// including for a rejected origin, where no allow header is sent
+			// at all and the browser blocks the read.
+			c.Header("Vary", "Origin")
+			if origin := c.Request.Header.Get("Origin"); slices.Contains(allowedOrigins, origin) {
+				c.Header("Access-Control-Allow-Origin", origin)
+			}
+		}
+
 		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		c.Header("Access-Control-Max-Age", "86400")

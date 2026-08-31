@@ -38,6 +38,7 @@ func (s *apiRoutesTestSuite) SetupTest() {
 	mockQuestionController := mocks.NewMockQuestionController()
 	mockNoteController := mocks.NewMockNoteController()
 	mockBackupController := mocks.NewMockBackupController()
+	mockLogsController := mocks.NewMockLogsController()
 
 	// Create controller dependencies with mock controllers
 	deps := &ControllerDependencies{
@@ -47,6 +48,7 @@ func (s *apiRoutesTestSuite) SetupTest() {
 		QuestionController:   mockQuestionController,
 		NoteController:       mockNoteController,
 		BackupController:     mockBackupController,
+		LogsController:       mockLogsController,
 	}
 
 	// Create a new gin router and setup API routes with mock controllers
@@ -115,6 +117,11 @@ func (s *apiRoutesTestSuite) TestAPIRouteMappings() {
 		{"GET", "/api/data/backups", "BackupController.ListBackups", "ListBackups", "BackupController"},
 		{"POST", "/api/data/backups", "BackupController.TriggerBackup", "TriggerBackup", "BackupController"},
 		{"GET", "/api/data/backups/:name", "BackupController.DownloadBackup", "DownloadBackup", "BackupController"},
+		// Backend logs
+		{"GET", "/api/logs", "LogsController.ListLogs", "ListLogs", "LogsController"},
+		{"GET", "/api/logs/count", "LogsController.CountLogs", "CountLogs", "LogsController"},
+		{"GET", "/api/logs/unread", "LogsController.UnreadLogs", "UnreadLogs", "LogsController"},
+		{"POST", "/api/logs/read", "LogsController.MarkLogsRead", "MarkLogsRead", "LogsController"},
 	}
 
 	// Test each route mapping calls the correct method

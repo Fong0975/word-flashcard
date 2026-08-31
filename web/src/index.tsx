@@ -5,6 +5,7 @@ import { BrowserRouter } from 'react-router-dom';
 import './index.css';
 import App from './App';
 import { ApiVersionProvider } from './contexts/ApiVersionContext';
+import { LogUnreadProvider } from './contexts/LogUnreadContext';
 import { registerServiceWorker } from './registerServiceWorker';
 
 const root = ReactDOM.createRoot(
@@ -14,7 +15,9 @@ root.render(
   <React.StrictMode>
     <BrowserRouter>
       <ApiVersionProvider>
-        <App />
+        <LogUnreadProvider>
+          <App />
+        </LogUnreadProvider>
       </ApiVersionProvider>
     </BrowserRouter>
   </React.StrictMode>,

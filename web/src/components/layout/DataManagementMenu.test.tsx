@@ -1,10 +1,19 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
 
+import { LogUnreadProvider } from '../../contexts/LogUnreadContext';
 import { apiService } from '../../lib/api';
 import { DataExportPayload, ImportSummary } from '../../types/data-export';
 
 import { DataManagementMenu } from './DataManagementMenu';
+
+const mockNavigate = vi.fn();
+
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
+  useNavigate: () => mockNavigate,
+}));
 
 const samplePayload: DataExportPayload = {
   exported_at: '2024-01-15T10:00:00Z',
@@ -25,6 +34,29 @@ const sampleSummary: ImportSummary = {
   notes: 6,
 };
 
+// The menu navigates to the log viewer, so it must be rendered inside a
+// router.
+const renderMenu = () =>
+  render(
+    <MemoryRouter>
+      <DataManagementMenu />
+    </MemoryRouter>,
+  );
+
+// Rendering inside a real provider (rather than mocking the hook) so the
+// indicator is exercised through the same unread endpoint the app uses.
+const renderMenuWithUnread = (count: number) => {
+  vi.spyOn(apiService, 'getUnreadLogsCount').mockResolvedValue({ count });
+
+  return render(
+    <MemoryRouter>
+      <LogUnreadProvider>
+        <DataManagementMenu />
+      </LogUnreadProvider>
+    </MemoryRouter>,
+  );
+};
+
 const uploadFile = async (content: string) => {
   const user = userEvent.setup();
   const file = new File([content], 'export.json', {
@@ -38,6 +70,9 @@ describe('DataManagementMenu', () => {
   beforeEach(() => {
     window.URL.createObjectURL = vi.fn(() => 'blob:mock-url');
     window.URL.revokeObjectURL = vi.fn();
+    // restoreAllMocks does not reset a plain vi.fn(), so the navigate spy is
+    // cleared explicitly between cases.
+    mockNavigate.mockClear();
   });
 
   afterEach(() => {
@@ -45,7 +80,7 @@ describe('DataManagementMenu', () => {
   });
 
   it('renders a settings button with a Data section and Import/Export/Backups items', () => {
-    render(<DataManagementMenu />);
+    renderMenu();
 
     expect(
       screen.getByRole('button', { name: 'Settings' }),
@@ -68,7 +103,7 @@ describe('DataManagementMenu', () => {
       .spyOn(apiService, 'getBackupFiles')
       .mockResolvedValue([]);
 
-    render(<DataManagementMenu />);
+    renderMenu();
     await user.click(screen.getByRole('menuitem', { name: 'Backups' }));
 
     expect(
@@ -86,7 +121,7 @@ describe('DataManagementMenu', () => {
       .spyOn(HTMLAnchorElement.prototype, 'click')
       .mockImplementation(() => {});
 
-    render(<DataManagementMenu />);
+    renderMenu();
     await user.click(screen.getByRole('menuitem', { name: 'Export' }));
 
     await waitFor(() => expect(exportSpy).toHaveBeenCalledTimes(1));
@@ -101,7 +136,7 @@ describe('DataManagementMenu', () => {
       new Error('network down'),
     );
 
-    render(<DataManagementMenu />);
+    renderMenu();
     await user.click(screen.getByRole('menuitem', { name: 'Export' }));
 
     expect(
@@ -110,7 +145,7 @@ describe('DataManagementMenu', () => {
   });
 
   it('shows a confirmation dialog after selecting a valid export file', async () => {
-    render(<DataManagementMenu />);
+    renderMenu();
 
     await uploadFile(JSON.stringify(samplePayload));
 
@@ -121,7 +156,7 @@ describe('DataManagementMenu', () => {
   });
 
   it('shows an error toast and no dialog when the selected file is not valid JSON', async () => {
-    render(<DataManagementMenu />);
+    renderMenu();
 
     await uploadFile('not valid json');
 
@@ -137,7 +172,7 @@ describe('DataManagementMenu', () => {
     const user = userEvent.setup();
     const importSpy = vi.spyOn(apiService, 'importData');
 
-    render(<DataManagementMenu />);
+    renderMenu();
     await uploadFile(JSON.stringify(samplePayload));
     await user.click(await screen.findByRole('button', { name: 'Cancel' }));
 
@@ -151,7 +186,7 @@ describe('DataManagementMenu', () => {
       .spyOn(apiService, 'importData')
       .mockResolvedValue(sampleSummary);
 
-    render(<DataManagementMenu />);
+    renderMenu();
     await uploadFile(JSON.stringify(samplePayload));
     await user.click(
       await screen.findByRole('button', { name: 'Replace All Data' }),
@@ -170,7 +205,7 @@ describe('DataManagementMenu', () => {
       new Error('restore failed'),
     );
 
-    render(<DataManagementMenu />);
+    renderMenu();
     await uploadFile(JSON.stringify(samplePayload));
     await user.click(
       await screen.findByRole('button', { name: 'Replace All Data' }),
@@ -180,5 +215,40 @@ describe('DataManagementMenu', () => {
       await screen.findByText('Import failed: restore failed'),
     ).toBeInTheDocument();
     expect(screen.getByText('Import Data')).toBeInTheDocument();
+  });
+
+  it('renders a System section with a Logs item', () => {
+    renderMenu();
+
+    expect(screen.getByText('System')).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'Logs' })).toBeInTheDocument();
+  });
+
+  it('navigates to the log viewer when Logs is clicked', async () => {
+    const user = userEvent.setup();
+    renderMenu();
+
+    await user.click(screen.getByRole('menuitem', { name: 'Logs' }));
+
+    expect(mockNavigate).toHaveBeenCalledWith('/logs');
+  });
+
+  it('shows no unread indicator when the log is caught up', async () => {
+    renderMenuWithUnread(0);
+
+    await waitFor(() =>
+      expect(apiService.getUnreadLogsCount).toHaveBeenCalled(),
+    );
+    expect(
+      screen.getByRole('button', { name: 'Settings' }),
+    ).toBeInTheDocument();
+  });
+
+  it('marks the settings trigger when unread entries are waiting', async () => {
+    renderMenuWithUnread(3);
+
+    expect(
+      await screen.findByRole('button', { name: 'Settings (unread logs)' }),
+    ).toBeInTheDocument();
   });
 });
