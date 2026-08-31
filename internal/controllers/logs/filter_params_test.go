@@ -15,12 +15,13 @@ func TestParseFilterParams(t *testing.T) {
 	}
 
 	tests := []struct {
-		name       string
-		query      string
-		wantLevels []string
-		wantFrom   *time.Time
-		wantTo     *time.Time
-		wantErr    bool
+		name        string
+		query       string
+		wantLevels  []string
+		wantFrom    *time.Time
+		wantTo      *time.Time
+		wantKeyword string
+		wantErr     bool
 	}{
 		{name: "no parameters means no constraints", query: ""},
 		{
@@ -65,6 +66,16 @@ func TestParseFilterParams(t *testing.T) {
 			wantTo: ptrTime(time.Date(2026, 8, 30, 12, 0, 0, 0, time.UTC)),
 		},
 		{
+			name:     "a datetime-local lower bound is read as local time",
+			query:    "?from=2026-08-30T14:30",
+			wantFrom: ptrTime(local(2026, 8, 30, 14, 30, 0, 0)),
+		},
+		{
+			name:   "a datetime-local upper bound covers the whole minute",
+			query:  "?to=2026-08-30T14:30",
+			wantTo: ptrTime(local(2026, 8, 30, 14, 30, 59, int(time.Second-time.Nanosecond))),
+		},
+		{
 			name:       "levels and bounds combine",
 			query:      "?level=ERROR&from=2026-08-01&to=2026-08-31",
 			wantLevels: []string{"ERROR"},
@@ -73,6 +84,13 @@ func TestParseFilterParams(t *testing.T) {
 		},
 		{name: "an unparsable lower bound is rejected", query: "?from=yesterday", wantErr: true},
 		{name: "an unparsable upper bound is rejected", query: "?to=31/08/2026", wantErr: true},
+		{
+			name:        "a keyword parameter",
+			query:       "?keyword=disk+full",
+			wantKeyword: "disk full",
+		},
+		{name: "surrounding spaces are trimmed from the keyword", query: "?keyword=+disk+", wantKeyword: "disk"},
+		{name: "an empty keyword parameter imposes no constraint", query: "?keyword="},
 	}
 
 	for _, tt := range tests {
@@ -99,6 +117,10 @@ func TestParseFilterParams(t *testing.T) {
 
 			assertBound(t, "From", got.From, tt.wantFrom)
 			assertBound(t, "To", got.To, tt.wantTo)
+
+			if got.Keyword != tt.wantKeyword {
+				t.Errorf("Keyword = %q, want %q", got.Keyword, tt.wantKeyword)
+			}
 		})
 	}
 }

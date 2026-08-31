@@ -47,7 +47,12 @@ func messagesOf(entries []models.LogEntry) []string {
 }
 
 func TestFilterMatch(t *testing.T) {
-	entry := models.LogEntry{Timestamp: at(20, 44, 13), Level: "WARN"}
+	entry := models.LogEntry{
+		Timestamp: at(20, 44, 13),
+		Level:     "WARN",
+		Source:    "disk.go:12",
+		Message:   "Disk almost full",
+	}
 
 	tests := []struct {
 		name   string
@@ -67,6 +72,15 @@ func TestFilterMatch(t *testing.T) {
 		{
 			name:   "level and range must both hold",
 			filter: Filter{Levels: []string{"WARN"}, From: ptr(at(20, 44, 14))},
+			want:   false,
+		},
+		{name: "keyword matches the message", filter: Filter{Keyword: "almost full"}, want: true},
+		{name: "keyword matches the source", filter: Filter{Keyword: "disk.go"}, want: true},
+		{name: "keyword match is case insensitive", filter: Filter{Keyword: "DISK"}, want: true},
+		{name: "non-matching keyword", filter: Filter{Keyword: "database"}, want: false},
+		{
+			name:   "keyword and level must both hold",
+			filter: Filter{Keyword: "disk", Levels: []string{"ERROR"}},
 			want:   false,
 		},
 	}
@@ -149,6 +163,13 @@ func TestScanEntries(t *testing.T) {
 			wantIDs:      []int{1, 2},
 		},
 		{
+			name:         "keyword filter matches the source",
+			filter:       Filter{Keyword: "c.go"},
+			limit:        10,
+			wantMessages: []string{"C"},
+			wantIDs:      []int{1},
+		},
+		{
 			name:         "missing log directory yields no entries",
 			limit:        10,
 			missingFile:  true,
@@ -196,6 +217,7 @@ func TestCountEntries(t *testing.T) {
 		{name: "several levels", filter: Filter{Levels: []string{"WARN", "ERROR"}}, want: 2},
 		{name: "range filter", filter: Filter{From: ptr(at(20, 44, 12))}, want: 2},
 		{name: "range excluding everything", filter: Filter{From: ptr(at(23, 0, 0))}, want: 0},
+		{name: "keyword filter", filter: Filter{Keyword: "c.go"}, want: 1},
 		{name: "missing log directory counts zero", missingFile: true, want: 0},
 	}
 

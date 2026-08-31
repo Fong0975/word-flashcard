@@ -49,7 +49,12 @@ describe('useLogs', () => {
     {
       name: 'passes no filter when none is set',
       options: {},
-      expectedFilter: { levels: undefined, from: undefined, to: undefined },
+      expectedFilter: {
+        levels: undefined,
+        from: undefined,
+        to: undefined,
+        keyword: undefined,
+      },
     },
     {
       name: 'passes the level allow-list',
@@ -58,6 +63,7 @@ describe('useLogs', () => {
         levels: ['WARN', 'ERROR'],
         from: undefined,
         to: undefined,
+        keyword: undefined,
       },
     },
     {
@@ -67,6 +73,17 @@ describe('useLogs', () => {
         levels: undefined,
         from: '2026-08-01',
         to: '2026-08-31',
+        keyword: undefined,
+      },
+    },
+    {
+      name: 'passes the keyword',
+      options: { keyword: 'disk full' },
+      expectedFilter: {
+        levels: undefined,
+        from: undefined,
+        to: undefined,
+        keyword: 'disk full',
       },
     },
   ])('$name', async ({ options, expectedFilter }) => {

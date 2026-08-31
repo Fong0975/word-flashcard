@@ -45,10 +45,15 @@ export interface LogsQueryParams {
   readonly offset?: number;
   /** Level allow-list; empty or omitted means every level. */
   readonly levels?: readonly LogLevel[];
-  /** Inclusive lower bound, as RFC3339 or `YYYY-MM-DD`. */
+  /** Inclusive lower bound, as RFC3339, `YYYY-MM-DDTHH:mm`, or `YYYY-MM-DD`. */
   readonly from?: string;
-  /** Inclusive upper bound; a plain date covers the whole day. */
+  /**
+   * Inclusive upper bound; a value coarser than a second (a plain date, or a
+   * datetime with no seconds) covers the whole of that span.
+   */
   readonly to?: string;
+  /** Case-insensitive substring match against message or source. */
+  readonly keyword?: string;
 }
 
 /** Response of `POST /api/logs/read`. */

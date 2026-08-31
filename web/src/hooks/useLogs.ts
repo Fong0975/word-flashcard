@@ -12,10 +12,12 @@ export interface UseLogsOptions {
   autoFetch?: boolean;
   /** Level allow-list; empty or omitted means every level. */
   levels?: readonly LogLevel[];
-  /** Inclusive lower bound, as `YYYY-MM-DD` or RFC3339. */
+  /** Inclusive lower bound, as `YYYY-MM-DD`, `YYYY-MM-DDTHH:mm`, or RFC3339. */
   from?: string;
-  /** Inclusive upper bound; a plain date covers the whole day. */
+  /** Inclusive upper bound; a value coarser than a second covers the whole of that span. */
   to?: string;
+  /** Case-insensitive substring match against message or source. */
+  keyword?: string;
 }
 
 export interface UseLogsReturn extends EntityListHook<LogEntry> {
@@ -38,6 +40,7 @@ export const useLogs = (options: UseLogsOptions = {}): UseLogsReturn => {
     levels,
     from,
     to,
+    keyword,
   } = options;
 
   const entityListOptions = useMemo(
@@ -51,15 +54,16 @@ export const useLogs = (options: UseLogsOptions = {}): UseLogsReturn => {
             levels,
             from,
             to,
+            keyword,
           }),
-        getCount: () => apiService.getLogsCount({ levels, from, to }),
+        getCount: () => apiService.getLogsCount({ levels, from, to, keyword }),
       },
       searchConfig: { type: 'server' },
       itemsPerPage,
       initialPage,
       autoFetch,
     }),
-    [itemsPerPage, initialPage, autoFetch, levels, from, to],
+    [itemsPerPage, initialPage, autoFetch, levels, from, to, keyword],
   );
 
   const entityListResult = useEntityList<LogEntry>(entityListOptions);

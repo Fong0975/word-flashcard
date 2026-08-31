@@ -14,8 +14,9 @@ import (
 // @Tags logs
 // @Produce json
 // @Param level query string false "Comma-separated level names, e.g. WARN,ERROR"
-// @Param from query string false "Inclusive lower bound, RFC3339 or YYYY-MM-DD"
-// @Param to query string false "Inclusive upper bound, RFC3339 or YYYY-MM-DD"
+// @Param from query string false "Inclusive lower bound, RFC3339, YYYY-MM-DDTHH:mm, or YYYY-MM-DD"
+// @Param to query string false "Inclusive upper bound, RFC3339, YYYY-MM-DDTHH:mm, or YYYY-MM-DD"
+// @Param keyword query string false "Case-insensitive substring match against message or source"
 // @Success 200 {object} map[string]int "Count of matching entries"
 // @Failure 400 {object} models.ErrorResponse "Bad request - Invalid time range"
 // @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to read the log files"

@@ -78,9 +78,9 @@ const buildListQueryString = (params: {
   return query ? `?${query}` : '';
 };
 
-// Builds the `?limit=&offset=&level=&from=&to=` query string the log
-// endpoints take. Levels go over as one comma-separated `level` parameter,
-// matching the backend's ParseFilterParams.
+// Builds the `?limit=&offset=&level=&from=&to=&keyword=` query string the
+// log endpoints take. Levels go over as one comma-separated `level`
+// parameter, matching the backend's ParseFilterParams.
 const buildLogsQueryString = (params: LogsQueryParams): string => {
   const searchParams = new URLSearchParams();
 
@@ -102,6 +102,10 @@ const buildLogsQueryString = (params: LogsQueryParams): string => {
 
   if (params.to) {
     searchParams.append('to', params.to);
+  }
+
+  if (params.keyword) {
+    searchParams.append('keyword', params.keyword);
   }
 
   const query = searchParams.toString();
@@ -547,8 +551,8 @@ class ApiService {
   ): Promise<{ count: number }> {
     // limit/offset are meaningless for a count, so they're dropped rather
     // than sent for the backend to ignore.
-    const { levels, from, to } = params;
-    const endpoint = `${API_ENDPOINTS.logsCount}${buildLogsQueryString({ levels, from, to })}`;
+    const { levels, from, to, keyword } = params;
+    const endpoint = `${API_ENDPOINTS.logsCount}${buildLogsQueryString({ levels, from, to, keyword })}`;
 
     return this.get<{ count: number }>(endpoint, options);
   }

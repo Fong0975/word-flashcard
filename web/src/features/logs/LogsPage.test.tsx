@@ -104,18 +104,48 @@ describe('LogsPage', () => {
     );
   });
 
-  it('filters by date range', async () => {
+  it('filters by datetime range', async () => {
     const user = userEvent.setup();
     renderPage();
     await screen.findByText('Disk almost full');
 
-    await user.type(screen.getByLabelText('From'), '2026-08-01');
+    await user.type(screen.getByLabelText('From'), '2026-08-01T09:00');
 
     await waitFor(() =>
       expect(getLogs).toHaveBeenLastCalledWith(
-        expect.objectContaining({ from: '2026-08-01' }),
+        expect.objectContaining({ from: '2026-08-01T09:00' }),
       ),
     );
+  });
+
+  it('filters by keyword after the debounce delay', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await screen.findByText('Disk almost full');
+
+    await user.type(screen.getByLabelText('Search logs'), 'disk');
+
+    await waitFor(
+      () =>
+        expect(getLogs).toHaveBeenLastCalledWith(
+          expect.objectContaining({ keyword: 'disk' }),
+        ),
+      { timeout: 1000 },
+    );
+    expect(getLogsCount).toHaveBeenLastCalledWith(
+      expect.objectContaining({ keyword: 'disk' }),
+    );
+  });
+
+  it('refetches without changing the URL when the refresh button is clicked', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await screen.findByText('Disk almost full');
+    getLogs.mockClear();
+
+    await user.click(screen.getByRole('button', { name: 'Refresh logs' }));
+
+    await waitFor(() => expect(getLogs).toHaveBeenCalledTimes(1));
   });
 
   it('renders an empty state when nothing matches', async () => {

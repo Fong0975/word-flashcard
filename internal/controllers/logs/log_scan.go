@@ -15,6 +15,9 @@ type Filter struct {
 	// From and To bound the entry timestamp inclusively; nil means unbounded.
 	From *time.Time
 	To   *time.Time
+	// Keyword, when non-empty, must appear case-insensitively in the entry's
+	// message or source; empty imposes no constraint.
+	Keyword string
 }
 
 // Match reports whether an entry satisfies the filter.
@@ -26,6 +29,9 @@ func (f Filter) Match(entry models.LogEntry) bool {
 		return false
 	}
 	if f.To != nil && entry.Timestamp.After(*f.To) {
+		return false
+	}
+	if f.Keyword != "" && !containsKeyword(f.Keyword, entry) {
 		return false
 	}
 
@@ -40,6 +46,17 @@ func containsLevel(levels []string, level string) bool {
 	}
 
 	return false
+}
+
+// containsKeyword reports whether keyword appears in entry.Message or
+// entry.Source, case-insensitively. Those are the two free-text fields the
+// log list actually displays -- Level and Timestamp already have their own
+// dedicated filters.
+func containsKeyword(keyword string, entry models.LogEntry) bool {
+	keyword = strings.ToLower(keyword)
+
+	return strings.Contains(strings.ToLower(entry.Message), keyword) ||
+		strings.Contains(strings.ToLower(entry.Source), keyword)
 }
 
 // walkEntries visits every entry matching filter, newest first, assigning

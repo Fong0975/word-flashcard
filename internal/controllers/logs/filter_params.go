@@ -13,21 +13,43 @@ import (
 // passed straight through.
 const dateOnlyLayout = "2006-01-02"
 
+// dateTimeMinuteLayout is the format an <input type="datetime-local">
+// submits when its step leaves seconds off (the default), e.g.
+// "2026-08-30T14:30".
+const dateTimeMinuteLayout = "2006-01-02T15:04"
+
 // timeParamLayouts are tried in order when parsing a "from"/"to" bound.
 var timeParamLayouts = []string{
 	time.RFC3339,
 	"2006-01-02T15:04:05",
+	dateTimeMinuteLayout,
 	dateOnlyLayout,
 }
 
-// ParseFilterParams builds a Filter from the ?level, ?from and ?to query
-// parameters. All three are optional; an absent parameter imposes no
-// constraint.
+// coarseLayoutSpans maps a layout coarser than one second to the span of
+// time it represents. An inclusive upper bound parsed with one of these is
+// stretched to the end of that span rather than landing on its first
+// instant -- e.g. "to=2026-08-30" is meant to include the whole day, and
+// "to=2026-08-30T14:30" (a datetime-local value with no seconds) is meant
+// to include that whole minute.
+var coarseLayoutSpans = map[string]time.Duration{
+	dateTimeMinuteLayout: time.Minute,
+	dateOnlyLayout:       24 * time.Hour,
+}
+
+// ParseFilterParams builds a Filter from the ?level, ?from, ?to and
+// ?keyword query parameters. All are optional; an absent parameter imposes
+// no constraint.
 //
 //	level   comma-separated level names, e.g. "WARN,ERROR"
-//	from/to inclusive bounds, as RFC3339 or a plain date
+//	from/to inclusive bounds, as RFC3339, a datetime-local value, or a plain
+//	        date
+//	keyword case-insensitive substring match against message or source
 func ParseFilterParams(c *gin.Context) (Filter, error) {
-	filter := Filter{Levels: parseLevelsParam(c.Query("level"))}
+	filter := Filter{
+		Levels:  parseLevelsParam(c.Query("level")),
+		Keyword: strings.TrimSpace(c.Query("keyword")),
+	}
 
 	from, err := parseTimeParam(c.Query("from"), false)
 	if err != nil {
@@ -59,9 +81,9 @@ func parseLevelsParam(value string) []string {
 
 // parseTimeParam parses one bound, returning nil for an empty value.
 //
-// A date-only value used as an upper bound is stretched to the end of that
-// day: "to=2026-08-30" is meant to include the 30th, but parsing it plainly
-// would yield midnight and exclude the entire day.
+// A value parsed with a layout coarser than one second is, as an upper
+// bound, stretched to the end of that span rather than its first instant --
+// see coarseLayoutSpans.
 func parseTimeParam(value string, upperBound bool) (*time.Time, error) {
 	if value = strings.TrimSpace(value); value == "" {
 		return nil, nil
@@ -73,8 +95,10 @@ func parseTimeParam(value string, upperBound bool) (*time.Time, error) {
 			continue
 		}
 
-		if upperBound && layout == dateOnlyLayout {
-			parsed = parsed.Add(24*time.Hour - time.Nanosecond)
+		if upperBound {
+			if span, ok := coarseLayoutSpans[layout]; ok {
+				parsed = parsed.Add(span - time.Nanosecond)
+			}
 		}
 
 		return &parsed, nil

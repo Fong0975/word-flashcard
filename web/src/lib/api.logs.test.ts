@@ -51,6 +51,16 @@ describe('ApiService - logs', () => {
         },
         expectedQuery: '?limit=30&offset=0&level=ERROR&from=2026-08-01',
       },
+      {
+        name: 'sends the keyword',
+        params: { keyword: 'disk full' },
+        expectedQuery: '?keyword=disk+full',
+      },
+      {
+        name: 'omits a blank keyword',
+        params: { keyword: '', limit: 10 },
+        expectedQuery: '?limit=10',
+      },
     ])('$name', async ({ params, expectedQuery }) => {
       fetchMock.mockResolvedValueOnce(buildMockResponse([]));
 
@@ -87,10 +97,11 @@ describe('ApiService - logs', () => {
         offset: 100,
         levels: ['WARN'],
         from: '2026-08-01',
+        keyword: 'disk',
       });
 
       expect(urlOfLastCall()).toBe(
-        `${API_CONFIG.baseURL}${API_ENDPOINTS.logsCount}?level=WARN&from=2026-08-01`,
+        `${API_CONFIG.baseURL}${API_ENDPOINTS.logsCount}?level=WARN&from=2026-08-01&keyword=disk`,
       );
       expect(result).toEqual({ count: 7 });
     });

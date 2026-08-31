@@ -9,6 +9,7 @@ import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { Pagination } from '../../components/ui/Pagination';
 import { useLogs } from '../../hooks/useLogs';
 import { LogLevel } from '../../types/logs';
+import { useDebouncedSearchInput } from '../shared/hooks/useDebouncedSearchInput';
 import { useQuickFilters } from '../shared/hooks/useQuickFilters';
 import { useUrlSyncedEntityList } from '../shared/hooks/useUrlSyncedEntityList';
 
@@ -53,6 +54,14 @@ export const LogsPage: React.FC = () => {
   } = useQuickFilters(SESSION_LEVELS_KEY);
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
+  const [keyword, setKeyword] = useState('');
+  const {
+    inputValue: keywordInputValue,
+    handleChange: handleKeywordChange,
+    handleCompositionStart: handleKeywordCompositionStart,
+    handleCompositionEnd: handleKeywordCompositionEnd,
+    clearSearch: clearKeyword,
+  } = useDebouncedSearchInput({ searchTerm: keyword, onCommit: setKeyword });
 
   // Stale sessionStorage could hold a key that is no longer a level, so the
   // selection is narrowed before it reaches the API.
@@ -62,7 +71,7 @@ export const LogsPage: React.FC = () => {
   );
 
   // Any filter change must reset paging, not just the level pills.
-  const filtersKey = `${levelsKey}|${from}|${to}`;
+  const filtersKey = `${levelsKey}|${from}|${to}|${keyword}`;
 
   const logsHook = useLogs({
     itemsPerPage: ITEMS_PER_PAGE,
@@ -70,6 +79,7 @@ export const LogsPage: React.FC = () => {
     levels,
     from: from || undefined,
     to: to || undefined,
+    keyword: keyword || undefined,
   });
 
   const { patchedHook } = useUrlSyncedEntityList({
@@ -102,9 +112,34 @@ export const LogsPage: React.FC = () => {
         <h1 className='text-lg font-semibold text-gray-900 dark:text-white'>
           Backend Logs
         </h1>
-        <span className='text-xs text-gray-500 dark:text-gray-400'>
-          {totalCount} entries
-        </span>
+        <div className='flex items-center gap-2'>
+          <span className='text-xs text-gray-500 dark:text-gray-400'>
+            {totalCount} entries
+          </span>
+          <button
+            type='button'
+            onClick={() => refresh()}
+            disabled={loading}
+            aria-label='Refresh logs'
+            title='Refresh'
+            className='rounded-md p-1 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white'
+          >
+            <svg
+              className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`}
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'
+              strokeWidth={2}
+              aria-hidden='true'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                d='M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15'
+              />
+            </svg>
+          </button>
+        </div>
       </div>
       <LogFilters
         activeLevels={activeFilters}
@@ -113,6 +148,11 @@ export const LogsPage: React.FC = () => {
         to={to}
         onFromChange={setFrom}
         onToChange={setTo}
+        keyword={keywordInputValue}
+        onKeywordChange={handleKeywordChange}
+        onKeywordCompositionStart={handleKeywordCompositionStart}
+        onKeywordCompositionEnd={handleKeywordCompositionEnd}
+        onKeywordClear={clearKeyword}
       />
     </div>
   );
