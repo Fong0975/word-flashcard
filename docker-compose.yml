@@ -15,6 +15,7 @@ services:
     environment:
       APP_PORT: ${APP_PORT:-8080}
       FRONTEND_PORT: ${FRONTEND_PORT:-3000}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
       LOG_FILE_PATH: ${LOG_FILE_PATH:-word-flashcard.log}
       LOG_FILE_MAX_SIZE_MB: ${LOG_FILE_MAX_SIZE_MB:-10}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}

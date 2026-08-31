@@ -92,6 +92,9 @@ func (s *middlewareTestSuite) TestLoggingMiddleware404Error() {
 
 // TestCORSMiddlewareHeaders tests that CORSMiddleware sets correct CORS headers
 func (s *middlewareTestSuite) TestCORSMiddlewareHeaders() {
+	// Pinned explicitly so the case can't be swayed by an ambient value.
+	s.T().Setenv("ALLOWED_ORIGINS", "")
+
 	// Setup router with CORS middleware and a test endpoint
 	s.router.Use(CORSMiddleware())
 	s.router.GET("/test", func(c *gin.Context) {
@@ -114,6 +117,8 @@ func (s *middlewareTestSuite) TestCORSMiddlewareHeaders() {
 
 // TestCORSMiddlewareOptionsRequest tests that CORSMiddleware handles OPTIONS requests correctly
 func (s *middlewareTestSuite) TestCORSMiddlewareOptionsRequest() {
+	s.T().Setenv("ALLOWED_ORIGINS", "")
+
 	// Setup router with CORS middleware and a test endpoint
 	s.router.Use(CORSMiddleware())
 	s.router.GET("/test", func(c *gin.Context) {
@@ -131,6 +136,89 @@ func (s *middlewareTestSuite) TestCORSMiddlewareOptionsRequest() {
 	// Verify OPTIONS request is handled correctly
 	s.Equal(http.StatusNoContent, recorder.Code, "OPTIONS request should return 204 No Content")
 	s.Equal("*", recorder.Header().Get("Access-Control-Allow-Origin"), "Should set CORS headers for OPTIONS")
+}
+
+// TestCORSMiddlewareAllowedOrigins covers the ALLOWED_ORIGINS allow-list:
+// unset keeps the historical wildcard so existing deployments are untouched,
+// while a configured list echoes back only origins on it.
+func (s *middlewareTestSuite) TestCORSMiddlewareAllowedOrigins() {
+	tests := []struct {
+		name           string
+		allowedOrigins string
+		requestOrigin  string
+		wantOrigin     string
+		wantVary       string
+	}{
+		{
+			name:          "unset allows any origin",
+			requestOrigin: "http://evil.example",
+			wantOrigin:    "*",
+		},
+		{
+			name:           "blank entries are ignored, leaving no allow-list",
+			allowedOrigins: " , ,",
+			requestOrigin:  "http://evil.example",
+			wantOrigin:     "*",
+		},
+		{
+			name:           "an allowed origin is echoed back",
+			allowedOrigins: "http://192.168.100.6:3000",
+			requestOrigin:  "http://192.168.100.6:3000",
+			wantOrigin:     "http://192.168.100.6:3000",
+			wantVary:       "Origin",
+		},
+		{
+			name:           "one of several allowed origins",
+			allowedOrigins: "http://localhost:3000, http://192.168.100.6:3000",
+			requestOrigin:  "http://192.168.100.6:3000",
+			wantOrigin:     "http://192.168.100.6:3000",
+			wantVary:       "Origin",
+		},
+		{
+			name:           "an origin outside the list gets no allow header",
+			allowedOrigins: "http://192.168.100.6:3000",
+			requestOrigin:  "http://evil.example",
+			wantOrigin:     "",
+			wantVary:       "Origin",
+		},
+		{
+			name:           "a request with no Origin gets no allow header",
+			allowedOrigins: "http://192.168.100.6:3000",
+			requestOrigin:  "",
+			wantOrigin:     "",
+			wantVary:       "Origin",
+		},
+		{
+			name:           "matching is exact, not by prefix",
+			allowedOrigins: "http://192.168.100.6:3000",
+			requestOrigin:  "http://192.168.100.6:3000.evil.example",
+			wantOrigin:     "",
+			wantVary:       "Origin",
+		},
+	}
+
+	for _, tt := range tests {
+		s.Run(tt.name, func() {
+			s.SetupTest()
+			s.T().Setenv("ALLOWED_ORIGINS", tt.allowedOrigins)
+
+			s.router.Use(CORSMiddleware())
+			s.router.GET("/test", func(c *gin.Context) {
+				c.JSON(http.StatusOK, gin.H{"message": "success"})
+			})
+
+			req := httptest.NewRequest("GET", "/test", nil)
+			if tt.requestOrigin != "" {
+				req.Header.Set("Origin", tt.requestOrigin)
+			}
+			recorder := httptest.NewRecorder()
+
+			s.router.ServeHTTP(recorder, req)
+
+			s.Equal(tt.wantOrigin, recorder.Header().Get("Access-Control-Allow-Origin"))
+			s.Equal(tt.wantVary, recorder.Header().Get("Vary"))
+		})
+	}
 }
 
 // TestJSONMiddleware tests that JSONMiddleware sets correct content type

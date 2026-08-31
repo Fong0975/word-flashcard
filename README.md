@@ -125,11 +125,23 @@ Create a `.env` file in the project root directory with the following configurat
 APP_PORT=8080
 FRONTEND_PORT=3000
 
+# CORS Configuration
+# - ALLOWED_ORIGINS: comma-separated browser origins permitted to call the API.
+#   Leave empty to allow any origin. Browser-enforced only -- it is no barrier
+#   to a direct (non-browser) request, and the API has no authentication.
+ALLOWED_ORIGINS=
+
 # Logging Configuration
 # - Level: DEBUG, INFO, WARN, ERROR
+# - LOG_NOTIFY_LEVEL: minimum severity that raises the unread indicator on the
+#   in-app log viewer
+# - WARNING: do NOT use DEBUG in deployment. At DEBUG the application logs full
+#   request and response bodies plus SQL statements with their bound
+#   parameters, which the log viewing API would then expose.
 LOG_FILE_PATH=word-flashcard.log
 LOG_FILE_MAX_SIZE_MB=10
 LOG_LEVEL=INFO
+LOG_NOTIFY_LEVEL=WARN
 
 # Automatic Backup Configuration
 # - BACKUP_ENABLED: set to false to disable the automatic backup scheduler entirely (including the startup backup)
@@ -366,6 +378,9 @@ Pick one of the following:
 | VITE_API_PORT              | Port for the API service, baked into the frontend build via a Docker build arg                                            | 8080                              |
 | LOG_HOST_DIR               | Host directory bind-mounted into the backend container's log output; defaults to `.` (wherever `docker-compose.yml` runs from) — override with an absolute path when that directory isn't stable (e.g. deployed via Portainer) | /opt/word-flashcard                |
 | LOG_FILE_PATH              | Log file path inside the container                                                                                        | logs/word-flashcard.log           |
+| LOG_NOTIFY_LEVEL           | Minimum log severity that raises the unread indicator on the in-app log viewer                                             | WARN                              |
+| LOG_STATE_FILE_PATH        | Where the log viewer's "read up to here" watermark is stored; defaults to `.log-read-state.json` beside `LOG_FILE_PATH`     | logs/.log-read-state.json         |
+| ALLOWED_ORIGINS            | Comma-separated browser origins permitted to call the API; empty allows any origin. Browser-enforced only — no barrier to a direct non-browser request | http://192.168.1.50:3000          |
 | BACKUP_ENABLED             | Whether the automatic backup scheduler runs (startup backup + periodic checks)                                            | true                              |
 | BACKUP_HOST_DIR            | Host directory bind-mounted into the backend container's backup output; defaults to `./backups`, same override behavior as `LOG_HOST_DIR` | /opt/word-flashcard/backups        |
 | BACKUP_DIR                 | Automatic backup output directory inside the container                                                                   | backups                           |
