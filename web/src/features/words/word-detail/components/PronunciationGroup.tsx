@@ -34,7 +34,7 @@ const SpeechButton: React.FC<SpeechButtonProps> = ({ accent, wordText }) => {
     <button
       onClick={() => speakText(wordText, locale)}
       title={title}
-      className='inline-flex items-center space-x-1 rounded-md border border-dashed border-amber-400 bg-amber-50 px-2 py-1 text-xs font-medium text-amber-700 transition-colors duration-200 hover:bg-amber-100 active:bg-amber-200 dark:border-amber-600 dark:bg-amber-900/20 dark:text-amber-400 dark:hover:bg-amber-900/40 dark:active:bg-amber-900/60'
+      className='inline-flex items-center space-x-1 rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 transition-colors duration-200 hover:bg-blue-100 active:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 dark:active:bg-blue-900/70'
     >
       <span className='text-xs' role='img' aria-label={`${label} accent`}>
         {flag}

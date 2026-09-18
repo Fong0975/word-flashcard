@@ -62,7 +62,7 @@ export const PronunciationButton: React.FC<PronunciationButtonProps> = ({
       className={`inline-flex items-center space-x-1 rounded-md font-medium transition-colors duration-200 ${sizeClasses[size]} ${
         disabled || !audioUrl
           ? 'cursor-not-allowed bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500'
-          : 'bg-blue-50 text-blue-700 hover:bg-blue-100 active:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 dark:active:bg-blue-900/70'
+          : 'bg-indigo-100 text-indigo-800 hover:bg-indigo-200 active:bg-indigo-300 dark:bg-indigo-900/30 dark:text-indigo-300 dark:hover:bg-indigo-900/50 dark:active:bg-indigo-900/70'
       } ${error ? 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300' : ''} ${className} `}
     >
       {/* Accent flag */}
