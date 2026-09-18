@@ -5,6 +5,8 @@ import (
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"strings"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -14,9 +16,9 @@ import (
 // ControllerTestSuite contains all dictionary controller tests
 type ControllerTestSuite struct {
 	suite.Suite
-	controller          *Controller
-	router              *gin.Engine
-	mockCambridgeServer *httptest.Server
+	controller       *Controller
+	router           *gin.Engine
+	mockGeminiServer *httptest.Server
 }
 
 // TestControllerTestSuite runs the ControllerTestSuite
@@ -31,6 +33,10 @@ func (suite *ControllerTestSuite) SetupTest() {
 	// Set gin to test mode
 	gin.SetMode(gin.TestMode)
 
+	// New() reads GEMINI_API_KEY from the environment; set a placeholder so
+	// tests exercise the configured path rather than the "not configured" guard.
+	suite.Require().NoError(os.Setenv("GEMINI_API_KEY", "test-api-key"))
+
 	// Clear cache before each test
 	suite.controller = New()
 
@@ -40,13 +46,13 @@ func (suite *ControllerTestSuite) SetupTest() {
 	// Register dictionary route
 	suite.router.GET("/api/dictionary/:language/:word", suite.controller.SearchWord)
 
-	suite.setupMockCambridgeServer()
+	suite.setupMockGeminiServer()
 }
 
 // TearDownTest is called after each test method
 func (suite *ControllerTestSuite) TearDownTest() {
-	if suite.mockCambridgeServer != nil {
-		suite.mockCambridgeServer.Close()
+	if suite.mockGeminiServer != nil {
+		suite.mockGeminiServer.Close()
 	}
 }
 
@@ -59,22 +65,61 @@ func setupTestLogging() {
 	slog.SetDefault(logger)
 }
 
-// setupMockCambridgeServer creates a mock server that simulates Cambridge Dictionary
-// pages and points the controller's cambridgeBaseURL at it, replacing the real
-// dictionary.cambridge.org origin for the duration of the test.
-func (suite *ControllerTestSuite) setupMockCambridgeServer() {
-	suite.mockCambridgeServer = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch r.URL.Path {
-		case "/us/dictionary/english-chinese-traditional/hello":
-			w.Header().Set("Content-Type", "text/html; charset=utf-8")
-			w.WriteHeader(http.StatusOK)
-			_, _ = w.Write([]byte(helloFixtureHTML))
-		case "/us/dictionary/english-chinese-traditional/upstreamerror":
+// helloGeminiPayloadJSON is the dictionary payload Gemini would return for
+// "hello", covering the fields fetchWordDataFromGemini and its helpers map:
+// two parts of speech and two definitions, one with an example and
+// translation, one without an example.
+const helloGeminiPayloadJSON = `{
+	"found": true,
+	"word": "hello",
+	"pos": ["exclamation", "noun"],
+	"definitions": [
+		{
+			"pos": "exclamation",
+			"text": "used when meeting or greeting someone",
+			"translation": "喂，你好",
+			"examples": [{"text": "Hello, Paul.", "translation": "你好，保羅。"}]
+		},
+		{
+			"pos": "noun",
+			"text": "something that is said to attract someone's attention",
+			"translation": "（引起別人注意的招呼語）",
+			"examples": []
+		}
+	]
+}`
+
+// notFoundGeminiPayloadJSON is the payload Gemini returns when the requested
+// word is not a real English word.
+const notFoundGeminiPayloadJSON = `{"found": false, "word": "", "pos": [], "definitions": []}`
+
+// setupMockGeminiServer creates a mock server that simulates the Gemini
+// generateContent API and points the controller's geminiBaseURL at it,
+// replacing the real generativelanguage.googleapis.com origin for the
+// duration of the test. Since Gemini's URL doesn't carry the word being
+// looked up, the mock inspects the request body's prompt text instead.
+func (suite *ControllerTestSuite) setupMockGeminiServer() {
+	suite.mockGeminiServer = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		suite.Equal("test-api-key", r.Header.Get("x-goog-api-key"), "request should authenticate via the x-goog-api-key header")
+		suite.Empty(r.URL.RawQuery, "the API key must never be sent as a URL query parameter")
+
+		body, err := io.ReadAll(r.Body)
+		suite.Require().NoError(err)
+		prompt := string(body)
+
+		switch {
+		case strings.Contains(prompt, "upstreamerror"):
 			w.WriteHeader(http.StatusInternalServerError)
+		case strings.Contains(prompt, "hello"):
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write(geminiEnvelopeJSON(helloGeminiPayloadJSON))
 		default:
-			w.WriteHeader(http.StatusNotFound)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write(geminiEnvelopeJSON(notFoundGeminiPayloadJSON))
 		}
 	}))
 
-	suite.controller.cambridgeBaseURL = suite.mockCambridgeServer.URL
+	suite.controller.geminiBaseURL = suite.mockGeminiServer.URL
 }

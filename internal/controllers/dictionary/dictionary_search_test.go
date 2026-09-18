@@ -22,15 +22,15 @@ func (suite *ControllerTestSuite) TestSearchWordSuccess() {
 	// Verify the response status code is 200 OK
 	suite.Equal(http.StatusOK, recorder.Code, "Dictionary search should respond with 200 OK")
 
-	// Verify the response contains valid JSON matching the Cambridge response shape
+	// Verify the response contains valid JSON matching the dictionary response shape
 	var response models.CambridgeResponse
 	err := json.Unmarshal(recorder.Body.Bytes(), &response)
 	suite.NoError(err, "Response should be valid JSON")
 
 	suite.Equal("hello", response.Word)
 	suite.ElementsMatch([]string{"exclamation", "noun"}, response.POS)
-	suite.Empty(response.Verbs, "verbs are not scraped yet and should stay an empty array")
-	suite.NotEmpty(response.Pronunciation, "Response should contain pronunciation")
+	suite.Empty(response.Verbs, "verbs are not populated and should stay an empty array")
+	suite.Empty(response.Pronunciation, "pronunciation is always left empty; the frontend falls back to browser speech synthesis")
 	suite.NotEmpty(response.Definition, "Response should contain definitions")
 	suite.Contains(response.Definition[0].Translation, "你好", "Definition should contain the Chinese translation")
 
@@ -39,7 +39,7 @@ func (suite *ControllerTestSuite) TestSearchWordSuccess() {
 }
 
 // TestSearchWordUsesCache tests that a cached result is served without re-fetching
-// from Cambridge Dictionary, by closing the mock origin after the first request and
+// from Gemini, by closing the mock origin after the first request and
 // confirming the second request for the same word still succeeds from cache.
 func (suite *ControllerTestSuite) TestSearchWordUsesCache() {
 	firstReq := httptest.NewRequest("GET", "/api/dictionary/en-tw/hello", nil)
@@ -49,8 +49,8 @@ func (suite *ControllerTestSuite) TestSearchWordUsesCache() {
 
 	// Cut off the origin so a second, uncached fetch would fail. Nil out the
 	// reference afterwards so TearDownTest doesn't double-close it.
-	suite.mockCambridgeServer.Close()
-	suite.mockCambridgeServer = nil
+	suite.mockGeminiServer.Close()
+	suite.mockGeminiServer = nil
 
 	secondReq := httptest.NewRequest("GET", "/api/dictionary/en-tw/hello", nil)
 	secondRecorder := httptest.NewRecorder()
@@ -117,7 +117,7 @@ func (suite *ControllerTestSuite) TestSearchWordNotFound() {
 }
 
 // TestSearchWordUpstreamUnavailable tests that SearchWord maps a non-404 failure
-// from Cambridge Dictionary (e.g. an origin server error) to 502 Bad Gateway
+// from Gemini (e.g. an origin server error) to 502 Bad Gateway
 func (suite *ControllerTestSuite) TestSearchWordUpstreamUnavailable() {
 	req := httptest.NewRequest("GET", "/api/dictionary/en-tw/upstreamerror", nil)
 	recorder := httptest.NewRecorder()

@@ -14,7 +14,7 @@ import (
 
 // SearchWord handles dictionary lookup requests
 // @Summary Search dictionary for word definition
-// @Description Get dictionary definition and pronunciation for a given word by scraping Cambridge Dictionary
+// @Description Get dictionary definition for a given word via the Gemini API. The pronunciation field is always empty; the frontend falls back to browser speech synthesis.
 // @Tags dictionary
 // @Accept json
 // @Produce json
@@ -23,7 +23,7 @@ import (
 // @Success 200 {object} models.CambridgeResponse "Dictionary definition found successfully"
 // @Failure 400 {object} models.ErrorResponse "Bad request - Missing word parameter or unsupported language"
 // @Failure 404 {object} models.ErrorResponse "Not found - Word not found in the dictionary"
-// @Failure 502 {object} models.ErrorResponse "Bad gateway - Cambridge Dictionary is currently unavailable"
+// @Failure 502 {object} models.ErrorResponse "Bad gateway - Dictionary service is currently unavailable"
 // @Router /api/dictionary/{language}/{word} [get]
 func (dc *Controller) SearchWord(c *gin.Context) {
 	word := c.Param("word")
@@ -44,8 +44,8 @@ func (dc *Controller) SearchWord(c *gin.Context) {
 		}
 	}
 
-	// Fetch word data by scraping Cambridge Dictionary
-	response, err := dc.fetchWordDataFromCambridge(word, language)
+	// Fetch word data from Gemini
+	response, err := dc.fetchWordDataFromGemini(word, language)
 	if err != nil {
 		switch {
 		case errors.Is(err, errUnsupportedLanguage):
