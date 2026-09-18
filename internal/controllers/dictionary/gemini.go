@@ -35,18 +35,23 @@ const maxDiagnosticBodySnippetBytes = 500
 // geminiPromptTemplate asks Gemini to look up word and return JSON matching
 // geminiResponseSchema. It is intentionally strict about the target language
 // and about favoring common/TOEIC-level usage, since this app is a TOEIC
-// vocabulary flashcard tool.
+// vocabulary flashcard tool. Definitions are capped at 5 senses (rather than
+// left unbounded) to keep output size, latency and failure risk predictable
+// for common words with many senses (e.g. "set", "run").
 const geminiPromptTemplate = `You are a bilingual English-%s dictionary assistant for a TOEIC vocabulary flashcard app.
 Look up the English word "%s".
 If it is not a real English word, set "found" to false and leave the other fields empty.
 If it is a real English word, set "found" to true and provide:
 - "word": the word itself, lowercase unless it is a proper noun.
 - "pos": the distinct parts of speech this word can take (e.g. "noun", "verb", "adjective").
-- "definitions": one entry per distinct sense, each with:
+- "definitions": up to 5 of its most common senses, ordered from the one most frequently tested on TOEIC and used in everyday English to the least, each with:
   - "pos": the part of speech for this sense.
   - "text": a concise English definition.
   - "translation": a natural %s translation of the definition.
-  - "examples": one or two example sentences in English with their %s translations, prioritizing common, everyday or TOEIC-level usage.
+  - "examples": at least 2 short example sentences in English (when the
+    sense reasonably supports it) with their %s translations, each showing
+    a different angle or usage of this sense rather than repeating the
+    same phrasing.
 Respond only with JSON matching the provided schema.`
 
 // geminiSchemaProperty is a (subset of) JSON Schema/OpenAPI Schema Object, the
