@@ -29,7 +29,7 @@ export const PronunciationControls: React.FC<PronunciationControlsProps> = ({
       <button
         onClick={() => speakText(word, 'en-GB')}
         title='British pronunciation'
-        className='inline-flex items-center space-x-1 rounded-md border border-dashed border-amber-400 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-700 transition-colors duration-200 hover:bg-amber-100 active:bg-amber-200 dark:border-amber-600 dark:bg-amber-900/20 dark:text-amber-400 dark:hover:bg-amber-900/40 dark:active:bg-amber-900/60'
+        className='inline-flex items-center space-x-1 rounded-md bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700 transition-colors duration-200 hover:bg-blue-100 active:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 dark:active:bg-blue-900/70'
       >
         <span className='text-xs' role='img' aria-label='UK accent'>
           🇬🇧
@@ -50,7 +50,7 @@ export const PronunciationControls: React.FC<PronunciationControlsProps> = ({
       <button
         onClick={() => speakText(word, 'en-US')}
         title='American pronunciation'
-        className='inline-flex items-center space-x-1 rounded-md border border-dashed border-amber-400 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-700 transition-colors duration-200 hover:bg-amber-100 active:bg-amber-200 dark:border-amber-600 dark:bg-amber-900/20 dark:text-amber-400 dark:hover:bg-amber-900/40 dark:active:bg-amber-900/60'
+        className='inline-flex items-center space-x-1 rounded-md bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700 transition-colors duration-200 hover:bg-blue-100 active:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 dark:active:bg-blue-900/70'
       >
         <span className='text-xs' role='img' aria-label='US accent'>
           🇺🇸

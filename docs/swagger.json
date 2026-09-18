@@ -184,7 +184,7 @@
         },
         "/api/dictionary/{language}/{word}": {
             "get": {
-                "description": "Get dictionary definition and pronunciation for a given word by scraping Cambridge Dictionary",
+                "description": "Get dictionary definition for a given word via the Gemini API. The pronunciation field is always empty; the frontend falls back to browser speech synthesis.",
                 "consumes": [
                     "application/json"
                 ],
@@ -231,7 +231,7 @@
                         }
                     },
                     "502": {
-                        "description": "Bad gateway - Cambridge Dictionary is currently unavailable",
+                        "description": "Bad gateway - Dictionary service is currently unavailable",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }

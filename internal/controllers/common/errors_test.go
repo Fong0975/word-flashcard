@@ -20,6 +20,19 @@ func TestErrorsTestSuite(t *testing.T) {
 	suite.Run(t, new(ErrorsTestSuite))
 }
 
+// TestNewDetailedError tests that NewDetailedError produces a *DetailedError
+// whose Error() returns the public message and whose LogDetail() returns the
+// diagnostic key/value pairs unchanged.
+func (suite *ErrorsTestSuite) TestNewDetailedError() {
+	err := NewDetailedError("dictionary page returned HTTP 403", "url", "https://example.com/word", "server", "cloudflare")
+
+	suite.EqualError(err, "dictionary page returned HTTP 403")
+
+	var de *DetailedError
+	suite.Require().True(errors.As(err, &de))
+	suite.Equal([]any{"url", "https://example.com/word", "server", "cloudflare"}, de.LogDetail())
+}
+
 // TestNewFieldError tests that NewFieldError produces a *DetailedError whose
 // Error() returns the public message and whose LogDetail() returns the
 // diagnostic key/value pairs unchanged.

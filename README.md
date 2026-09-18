@@ -6,7 +6,7 @@ A personal language learning app for building vocabulary and practising with qui
 
 **Words**
 - Add words with multiple definitions, part-of-speech tags, and pronunciation (UK/US audio)
-- Look up a word in the Cambridge Dictionary and import its definitions and pronunciation in one click
+- Look up a word via the Gemini API and import its definitions in one click (pronunciation audio is not available; the app falls back to your browser's built-in speech synthesis)
 - Mark familiarity level (Unfamiliar / Somewhat Familiar / Familiar) to reflect your current confidence
 - Set reminders on words you want to revisit; clear them once you feel ready
 - Filter your word list by familiarity level or by words that have active reminders
@@ -153,6 +153,14 @@ BACKUP_INTERVAL_HOURS=72
 BACKUP_CHECK_INTERVAL_HOURS=24
 BACKUP_RETENTION_COUNT=10
 
+# Dictionary Lookup Configuration (Gemini API)
+# - GEMINI_API_KEY: required for the dictionary lookup feature to work (see
+#   "Getting a Gemini API Key" below). Keep this secret -- it is only ever
+#   sent to Google as a request header, never exposed to the frontend or logged.
+# - GEMINI_MODEL: which Gemini model to call; defaults to gemini-flash-latest.
+GEMINI_API_KEY=your_gemini_api_key
+GEMINI_MODEL=gemini-flash-latest
+
 # Database Configuration
 # Supported types: mysql, postgresql
 DB_TYPE=mysql
@@ -171,6 +179,16 @@ DEV_MODE=false
 > ```sql
 > CREATE DATABASE word_flashcard CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 > ```
+
+#### Getting a Gemini API Key
+
+The dictionary lookup feature (`GEMINI_API_KEY` above) needs a free Gemini API key:
+
+1. Go to [Google AI Studio](https://aistudio.google.com/apikey) and sign in with a Google account.
+2. Click **Create API key**, then pick or create a Google Cloud project when prompted.
+3. Copy the generated key into `GEMINI_API_KEY` in your `.env` file.
+
+The free tier (1,500 requests/day) is more than enough for personal use, and no credit card is required. Keep the key private -- anyone with it can make requests billed to your account.
 
 #### Frontend Configuration (`web/.env`)
 
@@ -381,6 +399,8 @@ Pick one of the following:
 | LOG_NOTIFY_LEVEL           | Minimum log severity that raises the unread indicator on the in-app log viewer                                             | WARN                              |
 | LOG_STATE_FILE_PATH        | Where the log viewer's "read up to here" watermark is stored; defaults to `.log-read-state.json` beside `LOG_FILE_PATH`     | logs/.log-read-state.json         |
 | ALLOWED_ORIGINS            | Comma-separated browser origins permitted to call the API; empty allows any origin. Browser-enforced only — no barrier to a direct non-browser request | http://192.168.1.50:3000          |
+| GEMINI_API_KEY              | Gemini API key used by the dictionary lookup feature; see "Getting a Gemini API Key" above. Kept server-side only, never sent to the frontend | (your key)                        |
+| GEMINI_MODEL                | Gemini model called for dictionary lookups; defaults to `gemini-flash-latest`                                             | gemini-flash-latest               |
 | BACKUP_ENABLED             | Whether the automatic backup scheduler runs (startup backup + periodic checks)                                            | true                              |
 | BACKUP_HOST_DIR            | Host directory bind-mounted into the backend container's backup output; defaults to `./backups`, same override behavior as `LOG_HOST_DIR` | /opt/word-flashcard/backups        |
 | BACKUP_DIR                 | Automatic backup output directory inside the container                                                                   | backups                           |
