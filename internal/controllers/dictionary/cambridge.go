@@ -3,9 +3,11 @@ package dictionary
 import (
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 
+	"word-flashcard/internal/controllers/common"
 	"word-flashcard/internal/models"
 
 	"github.com/PuerkitoBio/goquery"
@@ -67,7 +69,7 @@ func (dc *Controller) fetchWordDataFromCambridge(word, slugLanguage string) (*mo
 		return nil, fmt.Errorf("%w: %s", errWordNotFound, word)
 	}
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("dictionary page returned HTTP %d", resp.StatusCode)
+		return nil, newUpstreamStatusError(pageURL, resp)
 	}
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
@@ -76,6 +78,32 @@ func (dc *Controller) fetchWordDataFromCambridge(word, slugLanguage string) (*mo
 	}
 
 	return parseCambridgeDocument(doc, dc.cambridgeBaseURL, word)
+}
+
+// maxDiagnosticBodySnippetBytes caps how much of an unexpected upstream response
+// body is captured for diagnostics, so a large error/challenge page doesn't
+// bloat the log.
+const maxDiagnosticBodySnippetBytes = 500
+
+// newUpstreamStatusError builds the error returned when Cambridge Dictionary
+// responds with a status other than 200/404. Its public message stays the
+// existing "dictionary page returned HTTP %d", while the request URL, a few
+// headers commonly set by anti-bot/CDN layers (e.g. Cloudflare) and a
+// whitespace-collapsed body snippet are attached as log-only detail via
+// common.NewDetailedError, so a future occurrence can be diagnosed from the
+// log alone instead of just the status code.
+func newUpstreamStatusError(pageURL string, resp *http.Response) error {
+	bodyBytes, _ := io.ReadAll(io.LimitReader(resp.Body, maxDiagnosticBodySnippetBytes))
+	bodySnippet := strings.Join(strings.Fields(string(bodyBytes)), " ")
+
+	return common.NewDetailedError(
+		fmt.Sprintf("dictionary page returned HTTP %d", resp.StatusCode),
+		"url", pageURL,
+		"server", resp.Header.Get("Server"),
+		"cf_ray", resp.Header.Get("Cf-Ray"),
+		"retry_after", resp.Header.Get("Retry-After"),
+		"body_snippet", bodySnippet,
+	)
 }
 
 // parseCambridgeDocument extracts word data from a parsed Cambridge Dictionary page,

@@ -25,12 +25,20 @@ func (e *DetailedError) Error() string { return e.public }
 // pairs, meant for logs only.
 func (e *DetailedError) LogDetail() []any { return e.args }
 
+// NewDetailedError builds an error whose message (public) is safe to return
+// to the client as-is, while args (slog-style key/value pairs) carries extra
+// context for diagnostics only. Use this for any internal error that needs
+// log-only detail; NewFieldError is a thin wrapper for the field-validation case.
+func NewDetailedError(public string, args ...any) error {
+	return &DetailedError{public: public, args: args}
+}
+
 // NewFieldError builds a field-validation error whose message (public) is
 // safe to return to the client as-is, while args (slog-style key/value
 // pairs, e.g. "length", 134, "max", 100) carries the concrete reason for the
 // failure for diagnostics only.
 func NewFieldError(public string, args ...any) error {
-	return &DetailedError{public: public, args: args}
+	return NewDetailedError(public, args...)
 }
 
 // ValidationError marks an error as a field-level validation failure, as opposed

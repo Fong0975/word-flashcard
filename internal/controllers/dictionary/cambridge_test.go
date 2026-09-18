@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"strings"
 
+	"word-flashcard/internal/controllers/common"
 	"word-flashcard/internal/models"
 
 	"github.com/PuerkitoBio/goquery"
@@ -196,6 +197,75 @@ func (suite *ControllerTestSuite) TestFetchWordDataFromCambridge() {
 				suite.Len(response.Pronunciation, tt.wantPronunciationLen)
 				suite.Len(response.Definition, tt.wantDefinitionLen)
 			}
+		})
+	}
+}
+
+// TestNewUpstreamStatusError tests that newUpstreamStatusError keeps the
+// existing public "HTTP <status>" message while attaching the request URL,
+// selected response headers and a whitespace-collapsed body snippet as
+// log-only detail.
+func (suite *ControllerTestSuite) TestNewUpstreamStatusError() {
+	pageURL := "https://example.com/us/dictionary/english-chinese-traditional/abide"
+
+	tests := []struct {
+		name       string
+		headers    map[string]string
+		body       string
+		wantDetail []any
+	}{
+		{
+			name: "captures headers and collapses a multi-line body into one snippet",
+			headers: map[string]string{
+				"Server":      "cloudflare",
+				"Cf-Ray":      "abc123-SEA",
+				"Retry-After": "30",
+			},
+			body: "Access denied\n\nYou don't have permission to access this resource.",
+			wantDetail: []any{
+				"url", pageURL,
+				"server", "cloudflare",
+				"cf_ray", "abc123-SEA",
+				"retry_after", "30",
+				"body_snippet", "Access denied You don't have permission to access this resource.",
+			},
+		},
+		{
+			name:    "leaves headers and body snippet empty when the response has none",
+			headers: map[string]string{},
+			body:    "",
+			wantDetail: []any{
+				"url", pageURL,
+				"server", "",
+				"cf_ray", "",
+				"retry_after", "",
+				"body_snippet", "",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		suite.Run(tt.name, func() {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				for k, v := range tt.headers {
+					w.Header().Set(k, v)
+				}
+				w.WriteHeader(http.StatusForbidden)
+				_, _ = w.Write([]byte(tt.body))
+			}))
+			defer server.Close()
+
+			resp, err := http.Get(server.URL)
+			suite.Require().NoError(err)
+			defer resp.Body.Close()
+
+			gotErr := newUpstreamStatusError(pageURL, resp)
+
+			suite.EqualError(gotErr, "dictionary page returned HTTP 403")
+
+			var de *common.DetailedError
+			suite.Require().True(errors.As(gotErr, &de))
+			suite.Equal(tt.wantDetail, de.LogDetail())
 		})
 	}
 }
