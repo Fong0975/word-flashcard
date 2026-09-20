@@ -98,4 +98,36 @@ describe('speakText', () => {
       speak.mock.invocationCallOrder[0],
     );
   });
+
+  it.each([
+    { name: 'finishes', event: 'onend' },
+    { name: 'fails or is cancelled', event: 'onerror' },
+  ] as const)('invokes onEnd when the utterance $name', ({ event }) => {
+    const speak = vi.fn();
+    const cancel = vi.fn();
+    (
+      window as unknown as {
+        speechSynthesis: { speak: Mock; cancel: Mock };
+      }
+    ).speechSynthesis = { speak, cancel };
+    (
+      global as unknown as {
+        SpeechSynthesisUtterance: new (text: string) => MockUtterance;
+      }
+    ).SpeechSynthesisUtterance = class {
+      text: string;
+      lang = '';
+      constructor(text: string) {
+        this.text = text;
+      }
+    };
+    const onEnd = vi.fn();
+
+    speakText('hello', 'en-US', onEnd);
+
+    const utterance = speak.mock.calls[0][0] as Record<string, () => void>;
+    expect(onEnd).not.toHaveBeenCalled();
+    utterance[event]();
+    expect(onEnd).toHaveBeenCalledTimes(1);
+  });
 });

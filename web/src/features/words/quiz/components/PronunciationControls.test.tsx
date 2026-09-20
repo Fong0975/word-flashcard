@@ -40,7 +40,11 @@ describe('PronunciationControls', () => {
     );
 
     await user.click(screen.getByTitle('British pronunciation'));
-    expect(mockedSpeakText).toHaveBeenCalledWith('apple', 'en-GB');
+    expect(mockedSpeakText).toHaveBeenCalledWith(
+      'apple',
+      'en-GB',
+      expect.any(Function),
+    );
   });
 
   it('falls back to speech synthesis for US when there is no US url', async () => {
@@ -55,7 +59,11 @@ describe('PronunciationControls', () => {
     );
 
     await user.click(screen.getByTitle('American pronunciation'));
-    expect(mockedSpeakText).toHaveBeenCalledWith('apple', 'en-US');
+    expect(mockedSpeakText).toHaveBeenCalledWith(
+      'apple',
+      'en-US',
+      expect.any(Function),
+    );
   });
 
   it('renders a playable US button when a US url is available', () => {
