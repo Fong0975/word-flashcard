@@ -38,7 +38,11 @@ describe('PronunciationGroup', () => {
 
     const button = screen.getByTitle('British pronunciation');
     await user.click(button);
-    expect(mockedSpeakText).toHaveBeenCalledWith('apple', 'en-GB');
+    expect(mockedSpeakText).toHaveBeenCalledWith(
+      'apple',
+      'en-GB',
+      expect.any(Function),
+    );
   });
 
   it('renders nothing for UK when there is no audio and no fallback requested', () => {
@@ -63,6 +67,10 @@ describe('PronunciationGroup', () => {
     );
 
     await user.click(screen.getByTitle('American pronunciation'));
-    expect(mockedSpeakText).toHaveBeenCalledWith('apple', 'en-US');
+    expect(mockedSpeakText).toHaveBeenCalledWith(
+      'apple',
+      'en-US',
+      expect.any(Function),
+    );
   });
 });
