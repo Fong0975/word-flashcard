@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { PronunciationButton } from '../../../../components/ui/PronunciationButton';
+import { SilentModeHint } from '../../../../components/ui/SilentModeHint';
 import { SpeechPronunciationButton } from '../../../../components/ui/SpeechPronunciationButton';
 import {
   extractPronunciationUrls,
@@ -26,31 +27,34 @@ export const PronunciationGroup: React.FC<PronunciationGroupProps> = ({
   }
 
   return (
-    <div className='flex items-center space-x-2'>
-      {hasUkUrl ? (
-        <PronunciationButton
-          audioUrl={pronunciationUrls.uk!}
-          accent='uk'
-          size='sm'
-        />
-      ) : showUkSpeech ? (
-        <SpeechPronunciationButton
-          accent='uk'
-          text={speechFallback!.wordText}
-        />
-      ) : null}
-      {hasUsUrl ? (
-        <PronunciationButton
-          audioUrl={pronunciationUrls.us!}
-          accent='us'
-          size='sm'
-        />
-      ) : showUsSpeech ? (
-        <SpeechPronunciationButton
-          accent='us'
-          text={speechFallback!.wordText}
-        />
-      ) : null}
+    <div className='flex flex-col items-center'>
+      <div className='flex items-center space-x-2'>
+        {hasUkUrl ? (
+          <PronunciationButton
+            audioUrl={pronunciationUrls.uk!}
+            accent='uk'
+            size='sm'
+          />
+        ) : showUkSpeech ? (
+          <SpeechPronunciationButton
+            accent='uk'
+            text={speechFallback!.wordText}
+          />
+        ) : null}
+        {hasUsUrl ? (
+          <PronunciationButton
+            audioUrl={pronunciationUrls.us!}
+            accent='us'
+            size='sm'
+          />
+        ) : showUsSpeech ? (
+          <SpeechPronunciationButton
+            accent='us'
+            text={speechFallback!.wordText}
+          />
+        ) : null}
+      </div>
+      {(showUkSpeech || showUsSpeech) && <SilentModeHint />}
     </div>
   );
 };

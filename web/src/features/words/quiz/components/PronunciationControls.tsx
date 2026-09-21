@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { PronunciationButton } from '../../../../components/ui/PronunciationButton';
+import { SilentModeHint } from '../../../../components/ui/SilentModeHint';
 import { SpeechPronunciationButton } from '../../../../components/ui/SpeechPronunciationButton';
 
 interface PronunciationControlsProps {
@@ -18,24 +19,27 @@ export const PronunciationControls: React.FC<PronunciationControlsProps> = ({
   hasUsUrl,
   className = 'flex items-center justify-center space-x-4',
 }) => (
-  <div className={className}>
-    {hasUkUrl ? (
-      <PronunciationButton
-        audioUrl={pronunciationUrls.uk!}
-        accent='uk'
-        size='md'
-      />
-    ) : (
-      <SpeechPronunciationButton text={word} accent='uk' size='md' />
-    )}
-    {hasUsUrl ? (
-      <PronunciationButton
-        audioUrl={pronunciationUrls.us!}
-        accent='us'
-        size='md'
-      />
-    ) : (
-      <SpeechPronunciationButton text={word} accent='us' size='md' />
-    )}
+  <div className='flex flex-col items-center space-y-1'>
+    <div className={className}>
+      {hasUkUrl ? (
+        <PronunciationButton
+          audioUrl={pronunciationUrls.uk!}
+          accent='uk'
+          size='md'
+        />
+      ) : (
+        <SpeechPronunciationButton text={word} accent='uk' size='md' />
+      )}
+      {hasUsUrl ? (
+        <PronunciationButton
+          audioUrl={pronunciationUrls.us!}
+          accent='us'
+          size='md'
+        />
+      ) : (
+        <SpeechPronunciationButton text={word} accent='us' size='md' />
+      )}
+    </div>
+    {(!hasUkUrl || !hasUsUrl) && <SilentModeHint />}
   </div>
 );
