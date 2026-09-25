@@ -1,5 +1,8 @@
 import React from 'react';
 
+import { TemplateButton } from '../../../types/components';
+import { DropdownMenu } from '../DropdownMenu';
+
 export type MarkdownFormatAction =
   | 'bold'
   | 'italic'
@@ -15,7 +18,14 @@ interface MarkdownToolbarProps {
   disabled?: boolean;
   isPreview: boolean;
   onTogglePreview: (isPreview: boolean) => void;
+  symbolButtons?: TemplateButton[];
+  onOpenSymbolMenu?: () => void;
+  onInsertSymbol?: (value: string) => void;
 }
+
+const SymbolsIcon: React.FC = () => (
+  <span className='text-sm leading-none'>&Omega;</span>
+);
 
 const LinkIcon: React.FC = () => (
   <svg
@@ -126,29 +136,69 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
   disabled = false,
   isPreview,
   onTogglePreview,
+  symbolButtons = [],
+  onOpenSymbolMenu,
+  onInsertSymbol,
 }) => {
   const formatButtonsDisabled = disabled || isPreview;
 
   return (
-    <div className='flex items-center gap-2 border-b border-gray-300 bg-gray-50 px-2 py-1 dark:border-gray-600 dark:bg-gray-800'>
-      <div className='flex min-w-0 flex-1 gap-0.5 overflow-x-auto'>
-        {FORMAT_BUTTONS.map(({ action, label, icon }) => (
-          <button
-            key={action}
-            type='button'
-            disabled={formatButtonsDisabled}
-            onClick={() => onFormat(action)}
-            title={label}
-            aria-label={label}
-            className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 ${
-              formatButtonsDisabled
-                ? 'cursor-not-allowed text-gray-300 dark:text-gray-600'
-                : 'text-gray-600 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-600'
-            }`}
-          >
-            {icon}
-          </button>
-        ))}
+    <div className='flex items-center justify-between gap-2 border-b border-gray-300 bg-gray-50 px-2 py-1 dark:border-gray-600 dark:bg-gray-800'>
+      <div className='flex min-w-0 items-center gap-0.5'>
+        <div className='flex min-w-0 gap-0.5 overflow-x-auto'>
+          {FORMAT_BUTTONS.map(({ action, label, icon }) => (
+            <button
+              key={action}
+              type='button'
+              disabled={formatButtonsDisabled}
+              onClick={() => onFormat(action)}
+              title={label}
+              aria-label={label}
+              className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 ${
+                formatButtonsDisabled
+                  ? 'cursor-not-allowed text-gray-300 dark:text-gray-600'
+                  : 'text-gray-600 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-600'
+              }`}
+            >
+              {icon}
+            </button>
+          ))}
+        </div>
+
+        {symbolButtons.length > 0 && (
+          <>
+            <div
+              aria-hidden='true'
+              className='h-5 w-px flex-shrink-0 bg-gray-300 dark:bg-gray-600'
+            />
+            <DropdownMenu
+              className='flex-shrink-0'
+              disabled={formatButtonsDisabled}
+              menuWidthClassName='w-24'
+              trigger={
+                <button
+                  type='button'
+                  disabled={formatButtonsDisabled}
+                  onClick={onOpenSymbolMenu}
+                  title='Symbols'
+                  aria-label='Symbols'
+                  className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 ${
+                    formatButtonsDisabled
+                      ? 'cursor-not-allowed text-gray-300 dark:text-gray-600'
+                      : 'text-gray-600 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-600'
+                  }`}
+                >
+                  <SymbolsIcon />
+                </button>
+              }
+              items={symbolButtons.map((button, index) => ({
+                id: `${button.label}-${index}`,
+                label: button.label,
+                onClick: () => onInsertSymbol?.(button.value),
+              }))}
+            />
+          </>
+        )}
       </div>
 
       <div className='flex flex-shrink-0 overflow-hidden rounded text-xs'>

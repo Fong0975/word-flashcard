@@ -13,6 +13,8 @@ interface DropdownMenuProps {
   items: DropdownMenuItem[];
   className?: string;
   disabled?: boolean;
+  /** Tailwind width class for the menu panel, e.g. `w-24` for short labels. */
+  menuWidthClassName?: string;
 }
 
 export const DropdownMenu: React.FC<DropdownMenuProps> = ({
@@ -20,6 +22,7 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
   items,
   className = '',
   disabled = false,
+  menuWidthClassName = 'w-56',
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -84,7 +87,9 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
 
       {/* Dropdown menu */}
       {isOpen && (
-        <div className='absolute right-0 z-10 mt-2 w-56 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-gray-800 dark:ring-gray-600'>
+        <div
+          className={`absolute right-0 z-10 mt-2 ${menuWidthClassName} rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-gray-800 dark:ring-gray-600`}
+        >
           <div className='py-1' role='menu'>
             {items.map(item => (
               <button

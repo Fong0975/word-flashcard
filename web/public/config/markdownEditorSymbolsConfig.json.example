@@ -1,0 +1,34 @@
+[
+  {
+    "label": "→",
+    "value": "→"
+  },
+  {
+    "label": "←",
+    "value": "←"
+  },
+  {
+    "label": "•",
+    "value": "•"
+  },
+  {
+    "label": "✓",
+    "value": "✓"
+  },
+  {
+    "label": "✗",
+    "value": "✗"
+  },
+  {
+    "label": "“ ”",
+    "value": "“{{cursor}}”"
+  },
+  {
+    "label": "…",
+    "value": "…"
+  },
+  {
+    "label": "—",
+    "value": "—"
+  }
+]
