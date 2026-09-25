@@ -70,6 +70,46 @@ describe('MarkdownToolbar', () => {
     expect(screen.getByRole('button', { name: 'Bold' })).toBeDisabled();
   });
 
+  it('does not render the Symbols button when symbolButtons is empty', () => {
+    render(
+      <MarkdownToolbar
+        onFormat={vi.fn()}
+        isPreview={false}
+        onTogglePreview={vi.fn()}
+        symbolButtons={[]}
+      />,
+    );
+
+    expect(
+      screen.queryByRole('button', { name: 'Symbols' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('opens the symbols menu and inserts the clicked symbol', async () => {
+    const user = userEvent.setup();
+    const onOpenSymbolMenu = vi.fn();
+    const onInsertSymbol = vi.fn();
+    render(
+      <MarkdownToolbar
+        onFormat={vi.fn()}
+        isPreview={false}
+        onTogglePreview={vi.fn()}
+        symbolButtons={[
+          { label: '→', value: '→' },
+          { label: '•', value: '•' },
+        ]}
+        onOpenSymbolMenu={onOpenSymbolMenu}
+        onInsertSymbol={onInsertSymbol}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Symbols' }));
+    expect(onOpenSymbolMenu).toHaveBeenCalled();
+
+    await user.click(screen.getByRole('menuitem', { name: '•' }));
+    expect(onInsertSymbol).toHaveBeenCalledWith('•');
+  });
+
   it('does not disable the Edit/Preview toggle itself', () => {
     render(
       <MarkdownToolbar

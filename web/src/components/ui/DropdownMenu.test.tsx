@@ -27,6 +27,30 @@ describe('DropdownMenu', () => {
     expect(screen.getByRole('menuitem', { name: 'Edit' })).toBeInTheDocument();
   });
 
+  it('applies the default menu width when menuWidthClassName is not set', async () => {
+    const user = userEvent.setup();
+    render(
+      <DropdownMenu trigger={<button>Menu</button>} items={buildItems()} />,
+    );
+
+    await user.click(screen.getByText('Menu'));
+    expect(screen.getByRole('menu').parentElement).toHaveClass('w-56');
+  });
+
+  it('applies a custom menuWidthClassName to the menu panel', async () => {
+    const user = userEvent.setup();
+    render(
+      <DropdownMenu
+        trigger={<button>Menu</button>}
+        items={buildItems()}
+        menuWidthClassName='w-24'
+      />,
+    );
+
+    await user.click(screen.getByText('Menu'));
+    expect(screen.getByRole('menu').parentElement).toHaveClass('w-24');
+  });
+
   it('invokes the item handler and closes the menu on click', async () => {
     const user = userEvent.setup();
     const onClick = vi.fn();

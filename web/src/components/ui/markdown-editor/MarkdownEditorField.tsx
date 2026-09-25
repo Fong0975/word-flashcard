@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 
+import { useTemplateButtons } from '../../../hooks/shared';
 import { useWordLinkSuggestion } from '../../../hooks/useWordLinkSuggestion';
 import { TemplateButton } from '../../../types/components';
 import { MarkdownContent } from '../MarkdownContent';
@@ -17,6 +18,7 @@ import {
   MarkdownFormatResult,
 } from './markdownFormatting';
 import { MarkdownToolbar, MarkdownFormatAction } from './MarkdownToolbar';
+import { insertSymbol } from './symbolFormatting';
 import { insertWordLink } from './wordLinkFormatting';
 import { WordLinkSuggestionPopup } from './WordLinkSuggestionPopup';
 
@@ -78,6 +80,10 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
     notifyBlur,
     dismissSuggestion,
   } = useWordLinkSuggestion(excludeWord);
+  const { templateButtonsConfig: symbolButtons } = useTemplateButtons({
+    configFileName: 'markdownEditorSymbolsConfig.json',
+  });
+  const symbolInsertPositionRef = useRef({ start: 0, end: 0 });
 
   const handleFormat = (action: MarkdownFormatAction) => {
     const textarea = textareaRef.current;
@@ -90,6 +96,33 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
 
     onChange(result.value);
 
+    requestAnimationFrame(() => {
+      textarea.focus();
+      textarea.setSelectionRange(result.selectionStart, result.selectionEnd);
+    });
+  };
+
+  const handleOpenSymbolMenu = () => {
+    const textarea = textareaRef.current;
+    if (!textarea) {
+      return;
+    }
+    symbolInsertPositionRef.current = {
+      start: textarea.selectionStart,
+      end: textarea.selectionEnd,
+    };
+  };
+
+  const handleInsertSymbol = (symbolValue: string) => {
+    const textarea = textareaRef.current;
+    const { start, end } = symbolInsertPositionRef.current;
+    const result = insertSymbol(value, start, end, symbolValue);
+
+    onChange(result.value);
+
+    if (!textarea) {
+      return;
+    }
     requestAnimationFrame(() => {
       textarea.focus();
       textarea.setSelectionRange(result.selectionStart, result.selectionEnd);
@@ -203,6 +236,9 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
           disabled={disabled}
           isPreview={isPreview}
           onTogglePreview={setIsPreview}
+          symbolButtons={symbolButtons}
+          onOpenSymbolMenu={handleOpenSymbolMenu}
+          onInsertSymbol={handleInsertSymbol}
         />
         {editorContent}
         <div className='flex flex-shrink-0 items-center gap-1.5 border-t border-gray-300 bg-gray-50 px-2 py-1 text-xs italic text-gray-400 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-500'>

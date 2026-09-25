@@ -110,6 +110,66 @@ describe('MarkdownEditorField', () => {
     ).not.toBeInTheDocument();
   });
 
+  describe('symbols menu', () => {
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('does not render the Symbols button when the config is missing', async () => {
+      vi.spyOn(global, 'fetch').mockResolvedValue(
+        new Response(null, { status: 404 }),
+      );
+      render(<MarkdownEditorField value='' onChange={vi.fn()} />);
+
+      await waitFor(() =>
+        expect(fetch).toHaveBeenCalledWith(
+          '/config/markdownEditorSymbolsConfig.json',
+        ),
+      );
+      expect(
+        screen.queryByRole('button', { name: 'Symbols' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('inserts the selected symbol at the cursor', async () => {
+      vi.spyOn(global, 'fetch').mockResolvedValue(
+        new Response(JSON.stringify([{ label: '→', value: '→' }]), {
+          status: 200,
+        }),
+      );
+      const user = userEvent.setup();
+      render(<ControlledMarkdownEditorField />);
+      const textarea = screen.getByRole('textbox') as HTMLTextAreaElement;
+
+      await user.type(textarea, 'ab');
+      textarea.setSelectionRange(1, 1);
+
+      await user.click(await screen.findByRole('button', { name: 'Symbols' }));
+      await user.click(screen.getByRole('menuitem', { name: '→' }));
+
+      expect(textarea).toHaveValue('a→b');
+    });
+
+    it('replaces the current selection with the selected symbol', async () => {
+      vi.spyOn(global, 'fetch').mockResolvedValue(
+        new Response(JSON.stringify([{ label: '•', value: '•' }]), {
+          status: 200,
+        }),
+      );
+      const user = userEvent.setup();
+      render(<ControlledMarkdownEditorField />);
+      const textarea = screen.getByRole('textbox') as HTMLTextAreaElement;
+
+      fireEvent.change(textarea, { target: { value: 'abcd' } });
+      textarea.setSelectionRange(1, 3);
+
+      await user.click(await screen.findByRole('button', { name: 'Symbols' }));
+      await user.click(screen.getByRole('menuitem', { name: '•' }));
+
+      expect(textarea).toHaveValue('a•d');
+    });
+  });
+
   it('disables the textarea when disabled is set', () => {
     render(<MarkdownEditorField value='' onChange={vi.fn()} disabled />);
     expect(screen.getByRole('textbox')).toBeDisabled();
