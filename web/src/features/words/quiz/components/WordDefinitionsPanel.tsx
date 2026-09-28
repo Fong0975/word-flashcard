@@ -15,7 +15,7 @@ export const WordDefinitionsPanel: React.FC<WordDefinitionsPanelProps> = ({
   }
 
   return (
-    <div className='mb-8 rounded-lg bg-gray-50 p-6 dark:bg-gray-700'>
+    <div className='glass-panel mb-8 rounded-lg p-6'>
       <h3 className='mb-4 text-lg font-semibold text-gray-900 dark:text-white'>
         Definitions ({definitions.length})
       </h3>
@@ -73,7 +73,7 @@ export const WordDefinitionsPanel: React.FC<WordDefinitionsPanelProps> = ({
                   </h5>
                   <MarkdownContent
                     content={definition.notes}
-                    variant='boxed-yellow'
+                    variant='notes'
                     unescapeLiteralNewlines
                   />
                 </div>

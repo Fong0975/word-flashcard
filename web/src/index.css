@@ -226,6 +226,12 @@ button:focus {
   .glass-input {
     @apply rounded-md border border-white/70 bg-gray-100/70 text-gray-900 placeholder-gray-500 shadow-sm backdrop-blur-md transition-colors focus:border-primary-400/70 focus:outline-none focus:ring-2 focus:ring-primary-400/30 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:bg-gray-900/50 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary-400/50 dark:focus:ring-primary-400/20;
   }
+
+  /* Quiz progress bar track: the filled portion stays a solid primary color
+     (it's the one piece of "content" here), only the track gets the glass treatment. */
+  .glass-progress-track {
+    @apply h-2 w-full overflow-hidden rounded-full border border-white/30 bg-white/20 shadow-inner backdrop-blur-sm dark:border-white/10 dark:bg-gray-800/30;
+  }
 }
 
 /* Toast Animations */

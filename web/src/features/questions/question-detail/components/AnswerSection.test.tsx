@@ -115,7 +115,7 @@ describe('AnswerSection', () => {
       />,
     );
 
-    expect(screen.queryByText('Explanation:')).not.toBeInTheDocument();
+    expect(screen.queryByText('Explanation')).not.toBeInTheDocument();
   });
 
   it('calls onToggle when the header is clicked', async () => {

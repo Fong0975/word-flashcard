@@ -79,10 +79,10 @@ export const AnswerSection: React.FC<AnswerSectionProps> = ({
           {/* Explanation Section */}
           {explanation && (
             <div className='p-4'>
-              <h3 className='mb-3 text-sm font-medium text-gray-700 dark:text-gray-300'>
-                Explanation:
+              <h3 className='mb-2 border-b border-gray-200/40 pb-1 text-sm font-medium text-gray-900 dark:border-gray-700/40 dark:text-white'>
+                Explanation
               </h3>
-              <MarkdownContent content={explanation} variant='boxed-white' />
+              <MarkdownContent content={explanation} variant='notes' />
             </div>
           )}
         </div>
