@@ -10,6 +10,10 @@ import {
 } from 'recharts';
 
 import { CollapsibleSection } from '../../../../components/ui/CollapsibleSection';
+import {
+  CHART_TEXT_CLASSNAME,
+  GLASS_TOOLTIP_STYLE,
+} from '../../../../components/ui/charts/chartGlassStyles';
 import { LoadingSpinner } from '../../../../components/ui/LoadingSpinner';
 import { apiService } from '../../../../lib/api';
 import { Word, WordPracticeLogEntry } from '../../../../types/api';
@@ -92,7 +96,11 @@ export const WordHistorySection: React.FC<WordHistorySectionProps> = ({
 
       {!loading && !error && logs && logs.length > 0 && (
         <>
-          <ResponsiveContainer width='100%' height={160}>
+          <ResponsiveContainer
+            width='100%'
+            height={160}
+            className={CHART_TEXT_CLASSNAME}
+          >
             <LineChart
               data={chartData}
               margin={{ top: 4, right: 8, left: -16, bottom: 0 }}
@@ -104,7 +112,7 @@ export const WordHistorySection: React.FC<WordHistorySectionProps> = ({
               />
               <XAxis
                 dataKey='index'
-                tick={{ fontSize: 11 }}
+                tick={{ fontSize: 11, fill: 'currentColor' }}
                 tickFormatter={i =>
                   chartData[i] ? formatShortDate(chartData[i].created_at) : ''
                 }
@@ -112,7 +120,7 @@ export const WordHistorySection: React.FC<WordHistorySectionProps> = ({
               <YAxis
                 domain={[0, 2]}
                 ticks={[0, 1, 2]}
-                tick={{ fontSize: 11 }}
+                tick={{ fontSize: 11, fill: 'currentColor' }}
                 tickFormatter={v => FAMILIARITY_LEVEL_LABELS[v as number]}
               />
               <Tooltip
@@ -125,7 +133,7 @@ export const WordHistorySection: React.FC<WordHistorySectionProps> = ({
                     ? formatDateTime(chartData[i as number].created_at)
                     : ''
                 }
-                contentStyle={{ fontSize: '12px' }}
+                contentStyle={GLASS_TOOLTIP_STYLE}
               />
               <Line
                 type='stepAfter'
