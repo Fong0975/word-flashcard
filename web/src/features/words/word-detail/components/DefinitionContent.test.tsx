@@ -28,13 +28,13 @@ describe('DefinitionContent', () => {
         definition={buildDefinition({ examples: ['I ate an apple'] })}
       />,
     );
-    expect(screen.getByText('Examples:')).toBeInTheDocument();
+    expect(screen.getByText('Examples')).toBeInTheDocument();
     expect(screen.getByText('I ate an apple')).toBeInTheDocument();
   });
 
   it('does not render an examples section when there are none', () => {
     render(<DefinitionContent definition={buildDefinition()} />);
-    expect(screen.queryByText('Examples:')).not.toBeInTheDocument();
+    expect(screen.queryByText('Examples')).not.toBeInTheDocument();
   });
 
   it('renders notes as unescaped markdown', () => {
@@ -43,13 +43,13 @@ describe('DefinitionContent', () => {
         definition={buildDefinition({ notes: '**call back**' })}
       />,
     );
-    expect(screen.getByText('Notes:')).toBeInTheDocument();
+    expect(screen.getByText('Notes')).toBeInTheDocument();
     const strong = screen.getByText('call back');
     expect(strong.tagName).toBe('STRONG');
   });
 
   it('does not render a notes section when absent', () => {
     render(<DefinitionContent definition={buildDefinition()} />);
-    expect(screen.queryByText('Notes:')).not.toBeInTheDocument();
+    expect(screen.queryByText('Notes')).not.toBeInTheDocument();
   });
 });

@@ -92,7 +92,7 @@ export const FormFields: React.FC<FormFieldsProps> = ({
         </label>
         <div className='space-y-3'>
           {formData.examples.map((example, index) => (
-            <div key={index} className='flex items-start space-x-2'>
+            <div key={index} className='flex items-center space-x-2'>
               <div className='flex-1'>
                 <textarea
                   value={example}
@@ -108,7 +108,7 @@ export const FormFields: React.FC<FormFieldsProps> = ({
                 <button
                   type='button'
                   onClick={() => handlers.removeExampleInput(index)}
-                  className='mt-1 p-2 text-red-600 transition-colors hover:text-red-800 dark:text-red-400 dark:hover:text-red-300'
+                  className='p-2 text-red-600 transition-colors hover:text-red-800 dark:text-red-400 dark:hover:text-red-300'
                 >
                   <svg
                     className='h-4 w-4'
