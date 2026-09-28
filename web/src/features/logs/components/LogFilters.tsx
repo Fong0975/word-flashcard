@@ -26,10 +26,7 @@ interface LogFiltersProps {
 // class from this shared base -- Tailwind utilities have equal specificity,
 // so whichever one the build happens to emit last would otherwise silently
 // win.
-const inputBaseClassName =
-  'rounded-md border border-gray-300 bg-white text-xs text-gray-700 ' +
-  'focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 ' +
-  'dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200';
+const inputBaseClassName = 'glass-input text-xs';
 
 const dateInputClassName = `px-2 py-1 ${inputBaseClassName}`;
 

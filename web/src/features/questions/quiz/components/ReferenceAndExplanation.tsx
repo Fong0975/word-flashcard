@@ -26,12 +26,10 @@ export const ReferenceAndExplanation: React.FC<
 
     {notes && (
       <div className='mb-3'>
-        <h3 className='mb-3 text-lg font-semibold text-gray-900 dark:text-white'>
+        <h3 className='mb-2 border-b border-gray-200/40 pb-1 text-lg font-semibold text-gray-900 dark:border-gray-700/40 dark:text-white'>
           Explanation
         </h3>
-        <div className='rounded-lg bg-gray-50 p-4 dark:bg-gray-700'>
-          <MarkdownContent content={notes} variant='boxed-gray' />
-        </div>
+        <MarkdownContent content={notes} variant='notes' />
       </div>
     )}
   </>

@@ -49,11 +49,11 @@ describe('LogFilters', () => {
 
     // The active pill carries the filled style; the inactive one does not.
     expect(screen.getByRole('button', { name: 'ERROR' }).className).toContain(
-      'bg-primary-500',
+      'glass-button-primary',
     );
     expect(
       screen.getByRole('button', { name: 'INFO' }).className,
-    ).not.toContain('bg-primary-500');
+    ).not.toContain('glass-button-primary');
   });
 
   it('reports datetime range changes', async () => {

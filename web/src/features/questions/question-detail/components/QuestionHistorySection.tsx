@@ -11,6 +11,14 @@ import {
 } from 'recharts';
 
 import { CollapsibleSection } from '../../../../components/ui/CollapsibleSection';
+import {
+  CHART_TEXT_CLASSNAME,
+  GLASS_BAR_STROKE,
+  GLASS_BAR_STROKE_WIDTH,
+  GLASS_FILL_OPACITY,
+  GLASS_TOOLTIP_STYLE,
+  glassLegendFormatter,
+} from '../../../../components/ui/charts/chartGlassStyles';
 import { LoadingSpinner } from '../../../../components/ui/LoadingSpinner';
 import { apiService } from '../../../../lib/api';
 import { Question, QuestionAnswerLogEntry } from '../../../../types/api';
@@ -100,27 +108,46 @@ export const QuestionHistorySection: React.FC<QuestionHistorySectionProps> = ({
 
       {!loading && !error && entries && entries.length > 0 && (
         <>
-          <ResponsiveContainer width='100%' height={200}>
+          <ResponsiveContainer
+            width='100%'
+            height={200}
+            className={CHART_TEXT_CLASSNAME}
+          >
             <BarChart data={optionCounts}>
               <CartesianGrid
                 strokeDasharray='3 3'
                 stroke='currentColor'
                 className='opacity-10'
               />
-              <XAxis dataKey='option' tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
-              <Tooltip contentStyle={{ fontSize: '12px' }} />
-              <Legend wrapperStyle={{ fontSize: '12px' }} />
+              <XAxis
+                dataKey='option'
+                tick={{ fontSize: 11, fill: 'currentColor' }}
+              />
+              <YAxis
+                tick={{ fontSize: 11, fill: 'currentColor' }}
+                allowDecimals={false}
+              />
+              <Tooltip contentStyle={GLASS_TOOLTIP_STYLE} />
+              <Legend
+                wrapperStyle={{ fontSize: '12px' }}
+                formatter={glassLegendFormatter}
+              />
               <Bar
                 dataKey='correct'
                 stackId='a'
                 fill='#22c55e'
+                fillOpacity={GLASS_FILL_OPACITY}
+                stroke={GLASS_BAR_STROKE}
+                strokeWidth={GLASS_BAR_STROKE_WIDTH}
                 name='Correct'
               />
               <Bar
                 dataKey='incorrect'
                 stackId='a'
                 fill='#ef4444'
+                fillOpacity={GLASS_FILL_OPACITY}
+                stroke={GLASS_BAR_STROKE}
+                strokeWidth={GLASS_BAR_STROKE_WIDTH}
                 name='Incorrect'
                 radius={[3, 3, 0, 0]}
               />

@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 import { useModalScrollManager } from '../../hooks/ui/useModalScrollManager';
 
@@ -59,11 +60,15 @@ export const Modal: React.FC<ModalProps> = ({
     '2xl': 'max-w-2xl',
   };
 
-  return (
+  // Portaled to document.body so this fixed-position overlay always covers
+  // the full viewport, regardless of whether an ancestor (e.g. the glass
+  // Header, which applies backdrop-blur) establishes its own containing
+  // block for fixed-position descendants.
+  return createPortal(
     <div className='fixed inset-0 z-50 !mt-0 overflow-y-auto'>
       {/* Background overlay */}
       <div
-        className='fixed inset-0 bg-black bg-opacity-50 transition-opacity'
+        className='fixed inset-0 bg-black/30 transition-opacity'
         onClick={disableBackdropClose ? undefined : onClose}
         aria-hidden='true'
         data-testid='modal-backdrop'
@@ -72,7 +77,7 @@ export const Modal: React.FC<ModalProps> = ({
       {/* Modal container */}
       <div className='flex min-h-full items-center justify-center p-4'>
         <div
-          className={`relative w-full ${maxWidthClasses[maxWidth]} transform rounded-lg bg-white shadow-xl transition-all duration-200 ease-in-out dark:bg-gray-800 ${className} `}
+          className={`glass-panel-strong relative w-full ${maxWidthClasses[maxWidth]} transform rounded-lg shadow-xl transition-all duration-200 ease-in-out ${className} `}
           onClick={e => e.stopPropagation()}
         >
           {/* Header */}
@@ -130,6 +135,7 @@ export const Modal: React.FC<ModalProps> = ({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };

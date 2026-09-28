@@ -57,9 +57,9 @@ export const WordQuizNavHeader: React.FC<WordQuizNavHeaderProps> = ({
           </span>
           <span>{Math.round(progress)}% Complete</span>
         </div>
-        <div className='h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700'>
+        <div className='glass-progress-track'>
           <div
-            className='h-2 rounded-full bg-primary-500 transition-all duration-300'
+            className='h-2 rounded-full bg-primary-500/90 transition-all duration-300'
             style={{ width: `${progress}%` }}
           />
         </div>

@@ -6,6 +6,7 @@
  */
 
 import React from 'react';
+import { createPortal } from 'react-dom';
 
 export interface ConfirmationDialogProps {
   readonly isOpen: boolean;
@@ -117,8 +118,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
             </svg>
           ),
           iconBg: 'bg-blue-100 dark:bg-blue-900',
-          confirmButton:
-            'text-white bg-blue-600 hover:bg-blue-700 focus:ring-blue-500',
+          confirmButton: 'glass-button-primary',
         };
       default:
         return {
@@ -132,9 +132,13 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
 
   const styles = getVariantStyles();
 
-  return (
-    <div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50'>
-      <div className='mx-4 w-full max-w-sm rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800'>
+  // Portaled to document.body so this fixed-position overlay always covers
+  // the full viewport, regardless of whether an ancestor (e.g. the glass
+  // Header, which applies backdrop-blur) establishes its own containing
+  // block for fixed-position descendants.
+  return createPortal(
+    <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/30'>
+      <div className='glass-panel-strong mx-4 w-full max-w-sm rounded-lg p-6 shadow-xl'>
         <div className='mb-4 flex items-center'>
           <div
             className={`h-10 w-10 flex-shrink-0 rounded-full ${styles.iconBg} flex items-center justify-center`}
@@ -157,7 +161,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
             type='button'
             onClick={onCancel}
             disabled={isConfirming}
-            className='rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+            className='glass-interactive rounded-md px-4 py-2 text-sm font-medium text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-300'
           >
             {cancelText}
           </button>
@@ -192,6 +196,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };

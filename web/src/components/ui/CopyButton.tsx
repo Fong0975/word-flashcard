@@ -89,7 +89,7 @@ export const CopyButton: React.FC<CopyButtonProps> = ({
       case 'ghost':
         return `${baseClasses} text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200`;
       case 'outline':
-        return `${baseClasses} text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600`;
+        return `${baseClasses} glass-interactive text-gray-700 dark:text-gray-300`;
       default:
         return `${baseClasses} text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 ${
           copySuccess

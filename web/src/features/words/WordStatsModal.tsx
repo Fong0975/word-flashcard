@@ -17,6 +17,14 @@ import {
 
 import { Modal } from '../../components/ui/Modal';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
+import {
+  CHART_TEXT_CLASSNAME,
+  GLASS_BAR_STROKE,
+  GLASS_BAR_STROKE_WIDTH,
+  GLASS_FILL_OPACITY,
+  GLASS_TOOLTIP_STYLE,
+  glassLegendFormatter,
+} from '../../components/ui/charts/chartGlassStyles';
 import { apiService } from '../../lib/api';
 import { WordStatsResponse, WordTrendPoint } from '../../types/api';
 import { useAsyncOnOpen } from '../shared/hooks/useAsyncOnOpen';
@@ -99,14 +107,14 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
         <>
           {/* Tab toggle */}
           <div className='mb-5 flex justify-center'>
-            <div className='flex rounded-md border border-gray-300 text-sm dark:border-gray-600'>
+            <div className='glass-panel flex overflow-hidden rounded-md text-sm'>
               <button
                 type='button'
                 onClick={() => setActiveTab('familiarity')}
-                className={`rounded-l-md px-4 py-1.5 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 ${
+                className={`rounded-l-md px-4 py-1.5 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 ${
                   activeTab === 'familiarity'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-600 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                    ? 'glass-button-primary'
+                    : 'glass-interactive text-gray-600 dark:text-gray-300'
                 }`}
               >
                 Familiarity
@@ -114,10 +122,10 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
               <button
                 type='button'
                 onClick={() => setActiveTab('practice')}
-                className={`border-l border-gray-300 px-4 py-1.5 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 dark:border-gray-600 ${
+                className={`border-l border-white/30 px-4 py-1.5 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 dark:border-white/10 ${
                   activeTab === 'practice'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-600 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                    ? 'glass-button-primary'
+                    : 'glass-interactive text-gray-600 dark:text-gray-300'
                 }`}
               >
                 Practice Count
@@ -125,10 +133,10 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
               <button
                 type='button'
                 onClick={() => setActiveTab('trend')}
-                className={`rounded-r-md border-l border-gray-300 px-4 py-1.5 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 dark:border-gray-600 ${
+                className={`rounded-r-md border-l border-white/30 px-4 py-1.5 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 dark:border-white/10 ${
                   activeTab === 'trend'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-600 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                    ? 'glass-button-primary'
+                    : 'glass-interactive text-gray-600 dark:text-gray-300'
                 }`}
               >
                 Trend
@@ -142,7 +150,11 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
               <p className='mb-4 text-sm text-gray-500 dark:text-gray-400'>
                 Familiarity distribution — {total} words total
               </p>
-              <ResponsiveContainer width='100%' height={280}>
+              <ResponsiveContainer
+                width='100%'
+                height={280}
+                className={CHART_TEXT_CLASSNAME}
+              >
                 <PieChart>
                   <Pie
                     data={familiarityChartData}
@@ -167,14 +179,20 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
                             entry.name as keyof typeof FAMILIARITY_COLORS
                           ]
                         }
+                        fillOpacity={GLASS_FILL_OPACITY}
+                        stroke={GLASS_BAR_STROKE}
+                        strokeWidth={GLASS_BAR_STROKE_WIDTH}
                       />
                     ))}
                   </Pie>
                   <Tooltip
                     formatter={(value, name) => [`${value} words`, name]}
-                    contentStyle={{ fontSize: '12px' }}
+                    contentStyle={GLASS_TOOLTIP_STYLE}
                   />
-                  <Legend wrapperStyle={{ fontSize: '12px' }} />
+                  <Legend
+                    wrapperStyle={{ fontSize: '12px' }}
+                    formatter={glassLegendFormatter}
+                  />
                 </PieChart>
               </ResponsiveContainer>
 
@@ -213,7 +231,11 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
               <p className='mb-4 text-sm text-gray-500 dark:text-gray-400'>
                 Practice count distribution — {total} words total
               </p>
-              <ResponsiveContainer width='100%' height={280}>
+              <ResponsiveContainer
+                width='100%'
+                height={280}
+                className={CHART_TEXT_CLASSNAME}
+              >
                 <BarChart
                   data={practiceChartData}
                   margin={{ top: 4, right: 8, left: -16, bottom: 0 }}
@@ -223,13 +245,27 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
                     stroke='currentColor'
                     className='opacity-10'
                   />
-                  <XAxis dataKey='range' tick={{ fontSize: 11 }} interval={0} />
-                  <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+                  <XAxis
+                    dataKey='range'
+                    tick={{ fontSize: 11, fill: 'currentColor' }}
+                    interval={0}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 11, fill: 'currentColor' }}
+                    allowDecimals={false}
+                  />
                   <Tooltip
                     formatter={(value, _name) => [`${value} words`, 'Count']}
-                    contentStyle={{ fontSize: '12px' }}
+                    contentStyle={GLASS_TOOLTIP_STYLE}
                   />
-                  <Bar dataKey='count' radius={[3, 3, 0, 0]} fill='#6366f1' />
+                  <Bar
+                    dataKey='count'
+                    radius={[3, 3, 0, 0]}
+                    fill='#6366f1'
+                    fillOpacity={GLASS_FILL_OPACITY}
+                    stroke={GLASS_BAR_STROKE}
+                    strokeWidth={GLASS_BAR_STROKE_WIDTH}
+                  />
                 </BarChart>
               </ResponsiveContainer>
               <p className='mt-2 text-center text-xs text-gray-400 dark:text-gray-500'>
@@ -256,7 +292,11 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
               )}
 
               {!trendLoading && !trendError && trend && hasTrendActivity && (
-                <ResponsiveContainer width='100%' height={280}>
+                <ResponsiveContainer
+                  width='100%'
+                  height={280}
+                  className={CHART_TEXT_CLASSNAME}
+                >
                   <ComposedChart
                     data={[...trend]}
                     margin={{ top: 4, right: 4, left: -12, bottom: 0 }}
@@ -268,37 +308,36 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
                     />
                     <XAxis
                       dataKey='date'
-                      tick={{ fontSize: 10 }}
+                      tick={{ fontSize: 10, fill: 'currentColor' }}
                       tickFormatter={formatShortDate}
                     />
                     <YAxis
                       yAxisId='left'
                       allowDecimals={false}
-                      tick={{ fontSize: 11 }}
+                      tick={{ fontSize: 11, fill: 'currentColor' }}
                     />
                     <YAxis
                       yAxisId='right'
                       orientation='right'
                       domain={[0, 100]}
-                      tick={{ fontSize: 11 }}
+                      tick={{ fontSize: 11, fill: 'currentColor' }}
                       tickFormatter={v => `${v}%`}
                     />
                     <Tooltip
                       labelFormatter={value => formatShortDate(value as string)}
-                      contentStyle={{ fontSize: '12px' }}
+                      contentStyle={GLASS_TOOLTIP_STYLE}
                     />
                     <Legend
                       wrapperStyle={{ fontSize: '12px' }}
-                      formatter={value => (
-                        <span className='text-gray-500 dark:text-gray-400'>
-                          {value}
-                        </span>
-                      )}
+                      formatter={glassLegendFormatter}
                     />
                     <Bar
                       yAxisId='left'
                       dataKey='practice_count'
                       fill='#4338ca'
+                      fillOpacity={GLASS_FILL_OPACITY}
+                      stroke={GLASS_BAR_STROKE}
+                      strokeWidth={GLASS_BAR_STROKE_WIDTH}
                       name='Practices'
                       radius={[2, 2, 0, 0]}
                     />

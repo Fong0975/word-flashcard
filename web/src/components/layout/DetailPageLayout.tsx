@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { Header } from './Header';
+import { PageBackground } from './PageBackground';
 
 interface DetailPageLayoutProps {
   onBack: () => void;
@@ -18,14 +19,15 @@ export const DetailPageLayout: React.FC<DetailPageLayoutProps> = ({
   body,
   footer,
 }) => (
-  <div className='flex h-screen flex-col overflow-hidden bg-gray-50 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[env(safe-area-inset-top)] transition-colors duration-300 dark:bg-gray-900 sm:pb-0'>
+  <div className='flex h-screen flex-col overflow-hidden pb-[max(1rem,env(safe-area-inset-bottom))] pt-[env(safe-area-inset-top)] transition-colors duration-300 sm:pb-0'>
+    <PageBackground />
     <Header />
     <main className='flex flex-1 flex-col overflow-hidden'>
       <div className='mx-auto flex min-h-0 w-full max-w-4xl flex-1 flex-col px-4 py-4 sm:px-3 lg:px-10'>
         <button
           type='button'
           onClick={onBack}
-          className='mb-3 flex flex-shrink-0 items-center space-x-2 rounded-md p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white'
+          className='glass-interactive mb-3 flex flex-shrink-0 items-center space-x-2 self-start rounded-md p-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
           aria-label='Go back'
         >
           <svg
@@ -45,7 +47,7 @@ export const DetailPageLayout: React.FC<DetailPageLayoutProps> = ({
         </button>
 
         {/* Content card */}
-        <div className='flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800'>
+        <div className='glass-panel flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg'>
           {hasContent(header) && (
             <div className='flex-shrink-0 px-3 pt-3 lg:px-6 lg:pt-6'>
               {header}

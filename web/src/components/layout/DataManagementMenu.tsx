@@ -34,6 +34,11 @@ const errorMessage = (error: unknown): string =>
 const formatImportSummary = (summary: ImportSummary): string =>
   `Import completed — words: ${summary.words}, definitions: ${summary.word_definitions}, questions: ${summary.questions}, answer logs: ${summary.question_answer_logs}, practice logs: ${summary.word_practice_logs}, notes: ${summary.notes}.`;
 
+// A tinted (not gray) hover/focus highlight so the menu items stay legible
+// against the translucent glass panel they sit on.
+const MENU_ITEM_CLASS =
+  'flex w-full items-center gap-1.5 py-1.5 pl-8 pr-4 text-left text-xs text-gray-700 transition-colors hover:bg-primary-500/[15%] hover:text-primary-700 focus-visible:bg-primary-500/[15%] focus-visible:text-primary-700 focus:outline-none dark:text-gray-200 dark:hover:bg-primary-400/20 dark:hover:text-primary-100 dark:focus-visible:bg-primary-400/20 dark:focus-visible:text-primary-100';
+
 /**
  * Settings dropdown in the header, offering a full-database JSON export
  * (download) and import (destructive restore, gated behind a confirmation
@@ -126,7 +131,7 @@ export const DataManagementMenu: React.FC = () => {
       <div className='group relative'>
         <button
           type='button'
-          className='relative rounded-md p-2 text-gray-500 transition-colors duration-200 focus:outline-none group-focus-within:bg-gray-100 group-focus-within:text-gray-900 group-hover:bg-gray-100 group-hover:text-gray-900 dark:text-gray-400 dark:group-focus-within:bg-gray-700 dark:group-focus-within:text-white dark:group-hover:bg-gray-700 dark:group-hover:text-white'
+          className='relative rounded-md p-2 text-gray-500 transition-colors duration-200 focus:outline-none group-focus-within:bg-gray-100/60 group-focus-within:text-gray-900 group-focus-within:backdrop-blur-md group-hover:bg-gray-100/60 group-hover:text-gray-900 group-hover:backdrop-blur-md dark:text-gray-400 dark:group-focus-within:bg-gray-800/50 dark:group-focus-within:text-white dark:group-hover:bg-gray-800/50 dark:group-hover:text-white'
           aria-label={unreadCount > 0 ? 'Settings (unread logs)' : 'Settings'}
           aria-haspopup='true'
         >
@@ -159,7 +164,7 @@ export const DataManagementMenu: React.FC = () => {
 
         <div className='absolute right-0 top-full z-10 hidden w-40 pt-2 group-focus-within:block group-hover:block'>
           <div
-            className='rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 dark:bg-gray-800 dark:ring-gray-600'
+            className='glass-panel-strong rounded-md bg-white/80 shadow-lg dark:bg-gray-800/90'
             role='menu'
           >
             <div className='py-1'>
@@ -170,7 +175,7 @@ export const DataManagementMenu: React.FC = () => {
                 type='button'
                 role='menuitem'
                 onClick={() => setIsBackupsModalOpen(true)}
-                className='flex w-full items-center gap-1.5 py-1.5 pl-8 pr-4 text-left text-xs text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-white'
+                className={MENU_ITEM_CLASS}
               >
                 <svg
                   viewBox='0 0 24 24'
@@ -192,7 +197,7 @@ export const DataManagementMenu: React.FC = () => {
                 type='button'
                 role='menuitem'
                 onClick={handleImportClick}
-                className='flex w-full items-center gap-1.5 py-1.5 pl-8 pr-4 text-left text-xs text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-white'
+                className={MENU_ITEM_CLASS}
               >
                 <svg
                   viewBox='0 0 24 24'
@@ -215,7 +220,7 @@ export const DataManagementMenu: React.FC = () => {
                 role='menuitem'
                 onClick={handleExportClick}
                 disabled={isExporting}
-                className='flex w-full items-center gap-1.5 py-1.5 pl-8 pr-4 text-left text-xs text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-white'
+                className={`${MENU_ITEM_CLASS} disabled:cursor-not-allowed disabled:opacity-50`}
               >
                 <svg
                   viewBox='0 0 24 24'
@@ -242,7 +247,7 @@ export const DataManagementMenu: React.FC = () => {
                 type='button'
                 role='menuitem'
                 onClick={() => navigate('/logs')}
-                className='flex w-full items-center gap-1.5 py-1.5 pl-8 pr-4 text-left text-xs text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-white'
+                className={MENU_ITEM_CLASS}
               >
                 <svg
                   viewBox='0 0 24 24'

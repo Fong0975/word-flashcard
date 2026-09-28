@@ -24,11 +24,7 @@ const markdownSanitizeSchema = {
   },
 };
 
-export type MarkdownContentVariant =
-  | 'plain'
-  | 'boxed-yellow'
-  | 'boxed-gray'
-  | 'boxed-white';
+export type MarkdownContentVariant = 'plain' | 'notes';
 
 interface MarkdownContentProps {
   content: string;
@@ -43,21 +39,14 @@ interface MarkdownContentProps {
 const OUTER_CLASSNAMES: Record<MarkdownContentVariant, string> = {
   plain:
     'prose prose-sm prose-slate max-w-none dark:prose-invert prose-headings:text-gray-800 prose-p:text-gray-600 prose-code:rounded-md prose-code:bg-gray-200 prose-code:px-1.5 prose-code:py-0.5 prose-code:font-medium prose-code:text-pink-600 prose-code:before:content-none prose-code:after:content-none prose-ul:text-gray-600 prose-hr:border-gray-400 dark:prose-headings:text-gray-200 dark:prose-p:text-gray-400 dark:prose-code:bg-gray-600 dark:prose-code:text-pink-400 dark:prose-ul:text-gray-400 dark:prose-hr:border-gray-500',
-  'boxed-yellow':
-    'prose prose-sm prose-slate max-w-none rounded bg-yellow-50 p-2 dark:prose-invert prose-headings:text-gray-800 prose-p:text-gray-600 prose-ul:text-gray-600 prose-hr:border-gray-400 dark:bg-yellow-900/20 dark:prose-headings:text-gray-200 dark:prose-p:text-gray-400 dark:prose-ul:text-gray-400 dark:prose-hr:border-gray-500',
-  'boxed-gray':
-    'prose prose-sm prose-slate max-w-none dark:prose-invert prose-p:text-gray-600 prose-hr:border-gray-400 dark:prose-p:text-gray-400 dark:prose-hr:border-gray-500',
-  'boxed-white':
-    'prose prose-sm prose-slate max-w-none dark:prose-invert prose-p:text-gray-700 prose-hr:border-gray-400 dark:prose-p:text-gray-300 dark:prose-hr:border-gray-500',
-};
-
-const INNER_CLASSNAMES: Partial<Record<MarkdownContentVariant, string>> = {
-  'boxed-yellow':
-    'prose prose-sm prose-slate max-w-none rounded dark:prose-invert prose-p:text-gray-600 prose-code:rounded-md prose-code:bg-gray-200 prose-code:px-1.5 prose-code:py-0.5 prose-code:font-medium prose-code:text-pink-600 prose-code:before:content-none prose-code:after:content-none dark:prose-p:text-gray-400 dark:prose-code:bg-gray-600 dark:prose-code:text-pink-400',
-  'boxed-gray':
-    'prose prose-sm prose-slate max-w-none rounded dark:prose-invert prose-p:text-gray-600 prose-code:rounded-md prose-code:bg-gray-200 prose-code:px-1.5 prose-code:py-0.5 prose-code:font-medium prose-code:text-pink-600 prose-code:before:content-none prose-code:after:content-none dark:prose-p:text-gray-400 dark:prose-code:bg-gray-700 dark:prose-code:text-pink-400',
-  'boxed-white':
-    'prose prose-sm prose-slate max-w-none dark:prose-invert prose-p:text-gray-700 prose-code:rounded-md prose-code:bg-gray-200 prose-code:px-1.5 prose-code:py-0.5 prose-code:font-medium prose-code:text-pink-600 prose-code:before:content-none prose-code:after:content-none dark:prose-p:text-gray-300 dark:prose-code:bg-gray-600 dark:prose-code:text-pink-400',
+  /*
+   * Same as `plain`, but also dims `<strong>`/headings (which the Typography
+   * plugin otherwise renders at full black/white regardless of `prose-p`)
+   * so they stay visually a step below a solid-black/white section heading
+   * placed above it (e.g. the "Notes"/"Explanation" heading above it).
+   */
+  notes:
+    'prose prose-sm prose-slate max-w-none dark:prose-invert prose-headings:text-gray-700 prose-p:text-gray-600 prose-strong:text-gray-700 prose-code:rounded-md prose-code:bg-gray-200 prose-code:px-1.5 prose-code:py-0.5 prose-code:font-medium prose-code:text-pink-600 prose-code:before:content-none prose-code:after:content-none prose-ul:text-gray-600 prose-hr:border-gray-400 dark:prose-headings:text-gray-300 dark:prose-p:text-gray-400 dark:prose-strong:text-gray-300 dark:prose-code:bg-gray-600 dark:prose-code:text-pink-400 dark:prose-ul:text-gray-400 dark:prose-hr:border-gray-500',
 };
 
 export const MarkdownContent: React.FC<MarkdownContentProps> = ({
@@ -69,24 +58,14 @@ export const MarkdownContent: React.FC<MarkdownContentProps> = ({
     ? content.replace(/\\n/g, '\n')
     : content;
 
-  const markdown = (
-    <ReactMarkdown
-      remarkPlugins={[remarkBreaks, remarkGfm, remarkAlert]}
-      rehypePlugins={[rehypeRaw, [rehypeSanitize, markdownSanitizeSchema]]}
-    >
-      {text}
-    </ReactMarkdown>
-  );
-
-  const innerClassName = INNER_CLASSNAMES[variant];
-
   return (
     <div className={OUTER_CLASSNAMES[variant]}>
-      {innerClassName ? (
-        <div className={innerClassName}>{markdown}</div>
-      ) : (
-        markdown
-      )}
+      <ReactMarkdown
+        remarkPlugins={[remarkBreaks, remarkGfm, remarkAlert]}
+        rehypePlugins={[rehypeRaw, [rehypeSanitize, markdownSanitizeSchema]]}
+      >
+        {text}
+      </ReactMarkdown>
     </div>
   );
 };

@@ -1,10 +1,14 @@
 import React from 'react';
 
+import { DropdownMenu } from '../../../../components/ui';
+
 interface AnswerSelectorProps {
   value: string;
   onChange: (value: string) => void;
   disabled?: boolean;
 }
+
+const ANSWER_OPTIONS = ['A', 'B', 'C', 'D'];
 
 export const AnswerSelector: React.FC<AnswerSelectorProps> = ({
   value,
@@ -19,19 +23,43 @@ export const AnswerSelector: React.FC<AnswerSelectorProps> = ({
       >
         Correct Answer <span className='text-red-500'>*</span>
       </label>
-      <select
-        id='answer'
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        className='w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-gray-100 disabled:text-gray-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:disabled:bg-gray-800'
+      <DropdownMenu
+        className='block w-full'
+        menuWidthClassName='w-full'
         disabled={disabled}
-      >
-        <option value=''>Select the correct answer...</option>
-        <option value='A'>A</option>
-        <option value='B'>B</option>
-        <option value='C'>C</option>
-        <option value='D'>D</option>
-      </select>
+        trigger={
+          <button
+            type='button'
+            id='answer'
+            disabled={disabled}
+            aria-label='Select the correct answer'
+            aria-haspopup='true'
+            className='glass-input flex w-full items-center justify-between px-3 py-2 text-left disabled:cursor-not-allowed disabled:opacity-50'
+          >
+            <span>{value || 'Select the correct answer...'}</span>
+            <svg
+              className='h-4 w-4 flex-shrink-0 text-gray-500 dark:text-gray-400'
+              fill='none'
+              viewBox='0 0 24 24'
+              strokeWidth='2'
+              stroke='currentColor'
+              aria-hidden='true'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                d='M19 9l-7 7-7-7'
+              />
+            </svg>
+          </button>
+        }
+        items={ANSWER_OPTIONS.map(option => ({
+          id: option,
+          label: option,
+          isSelected: option === value,
+          onClick: () => onChange(option),
+        }))}
+      />
       <p className='mt-1 text-xs text-gray-500 dark:text-gray-400'>
         Select the correct answer option (A, B, C, or D)
       </p>

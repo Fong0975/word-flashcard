@@ -3,6 +3,8 @@ import { ReactNode } from 'react';
 import { Pagination } from '../../../components/ui/Pagination';
 import { BaseEntity } from '../../../types';
 
+import { TotalCountLabel } from './TotalCountLabel';
+
 interface EntityListSectionProps<T extends BaseEntity> {
   entities: readonly T[];
   renderCard: (entity: T, index: number) => ReactNode;
@@ -41,22 +43,11 @@ export const EntityListSection = <T extends BaseEntity>({
   onLast,
 }: EntityListSectionProps<T>) => (
   <div>
-    {totalCount > 0 && (
-      <div className='mb-2 flex justify-end'>
-        {onTotalCountClick ? (
-          <button
-            onClick={onTotalCountClick}
-            className='text-xs text-gray-400 underline-offset-2 hover:text-gray-600 hover:underline dark:text-gray-500 dark:hover:text-gray-300'
-          >
-            {totalCount} {entityNamePlural.toLowerCase()} total
-          </button>
-        ) : (
-          <span className='text-xs text-gray-400 dark:text-gray-500'>
-            {totalCount} {entityNamePlural.toLowerCase()} total
-          </span>
-        )}
-      </div>
-    )}
+    <TotalCountLabel
+      totalCount={totalCount}
+      entityLabel={entityNamePlural.toLowerCase()}
+      onClick={onTotalCountClick}
+    />
     <div className='space-y-3'>
       {entities.map((entity, index) => (
         <div key={entity.id}>

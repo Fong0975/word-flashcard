@@ -157,7 +157,7 @@ export const EntityCard = <T extends BaseEntity>({
   return (
     <>
       <div
-        className={`group flex cursor-pointer items-center rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-all duration-200 ease-in-out hover:border-primary-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-primary-600 ${config.sequenceStyle === 'detailed' ? 'items-start' : 'items-center'} ${className} `}
+        className={`glass-panel-card group flex cursor-pointer items-center rounded-lg p-4 transition-all duration-200 ease-in-out hover:border-primary-300 hover:bg-gray-100/80 hover:shadow-md dark:hover:border-primary-600 dark:hover:bg-gray-800/70 ${config.sequenceStyle === 'detailed' ? 'items-start' : 'items-center'} ${className} `}
         onClick={handleCardClick}
       >
         {/* Left color indicator */}
@@ -173,7 +173,7 @@ export const EntityCard = <T extends BaseEntity>({
         {config.showRightArrow !== false && (
           <div className='ml-4 flex-shrink-0'>
             <svg
-              className='h-5 w-5 text-gray-400 transition-colors group-hover:text-gray-600 dark:text-gray-500 dark:group-hover:text-gray-300'
+              className='h-5 w-5 text-gray-400 transition-colors group-hover:text-primary-500 dark:text-gray-500 dark:group-hover:text-primary-400'
               fill='none'
               viewBox='0 0 24 24'
               strokeWidth='2'

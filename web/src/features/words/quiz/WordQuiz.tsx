@@ -204,7 +204,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
               <button
                 onClick={handleNext}
                 disabled={isProcessing}
-                className='w-full rounded-lg bg-blue-500 px-8 py-3 font-medium text-white transition-colors hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
+                className='glass-button-primary w-full rounded-lg px-8 py-3 font-medium'
               >
                 Show Answer
               </button>

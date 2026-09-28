@@ -17,10 +17,10 @@ export const OptionsSelectionList: React.FC<OptionsSelectionListProps> = ({
     {options.map(option => (
       <label
         key={option.key}
-        className={`flex cursor-pointer items-start space-x-3 rounded-lg border p-3 transition-colors lg:p-4 ${
+        className={`flex cursor-pointer items-start space-x-3 rounded-lg border p-3 backdrop-blur-md transition-colors lg:p-4 ${
           selectedAnswer === option.key
-            ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500 dark:bg-blue-900/20'
-            : 'border-gray-200 bg-gray-50 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600'
+            ? 'border-primary-400/70 bg-primary-500/15 ring-2 ring-primary-400/60 dark:border-primary-400/50 dark:bg-primary-400/10'
+            : 'glass-panel-card hover:bg-gray-100/60 dark:hover:bg-gray-700/40'
         } `}
       >
         <input

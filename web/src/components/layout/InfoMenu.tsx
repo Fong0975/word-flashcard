@@ -17,7 +17,7 @@ export const InfoMenu: React.FC = () => {
     <div className='group relative'>
       <button
         type='button'
-        className='rounded-md p-2 text-gray-500 transition-colors duration-200 focus:outline-none group-focus-within:bg-gray-100 group-focus-within:text-gray-900 group-hover:bg-gray-100 group-hover:text-gray-900 dark:text-gray-400 dark:group-focus-within:bg-gray-700 dark:group-focus-within:text-white dark:group-hover:bg-gray-700 dark:group-hover:text-white'
+        className='rounded-md p-2 text-gray-500 transition-colors duration-200 focus:outline-none group-focus-within:bg-gray-100/60 group-focus-within:text-gray-900 group-focus-within:backdrop-blur-md group-hover:bg-gray-100/60 group-hover:text-gray-900 group-hover:backdrop-blur-md dark:text-gray-400 dark:group-focus-within:bg-gray-800/50 dark:group-focus-within:text-white dark:group-hover:bg-gray-800/50 dark:group-hover:text-white'
         aria-label='Info'
         aria-haspopup='true'
       >
@@ -43,7 +43,7 @@ export const InfoMenu: React.FC = () => {
       </button>
 
       <div className='absolute right-0 top-full z-10 hidden w-80 max-w-[calc(100vw-2rem)] pt-2 group-focus-within:block group-hover:block'>
-        <div className='rounded-md bg-white p-4 shadow-lg ring-1 ring-black ring-opacity-5 dark:bg-gray-800 dark:ring-gray-600'>
+        <div className='glass-panel-strong rounded-md bg-white/80 p-4 shadow-lg dark:bg-gray-800/90'>
           <p className='text-sm text-gray-700 dark:text-gray-200'>
             <span className='font-extrabold'>Flashcard v{pkg.version}</span>{' '}
             <span className='font-light text-gray-500 dark:text-gray-400'>

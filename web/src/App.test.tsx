@@ -10,6 +10,7 @@ import App from './App';
 // component wired to the wrong route wouldn't be caught at compile time).
 vi.mock('./components', () => ({
   Header: () => <div>Header Stub</div>,
+  PageBackground: () => <div>PageBackground Stub</div>,
   TabNavigation: () => <div>TabNavigation Stub</div>,
   TabContent: () => <div>TabContent Stub</div>,
 }));

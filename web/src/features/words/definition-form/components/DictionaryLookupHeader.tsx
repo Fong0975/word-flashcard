@@ -13,7 +13,7 @@ export const DictionaryLookupHeader: React.FC<DictionaryLookupHeaderProps> = ({
   onFetchDictionary,
   onToggleCollapsed,
 }) => (
-  <div className='flex items-center justify-between p-4 transition-colors hover:bg-green-100 dark:hover:bg-green-900/40'>
+  <div className='flex items-center justify-between p-4 transition-colors hover:bg-green-200/50 dark:hover:bg-green-800/30'>
     <h3 className='text-lg font-medium text-green-800 dark:text-green-200'>
       Dictionary Lookup
     </h3>
@@ -22,7 +22,7 @@ export const DictionaryLookupHeader: React.FC<DictionaryLookupHeaderProps> = ({
         type='button'
         onClick={onFetchDictionary}
         disabled={isLoadingDictionary}
-        className='rounded-md border border-transparent bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-green-400'
+        className='glass-button-success rounded-md px-4 py-2 text-sm font-medium'
       >
         {isLoadingDictionary ? (
           <>

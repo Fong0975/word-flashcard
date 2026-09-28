@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 
 const EXIT_CONFIRM_TITLE = 'Exit Quiz';
 const EXIT_CONFIRM_MESSAGE =
@@ -19,9 +20,13 @@ export const QuizExitConfirmDialog: React.FC<QuizExitConfirmDialogProps> = ({
     return null;
   }
 
-  return (
-    <div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50'>
-      <div className='mx-4 w-full max-w-sm rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800'>
+  // Portaled to document.body so this fixed-position overlay always covers
+  // the full viewport, regardless of whether an ancestor (e.g. the glass
+  // Header, which applies backdrop-blur) establishes its own containing
+  // block for fixed-position descendants.
+  return createPortal(
+    <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/30'>
+      <div className='glass-panel-strong mx-4 w-full max-w-sm rounded-lg p-6 shadow-xl'>
         <div className='mb-4 flex items-center'>
           <div className='flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-red-100 dark:bg-red-900'>
             <svg
@@ -53,7 +58,7 @@ export const QuizExitConfirmDialog: React.FC<QuizExitConfirmDialogProps> = ({
           <button
             type='button'
             onClick={onCancel}
-            className='rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+            className='glass-interactive rounded-md px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300'
           >
             Continue Quiz
           </button>
@@ -66,6 +71,7 @@ export const QuizExitConfirmDialog: React.FC<QuizExitConfirmDialogProps> = ({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };

@@ -142,7 +142,7 @@ export const NoteDetailPage: React.FC = () => {
             <button
               type='button'
               onClick={() => navigate('/?tab=notes')}
-              className='rounded-md bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700'
+              className='glass-button-primary rounded-md px-6 py-2 text-sm font-medium'
             >
               Back to Notes
             </button>
@@ -153,7 +153,7 @@ export const NoteDetailPage: React.FC = () => {
   }
 
   const viewHeader = (
-    <div>
+    <div className='mb-2 pb-2'>
       <div className='flex items-start justify-between gap-4'>
         <h1 className='break-words text-xl font-bold text-gray-900 dark:text-white'>
           {note.title}
@@ -162,14 +162,14 @@ export const NoteDetailPage: React.FC = () => {
           <button
             type='button'
             onClick={handleEdit}
-            className='rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700'
+            className='glass-interactive rounded-md px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300'
           >
             Edit
           </button>
           <button
             type='button'
             onClick={deleteConfirmation.showDeleteConfirm}
-            className='rounded-md border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20'
+            className='rounded-md border border-transparent px-3 py-1.5 text-sm font-medium text-red-600 transition-colors duration-200 hover:bg-red-500/[15%] hover:shadow-sm hover:backdrop-blur-lg focus-visible:bg-red-500/[15%] focus-visible:shadow-sm focus-visible:backdrop-blur-lg active:bg-red-500/25 dark:text-red-400 dark:hover:bg-red-400/20 dark:focus-visible:bg-red-400/20 dark:active:bg-red-400/30'
           >
             Delete
           </button>
@@ -187,7 +187,7 @@ export const NoteDetailPage: React.FC = () => {
       value={editTitle}
       onChange={e => setEditTitle(e.target.value)}
       placeholder='Note title'
-      className='w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 text-lg font-semibold text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+      className='glass-input w-full px-3 py-1.5 text-lg font-semibold'
     />
   );
 
@@ -212,7 +212,7 @@ export const NoteDetailPage: React.FC = () => {
               type='button'
               onClick={deleteConfirmation.cancelDelete}
               disabled={deleteConfirmation.isDeleting}
-              className='rounded-md border border-gray-300 px-4 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700'
+              className='glass-interactive rounded-md px-4 py-1.5 text-sm font-medium text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-300'
             >
               Cancel
             </button>
@@ -247,7 +247,7 @@ export const NoteDetailPage: React.FC = () => {
           type='button'
           onClick={handleSave}
           disabled={isSaving || !editTitle.trim()}
-          className='rounded-md bg-blue-600 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50'
+          className='glass-button-primary rounded-md px-4 py-1.5 text-sm font-medium'
         >
           {isSaving ? 'Saving...' : 'Save'}
         </button>
@@ -255,7 +255,7 @@ export const NoteDetailPage: React.FC = () => {
           type='button'
           onClick={handleCancel}
           disabled={isSaving}
-          className='rounded-md border border-gray-300 px-4 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700'
+          className='glass-interactive rounded-md px-4 py-1.5 text-sm font-medium text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-300'
         >
           Cancel
         </button>

@@ -186,7 +186,7 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
         disabled: isSubmitting,
         loading: isSubmitting,
         className:
-          'w-full rounded-lg bg-green-500 px-8 py-3 font-medium text-white transition-colors hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-lg',
+          'glass-button-success w-full rounded-lg px-8 py-3 font-medium md:text-lg',
       });
     } else {
       onNextAction({
@@ -195,7 +195,7 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
         disabled: !selectedAnswer || isSubmitting,
         loading: isSubmitting,
         className:
-          'w-full rounded-lg bg-blue-500 px-8 py-3 font-medium text-white transition-colors hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-lg',
+          'glass-button-primary w-full rounded-lg px-8 py-3 font-medium md:text-lg',
       });
     }
   }, [
@@ -245,9 +245,9 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
             </span>
             <span>{Math.round(progress)}% Complete</span>
           </div>
-          <div className='h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700'>
+          <div className='glass-progress-track'>
             <div
-              className='h-2 rounded-full bg-primary-500 transition-all duration-300'
+              className='h-2 rounded-full bg-primary-500/90 transition-all duration-300'
               style={{ width: `${progress}%` }}
             />
           </div>

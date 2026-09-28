@@ -232,7 +232,7 @@ export const QuizSetupModal: React.FC<QuizSetupModalProps> = ({
           <button
             type='button'
             onClick={handleClose}
-            className='flex-1 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+            className='glass-interactive flex-1 rounded-md px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300'
           >
             Cancel
           </button>
@@ -243,7 +243,7 @@ export const QuizSetupModal: React.FC<QuizSetupModalProps> = ({
             className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
               isStartDisabled
                 ? 'cursor-not-allowed bg-gray-300 text-gray-500 dark:bg-gray-600 dark:text-gray-400'
-                : 'bg-primary-500 text-white hover:bg-primary-600'
+                : 'glass-button-primary'
             } `}
           >
             Start Quiz

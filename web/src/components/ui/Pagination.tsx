@@ -39,20 +39,19 @@ export const Pagination: React.FC<PaginationProps> = ({
   const canGoLast = currentPage < totalPages && !loading;
 
   const buttonEnabledClass = `
-    bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200
-    hover:bg-gray-50 dark:hover:bg-gray-700
-    active:bg-gray-100 dark:active:bg-gray-600
+    border-gray-300 dark:border-gray-600
+    bg-transparent text-gray-700 dark:text-gray-200 transition-colors duration-200
+    hover:bg-gray-100/60 hover:backdrop-blur-md dark:hover:bg-gray-800/50
+    active:bg-gray-200/70 dark:active:bg-gray-700/70
   `;
 
   const buttonDisabledClass = `
+    border-gray-300 dark:border-gray-600
     bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500
     cursor-not-allowed opacity-60
   `;
 
-  const buttonActiveClass = `
-    bg-primary-500 border-primary-500 text-white
-    hover:bg-primary-600
-  `;
+  const buttonActiveClass = 'glass-button-primary';
 
   return (
     <nav
@@ -134,7 +133,7 @@ export const Pagination: React.FC<PaginationProps> = ({
                 key={pageNum}
                 onClick={() => onPageChange(pageNum)}
                 disabled={loading}
-                className={`relative inline-flex items-center border border-gray-300 px-4 py-2 text-sm font-medium dark:border-gray-600 ${
+                className={`relative inline-flex items-center border px-4 py-2 text-sm font-medium ${
                   pageNum === currentPage
                     ? buttonActiveClass
                     : loading
@@ -149,7 +148,7 @@ export const Pagination: React.FC<PaginationProps> = ({
 
             {/* Show ellipsis if there are more pages */}
             {totalPages > pageNumbers[pageNumbers.length - 1] && (
-              <span className='relative inline-flex items-center border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300'>
+              <span className='relative inline-flex items-center border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 dark:border-gray-600 dark:text-gray-300'>
                 ...
               </span>
             )}

@@ -28,11 +28,11 @@ export const AnswerSection: React.FC<AnswerSectionProps> = ({
 
   const correctAnswerContent = getCorrectAnswerContent();
   return (
-    <div className='overflow-hidden rounded-lg border border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-900/20'>
+    <div className='overflow-hidden rounded-lg border border-yellow-300/60 bg-yellow-100/50 backdrop-blur-lg dark:border-yellow-700/40 dark:bg-yellow-900/30'>
       {/* Collapsible Header */}
       <button
         onClick={onToggle}
-        className='flex w-full items-center justify-between p-4 transition-colors hover:bg-yellow-100 dark:hover:bg-yellow-900/40'
+        className='flex w-full items-center justify-between p-4 transition-colors hover:bg-yellow-200/50 dark:hover:bg-yellow-800/30'
       >
         <h2 className='text-lg font-semibold text-yellow-800 dark:text-yellow-200'>
           Answer & Explanation
@@ -56,7 +56,7 @@ export const AnswerSection: React.FC<AnswerSectionProps> = ({
 
       {/* Expanded Content - Lighter background */}
       {isExpanded && (
-        <div className='border-t border-yellow-200 bg-white dark:border-yellow-800 dark:bg-gray-800'>
+        <div className='glass-panel-card border-t-yellow-300/60 dark:border-t-yellow-700/40'>
           {/* Correct Answer Section */}
           <div className='border-b border-gray-200 p-4 dark:border-gray-700'>
             <h3 className='mb-3 text-sm font-medium text-gray-700 dark:text-gray-300'>
@@ -79,10 +79,10 @@ export const AnswerSection: React.FC<AnswerSectionProps> = ({
           {/* Explanation Section */}
           {explanation && (
             <div className='p-4'>
-              <h3 className='mb-3 text-sm font-medium text-gray-700 dark:text-gray-300'>
-                Explanation:
+              <h3 className='mb-2 border-b border-gray-200/40 pb-1 text-sm font-medium text-gray-900 dark:border-gray-700/40 dark:text-white'>
+                Explanation
               </h3>
-              <MarkdownContent content={explanation} variant='boxed-white' />
+              <MarkdownContent content={explanation} variant='notes' />
             </div>
           )}
         </div>

@@ -168,14 +168,14 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
   const isFlex = heightMode === 'flex';
 
   const previewClassName = isFlex
-    ? 'min-h-0 flex-1 overflow-y-auto bg-white px-3 py-2 dark:bg-gray-700'
-    : 'h-52 overflow-y-auto bg-white px-3 py-2 dark:bg-gray-700';
+    ? 'min-h-0 flex-1 overflow-y-auto px-3 py-2'
+    : 'h-52 overflow-y-auto px-3 py-2';
 
   const textareaClassName = `${
     isFlex ? 'min-h-0 w-full flex-1' : 'block h-52 w-full'
-  } resize-none border-0 bg-white px-3 py-2 ${
+  } resize-none border-0 bg-transparent px-3 py-2 ${
     fontMono ? 'font-mono text-sm' : ''
-  } text-gray-900 focus:outline-none disabled:bg-gray-100 disabled:text-gray-500 dark:bg-gray-700 dark:text-white dark:disabled:bg-gray-800`;
+  } text-gray-900 placeholder-gray-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:text-white dark:placeholder-gray-400`;
 
   const editorContent = isPreview ? (
     <div className={previewClassName}>
@@ -227,7 +227,7 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
       )}
 
       <div
-        className={`overflow-hidden rounded-md border border-gray-300 shadow-sm focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500 dark:border-gray-600 ${
+        className={`glass-input overflow-hidden focus-within:border-primary-400/70 focus-within:ring-2 focus-within:ring-primary-400/30 dark:focus-within:border-primary-400/50 dark:focus-within:ring-primary-400/20 ${
           isFlex ? 'flex min-h-0 flex-1 flex-col' : 'mb-1'
         }`}
       >
@@ -241,7 +241,7 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
           onInsertSymbol={handleInsertSymbol}
         />
         {editorContent}
-        <div className='flex flex-shrink-0 items-center gap-1.5 border-t border-gray-300 bg-gray-50 px-2 py-1 text-xs italic text-gray-400 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-500'>
+        <div className='flex flex-shrink-0 items-center gap-1.5 border-t border-white/40 px-2 py-1 text-xs italic text-gray-400 dark:border-white/10 dark:text-gray-500'>
           <span className='flex h-4 w-6 flex-shrink-0 items-center justify-center rounded border border-current text-[10px] font-bold not-italic leading-none'>
             M↓
           </span>

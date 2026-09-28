@@ -130,7 +130,7 @@ describe('CopyButton', () => {
 
   it.each([
     { variant: 'ghost' as const, expectedClass: 'text-gray-500' },
-    { variant: 'outline' as const, expectedClass: 'border' },
+    { variant: 'outline' as const, expectedClass: 'glass-interactive' },
   ])('applies $expectedClass for $variant variant', testCase => {
     render(<CopyButton text='hello' variant={testCase.variant} />);
     expect(screen.getByRole('button')).toHaveClass(testCase.expectedClass);

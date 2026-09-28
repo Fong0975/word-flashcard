@@ -33,7 +33,7 @@ export const OptionInput: React.FC<OptionInputProps> = ({
         id={optionId}
         value={value}
         onChange={e => onChange(option, e.target.value)}
-        className='w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-gray-100 disabled:text-gray-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:disabled:bg-gray-800'
+        className='glass-input w-full px-3 py-2'
         placeholder={`Enter option ${option}${!isRequired ? ' (optional)' : ''}...`}
         disabled={disabled}
       />

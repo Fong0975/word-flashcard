@@ -143,7 +143,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
   const formatButtonsDisabled = disabled || isPreview;
 
   return (
-    <div className='flex items-center justify-between gap-2 border-b border-gray-300 bg-gray-50 px-2 py-1 dark:border-gray-600 dark:bg-gray-800'>
+    <div className='flex items-center justify-between gap-2 border-b border-white/40 px-2 py-1 dark:border-white/10'>
       <div className='flex min-w-0 items-center gap-0.5'>
         <div className='flex min-w-0 gap-0.5 overflow-x-auto'>
           {FORMAT_BUTTONS.map(({ action, label, icon }) => (

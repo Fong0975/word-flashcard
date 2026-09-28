@@ -15,6 +15,15 @@ import {
 
 import { Modal } from '../../components/ui/Modal';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
+import {
+  CHART_TEXT_CLASSNAME,
+  GLASS_BAR_STROKE,
+  GLASS_BAR_STROKE_WIDTH,
+  GLASS_FILL_OPACITY,
+  GLASS_TOOLTIP_CLASSNAME,
+  GLASS_TOOLTIP_STYLE,
+  glassLegendFormatter,
+} from '../../components/ui/charts/chartGlassStyles';
 import { apiService } from '../../lib/api';
 import {
   PracticeCountBucket,
@@ -46,15 +55,13 @@ export const CustomTooltip = ({
   const breakdown = practice_count_breakdown.filter(bucket => bucket.count > 0);
 
   return (
-    <div className='rounded border border-gray-200 bg-white px-2 py-1 text-xs shadow dark:border-gray-600 dark:bg-gray-800 dark:text-white'>
+    <div className={GLASS_TOOLTIP_CLASSNAME}>
       <div>
         {range}: {count} questions
       </div>
       {breakdown.length > 0 && (
-        <div className='mt-1 border-t border-gray-200 pt-1 dark:border-gray-600'>
-          <div className='text-gray-500 dark:text-gray-400'>
-            By practice count:
-          </div>
+        <div className='mt-1 border-t border-white/10 pt-1'>
+          <div className='text-gray-400'>By practice count:</div>
           {breakdown.map(bucket => (
             <div key={bucket.range} className='flex justify-between gap-3'>
               <span>{bucket.range}</span>
@@ -147,14 +154,14 @@ export const QuestionStatsModal: React.FC<QuestionStatsModalProps> = ({
         <>
           {/* Tab toggle */}
           <div className='mb-5 flex justify-center'>
-            <div className='flex rounded-md border border-gray-300 text-sm dark:border-gray-600'>
+            <div className='glass-panel flex overflow-hidden rounded-md text-sm'>
               <button
                 type='button'
                 onClick={() => setActiveTab('accuracy')}
-                className={`rounded-l-md px-4 py-1.5 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 ${
+                className={`rounded-l-md px-4 py-1.5 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 ${
                   activeTab === 'accuracy'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-600 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                    ? 'glass-button-primary'
+                    : 'glass-interactive text-gray-600 dark:text-gray-300'
                 }`}
               >
                 Accuracy
@@ -162,10 +169,10 @@ export const QuestionStatsModal: React.FC<QuestionStatsModalProps> = ({
               <button
                 type='button'
                 onClick={() => setActiveTab('trend')}
-                className={`rounded-r-md border-l border-gray-300 px-4 py-1.5 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 dark:border-gray-600 ${
+                className={`rounded-r-md border-l border-white/30 px-4 py-1.5 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 dark:border-white/10 ${
                   activeTab === 'trend'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-600 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                    ? 'glass-button-primary'
+                    : 'glass-interactive text-gray-600 dark:text-gray-300'
                 }`}
               >
                 Trend
@@ -179,24 +186,37 @@ export const QuestionStatsModal: React.FC<QuestionStatsModalProps> = ({
               <p className='mb-4 text-sm text-gray-500 dark:text-gray-400'>
                 Accuracy distribution — {total} questions total
               </p>
-              <ResponsiveContainer width='100%' height={260}>
+              <ResponsiveContainer
+                width='100%'
+                height={260}
+                className={CHART_TEXT_CLASSNAME}
+              >
                 <BarChart
                   data={chartData}
                   margin={{ top: 4, right: 8, left: -16, bottom: 4 }}
                 >
                   <XAxis
                     dataKey='range'
-                    tick={{ fontSize: 10 }}
+                    tick={{ fontSize: 10, fill: 'currentColor' }}
                     interval={0}
                     angle={-35}
                     textAnchor='end'
                     height={52}
                   />
-                  <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+                  <YAxis
+                    tick={{ fontSize: 11, fill: 'currentColor' }}
+                    allowDecimals={false}
+                  />
                   <Tooltip content={<CustomTooltip />} />
                   <Bar dataKey='count' radius={[3, 3, 0, 0]}>
                     {chartData.map(entry => (
-                      <Cell key={entry.range} fill={getBarColor(entry.range)} />
+                      <Cell
+                        key={entry.range}
+                        fill={getBarColor(entry.range)}
+                        fillOpacity={GLASS_FILL_OPACITY}
+                        stroke={GLASS_BAR_STROKE}
+                        strokeWidth={GLASS_BAR_STROKE_WIDTH}
+                      />
                     ))}
                   </Bar>
                 </BarChart>
@@ -204,19 +224,19 @@ export const QuestionStatsModal: React.FC<QuestionStatsModalProps> = ({
 
               <div className='mt-2 flex justify-center gap-6 text-xs text-gray-500 dark:text-gray-400'>
                 <span className='flex items-center gap-1'>
-                  <span className='inline-block h-2.5 w-2.5 rounded-sm bg-green-500'></span>
+                  <span className='inline-block h-2.5 w-2.5 rounded-sm border border-white/50 bg-green-500/80 shadow-sm'></span>
                   80–100%
                 </span>
                 <span className='flex items-center gap-1'>
-                  <span className='inline-block h-2.5 w-2.5 rounded-sm bg-yellow-400'></span>
+                  <span className='inline-block h-2.5 w-2.5 rounded-sm border border-white/50 bg-yellow-400/80 shadow-sm'></span>
                   50–79%
                 </span>
                 <span className='flex items-center gap-1'>
-                  <span className='inline-block h-2.5 w-2.5 rounded-sm bg-red-500'></span>
+                  <span className='inline-block h-2.5 w-2.5 rounded-sm border border-white/50 bg-red-500/80 shadow-sm'></span>
                   0–49%
                 </span>
                 <span className='flex items-center gap-1'>
-                  <span className='inline-block h-2.5 w-2.5 rounded-sm bg-gray-400'></span>
+                  <span className='inline-block h-2.5 w-2.5 rounded-sm border border-white/50 bg-gray-400/80 shadow-sm'></span>
                   N/A
                 </span>
               </div>
@@ -241,7 +261,11 @@ export const QuestionStatsModal: React.FC<QuestionStatsModalProps> = ({
               )}
 
               {!trendLoading && !trendError && trend && hasTrendActivity && (
-                <ResponsiveContainer width='100%' height={280}>
+                <ResponsiveContainer
+                  width='100%'
+                  height={280}
+                  className={CHART_TEXT_CLASSNAME}
+                >
                   <ComposedChart
                     data={[...trend]}
                     margin={{ top: 4, right: 4, left: -12, bottom: 0 }}
@@ -253,37 +277,36 @@ export const QuestionStatsModal: React.FC<QuestionStatsModalProps> = ({
                     />
                     <XAxis
                       dataKey='date'
-                      tick={{ fontSize: 10 }}
+                      tick={{ fontSize: 10, fill: 'currentColor' }}
                       tickFormatter={formatShortDate}
                     />
                     <YAxis
                       yAxisId='left'
                       allowDecimals={false}
-                      tick={{ fontSize: 11 }}
+                      tick={{ fontSize: 11, fill: 'currentColor' }}
                     />
                     <YAxis
                       yAxisId='right'
                       orientation='right'
                       domain={[0, 100]}
-                      tick={{ fontSize: 11 }}
+                      tick={{ fontSize: 11, fill: 'currentColor' }}
                       tickFormatter={v => `${v}%`}
                     />
                     <Tooltip
                       labelFormatter={value => formatShortDate(value as string)}
-                      contentStyle={{ fontSize: '12px' }}
+                      contentStyle={GLASS_TOOLTIP_STYLE}
                     />
                     <Legend
                       wrapperStyle={{ fontSize: '12px' }}
-                      formatter={value => (
-                        <span className='text-gray-500 dark:text-gray-400'>
-                          {value}
-                        </span>
-                      )}
+                      formatter={glassLegendFormatter}
                     />
                     <Bar
                       yAxisId='left'
                       dataKey='practice_count'
                       fill='#4338ca'
+                      fillOpacity={GLASS_FILL_OPACITY}
+                      stroke={GLASS_BAR_STROKE}
+                      strokeWidth={GLASS_BAR_STROKE_WIDTH}
                       name='Practices'
                       radius={[2, 2, 0, 0]}
                     />

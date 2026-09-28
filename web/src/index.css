@@ -61,21 +61,42 @@ button:focus {
   }
 }
 
-/* Customization - Thin Scrollbar */
+/* Customization - Thin, glass-tinted Scrollbar */
 * {
   scrollbar-width: thin; /* Firefox and modern browsers */
+  scrollbar-color: rgb(100 116 139 / 0.4) transparent;
+}
+
+.dark * {
+  scrollbar-color: rgb(148 163 184 / 0.35) transparent;
 }
 
 ::-webkit-scrollbar {
   width: 8px; /* You can adjust the width here */
+  height: 8px;
+}
+
+/* Transparent track (not an opaque block) so the scrollbar reads as part of
+   the glass surface it sits on instead of a solid rectangle drawn over it. */
+::-webkit-scrollbar-track {
+  background-color: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #888;
+  background-color: rgb(100 116 139 / 0.4);
+  border-radius: 9999px;
 }
 
-::-webkit-scrollbar-track {
-  background-color: #f1f1f1;
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(100 116 139 / 0.6);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background-color: rgb(148 163 184 / 0.35);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(148 163 184 / 0.55);
 }
 
 /* GitHub-style alert blocks rendered by remark-github-blockquote-alert */
@@ -129,6 +150,87 @@ button:focus {
   }
   .markdown-alert-caution .markdown-alert-title {
     @apply text-red-600 dark:text-red-400;
+  }
+
+  /*
+   * Glassmorphism surfaces shared by every panel/card/toolbar across the app.
+   * Panel tones must stay visibly lighter than PageBackground's own base fill
+   * (light: gray-100, dark: gray-950) — alpha-blending a color onto an
+   * identical backdrop is a no-op, so panel and base must never match.
+   */
+  .glass-panel {
+    @apply border border-white/60 bg-white/[10%] shadow-sm backdrop-blur-lg dark:border-white/10 dark:bg-gray-800/[20%];
+  }
+
+  .glass-panel-strong {
+    @apply border border-white/80 bg-white/[55%] shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-gray-800/[60%];
+  }
+
+  /*
+   * Per-record list rows (EntityCard/NoteCard) nest inside a `.glass-panel`
+   * container (e.g. the tab wrapper), so they must stay visibly LESS
+   * transparent (higher alpha) than it — otherwise a row and the container
+   * behind it read as the same surface and the row disappears.
+   */
+  .glass-panel-card {
+    @apply border border-white/80 bg-white/[30%] shadow-sm backdrop-blur-lg dark:border-white/[15%] dark:bg-gray-800/[44%];
+  }
+
+  /* Secondary buttons/icons: transparent at rest, glass surface only on hover/focus/active */
+  .glass-interactive {
+    @apply border border-transparent bg-transparent transition-colors duration-200 hover:bg-primary-500/[15%] hover:shadow-sm hover:backdrop-blur-lg focus-visible:bg-primary-500/[15%] focus-visible:shadow-sm focus-visible:backdrop-blur-lg active:bg-primary-500/25 dark:hover:bg-primary-400/20 dark:focus-visible:bg-primary-400/20 dark:active:bg-primary-400/30;
+  }
+
+  /*
+   * Primary CTA buttons (Submit/Start Quiz/Retry/active filter/active page):
+   * a tinted glass surface, translucent enough for `backdrop-blur` to read,
+   * but kept far more opaque than `.glass-interactive`'s resting state so it
+   * stays the clearest, highest-contrast action on the page.
+   */
+  .glass-button-primary {
+    @apply border border-transparent bg-primary-500/90 text-white shadow-md backdrop-blur-md transition-colors duration-200 hover:bg-primary-600/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400/60 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-primary-500/60 dark:shadow-lg dark:hover:bg-primary-500/75;
+  }
+
+  /* Same treatment as `.glass-button-primary`, tinted green for success/fetch-style CTAs */
+  .glass-button-success {
+    @apply border border-transparent bg-green-600/90 text-white shadow-md backdrop-blur-md transition-colors duration-200 hover:bg-green-700/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400/60 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-green-600/60 dark:shadow-lg dark:hover:bg-green-600/75;
+  }
+
+  /*
+   * Native checkboxes: no `@tailwindcss/forms` plugin is installed, so a
+   * plain `<input type="checkbox">` ignores border/color/rounded utilities
+   * and falls back to the browser's flat default box. `appearance-none`
+   * takes over the box so it can render as a glass surface, and the
+   * checkmark glyph is drawn manually via `background-image` on `:checked`
+   * since there is no longer a native one to rely on.
+   */
+  .glass-checkbox {
+    @apply h-4 w-4 shrink-0 cursor-pointer appearance-none rounded border border-white/70 bg-white/30 shadow-sm backdrop-blur-sm transition-colors checked:border-primary-500 checked:bg-primary-500/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/20 dark:bg-white/10 dark:checked:border-primary-400 dark:checked:bg-primary-500/80;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 70% 70%;
+  }
+
+  .glass-checkbox:checked {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'%3E%3Cpath d='M12.207 4.793a1 1 0 0 1 0 1.414l-5 5a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L6.5 9.086l4.293-4.293a1 1 0 0 1 1.414 0z'/%3E%3C/svg%3E");
+  }
+
+  /*
+   * Text inputs/textareas: only the surface (border/bg/blur/text/focus/
+   * disabled) is defined here — width, padding and rounding are left to each
+   * usage since they vary (search bars, compact filters, full-width fields).
+   * Kept more opaque than `.glass-panel-strong` (the Modal panels these
+   * usually sit inside) so a field reads as a distinct well rather than
+   * blending into its container, mirroring the `.glass-panel-card` rule.
+   */
+  .glass-input {
+    @apply rounded-md border border-white/70 bg-gray-100/70 text-gray-900 placeholder-gray-500 shadow-sm backdrop-blur-md transition-colors focus:border-primary-400/70 focus:outline-none focus:ring-2 focus:ring-primary-400/30 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:bg-gray-900/50 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary-400/50 dark:focus:ring-primary-400/20;
+  }
+
+  /* Quiz progress bar track: the filled portion stays a solid primary color
+     (it's the one piece of "content" here), only the track gets the glass treatment. */
+  .glass-progress-track {
+    @apply h-2 w-full overflow-hidden rounded-full border border-white/30 bg-white/20 shadow-inner backdrop-blur-sm dark:border-white/10 dark:bg-gray-800/30;
   }
 }
 

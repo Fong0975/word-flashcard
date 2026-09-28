@@ -20,7 +20,7 @@ export const QuizErrorScreen: React.FC<QuizErrorScreenProps> = ({
     <div className='flex justify-center gap-3'>
       <button
         onClick={onRetry}
-        className='rounded-md bg-primary-500 px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-600'
+        className='glass-button-primary rounded-md px-6 py-2 text-sm font-medium'
       >
         Try Again
       </button>

@@ -51,7 +51,7 @@ describe('WordDefinitionsPanel', () => {
       />,
     );
 
-    expect(screen.getByText('Examples:')).toBeInTheDocument();
+    expect(screen.getByText('Examples')).toBeInTheDocument();
     expect(screen.getByText('I ate an apple')).toBeInTheDocument();
   });
 
@@ -62,7 +62,7 @@ describe('WordDefinitionsPanel', () => {
       />,
     );
 
-    expect(screen.getByText('Notes:')).toBeInTheDocument();
+    expect(screen.getByText('Notes')).toBeInTheDocument();
     const strong = screen.getByText('call back');
     expect(strong.tagName).toBe('STRONG');
   });

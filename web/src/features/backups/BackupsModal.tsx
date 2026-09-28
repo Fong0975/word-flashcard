@@ -84,6 +84,10 @@ export const BackupsModal: React.FC<BackupsModalProps> = ({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title='Backups' maxWidth='lg'>
+      <p className='mb-2 text-xs text-gray-500 dark:text-gray-400'>
+        Scheduled backup files currently stored on the server.
+      </p>
+
       <div className='mb-2 flex justify-end'>
         <button
           type='button'
@@ -125,7 +129,7 @@ export const BackupsModal: React.FC<BackupsModalProps> = ({
       )}
 
       {!loading && !error && backups && backups.length > 0 && (
-        <div className='overflow-x-auto'>
+        <div className='max-h-72 overflow-x-auto overflow-y-auto'>
           <table className='w-full text-sm'>
             <thead>
               <tr className='border-b border-gray-200 text-left text-xs uppercase text-gray-500 dark:border-gray-700 dark:text-gray-400'>
@@ -175,7 +179,7 @@ export const BackupsModal: React.FC<BackupsModalProps> = ({
           type='button'
           onClick={handleCreateBackupClick}
           disabled={isCreating}
-          className='flex items-center gap-2 rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
+          className='glass-button-primary flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium'
         >
           {isCreating && (
             <svg

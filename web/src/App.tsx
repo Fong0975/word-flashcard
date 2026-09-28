@@ -1,7 +1,12 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 
-import { Header, TabNavigation, TabContent } from './components';
+import {
+  Header,
+  PageBackground,
+  TabNavigation,
+  TabContent,
+} from './components';
 import { LoadingSpinner } from './components/ui/LoadingSpinner';
 import { useTab } from './hooks/useTab';
 
@@ -47,7 +52,8 @@ function HomePage() {
   const { currentTab, switchTab } = useTab();
 
   return (
-    <div className='flex min-h-screen flex-col bg-gray-50 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[env(safe-area-inset-top)] transition-colors duration-300 dark:bg-gray-900 sm:pb-0'>
+    <div className='flex min-h-screen flex-col pb-[max(1rem,env(safe-area-inset-bottom))] pt-[env(safe-area-inset-top)] transition-colors duration-300 sm:pb-0'>
+      <PageBackground />
       <Header />
 
       {/* Main Content Area */}
@@ -64,7 +70,7 @@ function HomePage() {
         </div>
 
         {/* Tab Navigation and Content */}
-        <div className='overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800'>
+        <div className='glass-panel overflow-hidden rounded-lg'>
           <TabNavigation currentTab={currentTab} onTabChange={switchTab} />
           <TabContent currentTab={currentTab} />
         </div>

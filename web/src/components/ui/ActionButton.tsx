@@ -19,12 +19,11 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
 }) => {
   const buttonClass = `
     inline-flex items-center justify-center space-x-2 px-4 py-2 text-sm font-medium rounded-md
-    border border-gray-300 dark:border-gray-600 shadow-sm
     transition-colors duration-200
     ${
       disabled
-        ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
-        : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700'
+        ? 'border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+        : 'glass-interactive text-gray-700 dark:text-gray-200'
     }
     ${className}
   `;

@@ -20,8 +20,8 @@ export const QuickFilterButton: React.FC<QuickFilterButtonProps> = ({
       onClick={onClick}
       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 ${
         isActive
-          ? 'bg-primary-500 text-white hover:bg-primary-600'
-          : 'border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+          ? 'glass-button-primary'
+          : 'glass-interactive text-gray-600 dark:text-gray-300'
       }`}
     >
       {dotClassName ? (

@@ -52,7 +52,7 @@ export const FormFields: React.FC<FormFieldsProps> = ({
                 onChange={e =>
                   handlers.handlePartOfSpeechChange(pos, e.target.checked)
                 }
-                className='rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:focus:ring-blue-400'
+                className='glass-checkbox'
               />
               <span className='text-sm capitalize text-gray-700 dark:text-gray-300'>
                 {pos}
@@ -76,7 +76,7 @@ export const FormFields: React.FC<FormFieldsProps> = ({
           value={formData.definition}
           onChange={e => handlers.handleDefinitionChange(e.target.value)}
           rows={4}
-          className='w-full resize-none rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+          className='glass-input w-full resize-none px-3 py-2'
           placeholder='Enter the definition...'
           required
         />
@@ -92,7 +92,7 @@ export const FormFields: React.FC<FormFieldsProps> = ({
         </label>
         <div className='space-y-3'>
           {formData.examples.map((example, index) => (
-            <div key={index} className='flex items-start space-x-2'>
+            <div key={index} className='flex items-center space-x-2'>
               <div className='flex-1'>
                 <textarea
                   value={example}
@@ -100,7 +100,7 @@ export const FormFields: React.FC<FormFieldsProps> = ({
                     handlers.handleExamplesChange(index, e.target.value)
                   }
                   rows={3}
-                  className='w-full resize-none rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                  className='glass-input w-full resize-none px-3 py-2'
                   placeholder={`Example ${index + 1}...`}
                 />
               </div>
@@ -108,7 +108,7 @@ export const FormFields: React.FC<FormFieldsProps> = ({
                 <button
                   type='button'
                   onClick={() => handlers.removeExampleInput(index)}
-                  className='mt-1 p-2 text-red-600 transition-colors hover:text-red-800 dark:text-red-400 dark:hover:text-red-300'
+                  className='p-2 text-red-600 transition-colors hover:text-red-800 dark:text-red-400 dark:hover:text-red-300'
                 >
                   <svg
                     className='h-4 w-4'
@@ -181,7 +181,7 @@ export const FormFields: React.FC<FormFieldsProps> = ({
               onChange={e =>
                 handlers.handlePhoneticsChange('uk', e.target.value)
               }
-              className='w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+              className='glass-input w-full px-3 py-2'
               placeholder='https://example.com/audio-uk.mp3'
             />
           </div>
@@ -195,7 +195,7 @@ export const FormFields: React.FC<FormFieldsProps> = ({
               onChange={e =>
                 handlers.handlePhoneticsChange('us', e.target.value)
               }
-              className='w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+              className='glass-input w-full px-3 py-2'
               placeholder='https://example.com/audio-us.mp3'
             />
           </div>

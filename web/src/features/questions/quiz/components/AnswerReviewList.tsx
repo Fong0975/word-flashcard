@@ -21,12 +21,12 @@ export const AnswerReviewList: React.FC<AnswerReviewListProps> = ({
       return (
         <div
           key={option.key}
-          className={`flex items-start space-x-3 rounded-lg p-3 ${
+          className={`flex items-start space-x-3 rounded-lg p-3 backdrop-blur-md ${
             option.key === correctAnswer
-              ? 'border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20'
+              ? 'border border-green-400/50 bg-green-500/15 dark:border-green-400/30 dark:bg-green-400/10'
               : isUserWrongAnswer
-                ? 'border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20'
-                : 'bg-gray-50 dark:bg-gray-700'
+                ? 'border border-red-400/50 bg-red-500/15 dark:border-red-400/30 dark:bg-red-400/10'
+                : 'glass-panel-card'
           }`}
         >
           <span

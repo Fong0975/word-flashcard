@@ -20,7 +20,7 @@ export const InvalidQuizConfigScreen: React.FC<
         <button
           type='button'
           onClick={onBackToHome}
-          className='mt-4 rounded-md bg-blue-600 px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700'
+          className='glass-button-primary mt-4 rounded-md px-6 py-2 text-sm font-medium'
         >
           Back to Home
         </button>
