@@ -29,19 +29,25 @@ const DESKTOP_ROUNDED_CLASS: Partial<Record<NavButtonType, string>> = {
 };
 
 const mobileBaseClass = `
-  px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200
-  border border-gray-300 dark:border-gray-600
+  px-3 py-2 text-sm font-medium rounded-md
   focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
   w-full mx-1 relative inline-flex items-center justify-center
 `;
 
+// Desktop nav buttons sit edge-to-edge in a connected segmented bar
+// (see Pagination.tsx's `-space-x-px`), so the border must stay visible at
+// rest to delineate each button; only the fill is toned down to glass.
 const desktopBaseClass =
   'relative inline-flex items-center border border-gray-300 px-3 py-2 text-sm font-medium dark:border-gray-600';
 
-const enabledClass = `
-  bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200
-  hover:bg-gray-50 dark:hover:bg-gray-700
-  active:bg-gray-100 dark:active:bg-gray-600
+// Mobile nav buttons are standalone (not edge-to-edge), so they can go fully
+// transparent at rest and reveal the glass surface on hover/focus/active.
+const mobileEnabledClass = 'glass-interactive text-gray-700 dark:text-gray-200';
+
+const desktopEnabledClass = `
+  bg-transparent text-gray-700 dark:text-gray-200 transition-colors duration-200
+  hover:bg-gray-100/60 hover:backdrop-blur-md dark:hover:bg-gray-800/50
+  active:bg-gray-200/70 dark:active:bg-gray-700/70
 `;
 
 const disabledClass = `
@@ -61,6 +67,8 @@ export const PaginationNavButton: React.FC<PaginationNavButtonProps> = ({
     layout === 'mobile'
       ? mobileBaseClass
       : `${desktopBaseClass} ${DESKTOP_ROUNDED_CLASS[type] || ''}`;
+  const enabledClass =
+    layout === 'mobile' ? mobileEnabledClass : desktopEnabledClass;
 
   return (
     <button

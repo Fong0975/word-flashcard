@@ -4,7 +4,8 @@ import userEvent from '@testing-library/user-event';
 import { PageSelect } from './PageSelect';
 
 describe('PageSelect', () => {
-  it('renders an option for every page and the total count', () => {
+  it('renders an item for every page and the total count', async () => {
+    const user = userEvent.setup();
     render(
       <PageSelect
         currentPage={2}
@@ -14,9 +15,14 @@ describe('PageSelect', () => {
       />,
     );
 
-    expect(screen.getByRole('combobox')).toHaveValue('2');
-    expect(screen.getByRole('option', { name: '1' })).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: '3' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Select page' }),
+    ).toHaveTextContent('2');
+
+    await user.click(screen.getByRole('button', { name: 'Select page' }));
+
+    expect(screen.getByRole('menuitem', { name: '1' })).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: '3' })).toBeInTheDocument();
     expect(screen.getByText('of 3')).toBeInTheDocument();
   });
 
@@ -32,12 +38,13 @@ describe('PageSelect', () => {
       />,
     );
 
-    await user.selectOptions(screen.getByRole('combobox'), '3');
+    await user.click(screen.getByRole('button', { name: 'Select page' }));
+    await user.click(screen.getByRole('menuitem', { name: '3' }));
 
     expect(onPageChange).toHaveBeenCalledWith(3);
   });
 
-  it('disables the select while loading', () => {
+  it('disables the trigger while loading', () => {
     render(
       <PageSelect
         currentPage={1}
@@ -47,6 +54,6 @@ describe('PageSelect', () => {
       />,
     );
 
-    expect(screen.getByRole('combobox')).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Select page' })).toBeDisabled();
   });
 });

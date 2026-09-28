@@ -14,7 +14,7 @@ export const PracticeStats: React.FC<PracticeStatsProps> = ({
       <h2 className='mb-3 text-lg font-semibold text-gray-900 dark:text-white'>
         Practice Statistics
       </h2>
-      <div className='rounded-lg bg-gray-50 p-4 dark:bg-gray-700'>
+      <div className='glass-panel-card rounded-lg p-4'>
         <div className='grid grid-cols-2 gap-4'>
           <div>
             <div className='text-sm text-gray-500 dark:text-gray-400'>

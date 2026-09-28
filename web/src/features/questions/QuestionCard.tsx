@@ -61,7 +61,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
             {/* Enter Detail Arrow */}
             <div className='flex-shrink-0'>
               <svg
-                className='h-5 w-5 text-gray-400 transition-colors group-hover:text-gray-600 dark:text-gray-500 dark:group-hover:text-gray-300'
+                className='h-5 w-5 text-gray-400 transition-colors group-hover:text-primary-500 dark:text-gray-500 dark:group-hover:text-primary-400'
                 fill='none'
                 viewBox='0 0 24 24'
                 strokeWidth='2'

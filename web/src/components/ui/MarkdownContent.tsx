@@ -44,7 +44,7 @@ const OUTER_CLASSNAMES: Record<MarkdownContentVariant, string> = {
   plain:
     'prose prose-sm prose-slate max-w-none dark:prose-invert prose-headings:text-gray-800 prose-p:text-gray-600 prose-code:rounded-md prose-code:bg-gray-200 prose-code:px-1.5 prose-code:py-0.5 prose-code:font-medium prose-code:text-pink-600 prose-code:before:content-none prose-code:after:content-none prose-ul:text-gray-600 prose-hr:border-gray-400 dark:prose-headings:text-gray-200 dark:prose-p:text-gray-400 dark:prose-code:bg-gray-600 dark:prose-code:text-pink-400 dark:prose-ul:text-gray-400 dark:prose-hr:border-gray-500',
   'boxed-yellow':
-    'prose prose-sm prose-slate max-w-none rounded bg-yellow-50 p-2 dark:prose-invert prose-headings:text-gray-800 prose-p:text-gray-600 prose-ul:text-gray-600 prose-hr:border-gray-400 dark:bg-yellow-900/20 dark:prose-headings:text-gray-200 dark:prose-p:text-gray-400 dark:prose-ul:text-gray-400 dark:prose-hr:border-gray-500',
+    'prose prose-sm prose-slate max-w-none rounded border border-yellow-200/60 bg-yellow-100/50 p-2 backdrop-blur-md dark:prose-invert prose-headings:text-gray-800 prose-p:text-gray-600 prose-ul:text-gray-600 prose-hr:border-gray-400 dark:border-yellow-800/40 dark:bg-yellow-900/30 dark:prose-headings:text-gray-200 dark:prose-p:text-gray-400 dark:prose-ul:text-gray-400 dark:prose-hr:border-gray-500',
   'boxed-gray':
     'prose prose-sm prose-slate max-w-none dark:prose-invert prose-p:text-gray-600 prose-hr:border-gray-400 dark:prose-p:text-gray-400 dark:prose-hr:border-gray-500',
   'boxed-white':

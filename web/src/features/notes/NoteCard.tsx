@@ -48,8 +48,8 @@ export const NoteCard: React.FC<NoteCardProps> = ({
             ? 'opacity-50'
             : isDragOver
               ? 'border-blue-400 bg-blue-50 dark:border-blue-500 dark:bg-blue-900/20'
-              : 'border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800'
-          : 'border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800'
+              : 'glass-panel-card hover:border-primary-300 hover:bg-gray-100/80 hover:shadow-md dark:hover:border-primary-600 dark:hover:bg-gray-800/70'
+          : 'glass-panel-card hover:border-primary-300 hover:bg-gray-100/80 hover:shadow-md dark:hover:border-primary-600 dark:hover:bg-gray-800/70'
       } ${showReorderControls ? 'cursor-grab active:cursor-grabbing' : ''}`}
     >
       {/* Drag handle — hidden during search */}
@@ -130,7 +130,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({
       {/* Right chevron */}
       <div className='flex-shrink-0'>
         <svg
-          className='h-5 w-5 text-gray-400 transition-colors group-hover:text-gray-600 dark:text-gray-500 dark:group-hover:text-gray-300'
+          className='h-5 w-5 text-gray-400 transition-colors group-hover:text-primary-500 dark:text-gray-500 dark:group-hover:text-primary-400'
           fill='none'
           viewBox='0 0 24 24'
           stroke='currentColor'

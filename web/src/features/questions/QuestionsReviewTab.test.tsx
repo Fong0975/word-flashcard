@@ -237,7 +237,10 @@ describe('QuestionsReviewTab', () => {
       const user = userEvent.setup();
       const { fetchEntities } = renderTab('/?page=3', { currentPage: 3 });
 
-      await user.selectOptions(screen.getByRole('combobox'), 'count_practise');
+      await user.click(screen.getByRole('button', { name: 'Default' }));
+      await user.click(
+        screen.getByRole('menuitem', { name: 'Practice count' }),
+      );
 
       expect(fetchEntities).toHaveBeenCalledWith(1);
     });

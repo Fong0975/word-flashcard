@@ -43,7 +43,7 @@ export const EntityReviewSearchBar: React.FC<EntityReviewSearchBarProps> = ({
         onChange={onChange}
         onCompositionStart={onCompositionStart}
         onCompositionEnd={onCompositionEnd}
-        className='block w-full rounded-md border border-gray-300 bg-white py-2 pl-10 pr-8 leading-5 text-gray-900 placeholder-gray-500 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 sm:text-sm'
+        className='glass-panel block w-full rounded-md py-2 pl-10 pr-8 leading-5 text-gray-900 placeholder-gray-500 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:text-white dark:placeholder-gray-400 sm:text-sm'
         placeholder={placeholder}
       />
       {value && (

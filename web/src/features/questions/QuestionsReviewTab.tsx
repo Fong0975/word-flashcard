@@ -16,6 +16,7 @@ import {
 } from '../../hooks/shared/useModalManager';
 import { EntityReviewTab } from '../shared/components/EntityReviewTab';
 import { QuizSetupModal } from '../shared/components/QuizSetupModal';
+import { ActionButton } from '../../components/ui';
 import { ModalLoadingFallback } from '../../components/ui/ModalLoadingFallback';
 import { Question } from '../../types/api';
 
@@ -209,17 +210,18 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({
 
   const sortToolbar = (
     <div className='flex items-center justify-end'>
-      <select
-        value={urlSort}
-        onChange={e => handleSortChange(e.target.value)}
-        className='rounded-md border border-gray-300 bg-white py-1.5 pl-3 pr-8 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-800 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200'
-      >
-        {SORT_OPTIONS.map(opt => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
+      <ActionButton
+        label={
+          SORT_OPTIONS.find(opt => opt.value === urlSort)?.label ??
+          SORT_OPTIONS[0].label
+        }
+        items={SORT_OPTIONS.map(opt => ({
+          id: opt.value || 'default',
+          label: opt.label,
+          isSelected: opt.value === urlSort,
+          onClick: () => handleSortChange(opt.value),
+        }))}
+      />
     </div>
   );
 

@@ -18,11 +18,11 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   children,
 }) => {
   return (
-    <div className='overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800'>
+    <div className='glass-panel-card overflow-hidden rounded-lg'>
       <button
         onClick={onToggle}
         aria-expanded={isOpen}
-        className='flex w-full items-center justify-between p-4 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/40'
+        className='flex w-full items-center justify-between p-4 transition-colors hover:bg-gray-100/80 dark:hover:bg-gray-800/70'
       >
         <h2 className='text-lg font-semibold text-gray-800 dark:text-gray-200'>
           {title}

@@ -4,7 +4,6 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import type { Mock } from 'vitest';
 
-import { SearchOperation } from '../../types';
 import { Word } from '../../types/api';
 import { useWords, type UseWordsReturn } from '../../hooks/useWords';
 
@@ -21,7 +20,8 @@ vi.mock('react-router-dom', async () => ({
 
 // Child modals are stubbed so these tests stay focused on WordsReviewTab's
 // own glue logic. handleStartQuiz lives in WordsReviewTab.quiz.test.tsx
-// alongside the QuizSetupModal mock, to keep this file under max-lines.
+// alongside the QuizSetupModal mock, and extraConditions lives in
+// WordsReviewTab.filters.test.tsx, to keep this file under max-lines.
 vi.mock('../shared/components/EntityReviewTab', () => ({
   EntityReviewTab: (props: {
     actions: {
@@ -165,11 +165,6 @@ const renderTab = (hookOverrides: Partial<UseWordsReturn> = {}) => {
   return hook;
 };
 
-const lastExtraConditions = () => {
-  const calls = (useWords as Mock).mock.calls;
-  return calls[calls.length - 1][0].extraConditions;
-};
-
 const clickButtons = async (
   user: ReturnType<typeof userEvent.setup>,
   labels: string[],
@@ -187,62 +182,6 @@ describe('WordsReviewTab', () => {
 
   afterEach(() => {
     vi.clearAllMocks();
-  });
-
-  describe.each([
-    { name: 'no active filter', clicks: [], expected: [] },
-    {
-      name: 'a single familiarity filter',
-      clicks: ['Unfamiliar'],
-      expected: [
-        {
-          key: 'familiarity',
-          operator: SearchOperation.IN,
-          value: JSON.stringify(['red']),
-        },
-      ],
-    },
-    {
-      name: 'multiple familiarity filters merged',
-      clicks: ['Unfamiliar', 'Somewhat Familiar'],
-      expected: [
-        {
-          key: 'familiarity',
-          operator: SearchOperation.IN,
-          value: JSON.stringify(['red', 'yellow']),
-        },
-      ],
-    },
-    {
-      name: 'the withReminder filter',
-      clicks: ['With Reminder'],
-      expected: [
-        { key: 'reminder', operator: SearchOperation.IS_NOT_NULL },
-        { key: 'reminder', operator: SearchOperation.IS_NOT_EMPTY },
-      ],
-    },
-    {
-      name: 'familiarity combined with withReminder',
-      clicks: ['Familiar', 'With Reminder'],
-      expected: [
-        {
-          key: 'familiarity',
-          operator: SearchOperation.IN,
-          value: JSON.stringify(['green']),
-        },
-        { key: 'reminder', operator: SearchOperation.IS_NOT_NULL },
-        { key: 'reminder', operator: SearchOperation.IS_NOT_EMPTY },
-      ],
-    },
-  ])('extraConditions with $name', ({ clicks, expected }) => {
-    it('produces the expected search conditions', async () => {
-      const user = userEvent.setup();
-      renderTab();
-
-      await clickButtons(user, clicks);
-
-      expect(lastExtraConditions()).toEqual(expected);
-    });
   });
 
   describe('add-word modal and handleWordAdded', () => {
@@ -349,9 +288,12 @@ describe('WordsReviewTab', () => {
     const user = userEvent.setup();
     const { fetchEntities } = renderTab();
 
-    await user.selectOptions(screen.getByRole('combobox'), 'Practice count');
+    await user.click(screen.getByRole('button', { name: 'Default' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Practice count' }));
 
-    expect(screen.getByRole('combobox')).toHaveValue('count_practise,word');
+    expect(
+      screen.getByRole('button', { name: 'Practice count' }),
+    ).toBeInTheDocument();
     expect(fetchEntities).toHaveBeenCalledWith(1);
   });
 

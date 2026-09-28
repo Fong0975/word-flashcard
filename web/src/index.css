@@ -61,21 +61,42 @@ button:focus {
   }
 }
 
-/* Customization - Thin Scrollbar */
+/* Customization - Thin, glass-tinted Scrollbar */
 * {
   scrollbar-width: thin; /* Firefox and modern browsers */
+  scrollbar-color: rgb(100 116 139 / 0.4) transparent;
+}
+
+.dark * {
+  scrollbar-color: rgb(148 163 184 / 0.35) transparent;
 }
 
 ::-webkit-scrollbar {
   width: 8px; /* You can adjust the width here */
+  height: 8px;
+}
+
+/* Transparent track (not an opaque block) so the scrollbar reads as part of
+   the glass surface it sits on instead of a solid rectangle drawn over it. */
+::-webkit-scrollbar-track {
+  background-color: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #888;
+  background-color: rgb(100 116 139 / 0.4);
+  border-radius: 9999px;
 }
 
-::-webkit-scrollbar-track {
-  background-color: #f1f1f1;
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(100 116 139 / 0.6);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background-color: rgb(148 163 184 / 0.35);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(148 163 184 / 0.55);
 }
 
 /* GitHub-style alert blocks rendered by remark-github-blockquote-alert */
@@ -129,6 +150,35 @@ button:focus {
   }
   .markdown-alert-caution .markdown-alert-title {
     @apply text-red-600 dark:text-red-400;
+  }
+
+  /*
+   * Glassmorphism surfaces shared by every panel/card/toolbar across the app.
+   * Panel tones must stay visibly lighter than PageBackground's own base fill
+   * (light: gray-100, dark: gray-950) — alpha-blending a color onto an
+   * identical backdrop is a no-op, so panel and base must never match.
+   */
+  .glass-panel {
+    @apply border border-white/60 bg-white/[10%] shadow-sm backdrop-blur-lg dark:border-white/10 dark:bg-gray-800/[20%];
+  }
+
+  .glass-panel-strong {
+    @apply border border-white/80 bg-white/[75%] shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-gray-800/[80%];
+  }
+
+  /*
+   * Per-record list rows (EntityCard/NoteCard) nest inside a `.glass-panel`
+   * container (e.g. the tab wrapper), so they must stay visibly LESS
+   * transparent (higher alpha) than it — otherwise a row and the container
+   * behind it read as the same surface and the row disappears.
+   */
+  .glass-panel-card {
+    @apply border border-white/80 bg-white/[30%] shadow-sm backdrop-blur-lg dark:border-white/[15%] dark:bg-gray-800/[44%];
+  }
+
+  /* Secondary buttons/icons: transparent at rest, glass surface only on hover/focus/active */
+  .glass-interactive {
+    @apply border border-transparent bg-transparent transition-colors duration-200 hover:bg-primary-500/[15%] hover:shadow-sm hover:backdrop-blur-lg focus-visible:bg-primary-500/[15%] focus-visible:shadow-sm focus-visible:backdrop-blur-lg active:bg-primary-500/25 dark:hover:bg-primary-400/20 dark:focus-visible:bg-primary-400/20 dark:active:bg-primary-400/30;
   }
 }
 

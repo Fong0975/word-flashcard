@@ -39,9 +39,9 @@ export const Pagination: React.FC<PaginationProps> = ({
   const canGoLast = currentPage < totalPages && !loading;
 
   const buttonEnabledClass = `
-    bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200
-    hover:bg-gray-50 dark:hover:bg-gray-700
-    active:bg-gray-100 dark:active:bg-gray-600
+    bg-transparent text-gray-700 dark:text-gray-200 transition-colors duration-200
+    hover:bg-gray-100/60 hover:backdrop-blur-md dark:hover:bg-gray-800/50
+    active:bg-gray-200/70 dark:active:bg-gray-700/70
   `;
 
   const buttonDisabledClass = `
@@ -149,7 +149,7 @@ export const Pagination: React.FC<PaginationProps> = ({
 
             {/* Show ellipsis if there are more pages */}
             {totalPages > pageNumbers[pageNumbers.length - 1] && (
-              <span className='relative inline-flex items-center border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300'>
+              <span className='relative inline-flex items-center border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 dark:border-gray-600 dark:text-gray-300'>
                 ...
               </span>
             )}
