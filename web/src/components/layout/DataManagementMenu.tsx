@@ -163,7 +163,10 @@ export const DataManagementMenu: React.FC = () => {
         </button>
 
         <div className='absolute right-0 top-full z-10 hidden w-40 pt-2 group-focus-within:block group-hover:block'>
-          <div className='glass-panel-strong rounded-md shadow-lg' role='menu'>
+          <div
+            className='glass-panel-strong rounded-md bg-white/90 shadow-lg dark:bg-gray-800/90'
+            role='menu'
+          >
             <div className='py-1'>
               <span className='block px-4 py-1 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500'>
                 Data

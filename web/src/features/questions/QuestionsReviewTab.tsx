@@ -209,7 +209,8 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({
   };
 
   const sortToolbar = (
-    <div className='flex items-center justify-end'>
+    <div className='flex items-center justify-end gap-2'>
+      <span className='text-sm text-gray-500 dark:text-gray-400'>Sort:</span>
       <ActionButton
         label={
           SORT_OPTIONS.find(opt => opt.value === urlSort)?.label ??

@@ -89,9 +89,9 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
               {availableOptions.map(option => (
                 <div
                   key={option.key}
-                  className='flex items-start space-x-2 rounded-md bg-gray-50 p-2 text-sm dark:bg-gray-700/50'
+                  className='flex items-center space-x-2 rounded-md bg-gray-50 p-2 text-sm dark:bg-gray-700/50'
                 >
-                  <span className='mt-0.5 inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-300'>
+                  <span className='inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-300'>
                     {option.key}
                   </span>
                   <span className='leading-relaxed text-gray-600 dark:text-gray-300'>
