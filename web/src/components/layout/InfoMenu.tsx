@@ -43,7 +43,7 @@ export const InfoMenu: React.FC = () => {
       </button>
 
       <div className='absolute right-0 top-full z-10 hidden w-80 max-w-[calc(100vw-2rem)] pt-2 group-focus-within:block group-hover:block'>
-        <div className='glass-panel-strong rounded-md p-4 shadow-lg'>
+        <div className='glass-panel-strong rounded-md bg-white/80 p-4 shadow-lg dark:bg-gray-800/90'>
           <p className='text-sm text-gray-700 dark:text-gray-200'>
             <span className='font-extrabold'>Flashcard v{pkg.version}</span>{' '}
             <span className='font-light text-gray-500 dark:text-gray-400'>

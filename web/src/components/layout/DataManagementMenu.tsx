@@ -164,7 +164,7 @@ export const DataManagementMenu: React.FC = () => {
 
         <div className='absolute right-0 top-full z-10 hidden w-40 pt-2 group-focus-within:block group-hover:block'>
           <div
-            className='glass-panel-strong rounded-md bg-white/90 shadow-lg dark:bg-gray-800/90'
+            className='glass-panel-strong rounded-md bg-white/80 shadow-lg dark:bg-gray-800/90'
             role='menu'
           >
             <div className='py-1'>
