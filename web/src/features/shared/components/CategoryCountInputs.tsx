@@ -54,7 +54,7 @@ export const CategoryCountInputs: React.FC<CategoryCountInputsProps> = ({
             max={maxCount}
             value={categoryInputs[level]}
             onChange={e => onChange(level, e.target.value)}
-            className='w-20 rounded-md border border-gray-300 bg-white px-2 py-1.5 text-center text-sm text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+            className='glass-input w-20 px-2 py-1.5 text-center text-sm'
           />
         </div>
       ))}

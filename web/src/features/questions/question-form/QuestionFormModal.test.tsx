@@ -93,7 +93,8 @@ describe('QuestionFormModal', () => {
       'New question?',
     );
     await user.type(screen.getByLabelText(/Option A/), '4');
-    await user.selectOptions(screen.getByLabelText(/Correct Answer/), 'A');
+    await user.click(screen.getByLabelText(/Correct Answer/));
+    await user.click(screen.getByRole('menuitem', { name: 'A' }));
 
     await user.click(screen.getByRole('button', { name: 'Add Question' }));
 
@@ -114,7 +115,8 @@ describe('QuestionFormModal', () => {
       'New question?',
     );
     await user.type(screen.getByLabelText(/Option A/), '4');
-    await user.selectOptions(screen.getByLabelText(/Correct Answer/), 'A');
+    await user.click(screen.getByLabelText(/Correct Answer/));
+    await user.click(screen.getByRole('menuitem', { name: 'A' }));
     await user.click(screen.getByRole('button', { name: 'Add Question' }));
 
     expect(await screen.findByText('network down')).toBeInTheDocument();

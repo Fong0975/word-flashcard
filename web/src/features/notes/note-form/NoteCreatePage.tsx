@@ -53,7 +53,7 @@ export const NoteCreatePage: React.FC = () => {
       value={title}
       onChange={e => setTitle(e.target.value)}
       placeholder='Note title'
-      className='w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 text-lg font-semibold text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+      className='glass-input w-full px-3 py-1.5 text-lg font-semibold'
       autoFocus
     />
   );

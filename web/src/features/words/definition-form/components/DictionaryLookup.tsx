@@ -34,7 +34,7 @@ export const DictionaryLookup: React.FC<DictionaryLookupProps> = ({
   }
 
   return (
-    <div className='mb-4 overflow-hidden rounded-lg border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20'>
+    <div className='mb-4 overflow-hidden rounded-lg border border-green-300/60 bg-green-100/50 backdrop-blur-lg dark:border-green-700/40 dark:bg-green-900/30'>
       <DictionaryLookupHeader
         isLoadingDictionary={isLoadingDictionary}
         isCollapsed={isCollapsed}
@@ -44,7 +44,7 @@ export const DictionaryLookup: React.FC<DictionaryLookupProps> = ({
 
       {/* Expanded Content */}
       {!isCollapsed && (
-        <div className='border-t border-green-200 bg-white dark:border-green-800 dark:bg-gray-800'>
+        <div className='glass-panel-card border-t-green-300/60 dark:border-t-green-700/40'>
           <div className='max-h-[45vh] space-y-4 overflow-y-auto p-4'>
             {/* Error Display */}
             {dictionaryError && (

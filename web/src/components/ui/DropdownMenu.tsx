@@ -113,7 +113,7 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
                 key={item.id}
                 onClick={() => handleItemClick(item)}
                 disabled={item.disabled}
-                className={`group flex w-full items-center px-4 py-2 text-left text-sm transition-colors ${
+                className={`group flex w-full items-center justify-between px-4 py-2 text-left text-sm transition-colors ${
                   item.disabled
                     ? 'cursor-not-allowed text-gray-400 dark:text-gray-500'
                     : item.isSelected
@@ -122,12 +122,15 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
                 } `}
                 role='menuitem'
               >
-                {item.icon && (
-                  <span className='mr-3 flex-shrink-0'>{item.icon}</span>
-                )}
+                <span className='flex items-center'>
+                  {item.icon && (
+                    <span className='mr-3 flex-shrink-0'>{item.icon}</span>
+                  )}
+                  {item.label}
+                </span>
                 {item.isSelected && (
                   <svg
-                    className='mr-2 h-4 w-4 flex-shrink-0'
+                    className='ml-2 h-4 w-4 flex-shrink-0'
                     fill='currentColor'
                     viewBox='0 0 20 20'
                     aria-hidden='true'
@@ -139,7 +142,6 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
                     />
                   </svg>
                 )}
-                {item.label}
               </button>
             ))}
           </div>

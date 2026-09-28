@@ -222,7 +222,7 @@ export const NotesTab: React.FC = () => {
             type='text'
             value={notesHook.searchTerm}
             onChange={e => notesHook.setSearchTerm(e.target.value)}
-            className='glass-panel block w-full rounded-md py-2 pl-10 pr-8 text-sm leading-5 text-gray-900 placeholder-gray-500 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:text-white dark:placeholder-gray-400'
+            className='glass-panel block w-full rounded-md py-2 pl-10 pr-8 text-sm leading-5 text-gray-900 placeholder-gray-500 focus:border-primary-400/70 focus:outline-none focus:ring-2 focus:ring-primary-400/30 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary-400/50 dark:focus:ring-primary-400/20'
             placeholder='Search notes...'
           />
           {notesHook.searchTerm && (

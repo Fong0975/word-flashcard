@@ -9,8 +9,8 @@ import { LoadingSpinner } from './LoadingSpinner';
  * modal mounts.
  */
 export const ModalLoadingFallback: React.FC = () => (
-  <div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50'>
-    <div className='rounded-lg bg-white px-6 shadow-xl dark:bg-gray-800'>
+  <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/30'>
+    <div className='glass-panel-strong rounded-lg px-6 shadow-xl'>
       <LoadingSpinner />
     </div>
   </div>

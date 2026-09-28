@@ -6,7 +6,16 @@ import { AnswerSelector } from './AnswerSelector';
 describe('AnswerSelector', () => {
   it('renders the current value', () => {
     render(<AnswerSelector value='B' onChange={vi.fn()} />);
-    expect(screen.getByRole('combobox')).toHaveValue('B');
+    expect(
+      screen.getByRole('button', { name: 'Select the correct answer' }),
+    ).toHaveTextContent('B');
+  });
+
+  it('shows a placeholder when nothing is selected', () => {
+    render(<AnswerSelector value='' onChange={vi.fn()} />);
+    expect(
+      screen.getByRole('button', { name: 'Select the correct answer' }),
+    ).toHaveTextContent('Select the correct answer...');
   });
 
   it('calls onChange with the selected option', async () => {
@@ -14,12 +23,18 @@ describe('AnswerSelector', () => {
     const onChange = vi.fn();
     render(<AnswerSelector value='' onChange={onChange} />);
 
-    await user.selectOptions(screen.getByRole('combobox'), 'C');
+    await user.click(
+      screen.getByRole('button', { name: 'Select the correct answer' }),
+    );
+    await user.click(screen.getByRole('menuitem', { name: 'C' }));
+
     expect(onChange).toHaveBeenCalledWith('C');
   });
 
   it('is disabled when the disabled prop is set', () => {
     render(<AnswerSelector value='' onChange={vi.fn()} disabled />);
-    expect(screen.getByRole('combobox')).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: 'Select the correct answer' }),
+    ).toBeDisabled();
   });
 });
