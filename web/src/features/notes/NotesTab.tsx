@@ -9,6 +9,7 @@ import { EmptyState } from '../../components/ui/EmptyState';
 import { ErrorMessage } from '../../components/ui/ErrorMessage';
 import { ToastContainer } from '../../components/ui';
 import { useToast } from '../../hooks/ui/useToast';
+import { TotalCountLabel } from '../shared/components/TotalCountLabel';
 
 import { NoteCard } from './NoteCard';
 
@@ -259,95 +260,93 @@ export const NotesTab: React.FC = () => {
         />
       )}
 
-      {/* Total count */}
-      {notesHook.totalCount > 0 && (
-        <div className='flex justify-end'>
-          <span className='text-xs text-gray-400 dark:text-gray-500'>
-            {notesHook.totalCount} note{notesHook.totalCount !== 1 ? 's' : ''}{' '}
-            total
-          </span>
-        </div>
-      )}
+      <div>
+        {/* Total count */}
+        <TotalCountLabel
+          totalCount={notesHook.totalCount}
+          entityLabel={`note${notesHook.totalCount !== 1 ? 's' : ''}`}
+        />
 
-      {/* Reordering indicator */}
-      {isReordering && (
-        <div className='mb-3 rounded-md bg-blue-50 px-3 py-2 text-xs text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'>
-          Saving order...
-        </div>
-      )}
+        {/* Reordering indicator */}
+        {isReordering && (
+          <div className='mb-3 rounded-md bg-blue-50 px-3 py-2 text-xs text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'>
+            Saving order...
+          </div>
+        )}
 
-      {/* Loading indicator (while searching) */}
-      {notesHook.loading && (
-        <div className='mb-3 flex justify-center'>
-          <div className='h-5 w-5 animate-spin rounded-full border-b-2 border-blue-500'></div>
-        </div>
-      )}
+        {/* Loading indicator (while searching) */}
+        {notesHook.loading && (
+          <div className='mb-3 flex justify-center'>
+            <div className='h-5 w-5 animate-spin rounded-full border-b-2 border-blue-500'></div>
+          </div>
+        )}
 
-      {/* Note list or empty state */}
-      {!notesHook.loading && orderedNotes.length === 0 ? (
-        isSearching ? (
-          <EmptyState
-            icon='🔍'
-            title='No notes found'
-            description={`No notes match "${notesHook.searchTerm}". Try a different search term.`}
-            onRefresh={() => notesHook.setSearchTerm('')}
-          />
-        ) : (
-          <EmptyState
-            icon='📒'
-            title='No notes yet'
-            description='Click "Add Note" to create your first note card.'
-            onRefresh={notesHook.refresh}
-          />
-        )
-      ) : (
-        <div className='space-y-2'>
-          {orderedNotes.map((note, index) => (
-            <NoteCard
-              key={note.id}
-              note={note}
-              index={index}
-              isFirst={index === 0}
-              isLast={index === orderedNotes.length - 1}
-              showReorderControls={!isSearching}
-              isDragging={dragIndex === index}
-              isDragOver={dragOverIndex === index}
-              onMoveUp={() => handleMoveUp(index)}
-              onMoveDown={() => handleMoveDown(index)}
-              onDragStart={() => handleDragStart(index)}
-              onDragOver={e => handleDragOver(e, index)}
-              onDrop={() => handleDrop(index)}
-              onDragEnd={handleDragEnd}
-              onClick={() => navigate(`/note/${note.id}`)}
+        {/* Note list or empty state */}
+        {!notesHook.loading && orderedNotes.length === 0 ? (
+          isSearching ? (
+            <EmptyState
+              icon='🔍'
+              title='No notes found'
+              description={`No notes match "${notesHook.searchTerm}". Try a different search term.`}
+              onRefresh={() => notesHook.setSearchTerm('')}
             />
-          ))}
-        </div>
-      )}
+          ) : (
+            <EmptyState
+              icon='📒'
+              title='No notes yet'
+              description='Click "Add Note" to create your first note card.'
+              onRefresh={notesHook.refresh}
+            />
+          )
+        ) : (
+          <div className='space-y-2'>
+            {orderedNotes.map((note, index) => (
+              <NoteCard
+                key={note.id}
+                note={note}
+                index={index}
+                isFirst={index === 0}
+                isLast={index === orderedNotes.length - 1}
+                showReorderControls={!isSearching}
+                isDragging={dragIndex === index}
+                isDragOver={dragOverIndex === index}
+                onMoveUp={() => handleMoveUp(index)}
+                onMoveDown={() => handleMoveDown(index)}
+                onDragStart={() => handleDragStart(index)}
+                onDragOver={e => handleDragOver(e, index)}
+                onDrop={() => handleDrop(index)}
+                onDragEnd={handleDragEnd}
+                onClick={() => navigate(`/note/${note.id}`)}
+              />
+            ))}
+          </div>
+        )}
 
-      {/* Pagination */}
-      {notesHook.totalPages > 1 && (
-        <div className='mt-6 flex items-center justify-center gap-3'>
-          <button
-            type='button'
-            onClick={notesHook.previousPage}
-            disabled={!notesHook.hasPrevious}
-            className='rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700'
-          >
-            Previous
-          </button>
-          <span className='text-sm text-gray-500 dark:text-gray-400'>
-            {notesHook.currentPage} / {notesHook.totalPages}
-          </span>
-          <button
-            type='button'
-            onClick={notesHook.nextPage}
-            disabled={!notesHook.hasNext}
-            className='rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700'
-          >
-            Next
-          </button>
-        </div>
-      )}
+        {/* Pagination */}
+        {notesHook.totalPages > 1 && (
+          <div className='mt-6 flex items-center justify-center gap-3'>
+            <button
+              type='button'
+              onClick={notesHook.previousPage}
+              disabled={!notesHook.hasPrevious}
+              className='rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700'
+            >
+              Previous
+            </button>
+            <span className='text-sm text-gray-500 dark:text-gray-400'>
+              {notesHook.currentPage} / {notesHook.totalPages}
+            </span>
+            <button
+              type='button'
+              onClick={notesHook.nextPage}
+              disabled={!notesHook.hasNext}
+              className='rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700'
+            >
+              Next
+            </button>
+          </div>
+        )}
+      </div>
 
       <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
     </div>

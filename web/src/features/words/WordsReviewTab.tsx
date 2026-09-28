@@ -53,7 +53,11 @@ const WORD_QUICK_FILTERS: readonly {
     dotClassName: 'bg-yellow-500',
   },
   { key: 'familiarity:green', label: 'Familiar', dotClassName: 'bg-green-500' },
-  { key: 'withReminder', label: 'With Reminder' },
+  {
+    key: 'withReminder',
+    label: 'With Reminder',
+    dotClassName: 'bg-gray-500',
+  },
 ];
 
 export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
