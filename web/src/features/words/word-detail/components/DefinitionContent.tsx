@@ -11,7 +11,7 @@ export const DefinitionContent: React.FC<DefinitionContentProps> = ({
   definition,
 }) => {
   return (
-    <div className='space-y-2'>
+    <div className='space-y-4'>
       <p className='leading-relaxed text-gray-800 dark:text-gray-200'>
         {definition.definition}
       </p>
