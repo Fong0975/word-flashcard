@@ -118,8 +118,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
             </svg>
           ),
           iconBg: 'bg-blue-100 dark:bg-blue-900',
-          confirmButton:
-            'text-white bg-blue-600 hover:bg-blue-700 focus:ring-blue-500',
+          confirmButton: 'glass-button-primary',
         };
       default:
         return {

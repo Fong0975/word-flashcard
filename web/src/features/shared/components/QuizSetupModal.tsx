@@ -243,7 +243,7 @@ export const QuizSetupModal: React.FC<QuizSetupModalProps> = ({
             className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
               isStartDisabled
                 ? 'cursor-not-allowed bg-gray-300 text-gray-500 dark:bg-gray-600 dark:text-gray-400'
-                : 'bg-primary-500 text-white hover:bg-primary-600'
+                : 'glass-button-primary'
             } `}
           >
             Start Quiz

@@ -142,7 +142,7 @@ export const NoteDetailPage: React.FC = () => {
             <button
               type='button'
               onClick={() => navigate('/?tab=notes')}
-              className='rounded-md bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700'
+              className='glass-button-primary rounded-md px-6 py-2 text-sm font-medium'
             >
               Back to Notes
             </button>
@@ -247,7 +247,7 @@ export const NoteDetailPage: React.FC = () => {
           type='button'
           onClick={handleSave}
           disabled={isSaving || !editTitle.trim()}
-          className='rounded-md bg-blue-600 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50'
+          className='glass-button-primary rounded-md px-4 py-1.5 text-sm font-medium'
         >
           {isSaving ? 'Saving...' : 'Save'}
         </button>

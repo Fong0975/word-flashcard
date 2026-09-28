@@ -179,7 +179,7 @@ export const BackupsModal: React.FC<BackupsModalProps> = ({
           type='button'
           onClick={handleCreateBackupClick}
           disabled={isCreating}
-          className='flex items-center gap-2 rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
+          className='glass-button-primary flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium'
         >
           {isCreating && (
             <svg

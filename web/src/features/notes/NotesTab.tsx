@@ -179,7 +179,7 @@ export const NotesTab: React.FC = () => {
           <button
             type='button'
             onClick={() => navigate('/note/new')}
-            className='flex items-center gap-1.5 rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-blue-700'
+            className='glass-button-primary flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium'
           >
             <svg
               className='h-4 w-4'

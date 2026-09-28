@@ -12,7 +12,7 @@ export const QuizResultsFooter: React.FC<QuizResultsFooterProps> = ({
   <div className='flex justify-center space-x-4'>
     <button
       onClick={onRetakeQuiz}
-      className='flex w-full items-center justify-center space-x-2 rounded-md bg-blue-500 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
+      className='glass-button-primary flex w-full items-center justify-center space-x-2 rounded-md px-6 py-3 text-sm font-medium'
     >
       <svg
         className='h-4 w-4'
