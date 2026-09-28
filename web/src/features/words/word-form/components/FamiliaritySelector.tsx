@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { DropdownMenu } from '../../../../components/ui';
 import { FamiliarityLevel } from '../../../../types/base';
 import { FAMILIARITY_OPTIONS } from '../../../shared/constants/familiarity';
 
@@ -21,6 +22,10 @@ export const FamiliaritySelector: React.FC<FamiliaritySelectorProps> = ({
     return null;
   }
 
+  const selectedOption = FAMILIARITY_OPTIONS.find(
+    option => option.value === value,
+  );
+
   return (
     <div>
       <label
@@ -33,19 +38,45 @@ export const FamiliaritySelector: React.FC<FamiliaritySelectorProps> = ({
         Choose your familiarity level with this word
       </p>
       <div className='pl-3'>
-        <select
-          id='familiarity'
-          value={value}
-          onChange={e => onChange(e.target.value as FamiliarityLevel)}
-          className='w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-gray-100 disabled:text-gray-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:disabled:bg-gray-800'
+        <DropdownMenu
+          className='block w-full'
+          menuWidthClassName='w-full'
           disabled={disabled}
-        >
-          {FAMILIARITY_OPTIONS.map(option => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
+          trigger={
+            <button
+              type='button'
+              id='familiarity'
+              disabled={disabled}
+              aria-label='Select familiarity level'
+              aria-haspopup='true'
+              className='glass-input flex w-full items-center justify-between px-3 py-2 text-left disabled:cursor-not-allowed disabled:opacity-50'
+            >
+              <span>
+                {selectedOption?.label ?? 'Select familiarity level...'}
+              </span>
+              <svg
+                className='h-4 w-4 flex-shrink-0 text-gray-500 dark:text-gray-400'
+                fill='none'
+                viewBox='0 0 24 24'
+                strokeWidth='2'
+                stroke='currentColor'
+                aria-hidden='true'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  d='M19 9l-7 7-7-7'
+                />
+              </svg>
+            </button>
+          }
+          items={FAMILIARITY_OPTIONS.map(option => ({
+            id: option.value,
+            label: option.label,
+            isSelected: option.value === value,
+            onClick: () => onChange(option.value),
+          }))}
+        />
       </div>
     </div>
   );

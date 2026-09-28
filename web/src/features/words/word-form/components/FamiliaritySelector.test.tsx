@@ -27,7 +27,9 @@ describe('FamiliaritySelector', () => {
         mode='edit'
       />,
     );
-    expect(screen.getByRole('combobox')).toHaveValue(FamiliarityLevel.YELLOW);
+    expect(
+      screen.getByRole('button', { name: 'Select familiarity level' }),
+    ).toHaveTextContent('Yellow');
   });
 
   it('calls onChange with the selected level', async () => {
@@ -42,7 +44,10 @@ describe('FamiliaritySelector', () => {
       />,
     );
 
-    await user.selectOptions(screen.getByRole('combobox'), 'Red');
+    await user.click(
+      screen.getByRole('button', { name: 'Select familiarity level' }),
+    );
+    await user.click(screen.getByRole('menuitem', { name: 'Red' }));
     expect(onChange).toHaveBeenCalledWith(FamiliarityLevel.RED);
   });
 
@@ -55,6 +60,8 @@ describe('FamiliaritySelector', () => {
         mode='edit'
       />,
     );
-    expect(screen.getByRole('combobox')).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: 'Select familiarity level' }),
+    ).toBeDisabled();
   });
 });
