@@ -1,11 +1,13 @@
 package common
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"log/slog"
 
 	"word-flashcard/internal/models"
+	"word-flashcard/utils/log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -42,7 +44,9 @@ func ResponseSuccess(statusCode int, data any, c *gin.Context) {
 // contain internal detail) is only ever written to the log, never to the response body.
 // If err carries a *DetailedError anywhere in its chain, its key/value pairs
 // are appended to the log line so the client-safe message can stay generic
-// while the log captures the concrete reason.
+// while the log captures the concrete reason. The log level follows
+// log.LevelForStatus, so a 4xx client error (e.g. a validation failure or an
+// unmatched route) is recorded as a warning rather than an error.
 func ResponseError(statusCode int, message string, code models.ErrorCode, err error, c *gin.Context) {
 	// Set the response
 	c.JSON(statusCode, models.ErrorResponse{Error: message, Code: code})
@@ -53,5 +57,5 @@ func ResponseError(statusCode int, message string, code models.ErrorCode, err er
 	if errors.As(err, &de) {
 		logArgs = append(logArgs, de.LogDetail()...)
 	}
-	slog.Error("API error response.", logArgs...)
+	slog.Log(context.TODO(), log.LevelForStatus(statusCode), "API error response.", logArgs...)
 }
