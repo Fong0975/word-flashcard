@@ -22,6 +22,8 @@ func SetupRouter() (*gin.Engine, error) {
 	SetupAPIRoutes(router)
 	// Swagger routes
 	setupSwaggerRoutes(router)
+	// Favicon route
+	setupFaviconRoute(router)
 	// Unmatched route/method handlers
 	setupErrorHandlers(router)
 
@@ -45,6 +47,15 @@ func setupSwaggerRoutes(router *gin.Engine) {
 
 	// Swagger UI endpoint with wildcard handler
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+}
+
+// setupFaviconRoute answers the browser's automatic favicon.ico probe
+// directly with 204, instead of letting it fall through to the NoRoute
+// handler and be logged as a 404 error.
+func setupFaviconRoute(router *gin.Engine) {
+	router.GET("/favicon.ico", func(c *gin.Context) {
+		c.Status(http.StatusNoContent)
+	})
 }
 
 // setupErrorHandlers makes unmatched routes/methods respond with the same
