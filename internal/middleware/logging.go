@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"word-flashcard/utils/config"
+	"word-flashcard/utils/log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -29,12 +30,8 @@ func LoggingMiddleware() gin.HandlerFunc {
 
 		debugRegex := regexp.MustCompile(`^(/static.*|/swagger/.*\.\w+[^html])$`)
 		// Choose log level based on request path and status code
-		logLevel := slog.LevelInfo
-		if param.StatusCode >= 400 && param.StatusCode < 500 {
-			logLevel = slog.LevelWarn // 4xx errors including 404
-		} else if param.StatusCode >= 500 {
-			logLevel = slog.LevelError // 5xx errors
-		} else if debugRegex.MatchString(requestPath) {
+		logLevel := log.LevelForStatus(param.StatusCode)
+		if param.StatusCode < 400 && debugRegex.MatchString(requestPath) {
 			logLevel = slog.LevelDebug
 		}
 

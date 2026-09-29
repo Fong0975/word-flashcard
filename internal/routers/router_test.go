@@ -93,6 +93,19 @@ func (s *routerTestSuite) TestSetupSwaggerRoutes() {
 	}
 }
 
+// TestSetupFaviconRoute tests that GET /favicon.ico is answered directly
+// with 204, instead of falling through to the NoRoute handler.
+func (s *routerTestSuite) TestSetupFaviconRoute() {
+	setupFaviconRoute(s.router)
+
+	req := httptest.NewRequest(http.MethodGet, "/favicon.ico", nil)
+	recorder := httptest.NewRecorder()
+	s.router.ServeHTTP(recorder, req)
+
+	s.Equal(http.StatusNoContent, recorder.Code)
+	s.Empty(recorder.Body.Bytes())
+}
+
 // TestSetupErrorHandlers tests that unmatched routes and methods respond
 // with the shared {"error","code"} JSON shape instead of gin's defaults.
 func (s *routerTestSuite) TestSetupErrorHandlers() {

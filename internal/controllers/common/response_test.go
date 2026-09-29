@@ -153,3 +153,29 @@ func (suite *ResponseHelperTestSuite) TestResponseError_DetailPropagation() {
 		})
 	}
 }
+
+// TestResponseError_LogLevel verifies that ResponseError's log level follows
+// the response status code (4xx logs as a warning, 5xx logs as an error)
+// instead of always logging at error level.
+func (suite *ResponseHelperTestSuite) TestResponseError_LogLevel() {
+	testCases := []struct {
+		name       string
+		statusCode int
+		wantLevel  string
+	}{
+		{name: "400 logs as warn", statusCode: http.StatusBadRequest, wantLevel: "WARN"},
+		{name: "404 logs as warn", statusCode: http.StatusNotFound, wantLevel: "WARN"},
+		{name: "500 logs as error", statusCode: http.StatusInternalServerError, wantLevel: "ERROR"},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			suite.logBuffer.Reset()
+			ctx, _ := newResponseTestContext()
+
+			ResponseError(tc.statusCode, "something went wrong", models.ErrCodeInternalError, nil, ctx)
+
+			suite.Contains(suite.logBuffer.String(), "level="+tc.wantLevel)
+		})
+	}
+}
