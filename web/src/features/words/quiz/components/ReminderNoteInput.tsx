@@ -13,7 +13,7 @@ export const ReminderNoteInput: React.FC<ReminderNoteInputProps> = ({
   onEnabledChange,
   onTextChange,
 }) => (
-  <div className='mb-4 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-600 dark:bg-gray-700/50'>
+  <div className='glass-panel mb-4 rounded-lg p-4'>
     <p className='mb-3 text-sm font-medium text-gray-700 dark:text-gray-300'>
       Have a note to remember? Set a reminder before rating.
     </p>

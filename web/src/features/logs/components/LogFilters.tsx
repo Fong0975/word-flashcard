@@ -44,91 +44,79 @@ export const LogFilters: React.FC<LogFiltersProps> = ({
   onKeywordCompositionEnd,
   onKeywordClear,
 }) => (
-  <div className='flex flex-wrap items-center gap-x-4 gap-y-2'>
-    <div className='flex flex-wrap gap-1.5'>
-      {LOG_LEVELS.map(level => (
-        <QuickFilterButton
-          key={level}
-          label={level}
-          isActive={activeLevels.includes(level)}
-          onClick={() => onToggleLevel(level)}
-          dotClassName={LOG_LEVEL_DOT_CLASSES[level]}
+  <div className='rounded-lg border border-black/10 p-3 dark:border-white/10'>
+    <div className='flex flex-wrap items-center gap-x-4 gap-y-2'>
+      <div className='flex flex-wrap gap-1.5'>
+        {LOG_LEVELS.map(level => (
+          <QuickFilterButton
+            key={level}
+            label={level}
+            isActive={activeLevels.includes(level)}
+            onClick={() => onToggleLevel(level)}
+            dotClassName={LOG_LEVEL_DOT_CLASSES[level]}
+          />
+        ))}
+      </div>
+
+      {/* Always full width, so in a flex-wrap row this item never has room to
+          share a line with the level pills -- it drops to its own line on
+          every breakpoint instead of only when space happens to run out. */}
+      <div className='relative w-full'>
+        <input
+          type='text'
+          value={keyword}
+          onChange={onKeywordChange}
+          onCompositionStart={onKeywordCompositionStart}
+          onCompositionEnd={onKeywordCompositionEnd}
+          placeholder='Search message or source...'
+          aria-label='Search logs'
+          className={`w-full py-1.5 pl-3 pr-8 ${inputBaseClassName}`}
         />
-      ))}
-    </div>
-
-    {/* Always full width, so in a flex-wrap row this item never has room to
-        share a line with the level pills -- it drops to its own line on
-        every breakpoint instead of only when space happens to run out. */}
-    <div className='relative w-full'>
-      <input
-        type='text'
-        value={keyword}
-        onChange={onKeywordChange}
-        onCompositionStart={onKeywordCompositionStart}
-        onCompositionEnd={onKeywordCompositionEnd}
-        placeholder='Search message or source...'
-        aria-label='Search logs'
-        className={`w-full py-1.5 pl-3 pr-8 ${inputBaseClassName}`}
-      />
-      {keyword && (
-        <button
-          type='button'
-          onClick={onKeywordClear}
-          aria-label='Clear search'
-          className='absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
-        >
-          <svg
-            className='h-3 w-3'
-            fill='none'
-            viewBox='0 0 24 24'
-            strokeWidth='2'
-            stroke='currentColor'
+        {keyword && (
+          <button
+            type='button'
+            onClick={onKeywordClear}
+            aria-label='Clear search'
+            className='absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
           >
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              d='M6 18L18 6M6 6l12 12'
-            />
-          </svg>
-        </button>
-      )}
-    </div>
+            <svg
+              className='h-3 w-3'
+              fill='none'
+              viewBox='0 0 24 24'
+              strokeWidth='2'
+              stroke='currentColor'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                d='M6 18L18 6M6 6l12 12'
+              />
+            </svg>
+          </button>
+        )}
+      </div>
 
-    {/* From and To are separate flex items (rather than one group) so they
-        can wrap onto their own lines independently -- bundled together, a
-        narrow phone screen has no room to fit both native datetime-local
-        controls on one line, and with nothing to wrap around they'd instead
-        overflow the card. */}
-    <div className='flex items-center gap-1.5'>
-      <label
-        htmlFor='log-from'
-        className='text-xs text-gray-500 dark:text-gray-400'
-      >
-        From
-      </label>
-      <input
-        id='log-from'
-        type='datetime-local'
-        value={from}
-        onChange={event => onFromChange(event.target.value)}
-        className={`w-40 max-w-full ${dateInputClassName}`}
-      />
-    </div>
-    <div className='flex items-center gap-1.5'>
-      <label
-        htmlFor='log-to'
-        className='text-xs text-gray-500 dark:text-gray-400'
-      >
-        To
-      </label>
-      <input
-        id='log-to'
-        type='datetime-local'
-        value={to}
-        onChange={event => onToChange(event.target.value)}
-        className={`w-40 max-w-full ${dateInputClassName}`}
-      />
+      {/* A single flex-wrap item so the pair wraps together onto its own line
+          on a narrow phone screen, rather than overflowing the card. */}
+      <div className='flex flex-wrap items-center gap-1.5'>
+        <input
+          id='log-from'
+          type='datetime-local'
+          aria-label='From'
+          value={from}
+          onChange={event => onFromChange(event.target.value)}
+          className={`w-40 max-w-full ${dateInputClassName}`}
+        />
+        <span className='text-xs text-gray-500 dark:text-gray-400'>~</span>
+        <input
+          id='log-to'
+          type='datetime-local'
+          aria-label='To'
+          value={to}
+          onChange={event => onToChange(event.target.value)}
+          className={`w-40 max-w-full ${dateInputClassName}`}
+        />
+      </div>
     </div>
   </div>
 );
