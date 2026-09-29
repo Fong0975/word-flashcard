@@ -225,6 +225,33 @@ button:focus {
    */
   .glass-input {
     @apply rounded-md border border-white/70 bg-gray-100/70 text-gray-900 placeholder-gray-500 shadow-sm backdrop-blur-md transition-colors focus:border-primary-400/70 focus:outline-none focus:ring-2 focus:ring-primary-400/30 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:bg-gray-900/50 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary-400/50 dark:focus:ring-primary-400/20;
+    /* Without this, native controls (date/time picker icon, selected-segment
+       highlight) keep rendering in light-scheme colors even inside a dark
+       glass field, which reads as a mismatched opaque widget rather than
+       part of the glass surface. */
+    color-scheme: light;
+  }
+
+  .dark .glass-input {
+    color-scheme: dark;
+  }
+
+  /* Dim the native date/time picker icon at rest so it recedes into the
+     glass surface instead of reading as a solid opaque square, matching the
+     rest-until-interacted feel of `.glass-interactive`. */
+  .glass-input::-webkit-calendar-picker-indicator {
+    /* `background-color`, not the `background` shorthand -- the shorthand
+       resets `background-image` too, which is how Chromium actually draws
+       this icon, so it would wipe the icon out instead of just its backing box. */
+    background-color: transparent;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+  }
+
+  .glass-input::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
   }
 
   /* Quiz progress bar track: the filled portion stays a solid primary color

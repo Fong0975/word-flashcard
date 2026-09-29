@@ -107,7 +107,7 @@ export const LogsPage: React.FC = () => {
   } = patchedHook;
 
   const header = (
-    <div className='space-y-3'>
+    <div className='space-y-3 pb-3'>
       <div className='flex items-center justify-between'>
         <h1 className='text-lg font-semibold text-gray-900 dark:text-white'>
           Backend Logs
