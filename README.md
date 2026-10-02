@@ -9,59 +9,35 @@ A personal language learning app for building vocabulary and practising with qui
 - Look up a word via the Gemini API and import its definitions in one click (pronunciation audio is not available; the app falls back to your browser's built-in speech synthesis)
 - Mark familiarity level (Unfamiliar / Somewhat Familiar / Familiar) to reflect your current confidence
 - Set reminders on words you want to revisit; clear them once you feel ready
-- Filter your word list by familiarity level or by words that have active reminders
-- Search words and browse with paginated results
 
 **Questions**
 - Create and manage multiple-choice questions (A / B / C / D) with a correct answer and explanation
 - Track per-question statistics: practice count, error count, and accuracy rate
-- Sort questions by familiarity (accuracy-based), practice count, or default order
 
 **Quizzes**
 - Start a word quiz with a configurable count and filter by familiarity level to focus on what you need most
 - Start a question quiz from your custom multiple-choice question bank
 - View your results after each quiz and choose to retake or return home
+- Review statistics charts for words and questions, including familiarity distribution, practice count distribution, and progress trends over time
 
 **Notes**
 - Create and manage note cards with a title and markdown content
 - Write rich notes using a markdown editor with live preview
 - Reorder notes via drag-and-drop or move-up / move-down buttons
-- Search notes and browse with paginated results
-
-**Data Management**
-- Export a full snapshot of all data (words, questions, notes, and their practice/answer history) to a JSON file from the header menu
-- Restore all data from a previously exported JSON file, preserving original ids and timestamps (replaces all existing data)
-- The server automatically writes a full backup to disk on startup and on a configurable interval, keeping a limited number of recent backups; this can be disabled entirely via `BACKUP_ENABLED`
 
 ## Project Structure
 
 ```
 word-flashcard/
-├── .claude/                       # Claude Code project configuration
-│   └── commands/                 # Project-specific Claude Code custom commands (skills)
-├── backups/                       # Automatic backup output (created at runtime, not committed)
-├── data/                          # Database peers and models
-│   ├── mocks/                    # Mock function for testing
-│   ├── models/                   # Data models
-│   ├── peers/                    # Database peers (query builders)
-│   ├── schema/                   # Database schema definitions
-│   └── registry.go               # Data model registry
-├── dist/                          # Build output directory
-├── docs/                          # Auto-generated Swagger API documentation
-├── internal/                      # Internal application code
-│   ├── controllers/              # API controllers
-│   ├── middleware/               # HTTP middleware
-│   ├── mocks/                    # Mock interfaces for testing
-│   ├── models/                   # Data models
-│   ├── routers/                  # Route configuration
-│   └── scheduler/                # Background jobs (automatic backup scheduler)
-├── utils/                         # Utility modules
-│   ├── config/                   # Configuration module
-│   ├── database/                 # Database module with MySQL/PostgreSQL support
-│   ├── log/                      # Logging module
-│   ├── conversion_utils.go       # Type conversion utilities
-│   └── pointer_utils.go          # Pointer utility functions
+├── .claude/commands/              # Project-specific Claude Code custom commands
+├── backups/                       # [Backend API] Automatic backup output (created at runtime, not committed)
+├── data/                          # [Backend API] Database peers, models and schema
+├── dist/                          # [Backend API] Go binary build output
+├── docs/                          # [Backend API] Auto-generated Swagger API documentation
+├── internal/                      # [Backend API] Controllers, middleware, routers and scheduler
+├── project-docs/                  # Project documentation (e.g. design system)
 ├── scripts/                       # Helper scripts
+├── utils/                         # [Backend API] Config, database, logging and helper modules
 ├── web/                           # React frontend application
 │   ├── public/                   # Public assets
 │   ├── src/                      # React source code
@@ -76,11 +52,14 @@ word-flashcard/
 │   ├── vite.config.mts           # Vite build/dev-server configuration
 │   └── vitest.config.mts         # Vitest test configuration
 ├── .env.example                  # Environment variables template
+├── .golangci.yml                 # golangci-lint configuration
+├── CLAUDE.md                     # Project instructions for Claude Code
 ├── docker-compose.yml            # Definition of multi-container for services in the project
 ├── Dockerfile                    # Dockerfile for backend service
 ├── go.mod                        # Go module definition
 ├── main.go                       # Main server file
 ├── README.md                     # This file
+└── VERSION                       # Current application version
 ```
 
 ## Prerequisites
@@ -186,7 +165,7 @@ The dictionary lookup feature (`GEMINI_API_KEY` above) needs a free Gemini API k
 2. Click **Create API key**, then pick or create a Google Cloud project when prompted.
 3. Copy the generated key into `GEMINI_API_KEY` in your `.env` file.
 
-The free tier (1,500 requests/day) is more than enough for personal use, and no credit card is required. Keep the key private -- anyone with it can make requests billed to your account.
+The free tier is more than enough for personal use, and no credit card is required. Keep the key private -- anyone with it can make requests billed to your account.
 
 #### Frontend Configuration (`web/.env`)
 
@@ -377,12 +356,12 @@ The built React application will be available in the `web/build/` directory.
 
 ## Docker Deployment
 
-Use Docker to deploy the services for the production environment. Both services build their images from source (`Dockerfile` / `web/Dockerfile`) rather than pulling a pre-built image, and neither Dockerfile depends on a physical `.env` file being present at build time — configuration is passed in as container environment variables and Docker build args instead, resolved from a single `.env` file next to whichever `docker-compose.yml` you use. This also means the stack can be deployed directly from a fresh clone of this repository (e.g. a Portainer stack pointed at this repo), not only via the `export_docker.bat` snapshot below.
+Use Docker to deploy the services for the production environment. Both services build their images from source (`Dockerfile` / `web/Dockerfile`) rather than pulling a pre-built image, and neither Dockerfile depends on a physical `.env` file being present at build time — configuration is passed in as container environment variables and Docker build args instead, resolved from a single `.env` file next to whichever `docker-compose.yml` you use. This also means the stack can be deployed directly from a fresh clone of this repository (e.g. a Portainer stack pointed at this repo), not only via the `scripts\export_docker.bat` snapshot below.
 
 Pick one of the following:
 
 - **Directly from the repository root** — copy `.env.example` to `.env`, fill in the values, then run `docker compose build && docker compose up -d` from the repo root.
-- **Via the `export_docker.bat` snapshot** — copy `.env.example` to `.env.production` in the repo root and fill in the values, run `export_docker.bat` to copy everything the Docker host needs (including renaming `.env.production` to `.env`) into the `docker/` directory, then run `docker compose build && docker compose up -d` from inside `docker/`.
+- **Via the `scripts\export_docker.bat` snapshot** — copy `.env.example` to `.env.production` in the repo root and fill in the values, run `scripts\export_docker.bat` to copy everything the Docker host needs (including renaming `.env.production` to `.env`) into the `docker/` directory, then run `docker compose build && docker compose up -d` from inside `docker/`.
 
 `web/.env` is not used by either path — the frontend's API host/port are baked into the build as Docker build args instead (see `VITE_API_HOSTNAME`/`VITE_API_PORT` below).
 
