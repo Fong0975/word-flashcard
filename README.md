@@ -67,7 +67,6 @@ word-flashcard/
 │   ├── src/                      # React source code
 │   ├── .env.example              # Environment variables template
 │   ├── Dockerfile                # Dockerfile for frontend service
-│   ├── README.md                 # React app documentation
 │   ├── index.html                # Vite entry HTML
 │   ├── package.json              # React dependencies
 │   ├── package-lock.json         # React dependency lock file
