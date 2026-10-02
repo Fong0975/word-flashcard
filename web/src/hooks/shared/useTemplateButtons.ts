@@ -4,7 +4,6 @@ import { TemplateButton } from '../../types/components';
 
 interface UseTemplateButtonsProps {
   configFileName: string;
-  onWarning?: (message: string) => void;
 }
 
 /**
@@ -15,11 +14,11 @@ interface UseTemplateButtonsProps {
  * rebuilding the image.
  *
  * The config file is optional (gitignored, developer-provided) — if it's
- * missing or fails to load, `templateButtonsConfig` resolves to `[]` and
- * `onWarning` (if provided) is called so the caller can surface a toast.
+ * missing or fails to load, `templateButtonsConfig` silently resolves to `[]`
+ * and no template buttons are shown.
  */
 export const useTemplateButtons = (props: UseTemplateButtonsProps) => {
-  const { configFileName, onWarning } = props;
+  const { configFileName } = props;
   const [templateButtonsConfig, setTemplateButtonsConfig] = useState<
     TemplateButton[]
   >([]);
@@ -41,11 +40,6 @@ export const useTemplateButtons = (props: UseTemplateButtonsProps) => {
         if (cancelled) {
           return;
         }
-        if (onWarning) {
-          onWarning(
-            `Template buttons config file (${configFileName}) not found, template buttons will be hidden`,
-          );
-        }
         setTemplateButtonsConfig([]);
       }
     };
@@ -55,7 +49,7 @@ export const useTemplateButtons = (props: UseTemplateButtonsProps) => {
     return () => {
       cancelled = true;
     };
-  }, [configFileName, onWarning]);
+  }, [configFileName]);
 
   return {
     templateButtonsConfig,

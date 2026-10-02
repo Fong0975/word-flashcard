@@ -53,7 +53,6 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
   });
   const { templateButtonsConfig: noteButtonsConfig } = useTemplateButtons({
     configFileName: 'definitionFormModalNoteButtonsConfig.json',
-    onWarning: showWarning,
   });
 
   // Handle modal close behavior - track previous isOpen state

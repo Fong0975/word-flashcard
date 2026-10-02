@@ -23,57 +23,40 @@ describe('useTemplateButtons', () => {
     expect(fetch).toHaveBeenCalledWith('/config/notesButtonsConfig.json');
   });
 
-  it('resolves to an empty config and warns when the config file does not exist (404)', async () => {
-    vi.spyOn(global, 'fetch').mockResolvedValue(
-      new Response(null, { status: 404 }),
-    );
-    const onWarning = vi.fn();
-
-    const { result } = renderHook(() =>
-      useTemplateButtons({
-        configFileName: 'doesNotExist.json',
-        onWarning,
-      }),
-    );
-
-    await waitFor(() =>
-      expect(onWarning).toHaveBeenCalledWith(
-        'Template buttons config file (doesNotExist.json) not found, template buttons will be hidden',
-      ),
-    );
-    expect(result.current.templateButtonsConfig).toEqual([]);
-  });
-
-  it('resolves to an empty config and warns when the fetch itself fails', async () => {
-    vi.spyOn(global, 'fetch').mockRejectedValue(new Error('network error'));
-    const onWarning = vi.fn();
-
-    const { result } = renderHook(() =>
-      useTemplateButtons({
-        configFileName: 'doesNotExist.json',
-        onWarning,
-      }),
-    );
-
-    await waitFor(() =>
-      expect(onWarning).toHaveBeenCalledWith(
-        'Template buttons config file (doesNotExist.json) not found, template buttons will be hidden',
-      ),
-    );
-    expect(result.current.templateButtonsConfig).toEqual([]);
-  });
-
-  it('does not throw when no onWarning callback is provided and the config file is missing', async () => {
-    vi.spyOn(global, 'fetch').mockResolvedValue(
-      new Response(null, { status: 404 }),
-    );
+  it.each([
+    [
+      'the config file does not exist (404)',
+      () =>
+        vi
+          .spyOn(global, 'fetch')
+          .mockResolvedValue(new Response(null, { status: 404 })),
+    ],
+    [
+      'the fetch itself fails',
+      () =>
+        vi.spyOn(global, 'fetch').mockRejectedValue(new Error('network error')),
+    ],
+    [
+      'the response is not valid JSON',
+      () =>
+        vi
+          .spyOn(global, 'fetch')
+          .mockResolvedValue(new Response('<html></html>', { status: 200 })),
+    ],
+  ])('silently resolves to an empty config when %s', async (_name, mock) => {
+    mock();
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     const { result } = renderHook(() =>
       useTemplateButtons({ configFileName: 'doesNotExist.json' }),
     );
 
+    await waitFor(() => expect(fetch).toHaveBeenCalled());
     await waitFor(() =>
       expect(result.current.templateButtonsConfig).toEqual([]),
     );
+    expect(errorSpy).not.toHaveBeenCalled();
+    expect(warnSpy).not.toHaveBeenCalled();
   });
 });
