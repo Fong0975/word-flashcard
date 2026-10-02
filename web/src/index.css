@@ -331,6 +331,18 @@ body {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'%3E%3Cpath d='M12.207 4.793a1 1 0 0 1 0 1.414l-5 5a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L6.5 9.086l4.293-4.293a1 1 0 0 1 1.414 0z'/%3E%3C/svg%3E");
   }
 
+  /* Native radio restyled to match `.glass-checkbox`: round glass well, white dot when checked */
+  .glass-radio {
+    @apply h-4 w-4 shrink-0 cursor-pointer appearance-none rounded-full border border-gray-500 bg-white/60 shadow-sm backdrop-blur-sm transition-colors checked:border-primary-500 checked:bg-primary-500/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-400 dark:bg-white/10 dark:checked:border-primary-400 dark:checked:bg-primary-500/80;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+  }
+
+  .glass-radio:checked {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'%3E%3Ccircle cx='8' cy='8' r='3'/%3E%3C/svg%3E");
+  }
+
   /*
    * Text inputs/textareas: only the surface (border/bg/blur/text/focus/
    * disabled) is defined here — width, padding and rounding are left to each

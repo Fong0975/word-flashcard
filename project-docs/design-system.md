@@ -128,7 +128,7 @@ All glass surfaces are shared `@layer components` classes in `index.css`. Use th
 
 | Tailwind | Radius | Used by |
 | --- | --- | --- |
-| `backdrop-blur-sm` | 4px | `.glass-checkbox`, `.glass-progress-track` |
+| `backdrop-blur-sm` | 4px | `.glass-checkbox`, `.glass-radio`, `.glass-progress-track` |
 | `backdrop-blur-md` | 12px | `.glass-button-primary/-success/-danger/-warning`, `.glass-input`, hover surface of nav buttons / header icon button |
 | `backdrop-blur-lg` | 16px | `.glass-panel`, `.glass-panel-card`, `.glass-interactive` (on hover/focus) |
 | `backdrop-blur-xl` | 24px | `.glass-panel-strong` |
@@ -146,6 +146,7 @@ Higher blur = higher elevation in the layer stack (page → panel → card → o
 | `.glass-panel-strong` | `white/[55%]` | `white/80` | `gray-800/[60%]` | `white/10` | `xl` | `sm` (Modal/Dialog add `shadow-xl`) | Header, Modal, ConfirmationDialog, DropdownMenu |
 | `.glass-input` | `gray-100/70` | `white/70` | `gray-900/50` | `white/10` | `md` | `sm` | Text inputs / textareas / date pickers |
 | `.glass-checkbox` | `white/30` (checked `primary-500/80`) | `white/70` (checked `primary-500`) | `white/10` (checked `primary-500/80`) | `white/20` (checked `primary-400`) | `sm` | `sm` | Native checkbox |
+| `.glass-radio` | `white/60` (checked `primary-500/80`) | `gray-500` (checked `primary-500`) | `white/10` (checked `primary-500/80`) | `gray-400` (checked `primary-400`) | `sm` | `sm` | Native radio (round, white dot when checked), same keyboard focus ring as `.glass-checkbox`. Unchecked edge is a solid gray (≥3:1) rather than `white/*`, which vanishes on white cards |
 | `.glass-alert-*` (`success` / `error` / `warning` / `info` / `neutral`) | `*-50/70` | `*-200` | `*-900/40` | `*-700` | `md` | `sm` | Toast, inline `ErrorMessage` (text / icon colors set per usage) |
 | `.glass-progress-track` | `white/20` | `white/30` | `gray-800/30` | `white/10` | `sm` | `inner` | Quiz progress track (fill stays solid primary) |
 | `.glass-card-hover` | hover: `gray-100/80`, border `primary-300`, `shadow-md` | unchanged | hover: `gray-800/70`, border `primary-600` | unchanged | none | `md` on hover | Add next to `.glass-panel-card` on clickable record rows (EntityCard, NoteCard) |
