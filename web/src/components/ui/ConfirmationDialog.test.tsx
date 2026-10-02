@@ -53,6 +53,20 @@ describe('ConfirmationDialog', () => {
     expect(screen.getByRole('button', { name: /Delete/ })).toBeDisabled();
   });
 
+  it.each([
+    ['danger', 'glass-button-danger', 'bg-red-600'],
+    ['warning', 'glass-button-warning', 'bg-yellow-600'],
+  ] as const)(
+    'uses the glass confirm button for the %s variant',
+    (variant, glassClass, solidClass) => {
+      render(<ConfirmationDialog {...baseProps} isOpen variant={variant} />);
+
+      const confirm = screen.getByRole('button', { name: 'Delete' });
+      expect(confirm).toHaveClass(glassClass);
+      expect(confirm).not.toHaveClass(solidClass);
+    },
+  );
+
   it('renders the info variant icon and confirm button styles', () => {
     render(<ConfirmationDialog {...baseProps} isOpen variant='info' />);
 

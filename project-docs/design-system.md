@@ -67,7 +67,7 @@ All semantic colors use the stock Tailwind scales; each has a light surface/text
 | Warning | `yellow-50/70` / `yellow-200` | `yellow-800` | `yellow-900/40` / `yellow-700` | `yellow-200` | `yellow-400` |
 | Info | `blue-50/70` / `blue-200` | `blue-800` | `blue-900/40` / `blue-700` | `blue-200` | `blue-400` |
 
-Solid action fills: danger `red-600` (hover `red-700`), warning `yellow-600`, success CTA `green-600/90` (see `.glass-button-success`), info = `.glass-button-primary`.
+Confirm / action fills are glass CTAs: danger = `.glass-button-danger` (`red-600/90`), warning = `.glass-button-warning` (`yellow-600/90`), success = `.glass-button-success` (`green-600/90`), info = `.glass-button-primary`.
 
 Markdown alerts (`.markdown-alert-*`) use a 4px left border: note = blue, tip = green, important = purple, warning = yellow, caution = red (`-500` light, `-400` dark; title text `-600` light, `-400` dark). Their body surface is translucent glass (`gray-50/70` light, `gray-900/40` dark, `backdrop-blur-md`, `shadow-sm`), matching `.glass-alert-neutral`; only the left border and title carry the type color.
 
@@ -122,7 +122,7 @@ All glass surfaces are shared `@layer components` classes in `index.css`. Use th
 | Tailwind | Radius | Used by |
 | --- | --- | --- |
 | `backdrop-blur-sm` | 4px | `.glass-checkbox`, `.glass-progress-track` |
-| `backdrop-blur-md` | 12px | `.glass-button-primary/-success`, `.glass-input`, hover surface of nav buttons / header icon button |
+| `backdrop-blur-md` | 12px | `.glass-button-primary/-success/-danger/-warning`, `.glass-input`, hover surface of nav buttons / header icon button |
 | `backdrop-blur-lg` | 16px | `.glass-panel`, `.glass-panel-card`, `.glass-interactive` (on hover/focus) |
 | `backdrop-blur-xl` | 24px | `.glass-panel-strong` |
 | `blur-3xl` (filter, not backdrop) | 64px | `PageBackground` blobs only |
@@ -144,6 +144,8 @@ Higher blur = higher elevation in the layer stack (page → panel → card → o
 | `.glass-interactive` | transparent → `primary-500/[15%]` hover/focus, `/25` active | transparent | transparent → `primary-400/20` hover/focus, `/30` active | transparent | `lg` on hover/focus only | `sm` on hover/focus | Secondary buttons, icon buttons, back button |
 | `.glass-button-primary` | `primary-500/90` (hover `primary-600/90`) | transparent | `primary-500/60` (hover `/75`) | transparent | `md` | `md` (dark `lg`) | Primary CTA, active filter / page |
 | `.glass-button-success` | `green-600/90` (hover `green-700/90`) | transparent | `green-600/60` (hover `/75`) | transparent | `md` | `md` (dark `lg`) | Success / fetch CTA |
+| `.glass-button-danger` | `red-600/90` (hover `red-700/90`) | transparent | `red-600/60` (hover `/75`) | transparent | `md` | `md` (dark `lg`) | `ConfirmationDialog` `danger` confirm |
+| `.glass-button-warning` | `yellow-600/90` (hover `yellow-700/90`) | transparent | `yellow-600/60` (hover `/75`) | transparent | `md` | `md` (dark `lg`) | `ConfirmationDialog` `warning` confirm |
 
 Layering invariants (documented in `index.css`; breaking them makes a surface vanish):
 
@@ -253,6 +255,5 @@ Extraction rule: if the same glass utility combination appears more than twice, 
 ## 11. Known gaps (for awareness, not yet fixed)
 
 - `data-theme='light'` selector in `index.css` is unused (theme is class-based); see §1.
-- Dialog confirm buttons for `danger` / `warning` are solid (`red-600`, `yellow-600`) rather than the glass CTA pattern; only `info` uses `.glass-button-primary`.
 - Tab navigation uses `blue-500/600/400` directly instead of the `primary` scale (same hex values).
 - Empty-state and tab icons use emoji.

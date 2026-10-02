@@ -76,8 +76,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
             </svg>
           ),
           iconBg: 'bg-red-100 dark:bg-red-900',
-          confirmButton:
-            'text-white bg-red-600 hover:bg-red-700 focus:ring-red-500',
+          confirmButton: 'glass-button-danger',
         };
       case 'warning':
         return {
@@ -97,8 +96,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
             </svg>
           ),
           iconBg: 'bg-yellow-100 dark:bg-yellow-900',
-          confirmButton:
-            'text-white bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-500',
+          confirmButton: 'glass-button-warning',
         };
       case 'info':
         return {
