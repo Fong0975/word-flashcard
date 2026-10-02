@@ -16,7 +16,10 @@ export const Header: React.FC = () => {
         <div className='flex h-16 items-center justify-between'>
           {/* Logo and Title */}
           <div className='flex items-center space-x-4'>
-            <Link to='/' className='flex items-center space-x-3'>
+            <Link
+              to='/'
+              className='focus-ring flex items-center space-x-3 rounded-lg'
+            >
               <img
                 src={logo}
                 alt='Flashcard App Logo'
@@ -32,7 +35,7 @@ export const Header: React.FC = () => {
           <div className='flex items-center space-x-1'>
             <button
               onClick={toggleTheme}
-              className='group rounded-md p-2 text-gray-500 transition-colors duration-200 hover:bg-gray-100/60 hover:text-gray-900 hover:backdrop-blur-md focus:outline-none focus-visible:bg-gray-100/60 focus-visible:text-gray-900 focus-visible:backdrop-blur-md dark:text-gray-400 dark:hover:bg-gray-800/50 dark:hover:text-white dark:focus-visible:bg-gray-800/50 dark:focus-visible:text-white'
+              className='glass-nav-button group'
               aria-label={
                 isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'
               }

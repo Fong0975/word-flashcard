@@ -185,9 +185,7 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
           unescapeLiteralNewlines={unescapeLiteralNewlines}
         />
       ) : (
-        <p className='text-sm text-gray-400 dark:text-gray-500'>
-          Nothing to preview.
-        </p>
+        <p className='text-supporting text-sm'>Nothing to preview.</p>
       )}
     </div>
   ) : (
@@ -241,7 +239,7 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
           onInsertSymbol={handleInsertSymbol}
         />
         {editorContent}
-        <div className='flex flex-shrink-0 items-center gap-1.5 border-t border-white/40 px-2 py-1 text-xs italic text-gray-400 dark:border-white/10 dark:text-gray-500'>
+        <div className='text-supporting flex flex-shrink-0 items-center gap-1.5 border-t border-white/40 px-2 py-1 text-xs italic dark:border-white/10'>
           <span className='flex h-4 w-6 flex-shrink-0 items-center justify-center rounded border border-current text-[10px] font-bold not-italic leading-none'>
             M↓
           </span>

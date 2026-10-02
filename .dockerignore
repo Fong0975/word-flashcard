@@ -6,6 +6,7 @@
 # Documentation
 README.md
 *.md
+project-docs/
 
 # Development tools
 .vscode

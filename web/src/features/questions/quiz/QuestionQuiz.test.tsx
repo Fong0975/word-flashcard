@@ -221,10 +221,12 @@ describe('QuestionQuiz', () => {
     expect(
       await screen.findByRole('heading', { name: 'Second?' }),
     ).toBeInTheDocument();
-    expect(lastNextAction(onNextAction)).toMatchObject({
-      label: 'Submit Answer',
-      disabled: true,
-    });
+    await waitFor(() =>
+      expect(lastNextAction(onNextAction)).toMatchObject({
+        label: 'Submit Answer',
+        disabled: true,
+      }),
+    );
   });
 
   it('shows an error and reports it via onError on failure', async () => {

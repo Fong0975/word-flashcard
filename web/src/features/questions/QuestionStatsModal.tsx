@@ -61,7 +61,7 @@ export const CustomTooltip = ({
       </div>
       {breakdown.length > 0 && (
         <div className='mt-1 border-t border-white/10 pt-1'>
-          <div className='text-gray-400'>By practice count:</div>
+          <div className='text-supporting'>By practice count:</div>
           {breakdown.map(bucket => (
             <div key={bucket.range} className='flex justify-between gap-3'>
               <span>{bucket.range}</span>
@@ -145,7 +145,7 @@ export const QuestionStatsModal: React.FC<QuestionStatsModalProps> = ({
       {loading && <LoadingSpinner message='' />}
 
       {error && (
-        <div className='flex h-48 items-center justify-center text-sm text-red-500'>
+        <div className='text-error flex h-48 items-center justify-center text-sm'>
           {error}
         </div>
       )}
@@ -158,7 +158,7 @@ export const QuestionStatsModal: React.FC<QuestionStatsModalProps> = ({
               <button
                 type='button'
                 onClick={() => setActiveTab('accuracy')}
-                className={`rounded-l-md px-4 py-1.5 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 ${
+                className={`rounded-l-md px-4 py-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
                   activeTab === 'accuracy'
                     ? 'glass-button-primary'
                     : 'glass-interactive text-gray-600 dark:text-gray-300'
@@ -169,7 +169,7 @@ export const QuestionStatsModal: React.FC<QuestionStatsModalProps> = ({
               <button
                 type='button'
                 onClick={() => setActiveTab('trend')}
-                className={`rounded-r-md border-l border-white/30 px-4 py-1.5 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 dark:border-white/10 ${
+                className={`segmented-divider rounded-r-md px-4 py-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
                   activeTab === 'trend'
                     ? 'glass-button-primary'
                     : 'glass-interactive text-gray-600 dark:text-gray-300'
@@ -249,7 +249,7 @@ export const QuestionStatsModal: React.FC<QuestionStatsModalProps> = ({
               {trendLoading && <LoadingSpinner message='' />}
 
               {trendError && (
-                <div className='flex h-48 items-center justify-center text-sm text-red-500'>
+                <div className='text-error flex h-48 items-center justify-center text-sm'>
                   {trendError}
                 </div>
               )}

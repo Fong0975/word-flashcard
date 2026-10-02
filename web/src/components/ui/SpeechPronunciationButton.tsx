@@ -54,10 +54,10 @@ export const SpeechPronunciationButton: React.FC<
       onClick={() => speak(text, locale)}
       title={title}
       aria-busy={isSpeaking}
-      className={`inline-flex items-center space-x-1 rounded-md font-medium transition-colors duration-200 ${SIZE_CLASSES[size]} ${
+      className={`focus-ring-indigo inline-flex items-center space-x-1 rounded-md font-medium transition-colors duration-200 ${SIZE_CLASSES[size]} ${
         isSpeaking
-          ? 'bg-blue-200 text-blue-900 ring-1 ring-blue-400 dark:bg-blue-800/60 dark:text-blue-100 dark:ring-blue-500'
-          : 'bg-blue-50 text-blue-700 hover:bg-blue-100 active:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 dark:active:bg-blue-900/70'
+          ? 'bg-primary-200 text-primary-900 ring-1 ring-primary-400 dark:bg-primary-800/60 dark:text-primary-100 dark:ring-primary-500'
+          : 'bg-primary-50 text-primary-700 hover:bg-primary-100 active:bg-primary-200 dark:bg-primary-900/30 dark:text-primary-300 dark:hover:bg-primary-900/50 dark:active:bg-primary-900/70'
       }`}
     >
       <span className='text-xs' role='img' aria-label={`${label} accent`}>

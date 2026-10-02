@@ -131,7 +131,7 @@ export const DataManagementMenu: React.FC = () => {
       <div className='group relative'>
         <button
           type='button'
-          className='relative rounded-md p-2 text-gray-500 transition-colors duration-200 focus:outline-none group-focus-within:bg-gray-100/60 group-focus-within:text-gray-900 group-focus-within:backdrop-blur-md group-hover:bg-gray-100/60 group-hover:text-gray-900 group-hover:backdrop-blur-md dark:text-gray-400 dark:group-focus-within:bg-gray-800/50 dark:group-focus-within:text-white dark:group-hover:bg-gray-800/50 dark:group-hover:text-white'
+          className='glass-nav-button-group relative'
           aria-label={unreadCount > 0 ? 'Settings (unread logs)' : 'Settings'}
           aria-haspopup='true'
         >
@@ -163,12 +163,9 @@ export const DataManagementMenu: React.FC = () => {
         </button>
 
         <div className='absolute right-0 top-full z-10 hidden w-40 pt-2 group-focus-within:block group-hover:block'>
-          <div
-            className='glass-panel-strong rounded-md bg-white/80 shadow-lg dark:bg-gray-800/90'
-            role='menu'
-          >
+          <div className='glass-panel-dropdown' role='menu'>
             <div className='py-1'>
-              <span className='block px-4 py-1 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500'>
+              <span className='text-supporting block px-4 py-1 text-xs font-semibold uppercase tracking-wide'>
                 Data
               </span>
               <button
@@ -240,7 +237,7 @@ export const DataManagementMenu: React.FC = () => {
               </button>
             </div>
             <div className='border-t border-gray-100 py-1 dark:border-gray-700'>
-              <span className='block px-4 py-1 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500'>
+              <span className='text-supporting block px-4 py-1 text-xs font-semibold uppercase tracking-wide'>
                 System
               </span>
               <button

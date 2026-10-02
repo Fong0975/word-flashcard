@@ -124,7 +124,7 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
                 <p className='text-lg text-gray-600 dark:text-gray-400'>
                   for &quot;
                   <a
-                    className='font-semibold text-gray-800 dark:text-blue-500 hover:dark:text-blue-300'
+                    className='focus-ring rounded-sm font-semibold text-gray-800 dark:text-primary-500 hover:dark:text-primary-300'
                     href={`https://dictionary.cambridge.org/zht/%E8%A9%9E%E5%85%B8/%E8%8B%B1%E8%AA%9E-%E6%BC%A2%E8%AA%9E-%E7%B9%81%E9%AB%94/${wordText}`}
                     target='_blank'
                     rel='noopener noreferrer'
@@ -136,12 +136,12 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
                 <button
                   type='button'
                   onClick={handleCopyWord}
-                  className='ml-2 rounded-md p-1 text-gray-500 transition-colors hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-gray-400 dark:hover:text-gray-200'
+                  className='ml-2 rounded-md p-1 text-gray-500 transition-colors hover:text-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:text-gray-400 dark:hover:text-gray-200'
                   title='Copy word text to clipboard'
                 >
                   {copySuccess ? (
                     <svg
-                      className='h-5 w-5 text-green-500'
+                      className='h-5 w-5 text-green-600 dark:text-green-400'
                       fill='none'
                       viewBox='0 0 24 24'
                       strokeWidth='2'

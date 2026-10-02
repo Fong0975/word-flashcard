@@ -29,11 +29,11 @@ export const OptionsSelectionList: React.FC<OptionsSelectionListProps> = ({
           value={option.key}
           checked={selectedAnswer === option.key}
           onChange={e => onSelect(e.target.value)}
-          className='mt-1 h-4 w-4 border-gray-300 bg-gray-100 text-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-primary-600'
+          className='glass-radio mt-1'
         />
         <div className='flex-1'>
           <div className='flex items-start space-x-2'>
-            <span className='inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200'>
+            <span className='inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-primary-100 text-sm font-medium text-primary-800 dark:bg-primary-900 dark:text-primary-200'>
               {option.key}
             </span>
             <span className='leading-relaxed text-gray-700 dark:text-gray-300'>

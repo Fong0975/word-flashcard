@@ -32,7 +32,7 @@ export const QuizResultsFooter: React.FC<QuizResultsFooterProps> = ({
 
     <button
       onClick={onBackToHome}
-      className='flex w-full items-center justify-center space-x-2 rounded-md bg-gray-100 px-6 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+      className='glass-interactive focus-ring flex w-full items-center justify-center space-x-2 rounded-md px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300'
     >
       <svg
         className='h-4 w-4'

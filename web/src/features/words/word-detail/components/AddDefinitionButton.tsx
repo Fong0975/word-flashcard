@@ -12,7 +12,7 @@ export const AddDefinitionButton: React.FC<AddDefinitionButtonProps> = ({
       <button
         type='button'
         onClick={onClick}
-        className='rounded-md p-2 text-gray-600 transition-colors hover:bg-green-50 hover:text-green-600 dark:text-gray-400 dark:hover:bg-green-900/20 dark:hover:text-green-400'
+        className='focus-ring-success rounded-md p-2 text-gray-600 transition-colors hover:bg-green-50 hover:text-green-600 dark:text-gray-400 dark:hover:bg-green-900/20 dark:hover:text-green-400'
         title='Add new definition'
       >
         <svg

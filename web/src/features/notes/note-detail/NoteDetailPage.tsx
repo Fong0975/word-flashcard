@@ -122,7 +122,7 @@ export const NoteDetailPage: React.FC = () => {
             <div
               role='status'
               aria-label='Loading'
-              className='h-12 w-12 animate-spin rounded-full border-b-2 border-blue-500'
+              className='h-12 w-12 animate-spin rounded-full border-b-2 border-primary-500'
             ></div>
           </div>
         }
@@ -175,7 +175,7 @@ export const NoteDetailPage: React.FC = () => {
           </button>
         </div>
       </div>
-      <p className='mt-1 text-xs text-gray-400 dark:text-gray-500'>
+      <p className='text-supporting mt-1 text-xs'>
         Updated: {formatNoteDateTime(note.updated_at)}
       </p>
     </div>
@@ -204,7 +204,7 @@ export const NoteDetailPage: React.FC = () => {
               type='button'
               onClick={deleteConfirmation.confirmDelete}
               disabled={deleteConfirmation.isDeleting}
-              className='rounded-md bg-red-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50'
+              className='focus-ring-danger rounded-md bg-red-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50'
             >
               {deleteConfirmation.isDeleting ? 'Deleting...' : 'Delete'}
             </button>
@@ -223,7 +223,7 @@ export const NoteDetailPage: React.FC = () => {
       {note.content ? (
         <MarkdownContent content={note.content} />
       ) : (
-        <p className='text-sm text-gray-400 dark:text-gray-500'>
+        <p className='text-supporting text-sm'>
           No content yet. Click Edit to add content.
         </p>
       )}
@@ -259,9 +259,7 @@ export const NoteDetailPage: React.FC = () => {
         >
           Cancel
         </button>
-        {saveError && (
-          <p className='text-xs text-red-500 dark:text-red-400'>{saveError}</p>
-        )}
+        {saveError && <p className='text-error text-xs'>{saveError}</p>}
       </div>
     </div>
   );

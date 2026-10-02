@@ -51,7 +51,7 @@ describe('Toast', () => {
     render(<Toast id='1' message='FYI' type='info' onClose={vi.fn()} />);
 
     const alert = screen.getByRole('alert');
-    expect(alert).toHaveClass('bg-blue-50', 'border-blue-200');
+    expect(alert).toHaveClass('glass-alert-info');
     expect(alert).toContainHTML('M11.25 11.25l.041-.02');
     expect(screen.getByText('FYI')).toHaveClass('text-blue-800');
   });

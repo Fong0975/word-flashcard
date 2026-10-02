@@ -41,7 +41,7 @@ export const WordQuestionDisplay: React.FC<WordQuestionDisplayProps> = ({
       ).map((pos, index) => (
         <span
           key={index}
-          className='mx-1 inline-block rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+          className='mx-1 inline-block rounded-full bg-primary-100 px-2 py-1 text-xs font-medium text-primary-800 dark:bg-primary-900 dark:text-primary-200'
         >
           {pos}
         </span>
@@ -55,7 +55,7 @@ export const WordQuestionDisplay: React.FC<WordQuestionDisplayProps> = ({
         {word.definitions.length > 1 ? 's' : ''}
       </div>
     )}
-    <p className='mb-8 text-xs text-gray-400 dark:text-gray-500'>
+    <p className='text-supporting mb-8 text-xs'>
       Practice #{word.count_practise + 1}
     </p>
 

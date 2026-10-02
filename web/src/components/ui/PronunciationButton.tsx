@@ -59,7 +59,7 @@ export const PronunciationButton: React.FC<PronunciationButtonProps> = ({
       onClick={handleClick}
       disabled={disabled || !audioUrl || isLoading}
       title={accentInfo.title}
-      className={`inline-flex items-center space-x-1 rounded-md font-medium transition-colors duration-200 ${sizeClasses[size]} ${
+      className={`focus-ring-indigo inline-flex items-center space-x-1 rounded-md font-medium transition-colors duration-200 ${sizeClasses[size]} ${
         disabled || !audioUrl
           ? 'cursor-not-allowed bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500'
           : 'bg-indigo-100 text-indigo-800 hover:bg-indigo-200 active:bg-indigo-300 dark:bg-indigo-900/30 dark:text-indigo-300 dark:hover:bg-indigo-900/50 dark:active:bg-indigo-900/70'

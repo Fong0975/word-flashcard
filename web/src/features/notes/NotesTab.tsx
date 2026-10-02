@@ -135,7 +135,7 @@ export const NotesTab: React.FC = () => {
         <div
           role='status'
           aria-label='Loading'
-          className='h-8 w-8 animate-spin rounded-full border-b-2 border-blue-500'
+          className='h-8 w-8 animate-spin rounded-full border-b-2 border-primary-500'
         ></div>
       </div>
     );
@@ -205,7 +205,7 @@ export const NotesTab: React.FC = () => {
         <div className='relative'>
           <div className='pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3'>
             <svg
-              className='h-5 w-5 text-gray-400'
+              className='text-subtle h-5 w-5'
               fill='none'
               viewBox='0 0 24 24'
               strokeWidth='2'
@@ -230,7 +230,7 @@ export const NotesTab: React.FC = () => {
             <button
               type='button'
               onClick={() => notesHook.setSearchTerm('')}
-              className='absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
+              className='focus-ring text-supporting absolute inset-y-0 right-0 flex items-center rounded-md pr-3 hover:text-gray-900 focus-visible:text-gray-900 dark:hover:text-gray-200 dark:focus-visible:text-gray-200'
               aria-label='Clear search'
             >
               <svg
@@ -277,7 +277,7 @@ export const NotesTab: React.FC = () => {
         {/* Loading indicator (while searching) */}
         {notesHook.loading && (
           <div className='mb-3 flex justify-center'>
-            <div className='h-5 w-5 animate-spin rounded-full border-b-2 border-blue-500'></div>
+            <div className='h-5 w-5 animate-spin rounded-full border-b-2 border-primary-500'></div>
           </div>
         )}
 
@@ -329,7 +329,7 @@ export const NotesTab: React.FC = () => {
               type='button'
               onClick={notesHook.previousPage}
               disabled={!notesHook.hasPrevious}
-              className='rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700'
+              className='focus-ring rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700'
             >
               Previous
             </button>
@@ -340,7 +340,7 @@ export const NotesTab: React.FC = () => {
               type='button'
               onClick={notesHook.nextPage}
               disabled={!notesHook.hasNext}
-              className='rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700'
+              className='focus-ring rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700'
             >
               Next
             </button>

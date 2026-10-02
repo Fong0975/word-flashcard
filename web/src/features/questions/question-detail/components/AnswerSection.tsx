@@ -28,11 +28,11 @@ export const AnswerSection: React.FC<AnswerSectionProps> = ({
 
   const correctAnswerContent = getCorrectAnswerContent();
   return (
-    <div className='overflow-hidden rounded-lg border border-yellow-300/60 bg-yellow-100/50 backdrop-blur-lg dark:border-yellow-700/40 dark:bg-yellow-900/30'>
+    <div className='glass-tint-yellow overflow-hidden rounded-lg'>
       {/* Collapsible Header */}
       <button
         onClick={onToggle}
-        className='flex w-full items-center justify-between p-4 transition-colors hover:bg-yellow-200/50 dark:hover:bg-yellow-800/30'
+        className='focus-ring-warning flex w-full items-center justify-between p-4 transition-colors hover:bg-yellow-200/50 focus-visible:bg-yellow-200/50 focus-visible:ring-inset dark:hover:bg-yellow-800/30 dark:focus-visible:bg-yellow-800/30'
       >
         <h2 className='text-lg font-semibold text-yellow-800 dark:text-yellow-200'>
           Answer & Explanation
@@ -69,7 +69,7 @@ export const AnswerSection: React.FC<AnswerSectionProps> = ({
               </span>
               {/* Answer Content */}
               <div className='flex-1'>
-                <div className='text-base font-medium leading-relaxed text-gray-900 dark:text-gray-100'>
+                <div className='text-base font-medium leading-relaxed text-gray-900 dark:text-white'>
                   {correctAnswerContent || 'Answer content not found'}
                 </div>
               </div>

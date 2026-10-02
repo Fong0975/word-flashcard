@@ -38,7 +38,7 @@ export const FormFields: React.FC<FormFieldsProps> = ({
       {/* Part of Speech - Required */}
       <div>
         <label className='mb-3 block text-sm font-medium text-gray-700 dark:text-gray-300'>
-          Part of Speech <span className='text-red-500'>*</span>
+          Part of Speech <span className='text-error'>*</span>
         </label>
         <div className='grid grid-cols-2 gap-3 md:grid-cols-4'>
           {partOfSpeechOptions.map(pos => (
@@ -61,7 +61,7 @@ export const FormFields: React.FC<FormFieldsProps> = ({
           ))}
         </div>
         {formData.part_of_speech.length === 0 && (
-          <p className='mt-2 text-sm text-red-500'>
+          <p className='text-error mt-2 text-sm'>
             Please select at least one part of speech
           </p>
         )}
@@ -70,7 +70,7 @@ export const FormFields: React.FC<FormFieldsProps> = ({
       {/* Definition - Required */}
       <div>
         <label className='mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300'>
-          Definition <span className='text-red-500'>*</span>
+          Definition <span className='text-error'>*</span>
         </label>
         <textarea
           value={formData.definition}
@@ -81,7 +81,7 @@ export const FormFields: React.FC<FormFieldsProps> = ({
           required
         />
         {!formData.definition.trim() && (
-          <p className='mt-1 text-sm text-red-500'>Definition is required</p>
+          <p className='text-error mt-1 text-sm'>Definition is required</p>
         )}
       </div>
 
@@ -108,7 +108,7 @@ export const FormFields: React.FC<FormFieldsProps> = ({
                 <button
                   type='button'
                   onClick={() => handlers.removeExampleInput(index)}
-                  className='p-2 text-red-600 transition-colors hover:text-red-800 dark:text-red-400 dark:hover:text-red-300'
+                  className='focus-ring-danger rounded-md p-2 text-red-600 transition-colors hover:text-red-800 dark:text-red-400 dark:hover:text-red-300'
                 >
                   <svg
                     className='h-4 w-4'
@@ -131,7 +131,7 @@ export const FormFields: React.FC<FormFieldsProps> = ({
         <button
           type='button'
           onClick={handlers.addExampleInput}
-          className='mt-3 inline-flex items-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800'
+          className='focus-ring mt-3 inline-flex items-center rounded-md border border-transparent bg-primary-100 px-4 py-2 text-sm font-medium text-primary-700 transition-colors hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800'
         >
           <svg
             className='mr-2 h-4 w-4'

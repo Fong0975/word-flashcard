@@ -59,7 +59,7 @@ export const CategoryCountInputs: React.FC<CategoryCountInputsProps> = ({
         </div>
       ))}
     </div>
-    <div className='mt-3 flex items-center gap-3 border-t border-gray-200 pt-3 dark:border-gray-600'>
+    <div className='mt-3 flex items-center gap-3 border-t border-gray-200 pt-3 dark:border-gray-700'>
       <div className='h-4 w-4 flex-shrink-0' />
       <span className='flex-1 text-sm font-medium text-gray-700 dark:text-gray-300'>
         Total
@@ -72,7 +72,7 @@ export const CategoryCountInputs: React.FC<CategoryCountInputsProps> = ({
       Set a category to 0 to skip it.
     </p>
     {allZero && (
-      <p className='mt-2 text-sm text-red-500'>
+      <p className='text-error mt-2 text-sm'>
         Please set at least one category count greater than 0.
       </p>
     )}

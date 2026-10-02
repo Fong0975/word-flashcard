@@ -51,6 +51,27 @@ describe('PaginationNavButton', () => {
     expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
   });
 
+  it.each([
+    ['desktop', ['bg-white/10', 'backdrop-blur-lg'], ['bg-gray-100']],
+    ['mobile', ['glass-panel'], ['bg-gray-100']],
+  ] as const)(
+    'applies the %s disabled surface',
+    (layout, expectedClasses, absentClasses) => {
+      render(
+        <PaginationNavButton
+          type='next'
+          layout={layout}
+          isEnabled={false}
+          onClick={vi.fn()}
+        />,
+      );
+
+      const button = screen.getByRole('button', { name: 'Next' });
+      expect(button).toHaveClass('cursor-not-allowed', ...expectedClasses);
+      absentClasses.forEach(cls => expect(button).not.toHaveClass(cls));
+    },
+  );
+
   it('renders in the mobile layout without crashing', () => {
     render(
       <PaginationNavButton

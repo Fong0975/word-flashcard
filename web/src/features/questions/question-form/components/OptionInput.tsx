@@ -26,7 +26,7 @@ export const OptionInput: React.FC<OptionInputProps> = ({
         htmlFor={optionId}
         className='mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400'
       >
-        Option {option} {isRequired && <span className='text-red-500'>*</span>}
+        Option {option} {isRequired && <span className='text-error'>*</span>}
       </label>
       <input
         type='text'

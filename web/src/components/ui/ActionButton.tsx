@@ -22,7 +22,7 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
     transition-colors duration-200
     ${
       disabled
-        ? 'border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+        ? 'glass-panel text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-60'
         : 'glass-interactive text-gray-700 dark:text-gray-200'
     }
     ${className}

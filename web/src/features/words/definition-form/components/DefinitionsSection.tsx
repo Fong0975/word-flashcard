@@ -17,7 +17,7 @@ export const DefinitionsSection: React.FC<DefinitionsSectionProps> = ({
 
   return (
     <div className='mt-3 space-y-3'>
-      <h4 className='mb-4 text-base font-medium text-gray-900 dark:text-gray-300'>
+      <h4 className='mb-4 text-base font-medium text-gray-900 dark:text-white'>
         Definitions
       </h4>
       {definitions.map(def => (
@@ -32,7 +32,7 @@ export const DefinitionsSection: React.FC<DefinitionsSectionProps> = ({
                   {def.pos}
                 </span>
               </div>
-              <p className='mb-2 text-sm text-gray-900 dark:text-gray-100'>
+              <p className='mb-2 text-sm text-gray-900 dark:text-white'>
                 <span className='font-medium'>{def.translation}</span>{' '}
                 {def.text}
               </p>
@@ -55,7 +55,7 @@ export const DefinitionsSection: React.FC<DefinitionsSectionProps> = ({
             <button
               type='button'
               onClick={() => onApplyDefinition(def)}
-              className='ml-4 flex-shrink-0 rounded bg-green-100 px-3 py-1 text-xs font-medium text-green-700 transition-colors hover:bg-green-200 dark:bg-green-800 dark:text-green-300 dark:hover:bg-green-700'
+              className='focus-ring-success ml-4 flex-shrink-0 rounded bg-green-100 px-3 py-1 text-xs font-medium text-green-700 transition-colors hover:bg-green-200 dark:bg-green-800 dark:text-green-300 dark:hover:bg-green-700'
             >
               Apply
             </button>

@@ -22,7 +22,7 @@ export const PronunciationSection: React.FC<PronunciationSectionProps> = ({
 
   return (
     <div className='rounded-lg bg-gray-50 dark:bg-gray-800/50'>
-      <h4 className='mb-4 text-base font-medium text-gray-900 dark:text-gray-300'>
+      <h4 className='mb-4 text-base font-medium text-gray-900 dark:text-white'>
         Pronunciation
       </h4>
       <div className='space-y-4'>
@@ -34,11 +34,11 @@ export const PronunciationSection: React.FC<PronunciationSectionProps> = ({
             <div className='mb-3 flex items-center justify-between'>
               <div className='flex items-center space-x-2'>
                 {group.pos !== 'general' && (
-                  <span className='inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800 dark:bg-blue-800 dark:text-blue-300'>
+                  <span className='inline-flex items-center rounded-full bg-primary-100 px-2 py-1 text-xs font-medium text-primary-800 dark:bg-primary-800 dark:text-primary-300'>
                     {group.pos}
                   </span>
                 )}
-                <span className='text-sm font-medium text-blue-900 dark:text-blue-300'>
+                <span className='text-sm font-medium text-primary-900 dark:text-primary-300'>
                   {group.pos === 'general'
                     ? 'General Pronunciation'
                     : `${group.pos} pronunciation`}
@@ -54,7 +54,7 @@ export const PronunciationSection: React.FC<PronunciationSectionProps> = ({
                   );
                 }}
                 disabled={!group.uk?.url && !group.us?.url}
-                className='rounded bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-200 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-800 dark:text-blue-300 dark:hover:bg-blue-700'
+                className='focus-ring rounded bg-primary-100 px-3 py-1 text-xs font-medium text-primary-700 transition-colors hover:bg-primary-200 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-primary-800 dark:text-primary-300 dark:hover:bg-primary-700'
               >
                 Apply
               </button>
@@ -63,7 +63,7 @@ export const PronunciationSection: React.FC<PronunciationSectionProps> = ({
               {group.uk && (
                 <div className='flex items-center justify-between text-sm'>
                   <div className='flex items-center space-x-2'>
-                    <span className='font-medium uppercase text-blue-800 dark:text-blue-300'>
+                    <span className='font-medium uppercase text-primary-800 dark:text-primary-300'>
                       UK:
                     </span>
                     <span className='text-gray-700 dark:text-gray-300'>
@@ -80,7 +80,7 @@ export const PronunciationSection: React.FC<PronunciationSectionProps> = ({
               {group.us && (
                 <div className='flex items-center justify-between text-sm'>
                   <div className='flex items-center space-x-2'>
-                    <span className='font-medium uppercase text-blue-800 dark:text-blue-300'>
+                    <span className='font-medium uppercase text-primary-800 dark:text-primary-300'>
                       US:
                     </span>
                     <span className='text-gray-700 dark:text-gray-300'>

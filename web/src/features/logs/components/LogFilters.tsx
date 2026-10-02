@@ -77,7 +77,7 @@ export const LogFilters: React.FC<LogFiltersProps> = ({
             type='button'
             onClick={onKeywordClear}
             aria-label='Clear search'
-            className='absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
+            className='focus-ring text-supporting absolute inset-y-0 right-2 flex items-center rounded-md hover:text-gray-900 focus-visible:text-gray-900 dark:hover:text-gray-200 dark:focus-visible:text-gray-200'
           >
             <svg
               className='h-3 w-3'

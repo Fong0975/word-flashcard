@@ -94,7 +94,7 @@ export const BackupsModal: React.FC<BackupsModalProps> = ({
           onClick={refetch}
           disabled={loading}
           aria-label='Refresh backup list'
-          className='flex items-center gap-1 rounded-md px-2 py-1 text-xs text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white'
+          className='focus-ring flex items-center gap-1 rounded-md px-2 py-1 text-xs text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white'
         >
           <svg
             viewBox='0 0 24 24'
@@ -117,7 +117,7 @@ export const BackupsModal: React.FC<BackupsModalProps> = ({
       {loading && <LoadingSpinner message='' />}
 
       {error && (
-        <div className='flex h-24 items-center justify-center text-sm text-red-500'>
+        <div className='text-error flex h-24 items-center justify-center text-sm'>
           {error}
         </div>
       )}
@@ -144,13 +144,13 @@ export const BackupsModal: React.FC<BackupsModalProps> = ({
                 return (
                   <tr
                     key={backup.name}
-                    className='border-b border-gray-100 last:border-0 dark:border-gray-700/50'
+                    className='border-b border-gray-100 last:border-0 dark:border-gray-700'
                   >
                     <td className='break-all py-2 pl-2 pr-4 text-gray-900 dark:text-white'>
                       <a
                         href={`${API_CONFIG.baseURL}${API_ENDPOINTS.downloadBackup(backup.name)}`}
                         download={backup.name}
-                        className='text-blue-600 hover:underline dark:text-blue-400'
+                        className='focus-ring rounded-sm text-primary-600 hover:underline focus-visible:underline dark:text-primary-400'
                       >
                         {stripJsonExtension(backup.name)}
                       </a>
@@ -161,9 +161,7 @@ export const BackupsModal: React.FC<BackupsModalProps> = ({
                     <td className='whitespace-nowrap py-2 pr-2 text-gray-500 dark:text-gray-400'>
                       <div className='flex flex-col'>
                         <span>{date}</span>
-                        <span className='text-xs text-gray-400 dark:text-gray-500'>
-                          {time}
-                        </span>
+                        <span className='text-supporting text-xs'>{time}</span>
                       </div>
                     </td>
                   </tr>

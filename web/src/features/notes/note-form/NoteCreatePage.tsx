@@ -79,9 +79,7 @@ export const NoteCreatePage: React.FC = () => {
         >
           {isSaving ? 'Saving...' : 'Save'}
         </button>
-        {saveError && (
-          <p className='text-xs text-red-500 dark:text-red-400'>{saveError}</p>
-        )}
+        {saveError && <p className='text-error text-xs'>{saveError}</p>}
       </div>
     </div>
   );

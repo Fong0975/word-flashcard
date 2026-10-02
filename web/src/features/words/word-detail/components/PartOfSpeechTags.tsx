@@ -19,7 +19,7 @@ export const PartOfSpeechTags: React.FC<PartOfSpeechTagsProps> = ({
         .map((pos, index) => (
           <span
             key={index}
-            className='inline-block rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+            className='inline-block rounded-full bg-primary-100 px-2 py-1 text-xs font-medium text-primary-800 dark:bg-primary-900 dark:text-primary-200'
           >
             {pos.trim()}
           </span>

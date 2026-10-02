@@ -81,15 +81,15 @@ export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
       </div>
 
       {/* Summary */}
-      <div className='mb-8 mt-4 grid grid-cols-1 gap-4 rounded-xl bg-white p-8 shadow-lg dark:bg-gray-800'>
+      <div className='glass-panel mb-8 mt-4 grid grid-cols-1 gap-4 rounded-xl p-8'>
         {/* Total Number */}
-        <div className='text-center text-6xl font-bold text-gray-500 dark:text-gray-300'>
+        <div className='text-center text-6xl font-bold text-gray-700 dark:text-gray-200'>
           {totalQuestions}
         </div>
 
         {/* Familiarity Distribution */}
         <div className='flex items-center gap-4 border-t border-gray-200 pt-4 dark:border-gray-700'>
-          <span className='w-16 flex-shrink-0 text-right text-xs font-medium uppercase tracking-wide text-gray-400 dark:text-gray-500'>
+          <span className='text-supporting w-16 flex-shrink-0 text-right text-xs font-medium uppercase tracking-wide'>
             After
           </span>
           <div className='flex flex-1 gap-2'>
@@ -125,12 +125,12 @@ export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
 
         {/* Statistics */}
         <div className='flex items-center gap-4 border-t border-gray-200 pt-4 dark:border-gray-700'>
-          <span className='w-16 flex-shrink-0 text-right text-xs font-medium uppercase tracking-wide text-gray-400 dark:text-gray-500'>
+          <span className='text-supporting w-16 flex-shrink-0 text-right text-xs font-medium uppercase tracking-wide'>
             Change
           </span>
           <div className='flex flex-1 gap-2'>
-            <span className='flex flex-1 items-center justify-center gap-2 rounded-lg bg-gray-100 px-3 py-2 dark:bg-gray-700'>
-              <span className='text-base font-bold text-blue-500 dark:text-blue-400'>
+            <span className='glass-panel-card flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2'>
+              <span className='text-base font-bold text-primary-500 dark:text-primary-400'>
                 ↑
               </span>
               <span
@@ -140,8 +140,8 @@ export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
                 {improvementCount}
               </span>
             </span>
-            <span className='flex flex-1 items-center justify-center gap-2 rounded-lg bg-gray-100 px-3 py-2 dark:bg-gray-700'>
-              <span className='text-base font-bold text-gray-400 dark:text-gray-500'>
+            <span className='glass-panel-card flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2'>
+              <span className='text-base font-bold text-gray-900 dark:text-white'>
                 →
               </span>
               <span
@@ -151,8 +151,8 @@ export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
                 {stayCount}
               </span>
             </span>
-            <span className='flex flex-1 items-center justify-center gap-2 rounded-lg bg-gray-100 px-3 py-2 dark:bg-gray-700'>
-              <span className='text-base font-bold text-orange-500 dark:text-orange-400'>
+            <span className='glass-panel-card flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2'>
+              <span className='text-base font-bold text-orange-600 dark:text-orange-400'>
                 ↓
               </span>
               <span
@@ -167,7 +167,7 @@ export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
       </div>
 
       {/* Results List */}
-      <div className='mb-8 rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800'>
+      <div className='glass-panel mb-8 rounded-lg'>
         <div className='border-b border-gray-200 px-6 py-4 dark:border-gray-700'>
           <h2 className='text-lg font-semibold text-gray-900 dark:text-white'>
             Quiz Results ({totalQuestions} words)
@@ -201,7 +201,7 @@ export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
                 <div className='flex flex-col items-center space-y-2'>
                   <FamiliarityBadge familiarity={result.oldFamiliarity} />
 
-                  <div className='text-gray-400 dark:text-gray-600'>to</div>
+                  <div className='text-supporting'>to</div>
 
                   <FamiliarityBadge familiarity={result.newFamiliarity} />
                 </div>

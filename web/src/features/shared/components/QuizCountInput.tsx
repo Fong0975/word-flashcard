@@ -37,7 +37,7 @@ export const QuizCountInput: React.FC<QuizCountInputProps> = ({
           error ? 'border-red-500 dark:border-red-400' : ''
         } `}
       />
-      {error && <p className='text-sm text-red-500'>{error}</p>}
+      {error && <p className='text-error text-sm'>{error}</p>}
       {!error && count > 0 && (
         <p className='text-sm text-gray-500 dark:text-gray-400'>
           Quiz will contain {count} question
@@ -56,7 +56,7 @@ export const QuizCountInput: React.FC<QuizCountInputProps> = ({
               key={option}
               type='button'
               onClick={() => onQuickSelect(option)}
-              className='rounded-md bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-200 dark:bg-gray-600 dark:text-gray-300 dark:hover:bg-gray-500'
+              className='glass-interactive focus-ring rounded-md px-3 py-1 text-xs font-medium text-gray-600 dark:text-gray-300'
             >
               {option}
             </button>

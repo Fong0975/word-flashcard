@@ -30,7 +30,7 @@ const DESKTOP_ROUNDED_CLASS: Partial<Record<NavButtonType, string>> = {
 
 const mobileBaseClass = `
   px-3 py-2 text-sm font-medium rounded-md
-  focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
+  focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:border-transparent
   w-full mx-1 relative inline-flex items-center justify-center
 `;
 
@@ -38,7 +38,7 @@ const mobileBaseClass = `
 // (see Pagination.tsx's `-space-x-px`), so the border must stay visible at
 // rest to delineate each button; only the fill is toned down to glass.
 const desktopBaseClass =
-  'relative inline-flex items-center border border-gray-300 px-3 py-2 text-sm font-medium dark:border-gray-600';
+  'relative inline-flex items-center border border-gray-300 px-3 py-2 text-sm font-medium focus-visible:z-10 dark:border-gray-600';
 
 // Mobile nav buttons are standalone (not edge-to-edge), so they can go fully
 // transparent at rest and reveal the glass surface on hover/focus/active.
@@ -46,13 +46,19 @@ const mobileEnabledClass = 'glass-interactive text-gray-700 dark:text-gray-200';
 
 const desktopEnabledClass = `
   bg-transparent text-gray-700 dark:text-gray-200 transition-colors duration-200
-  hover:bg-gray-100/60 hover:backdrop-blur-md dark:hover:bg-gray-800/50
+  glass-hover-fill
   active:bg-gray-200/70 dark:active:bg-gray-700/70
+  focus-visible:ring-2 focus-visible:ring-primary-500
 `;
 
-const disabledClass = `
-  bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500
-  cursor-not-allowed opacity-60
+const mobileDisabledClass =
+  'glass-panel text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-60';
+
+// Same fill and blur as `.glass-panel`, but without its border/shadow so the
+// segmented bar keeps its own visible per-button border.
+const desktopDisabledClass = `
+  bg-white/10 dark:bg-gray-800/20 backdrop-blur-lg
+  text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-60
 `;
 
 // Shared First/Previous/Next/Last pagination button, used for both the
@@ -69,6 +75,8 @@ export const PaginationNavButton: React.FC<PaginationNavButtonProps> = ({
       : `${desktopBaseClass} ${DESKTOP_ROUNDED_CLASS[type] || ''}`;
   const enabledClass =
     layout === 'mobile' ? mobileEnabledClass : desktopEnabledClass;
+  const disabledClass =
+    layout === 'mobile' ? mobileDisabledClass : desktopDisabledClass;
 
   return (
     <button

@@ -163,7 +163,7 @@ export const WordDetailPage: React.FC = () => {
             <div
               role='status'
               aria-label='Loading'
-              className='h-12 w-12 animate-spin rounded-full border-b-2 border-blue-500'
+              className='h-12 w-12 animate-spin rounded-full border-b-2 border-primary-500'
             ></div>
           </div>
         }
@@ -210,7 +210,7 @@ export const WordDetailPage: React.FC = () => {
             {word.reminder && (
               <div className='mb-4 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-700/50 dark:bg-amber-900/20'>
                 <svg
-                  className='mt-0.5 h-4 w-4 shrink-0 text-amber-500 dark:text-amber-400'
+                  className='mt-0.5 h-4 w-4 shrink-0 text-amber-700 dark:text-amber-400'
                   fill='currentColor'
                   viewBox='0 0 20 20'
                 >
@@ -226,7 +226,7 @@ export const WordDetailPage: React.FC = () => {
                 <button
                   type='button'
                   onClick={() => setShowClearReminderConfirm(true)}
-                  className='mt-0.5 shrink-0 text-amber-400 transition-colors hover:text-amber-600 dark:text-amber-500 dark:hover:text-amber-300'
+                  className='focus-ring-warning mt-0.5 shrink-0 rounded-md text-amber-700 transition-colors hover:text-amber-900 dark:text-amber-500 dark:hover:text-amber-300'
                   aria-label='Clear reminder'
                 >
                   <svg

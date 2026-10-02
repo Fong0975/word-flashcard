@@ -55,7 +55,7 @@ export const FamiliaritySelectionList: React.FC<
       ))}
     </div>
     {selectedFamiliarity.length === 0 && (
-      <p className='mt-2 text-sm text-red-500'>
+      <p className='text-error mt-2 text-sm'>
         Please select at least one familiarity level.
       </p>
     )}

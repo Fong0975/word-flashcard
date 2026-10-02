@@ -15,13 +15,11 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
   title = 'Error loading data',
   className = '',
 }) => (
-  <div
-    className={`mb-6 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-700 dark:bg-red-900/20 ${className}`}
-  >
+  <div className={`glass-alert-error mb-6 rounded-lg p-4 ${className}`}>
     <div className='flex items-start'>
       <div className='flex-shrink-0'>
         <svg
-          className='h-5 w-5 text-red-400'
+          className='text-error h-5 w-5'
           fill='none'
           viewBox='0 0 24 24'
           strokeWidth='2'
@@ -42,13 +40,13 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
         <div className='mt-3 flex space-x-3'>
           <button
             onClick={onRetry}
-            className='rounded-md bg-red-100 px-3 py-1 text-sm font-medium text-red-800 transition-colors hover:bg-red-200 dark:bg-red-800 dark:text-red-200 dark:hover:bg-red-700'
+            className='focus-ring-danger rounded-md bg-red-100 px-3 py-1 text-sm font-medium text-red-800 transition-colors hover:bg-red-200 dark:bg-red-800 dark:text-red-200 dark:hover:bg-red-700'
           >
             Try again
           </button>
           <button
             onClick={onDismiss}
-            className='text-sm font-medium text-red-700 hover:text-red-900 dark:text-red-300 dark:hover:text-red-100'
+            className='focus-ring-danger rounded-md text-sm font-medium text-red-700 hover:text-red-900 dark:text-red-300 dark:hover:text-red-100'
           >
             Dismiss
           </button>

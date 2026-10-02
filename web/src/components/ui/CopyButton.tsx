@@ -83,7 +83,7 @@ export const CopyButton: React.FC<CopyButtonProps> = ({
 
   const getVariantClasses = () => {
     const baseClasses =
-      'transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-md';
+      'transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-md';
 
     switch (variant) {
       case 'ghost':
@@ -141,7 +141,7 @@ export const CopyButton: React.FC<CopyButtonProps> = ({
         </svg>
       ) : copyError ? (
         <svg
-          className={`${getIconSize()} text-red-500 dark:text-red-400`}
+          className={`${getIconSize()} text-error`}
           fill='none'
           viewBox='0 0 24 24'
           strokeWidth='2'

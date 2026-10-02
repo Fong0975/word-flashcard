@@ -216,7 +216,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
             <div className='mx-auto max-w-4xl'>
               {/* Word Display */}
               <div className='mb-8 text-center'>
-                <p className='mb-4 text-xs text-gray-400 dark:text-gray-500'>
+                <p className='text-supporting mb-4 text-xs'>
                   Practice #{currentWord.count_practise + 1}
                 </p>
                 {/* Pronunciation buttons */}

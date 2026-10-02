@@ -122,7 +122,7 @@ export const LogsPage: React.FC = () => {
             disabled={loading}
             aria-label='Refresh logs'
             title='Refresh'
-            className='rounded-md p-1 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white'
+            className='focus-ring rounded-md p-1 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white'
           >
             <svg
               className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`}

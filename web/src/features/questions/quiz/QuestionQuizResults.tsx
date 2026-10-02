@@ -85,7 +85,7 @@ export const QuestionQuizResults: React.FC<QuestionQuizResultsProps> = ({
       </div>
 
       {/* Score Summary */}
-      <div className='mb-8 rounded-xl bg-white p-8 shadow-lg dark:bg-gray-800'>
+      <div className='glass-panel mb-8 rounded-xl p-8'>
         <div className='text-center'>
           <div
             className={`mb-4 text-6xl font-bold ${getScoreColor(accuracyPercentage)}`}
@@ -118,7 +118,7 @@ export const QuestionQuizResults: React.FC<QuestionQuizResultsProps> = ({
             </div>
           </div>
           <div className='text-center'>
-            <div className='text-2xl font-bold text-blue-600 dark:text-blue-400'>
+            <div className='text-2xl font-bold text-primary-600 dark:text-primary-400'>
               {totalQuestions}
             </div>
             <div className='text-sm text-gray-600 dark:text-gray-400'>
@@ -129,7 +129,7 @@ export const QuestionQuizResults: React.FC<QuestionQuizResultsProps> = ({
       </div>
 
       {/* Question by Question Results */}
-      <div className='mb-8 rounded-xl bg-white p-2 shadow-lg dark:bg-gray-800 md:p-4 lg:p-6'>
+      <div className='glass-panel mb-8 rounded-xl p-2 md:p-4 lg:p-6'>
         <h2 className='mb-6 text-xl font-bold text-gray-900 dark:text-white'>
           Question Review
         </h2>
@@ -193,7 +193,7 @@ export const QuestionQuizResults: React.FC<QuestionQuizResultsProps> = ({
                       </div>
                     )}
 
-                    <p className='text-xs text-gray-400 dark:text-gray-500'>
+                    <p className='text-supporting text-xs'>
                       {result.updatedStats.countPractise} practised &middot;{' '}
                       {result.updatedStats.countFailurePractise} incorrect
                       &middot;{' '}

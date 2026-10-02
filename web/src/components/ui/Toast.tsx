@@ -36,30 +36,30 @@ export const Toast: React.FC<ToastProps> = ({
   const getTypeStyles = () => {
     switch (type) {
       case 'success':
-        return 'bg-green-50 border-green-200 dark:bg-green-900/60 dark:border-green-700';
+        return 'glass-alert-success';
       case 'error':
-        return 'bg-red-50 border-red-200 dark:bg-red-900/60 dark:border-red-700';
+        return 'glass-alert-error';
       case 'warning':
-        return 'bg-yellow-50 border-yellow-200 dark:bg-yellow-900/60 dark:border-yellow-700';
+        return 'glass-alert-warning';
       case 'info':
-        return 'bg-blue-50 border-blue-200 dark:bg-blue-900/60 dark:border-blue-700';
+        return 'glass-alert-info';
       default:
-        return 'bg-gray-50 border-gray-200 dark:bg-gray-900/60 dark:border-gray-700';
+        return 'glass-alert-neutral';
     }
   };
 
   const getIconColor = () => {
     switch (type) {
       case 'success':
-        return 'text-green-400';
+        return 'text-green-600 dark:text-green-400';
       case 'error':
-        return 'text-red-400';
+        return 'text-error';
       case 'warning':
-        return 'text-yellow-400';
+        return 'text-yellow-700 dark:text-yellow-400';
       case 'info':
-        return 'text-blue-400';
+        return 'text-blue-600 dark:text-blue-400';
       default:
-        return 'text-gray-400';
+        return 'text-subtle';
     }
   };
 
