@@ -46,7 +46,7 @@ const mobileEnabledClass = 'glass-interactive text-gray-700 dark:text-gray-200';
 
 const desktopEnabledClass = `
   bg-transparent text-gray-700 dark:text-gray-200 transition-colors duration-200
-  hover:bg-gray-100/60 hover:backdrop-blur-md dark:hover:bg-gray-800/50
+  glass-hover-fill
   active:bg-gray-200/70 dark:active:bg-gray-700/70
   focus-visible:ring-2 focus-visible:ring-primary-500
 `;

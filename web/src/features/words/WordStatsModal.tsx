@@ -122,7 +122,7 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
               <button
                 type='button'
                 onClick={() => setActiveTab('practice')}
-                className={`border-l border-white/30 px-4 py-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-white/10 ${
+                className={`segmented-divider px-4 py-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
                   activeTab === 'practice'
                     ? 'glass-button-primary'
                     : 'glass-interactive text-gray-600 dark:text-gray-300'
@@ -133,7 +133,7 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
               <button
                 type='button'
                 onClick={() => setActiveTab('trend')}
-                className={`rounded-r-md border-l border-white/30 px-4 py-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-white/10 ${
+                className={`segmented-divider rounded-r-md px-4 py-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
                   activeTab === 'trend'
                     ? 'glass-button-primary'
                     : 'glass-interactive text-gray-600 dark:text-gray-300'

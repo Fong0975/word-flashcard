@@ -28,7 +28,7 @@ export const AnswerSection: React.FC<AnswerSectionProps> = ({
 
   const correctAnswerContent = getCorrectAnswerContent();
   return (
-    <div className='overflow-hidden rounded-lg border border-yellow-300/60 bg-yellow-100/50 backdrop-blur-lg dark:border-yellow-700/40 dark:bg-yellow-900/30'>
+    <div className='glass-tint-yellow overflow-hidden rounded-lg'>
       {/* Collapsible Header */}
       <button
         onClick={onToggle}

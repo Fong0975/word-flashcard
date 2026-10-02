@@ -34,7 +34,7 @@ export const DictionaryLookup: React.FC<DictionaryLookupProps> = ({
   }
 
   return (
-    <div className='mb-4 overflow-hidden rounded-lg border border-green-300/60 bg-green-100/50 backdrop-blur-lg dark:border-green-700/40 dark:bg-green-900/30'>
+    <div className='glass-tint-green mb-4 overflow-hidden rounded-lg'>
       <DictionaryLookupHeader
         isLoadingDictionary={isLoadingDictionary}
         isCollapsed={isCollapsed}

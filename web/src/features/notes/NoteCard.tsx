@@ -43,13 +43,11 @@ export const NoteCard: React.FC<NoteCardProps> = ({
       onDrop={showReorderControls ? onDrop : undefined}
       onDragEnd={showReorderControls ? onDragEnd : undefined}
       className={`group flex items-center gap-3 rounded-lg border p-3 transition-all ${
-        showReorderControls
-          ? isDragging
-            ? 'opacity-50'
-            : isDragOver
-              ? 'border-primary-400 bg-primary-50 dark:border-primary-500 dark:bg-primary-900/20'
-              : 'glass-panel-card hover:border-primary-300 hover:bg-gray-100/80 hover:shadow-md dark:hover:border-primary-600 dark:hover:bg-gray-800/70'
-          : 'glass-panel-card hover:border-primary-300 hover:bg-gray-100/80 hover:shadow-md dark:hover:border-primary-600 dark:hover:bg-gray-800/70'
+        showReorderControls && isDragging
+          ? 'opacity-50'
+          : showReorderControls && isDragOver
+            ? 'border-primary-400 bg-primary-50 dark:border-primary-500 dark:bg-primary-900/20'
+            : 'glass-panel-card glass-card-hover'
       } ${showReorderControls ? 'cursor-grab active:cursor-grabbing' : ''}`}
     >
       {/* Drag handle — hidden during search */}
