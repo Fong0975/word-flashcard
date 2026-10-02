@@ -28,6 +28,8 @@ Authoritative sources:
 
 Tailwind `primary` scale (blue, equal to Tailwind `blue`), defined in `tailwind.config.js`. `index.css` mirrors 50/100/500–900 as `--primary-*` CSS variables.
 
+Use `primary-*` for brand and interaction colors (active tab, focus rings, selected toggles, spinners, links, hover tints). Use `blue-*` only for the **info** status (Toast, `.glass-alert-info`, `.markdown-alert-note`, log level INFO, informational banners).
+
 | Token | Hex | Typical use |
 | --- | --- | --- |
 | `primary-50` | `#eff6ff` | |
@@ -238,7 +240,7 @@ Reuse these before building new UI (`web/src/components/ui`, `web/src/components
 | --- | --- |
 | Page shell | `DetailPageLayout` (`PageBackground` + `Header` + back button + `glass-panel` card) |
 | Top bar | `Header` (`glass-panel-strong`, `border-x-0 border-t-0`) |
-| Tabs | `TabNavigation` / `TabContent` (active: `border-blue-500 text-blue-600 dark:text-blue-400`; inactive: `gray-500`/`gray-400`, hover `gray-700`/`gray-300`) |
+| Tabs | `TabNavigation` / `TabContent` (active: `border-primary-500 text-primary-600 dark:text-primary-400`; inactive: `gray-500`/`gray-400`, hover `gray-700`/`gray-300`) |
 | Modal | `Modal` (`glass-panel-strong rounded-lg shadow-xl`, scrim `black/30`, header divider `gray-200`/`gray-700`) |
 | Confirm | `ConfirmationDialog` (`danger` / `warning` / `info`) |
 | Menu | `DropdownMenu`, `ActionButton` (selected item: `primary-500/10` + `primary-700` light, `primary-400/20` + `primary-200` dark) |
@@ -255,5 +257,4 @@ Extraction rule: if the same glass utility combination appears more than twice, 
 ## 11. Known gaps (for awareness, not yet fixed)
 
 - `data-theme='light'` selector in `index.css` is unused (theme is class-based); see §1.
-- Tab navigation uses `blue-500/600/400` directly instead of the `primary` scale (same hex values).
 - Empty-state and tab icons use emoji.

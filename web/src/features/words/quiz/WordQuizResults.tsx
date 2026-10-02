@@ -130,7 +130,7 @@ export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
           </span>
           <div className='flex flex-1 gap-2'>
             <span className='flex flex-1 items-center justify-center gap-2 rounded-lg bg-gray-100 px-3 py-2 dark:bg-gray-700'>
-              <span className='text-base font-bold text-blue-500 dark:text-blue-400'>
+              <span className='text-base font-bold text-primary-500 dark:text-primary-400'>
                 ↑
               </span>
               <span

@@ -35,7 +35,7 @@ export const DefinitionActions: React.FC<DefinitionActionsProps> = ({
         <button
           type='button'
           onClick={() => onEdit(definition)}
-          className='rounded-md p-2 text-gray-600 transition-colors hover:bg-blue-50 hover:text-blue-600 dark:text-gray-400 dark:hover:bg-blue-900/20 dark:hover:text-blue-400'
+          className='rounded-md p-2 text-gray-600 transition-colors hover:bg-primary-50 hover:text-primary-600 dark:text-gray-400 dark:hover:bg-primary-900/20 dark:hover:text-primary-400'
           title='Edit definition'
         >
           <svg

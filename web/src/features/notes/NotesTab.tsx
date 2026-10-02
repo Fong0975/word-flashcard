@@ -135,7 +135,7 @@ export const NotesTab: React.FC = () => {
         <div
           role='status'
           aria-label='Loading'
-          className='h-8 w-8 animate-spin rounded-full border-b-2 border-blue-500'
+          className='h-8 w-8 animate-spin rounded-full border-b-2 border-primary-500'
         ></div>
       </div>
     );
@@ -277,7 +277,7 @@ export const NotesTab: React.FC = () => {
         {/* Loading indicator (while searching) */}
         {notesHook.loading && (
           <div className='mb-3 flex justify-center'>
-            <div className='h-5 w-5 animate-spin rounded-full border-b-2 border-blue-500'></div>
+            <div className='h-5 w-5 animate-spin rounded-full border-b-2 border-primary-500'></div>
           </div>
         )}
 

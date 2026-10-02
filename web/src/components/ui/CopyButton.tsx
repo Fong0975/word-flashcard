@@ -83,7 +83,7 @@ export const CopyButton: React.FC<CopyButtonProps> = ({
 
   const getVariantClasses = () => {
     const baseClasses =
-      'transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-md';
+      'transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 rounded-md';
 
     switch (variant) {
       case 'ghost':

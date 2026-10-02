@@ -163,7 +163,7 @@ export const WordDetailPage: React.FC = () => {
             <div
               role='status'
               aria-label='Loading'
-              className='h-12 w-12 animate-spin rounded-full border-b-2 border-blue-500'
+              className='h-12 w-12 animate-spin rounded-full border-b-2 border-primary-500'
             ></div>
           </div>
         }

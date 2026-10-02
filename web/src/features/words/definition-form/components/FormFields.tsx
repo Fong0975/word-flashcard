@@ -131,7 +131,7 @@ export const FormFields: React.FC<FormFieldsProps> = ({
         <button
           type='button'
           onClick={handlers.addExampleInput}
-          className='mt-3 inline-flex items-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800'
+          className='mt-3 inline-flex items-center rounded-md border border-transparent bg-primary-100 px-4 py-2 text-sm font-medium text-primary-700 transition-colors hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800'
         >
           <svg
             className='mr-2 h-4 w-4'

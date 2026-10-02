@@ -47,7 +47,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({
           ? isDragging
             ? 'opacity-50'
             : isDragOver
-              ? 'border-blue-400 bg-blue-50 dark:border-blue-500 dark:bg-blue-900/20'
+              ? 'border-primary-400 bg-primary-50 dark:border-primary-500 dark:bg-primary-900/20'
               : 'glass-panel-card hover:border-primary-300 hover:bg-gray-100/80 hover:shadow-md dark:hover:border-primary-600 dark:hover:bg-gray-800/70'
           : 'glass-panel-card hover:border-primary-300 hover:bg-gray-100/80 hover:shadow-md dark:hover:border-primary-600 dark:hover:bg-gray-800/70'
       } ${showReorderControls ? 'cursor-grab active:cursor-grabbing' : ''}`}

@@ -33,7 +33,7 @@ export const OptionsSelectionList: React.FC<OptionsSelectionListProps> = ({
         />
         <div className='flex-1'>
           <div className='flex items-start space-x-2'>
-            <span className='inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200'>
+            <span className='inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-primary-100 text-sm font-medium text-primary-800 dark:bg-primary-900 dark:text-primary-200'>
               {option.key}
             </span>
             <span className='leading-relaxed text-gray-700 dark:text-gray-300'>

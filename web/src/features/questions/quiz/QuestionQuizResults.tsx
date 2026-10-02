@@ -118,7 +118,7 @@ export const QuestionQuizResults: React.FC<QuestionQuizResultsProps> = ({
             </div>
           </div>
           <div className='text-center'>
-            <div className='text-2xl font-bold text-blue-600 dark:text-blue-400'>
+            <div className='text-2xl font-bold text-primary-600 dark:text-primary-400'>
               {totalQuestions}
             </div>
             <div className='text-sm text-gray-600 dark:text-gray-400'>

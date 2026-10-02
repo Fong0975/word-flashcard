@@ -150,7 +150,7 @@ export const BackupsModal: React.FC<BackupsModalProps> = ({
                       <a
                         href={`${API_CONFIG.baseURL}${API_ENDPOINTS.downloadBackup(backup.name)}`}
                         download={backup.name}
-                        className='text-blue-600 hover:underline dark:text-blue-400'
+                        className='text-primary-600 hover:underline dark:text-primary-400'
                       >
                         {stripJsonExtension(backup.name)}
                       </a>
