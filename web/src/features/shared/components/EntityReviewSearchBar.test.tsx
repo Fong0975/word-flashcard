@@ -72,6 +72,60 @@ describe('EntityReviewSearchBar', () => {
     expect(onClear).toHaveBeenCalledTimes(1);
   });
 
+  it.each([
+    {
+      name: 'onAdd provided with a value',
+      value: 'cat',
+      onAdd: true,
+      shown: true,
+    },
+    {
+      name: 'onAdd provided with empty value',
+      value: '',
+      onAdd: true,
+      shown: false,
+    },
+    { name: 'onAdd omitted', value: 'cat', onAdd: false, shown: false },
+  ])('add button visibility: $name', ({ value, onAdd, shown }) => {
+    render(
+      <EntityReviewSearchBar
+        value={value}
+        onChange={vi.fn()}
+        onCompositionStart={vi.fn()}
+        onCompositionEnd={vi.fn()}
+        onClear={vi.fn()}
+        onAdd={onAdd ? vi.fn() : undefined}
+        placeholder='Search...'
+      />,
+    );
+
+    const button = screen.queryByRole('button', { name: 'Add from search' });
+    if (shown) {
+      expect(button).toBeInTheDocument();
+    } else {
+      expect(button).not.toBeInTheDocument();
+    }
+  });
+
+  it('calls onAdd when the add button is clicked', async () => {
+    const user = userEvent.setup();
+    const onAdd = vi.fn();
+    render(
+      <EntityReviewSearchBar
+        value='cat'
+        onChange={vi.fn()}
+        onCompositionStart={vi.fn()}
+        onCompositionEnd={vi.fn()}
+        onClear={vi.fn()}
+        onAdd={onAdd}
+        placeholder='Search...'
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Add from search' }));
+    expect(onAdd).toHaveBeenCalledTimes(1);
+  });
+
   it('fires composition start/end handlers', () => {
     const onCompositionStart = vi.fn();
     const onCompositionEnd = vi.fn();
