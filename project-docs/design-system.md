@@ -3,6 +3,8 @@
 Source of truth for the visual language of the Flashcard web app (`./web/`).
 It documents what the code **currently does** (glassmorphism on Tailwind CSS, `dark` + light themes); it does not propose a new aesthetic.
 
+Key design point: **no browser-default focus ring.** The blue default outline / glow on focused inputs and buttons is intentionally suppressed globally; each interactive element supplies its own glass-style focus indicator instead (see §9).
+
 Authoritative sources:
 
 | Concern | File |
@@ -215,7 +217,7 @@ Light vs dark: motion is identical in both themes.
 
 ## 9. Focus and accessibility
 
-- `index.css` ends with `@layer base { *:focus { outline: none !important; box-shadow: none !important } }`, so there is **no global focus ring**. Every interactive element must supply its own visible keyboard indicator:
+- By design there is **no browser-default focus ring**. `index.css` has a single `@layer base { *:focus { outline: none !important; box-shadow: none !important } }` rule and no other global outline rule, so there is no global focus ring. Every interactive element must supply its own visible keyboard indicator:
   - Primary / success CTA, checkbox: `focus-visible:ring-2` (`primary-400/60` or `green-400/60` with `ring-offset-2` for buttons; `primary-500` for checkbox).
   - `.glass-input`: `focus:border-primary-400/70 focus:ring-2 focus:ring-primary-400/30` (dark: `/50` border, `/20` ring).
   - `.glass-interactive`: `focus-visible:` mirrors the hover tint (`primary-500/[15%]` light, `primary-400/20` dark) plus blur and shadow.
@@ -250,7 +252,6 @@ Extraction rule: if the same glass utility combination appears more than twice, 
 ## 11. Known gaps (for awareness, not yet fixed)
 
 - `data-theme='light'` selector in `index.css` is unused (theme is class-based); see §1.
-- `index.css` contains a redundant `*:focus` / `button:focus` outline block that is overridden by the later `@layer base` rule; effective behavior is "no default outline" (§9).
 - Some non-glass surfaces (`ErrorMessage`, `Toast`, `.markdown-alert`, `ActionButton` disabled, desktop pagination disabled state) use flat Tailwind color fills instead of a glass tier.
 - Dialog confirm buttons for `danger` / `warning` are solid (`red-600`, `yellow-600`) rather than the glass CTA pattern; only `info` uses `.glass-button-primary`.
 - Tab navigation uses `blue-500/600/400` directly instead of the `primary` scale (same hex values).

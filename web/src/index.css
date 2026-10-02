@@ -27,18 +27,6 @@ body {
   background-color: var(--app-bg);
 }
 
-/* Focus styles for better accessibility */
-*:focus {
-  outline: 2px solid var(--primary-500);
-  outline-offset: 2px;
-}
-
-/* Custom button focus styles */
-button:focus {
-  outline: 2px solid var(--primary-500);
-  outline-offset: 2px;
-}
-
 /* Legacy flashcard styles - kept for backward compatibility */
 
 /* Reduced motion support */
