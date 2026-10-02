@@ -45,7 +45,7 @@ func (dc *Controller) SearchWord(c *gin.Context) {
 	}
 
 	// Fetch word data from Gemini
-	response, err := dc.fetchWordDataFromGemini(word, language)
+	response, err := dc.fetchWordDataFromGemini(c.Request.Context(), word, language)
 	if err != nil {
 		switch {
 		case errors.Is(err, errUnsupportedLanguage):

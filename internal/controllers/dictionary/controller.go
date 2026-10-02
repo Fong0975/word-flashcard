@@ -17,17 +17,13 @@ const defaultGeminiBaseURL = "https://generativelanguage.googleapis.com"
 // rename upstream doesn't require a code change here.
 const defaultGeminiModel = "gemini-flash-latest"
 
-// geminiHTTPTimeout bounds how long a single Gemini API request may take.
-// Generation is slower than a page fetch, so this is longer than a typical
-// HTTP client timeout.
-const geminiHTTPTimeout = 30 * time.Second
-
 // Controller handles dictionary-related requests
 type Controller struct {
 	cache         map[string]CacheEntry
 	cacheMutex    sync.RWMutex
 	cacheTTL      time.Duration
 	httpClient    *http.Client
+	retryPolicy   retryPolicy
 	geminiBaseURL string
 	geminiAPIKey  string
 	geminiModel   string
@@ -50,10 +46,13 @@ func New() *Controller {
 		slog.Warn("GEMINI_API_KEY is not set; dictionary lookups will fail until it is configured")
 	}
 
+	// The HTTP client has no Timeout of its own: doWithRetry enforces per-attempt
+	// and total deadlines through the request context.
 	return &Controller{
 		cache:         make(map[string]CacheEntry),
 		cacheTTL:      30 * time.Minute,
-		httpClient:    &http.Client{Timeout: geminiHTTPTimeout},
+		httpClient:    &http.Client{},
+		retryPolicy:   defaultRetryPolicy(),
 		geminiBaseURL: defaultGeminiBaseURL,
 		geminiAPIKey:  geminiAPIKey,
 		geminiModel:   config.GetOrDefault("GEMINI_MODEL", defaultGeminiModel),

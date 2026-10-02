@@ -91,6 +91,26 @@ describe('useToast', () => {
     expect(result.current.toasts).toEqual([]);
   });
 
+  it.each([
+    [
+      'showToast',
+      (r: ReturnType<typeof useToast>) => r.showToast('Hi', 'info'),
+    ],
+    ['showSuccess', (r: ReturnType<typeof useToast>) => r.showSuccess('Hi')],
+    ['showError', (r: ReturnType<typeof useToast>) => r.showError('Hi')],
+    ['showWarning', (r: ReturnType<typeof useToast>) => r.showWarning('Hi')],
+    ['showInfo', (r: ReturnType<typeof useToast>) => r.showInfo('Hi')],
+  ])('%s returns the id of the created toast', (_name, show) => {
+    const { result } = renderHook(() => useToast());
+    let id = '';
+
+    act(() => {
+      id = show(result.current);
+    });
+
+    expect(id).toBe(result.current.toasts[0].id);
+  });
+
   it('assigns each toast a unique id', () => {
     const { result } = renderHook(() => useToast());
 

@@ -15,11 +15,11 @@ export interface UseToastReturn {
     message: string,
     type: ToastMessage['type'],
     duration?: number,
-  ) => void;
-  readonly showSuccess: (message: string, duration?: number) => void;
-  readonly showError: (message: string, duration?: number) => void;
-  readonly showWarning: (message: string, duration?: number) => void;
-  readonly showInfo: (message: string, duration?: number) => void;
+  ) => string;
+  readonly showSuccess: (message: string, duration?: number) => string;
+  readonly showError: (message: string, duration?: number) => string;
+  readonly showWarning: (message: string, duration?: number) => string;
+  readonly showInfo: (message: string, duration?: number) => string;
   readonly removeToast: (id: string) => void;
   readonly clearAllToasts: () => void;
 }
@@ -44,35 +44,32 @@ export const useToast = (): UseToastReturn => {
       };
 
       setToasts(prevToasts => [...prevToasts, newToast]);
+      return newToast.id;
     },
     [generateId],
   );
 
   const showSuccess = useCallback(
-    (message: string, duration?: number) => {
-      showToast(message, 'success', duration);
-    },
+    (message: string, duration?: number) =>
+      showToast(message, 'success', duration),
     [showToast],
   );
 
   const showError = useCallback(
-    (message: string, duration?: number) => {
-      showToast(message, 'error', duration);
-    },
+    (message: string, duration?: number) =>
+      showToast(message, 'error', duration),
     [showToast],
   );
 
   const showWarning = useCallback(
-    (message: string, duration?: number) => {
-      showToast(message, 'warning', duration);
-    },
+    (message: string, duration?: number) =>
+      showToast(message, 'warning', duration),
     [showToast],
   );
 
   const showInfo = useCallback(
-    (message: string, duration?: number) => {
-      showToast(message, 'info', duration);
-    },
+    (message: string, duration?: number) =>
+      showToast(message, 'info', duration),
     [showToast],
   );
 

@@ -96,6 +96,85 @@ describe('useDictionaryData', () => {
     );
   });
 
+  describe('slow lookup toast', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    const tests: {
+      name: string;
+      lookupDelayMs: number;
+      shouldFail: boolean;
+      expectedShows: number;
+      expectedDismisses: number;
+    }[] = [
+      {
+        name: 'does not warn when the lookup finishes quickly',
+        lookupDelayMs: 1000,
+        shouldFail: false,
+        expectedShows: 0,
+        expectedDismisses: 0,
+      },
+      {
+        name: 'warns after 5s and dismisses once the lookup succeeds',
+        lookupDelayMs: 8000,
+        shouldFail: false,
+        expectedShows: 1,
+        expectedDismisses: 1,
+      },
+      {
+        name: 'warns after 5s and dismisses once the lookup fails',
+        lookupDelayMs: 8000,
+        shouldFail: true,
+        expectedShows: 1,
+        expectedDismisses: 1,
+      },
+    ];
+
+    tests.forEach(tt => {
+      it(tt.name, async () => {
+        vi.spyOn(apiService, 'lookupWord').mockImplementation(
+          () =>
+            new Promise((resolve, reject) => {
+              setTimeout(
+                () =>
+                  tt.shouldFail
+                    ? reject(new Error('boom'))
+                    : resolve(buildResponse()),
+                tt.lookupDelayMs,
+              );
+            }),
+        );
+        const show = vi.fn().mockReturnValue('toast-1');
+        const dismiss = vi.fn();
+        const { result } = renderHook(() =>
+          useDictionaryData('apple', undefined, undefined, undefined, {
+            show,
+            dismiss,
+          }),
+        );
+
+        let pending: Promise<void> = Promise.resolve();
+        await act(async () => {
+          pending = result.current.fetchDictionaryData();
+        });
+        await act(async () => {
+          await vi.advanceTimersByTimeAsync(tt.lookupDelayMs);
+        });
+        await act(async () => {
+          await pending;
+        });
+
+        expect(show).toHaveBeenCalledTimes(tt.expectedShows);
+        expect(dismiss).toHaveBeenCalledTimes(tt.expectedDismisses);
+      });
+    });
+  });
+
   it('applies pronunciation data to the form and shows a success message', () => {
     const updateFormData = vi.fn();
     const onShowSuccess = vi.fn();

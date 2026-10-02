@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 import { apiService } from '../../../../lib/api';
 import {
@@ -16,6 +16,8 @@ import {
   formatDefinitionSuccessMessage,
 } from '../utils/dictionaryFormatting';
 
+import { SlowLookupToast, useSlowLookupToast } from './useSlowLookupToast';
+
 export interface ExternalDictionaryState {
   dictionaryData: CambridgeApiResponse | null;
   isLoadingDictionary: boolean;
@@ -32,7 +34,13 @@ export const useDictionaryData = (
   onShowSuccess?: (message: string) => void,
   onShowError?: (message: string) => void,
   externalState?: ExternalDictionaryState,
+  slowLookupToast?: SlowLookupToast,
 ) => {
+  // Tracked locally rather than via the (possibly shared) loading state so
+  // only the instance that started the lookup shows the slow-lookup toast.
+  const [isFetching, setIsFetching] = useState(false);
+  useSlowLookupToast(isFetching, slowLookupToast);
+
   const [dictionaryData, setDictionaryData] =
     useControllableState<CambridgeApiResponse | null>(
       externalState?.dictionaryData,
@@ -65,6 +73,7 @@ export const useDictionaryData = (
     }
 
     setIsLoadingDictionary(true);
+    setIsFetching(true);
     setDictionaryError(null);
 
     try {
@@ -88,6 +97,7 @@ export const useDictionaryData = (
         onShowError('Error fetching dictionary data: ' + errorMessage);
       }
     } finally {
+      setIsFetching(false);
       setIsLoadingDictionary(false);
     }
   }, [
