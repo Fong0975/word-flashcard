@@ -248,6 +248,10 @@ func (suite *ControllerTestSuite) TestBuildGeminiRequestBody() {
 			suite.Contains(schema.Properties, "word")
 			suite.Contains(schema.Properties, "pos")
 			suite.Contains(schema.Properties, "definitions")
+
+			allowedPOS := []string{"noun", "verb", "adjective", "adverb", "preposition", "conjunction", "phrase", "other"}
+			suite.Equal(allowedPOS, schema.Properties["pos"].Items.Enum)
+			suite.Equal(allowedPOS, schema.Properties["definitions"].Items.Properties["pos"].Enum)
 		})
 	}
 }

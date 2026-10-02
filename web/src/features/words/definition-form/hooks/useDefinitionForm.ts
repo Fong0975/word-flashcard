@@ -5,6 +5,10 @@ import { getApiErrorMessage } from '../../../../lib/apiErrorMessage';
 import { WordDefinition } from '../../../../types/api';
 import { appendTemplateText } from '../../../../utils/textTemplates';
 import { DefinitionForm } from '../types';
+import {
+  PART_OF_SPEECH_OPTIONS,
+  normalizePartsOfSpeech,
+} from '../utils/partOfSpeech';
 
 // Mutable version of the request types for building payload
 type MutableDefinitionRequest = {
@@ -14,18 +18,6 @@ type MutableDefinitionRequest = {
   part_of_speech?: string;
   phonetics: Record<string, unknown>;
 };
-
-// Part of speech options for definition form
-const PART_OF_SPEECH_OPTIONS = [
-  'noun',
-  'verb',
-  'adjective',
-  'adverb',
-  'preposition',
-  'conjunction',
-  'phrase',
-  'other',
-];
 
 interface UseDefinitionFormProps {
   isOpen: boolean;
@@ -73,7 +65,7 @@ export const useDefinitionForm = ({
       // Pre-populate form data for edit mode
       setFormData({
         part_of_speech: definition.part_of_speech
-          ? definition.part_of_speech.split(',')
+          ? normalizePartsOfSpeech(definition.part_of_speech.split(','))
           : [],
         definition: definition.definition || '',
         examples:

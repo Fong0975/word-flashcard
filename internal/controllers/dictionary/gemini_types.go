@@ -1,13 +1,24 @@
 package dictionary
 
+import "word-flashcard/data/schema"
+
 // geminiSchemaProperty is a (subset of) JSON Schema/OpenAPI Schema Object, the
 // format Gemini's generationConfig.responseSchema expects, used to constrain
 // Gemini's output to the shape parseGeminiResponse understands.
 type geminiSchemaProperty struct {
 	Type       string                          `json:"type"`
+	Enum       []string                        `json:"enum,omitempty"`
 	Items      *geminiSchemaProperty           `json:"items,omitempty"`
 	Properties map[string]geminiSchemaProperty `json:"properties,omitempty"`
 	Required   []string                        `json:"required,omitempty"`
+}
+
+// geminiPartOfSpeechSchema restricts a part of speech to the values the word
+// definition API accepts, so Gemini cannot invent labels such as
+// "prepositional phrase".
+var geminiPartOfSpeechSchema = geminiSchemaProperty{
+	Type: "STRING",
+	Enum: schema.WordDefinitionPartsOfSpeech,
 }
 
 // geminiResponseSchema constrains Gemini's structured output to a shape
@@ -20,7 +31,7 @@ var geminiResponseSchema = geminiSchemaProperty{
 		"word":  {Type: "STRING"},
 		"pos": {
 			Type:  "ARRAY",
-			Items: &geminiSchemaProperty{Type: "STRING"},
+			Items: &geminiPartOfSpeechSchema,
 		},
 		"definitions": {
 			Type: "ARRAY",
@@ -28,7 +39,7 @@ var geminiResponseSchema = geminiSchemaProperty{
 				Type:     "OBJECT",
 				Required: []string{"pos", "text", "translation", "examples"},
 				Properties: map[string]geminiSchemaProperty{
-					"pos":         {Type: "STRING"},
+					"pos":         geminiPartOfSpeechSchema,
 					"text":        {Type: "STRING"},
 					"translation": {Type: "STRING"},
 					"examples": {

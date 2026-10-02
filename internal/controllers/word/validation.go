@@ -63,6 +63,11 @@ func validateWordDefinitionFields(definition models.WordDefinition, isUpdate boo
 	if err := common.ValidateStringField(definition.PartOfSpeech, isUpdate, "part_of_speech", 50, false); err != nil {
 		return err
 	}
+	if definition.PartOfSpeech != nil {
+		if err := validatePartOfSpeechValues(*definition.PartOfSpeech); err != nil {
+			return err
+		}
+	}
 
 	// Validate definition field: TEXT, NOT NULL for creation
 	if err := common.ValidateStringField(definition.Definition, isUpdate, "definition", 21845, false); err != nil {
@@ -77,6 +82,18 @@ func validateWordDefinitionFields(definition models.WordDefinition, isUpdate boo
 	// Validate examples field: TEXT, nullable
 	if definition.Examples != nil && len(*definition.Examples) > 21845 {
 		return common.NewFieldError("examples is invalid", "reason", "exceeds max length", "length", len(*definition.Examples), "max", 21845)
+	}
+
+	return nil
+}
+
+// validatePartOfSpeechValues checks that every separator-joined entry of a
+// part_of_speech value is one of schema.WordDefinitionPartsOfSpeech.
+func validatePartOfSpeechValues(value string) error {
+	for _, pos := range strings.Split(value, schema.WordDefinitionPartOfSpeechSeparator) {
+		if !slices.Contains(schema.WordDefinitionPartsOfSpeech, pos) {
+			return common.NewFieldError("part_of_speech is invalid", "reason", "unsupported value", "value", pos, "allowed", strings.Join(schema.WordDefinitionPartsOfSpeech, ","))
+		}
 	}
 
 	return nil

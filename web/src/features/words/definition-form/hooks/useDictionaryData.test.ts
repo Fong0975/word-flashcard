@@ -229,6 +229,26 @@ describe('useDictionaryData', () => {
     );
   });
 
+  it('maps a part of speech outside the allowed values before applying it', () => {
+    const updateFormData = vi.fn();
+    const { result } = renderHook(() => useDictionaryData('apple'));
+    const definition: CambridgeDefinition = {
+      id: 1,
+      pos: 'prepositional phrase',
+      text: 'in a way that is clear',
+      translation: '清楚地',
+      example: null,
+    };
+
+    act(() => {
+      result.current.applyDefinition(definition, updateFormData);
+    });
+
+    expect(updateFormData).toHaveBeenCalledWith(
+      expect.objectContaining({ part_of_speech: ['phrase'] }),
+    );
+  });
+
   it('applies definition data with no examples without throwing', () => {
     const updateFormData = vi.fn();
     const onShowSuccess = vi.fn();
