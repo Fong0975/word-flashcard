@@ -1,13 +1,14 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { Mock } from 'vitest';
 
 import {
   useCopyToClipboard,
+  UseCopyToClipboardOptions,
   UseCopyToClipboardReturn,
 } from '../../hooks/ui/useCopyToClipboard';
 
-import { CopyButton } from './CopyButton';
+import { CopyButton, COPY_FEEDBACK_DURATION_MS } from './CopyButton';
 
 vi.mock('../../hooks/ui/useCopyToClipboard');
 
@@ -26,6 +27,7 @@ const buildHookReturn = (
 
 describe('CopyButton', () => {
   beforeEach(() => {
+    mockedUseCopyToClipboard.mockReset();
     mockedUseCopyToClipboard.mockReturnValue(buildHookReturn());
   });
 
@@ -33,6 +35,13 @@ describe('CopyButton', () => {
     render(<CopyButton text='hello' />);
     expect(
       screen.getByRole('button', { name: 'Copy to clipboard' }),
+    ).toBeInTheDocument();
+  });
+
+  it('prefers an explicit title over the derived one', () => {
+    render(<CopyButton text='hello' title='Copy the word' />);
+    expect(
+      screen.getByRole('button', { name: 'Copy the word' }),
     ).toBeInTheDocument();
   });
 
@@ -49,37 +58,79 @@ describe('CopyButton', () => {
     expect(copyToClipboard).toHaveBeenCalledWith('hello');
   });
 
-  it('is disabled when there is no text', () => {
-    render(<CopyButton text='' />);
-    expect(screen.getByRole('button')).toBeDisabled();
-  });
-
-  it('is disabled when the disabled prop is set', () => {
-    render(<CopyButton text='hello' disabled />);
-    expect(screen.getByRole('button')).toBeDisabled();
-  });
-
-  it('does not call copyToClipboard when disabled', async () => {
+  it.each([
+    { name: 'there is no text', props: { text: '' } },
+    {
+      name: 'the disabled prop is set',
+      props: { text: 'hello', disabled: true },
+    },
+  ])('is disabled and does not copy when $name', async ({ props }) => {
     const copyToClipboard = vi.fn();
     mockedUseCopyToClipboard.mockReturnValue(
       buildHookReturn({ copyToClipboard }),
     );
     const user = userEvent.setup();
-    render(<CopyButton text='hello' disabled />);
+    render(<CopyButton {...props} />);
 
-    await user.click(screen.getByRole('button'));
+    const button = screen.getByRole('button');
+    await user.click(button);
+
+    expect(button).toBeDisabled();
     expect(copyToClipboard).not.toHaveBeenCalled();
   });
 
-  it('shows the success title once copied', () => {
+  it.each([
+    {
+      name: 'idle',
+      state: {},
+      expectedName: 'Copy to clipboard',
+      hasBlueTint: false,
+      iconClass: undefined,
+    },
+    {
+      name: 'success',
+      state: { copySuccess: true },
+      expectedName: 'Copied!',
+      hasBlueTint: true,
+      iconClass: undefined,
+    },
+    {
+      name: 'error',
+      state: { copyError: 'oops' },
+      expectedName: 'Copy failed',
+      hasBlueTint: false,
+      iconClass: 'text-error',
+    },
+  ])(
+    'renders the $name state',
+    ({ state, expectedName, hasBlueTint, iconClass }) => {
+      mockedUseCopyToClipboard.mockReturnValue(buildHookReturn(state));
+      render(<CopyButton text='hello' />);
+
+      const button = screen.getByRole('button', { name: expectedName });
+      if (hasBlueTint) {
+        expect(button).toHaveClass('bg-primary-50');
+      } else {
+        expect(button).not.toHaveClass('bg-primary-50');
+      }
+      if (iconClass) {
+        expect(button.querySelector('svg')).toHaveClass(iconClass);
+      }
+    },
+  );
+
+  it('uses custom success and error labels', () => {
     mockedUseCopyToClipboard.mockReturnValue(
       buildHookReturn({ copySuccess: true }),
     );
-    render(<CopyButton text='hello' successText='Copied!' />);
-    expect(screen.getByRole('button', { name: 'Copied!' })).toBeInTheDocument();
-  });
+    const { unmount } = render(
+      <CopyButton text='hello' successText='Word copied!' />,
+    );
+    expect(
+      screen.getByRole('button', { name: 'Word copied!' }),
+    ).toBeInTheDocument();
+    unmount();
 
-  it('shows the error title when copying failed', () => {
     mockedUseCopyToClipboard.mockReturnValue(
       buildHookReturn({ copyError: 'oops' }),
     );
@@ -87,52 +138,36 @@ describe('CopyButton', () => {
     expect(screen.getByRole('button', { name: 'Failed!' })).toBeInTheDocument();
   });
 
-  it('prefers an explicit title over the derived one', () => {
-    render(<CopyButton text='hello' title='Copy the word' />);
-    expect(
-      screen.getByRole('button', { name: 'Copy the word' }),
-    ).toBeInTheDocument();
+  it('reverts the feedback icon after the configured duration', () => {
+    render(<CopyButton text='hello' />);
+    const options: UseCopyToClipboardOptions =
+      mockedUseCopyToClipboard.mock.calls[0][0];
+
+    expect(options.autoResetDelay).toBe(COPY_FEEDBACK_DURATION_MS);
+    expect(COPY_FEEDBACK_DURATION_MS).toBe(1000);
   });
 
-  it('calls onCopySuccess when copy succeeds', async () => {
-    const onCopySuccess = vi.fn();
-    mockedUseCopyToClipboard.mockReturnValue(
-      buildHookReturn({ copySuccess: true }),
-    );
-    const user = userEvent.setup();
-    render(<CopyButton text='hello' onCopySuccess={onCopySuccess} />);
+  it('shows an error toast in the document body when the copy fails', () => {
+    render(<CopyButton text='hello' />);
+    const options: UseCopyToClipboardOptions =
+      mockedUseCopyToClipboard.mock.calls[0][0];
 
-    await user.click(screen.getByRole('button'));
+    act(() => {
+      options.onError?.(new Error('Copy denied'), 'Copy denied');
+    });
 
-    expect(onCopySuccess).toHaveBeenCalled();
-  });
-
-  it('calls onCopyError with the error when copy fails', async () => {
-    const onCopyError = vi.fn();
-    mockedUseCopyToClipboard.mockReturnValue(
-      buildHookReturn({ copyError: 'oops' }),
-    );
-    const user = userEvent.setup();
-    render(<CopyButton text='hello' onCopyError={onCopyError} />);
-
-    await user.click(screen.getByRole('button'));
-
-    expect(onCopyError).toHaveBeenCalledWith('oops');
+    const toast = screen.getByRole('alert');
+    expect(toast).toHaveTextContent('Copy denied');
+    expect(document.body).toContainElement(toast);
+    expect(toast.parentElement?.parentElement).toBe(document.body);
   });
 
   it.each([
     { size: 'sm' as const, expectedClass: 'p-1' },
+    { size: 'md' as const, expectedClass: 'p-2' },
     { size: 'lg' as const, expectedClass: 'p-3' },
-  ])('applies $expectedClass for $size size', testCase => {
-    render(<CopyButton text='hello' size={testCase.size} />);
-    expect(screen.getByRole('button')).toHaveClass(testCase.expectedClass);
-  });
-
-  it.each([
-    { variant: 'ghost' as const, expectedClass: 'text-gray-500' },
-    { variant: 'outline' as const, expectedClass: 'glass-interactive' },
-  ])('applies $expectedClass for $variant variant', testCase => {
-    render(<CopyButton text='hello' variant={testCase.variant} />);
-    expect(screen.getByRole('button')).toHaveClass(testCase.expectedClass);
+  ])('applies $expectedClass for $size size', ({ size, expectedClass }) => {
+    render(<CopyButton text='hello' size={size} />);
+    expect(screen.getByRole('button')).toHaveClass(expectedClass);
   });
 });

@@ -21,7 +21,7 @@ export const WordActions: React.FC<WordActionsProps> = ({
         href={`https://dictionary.cambridge.org/zht/%E8%A9%9E%E5%85%B8/%E8%8B%B1%E8%AA%9E-%E6%BC%A2%E8%AA%9E-%E7%B9%81%E9%AB%94/${word.word}`}
         target='_blank'
         rel='noopener noreferrer'
-        className='focus-ring-success rounded-md p-2 text-gray-600 transition-colors hover:bg-green-50 hover:text-green-600 dark:text-gray-400 dark:hover:bg-green-900/20 dark:hover:text-green-400'
+        className='focus-ring rounded-md p-2 text-gray-600 transition-colors hover:bg-primary-50 hover:text-primary-600 dark:text-gray-400 dark:hover:bg-primary-900/20 dark:hover:text-primary-400'
         title='Open in Cambridge Dictionary'
       >
         <svg

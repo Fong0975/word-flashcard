@@ -293,9 +293,7 @@ describe('DefinitionFormModal', () => {
       await user.click(copyButton);
 
       expect(navigator.clipboard.writeText).toHaveBeenCalledWith('apple');
-      await waitFor(() =>
-        expect(copyButton.innerHTML).toContain('text-green-600'),
-      );
+      await waitFor(() => expect(copyButton).toHaveClass('bg-primary-50'));
     });
 
     it('shows an error toast when copying the word fails', async () => {
