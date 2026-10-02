@@ -22,7 +22,7 @@ export const PronunciationSection: React.FC<PronunciationSectionProps> = ({
 
   return (
     <div className='rounded-lg bg-gray-50 dark:bg-gray-800/50'>
-      <h4 className='mb-4 text-base font-medium text-gray-900 dark:text-gray-300'>
+      <h4 className='mb-4 text-base font-medium text-gray-900 dark:text-white'>
         Pronunciation
       </h4>
       <div className='space-y-4'>

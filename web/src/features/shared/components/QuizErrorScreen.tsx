@@ -26,7 +26,7 @@ export const QuizErrorScreen: React.FC<QuizErrorScreenProps> = ({
       </button>
       <button
         onClick={onBackToHome}
-        className='focus-ring rounded-md border border-gray-300 bg-white px-6 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+        className='glass-panel glass-hover-fill focus-ring rounded-md px-6 py-2 text-sm font-medium text-gray-700 transition-colors dark:text-gray-300'
       >
         Back to Home
       </button>

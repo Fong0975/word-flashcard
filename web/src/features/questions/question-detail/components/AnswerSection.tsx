@@ -69,7 +69,7 @@ export const AnswerSection: React.FC<AnswerSectionProps> = ({
               </span>
               {/* Answer Content */}
               <div className='flex-1'>
-                <div className='text-base font-medium leading-relaxed text-gray-900 dark:text-gray-100'>
+                <div className='text-base font-medium leading-relaxed text-gray-900 dark:text-white'>
                   {correctAnswerContent || 'Answer content not found'}
                 </div>
               </div>

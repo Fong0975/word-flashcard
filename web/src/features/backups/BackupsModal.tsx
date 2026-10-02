@@ -144,7 +144,7 @@ export const BackupsModal: React.FC<BackupsModalProps> = ({
                 return (
                   <tr
                     key={backup.name}
-                    className='border-b border-gray-100 last:border-0 dark:border-gray-700/50'
+                    className='border-b border-gray-100 last:border-0 dark:border-gray-700'
                   >
                     <td className='break-all py-2 pl-2 pr-4 text-gray-900 dark:text-white'>
                       <a

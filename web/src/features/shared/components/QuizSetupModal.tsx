@@ -164,14 +164,14 @@ export const QuizSetupModal: React.FC<QuizSetupModalProps> = ({
         {/* Count Mode Toggle (Words Quiz only) */}
         {enableFamiliaritySelection && (
           <div className='flex justify-center'>
-            <div className='flex rounded-md border border-gray-300 text-sm dark:border-gray-600'>
+            <div className='glass-panel flex overflow-hidden rounded-md text-sm'>
               <button
                 type='button'
                 onClick={() => setCountMode('total')}
                 className={`rounded-l-md px-4 py-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
                   countMode === 'total'
-                    ? 'bg-primary-600 text-white'
-                    : 'bg-white text-gray-600 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                    ? 'glass-button-primary'
+                    : 'glass-interactive text-gray-600 dark:text-gray-300'
                 }`}
               >
                 Total Count
@@ -179,10 +179,10 @@ export const QuizSetupModal: React.FC<QuizSetupModalProps> = ({
               <button
                 type='button'
                 onClick={() => setCountMode('category')}
-                className={`rounded-r-md border-l border-gray-300 px-4 py-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-gray-600 ${
+                className={`segmented-divider rounded-r-md px-4 py-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
                   countMode === 'category'
-                    ? 'bg-primary-600 text-white'
-                    : 'bg-white text-gray-600 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                    ? 'glass-button-primary'
+                    : 'glass-interactive text-gray-600 dark:text-gray-300'
                 }`}
               >
                 By Category

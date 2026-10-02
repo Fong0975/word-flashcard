@@ -81,9 +81,9 @@ export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
       </div>
 
       {/* Summary */}
-      <div className='mb-8 mt-4 grid grid-cols-1 gap-4 rounded-xl bg-white p-8 shadow-lg dark:bg-gray-800'>
+      <div className='glass-panel mb-8 mt-4 grid grid-cols-1 gap-4 rounded-xl p-8'>
         {/* Total Number */}
-        <div className='text-center text-6xl font-bold text-gray-500 dark:text-gray-300'>
+        <div className='text-center text-6xl font-bold text-gray-700 dark:text-gray-200'>
           {totalQuestions}
         </div>
 
@@ -129,7 +129,7 @@ export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
             Change
           </span>
           <div className='flex flex-1 gap-2'>
-            <span className='flex flex-1 items-center justify-center gap-2 rounded-lg bg-gray-100 px-3 py-2 dark:bg-gray-700'>
+            <span className='glass-panel-card flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2'>
               <span className='text-base font-bold text-primary-500 dark:text-primary-400'>
                 ↑
               </span>
@@ -140,7 +140,7 @@ export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
                 {improvementCount}
               </span>
             </span>
-            <span className='flex flex-1 items-center justify-center gap-2 rounded-lg bg-gray-100 px-3 py-2 dark:bg-gray-700'>
+            <span className='glass-panel-card flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2'>
               <span className='text-base font-bold text-gray-900 dark:text-white'>
                 →
               </span>
@@ -151,7 +151,7 @@ export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
                 {stayCount}
               </span>
             </span>
-            <span className='flex flex-1 items-center justify-center gap-2 rounded-lg bg-gray-100 px-3 py-2 dark:bg-gray-700'>
+            <span className='glass-panel-card flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2'>
               <span className='text-base font-bold text-orange-600 dark:text-orange-400'>
                 ↓
               </span>
@@ -167,7 +167,7 @@ export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
       </div>
 
       {/* Results List */}
-      <div className='mb-8 rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800'>
+      <div className='glass-panel mb-8 rounded-lg'>
         <div className='border-b border-gray-200 px-6 py-4 dark:border-gray-700'>
           <h2 className='text-lg font-semibold text-gray-900 dark:text-white'>
             Quiz Results ({totalQuestions} words)

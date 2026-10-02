@@ -31,7 +31,7 @@ export const DefinitionActions: React.FC<DefinitionActionsProps> = ({
 
   return (
     <>
-      <div className='flex items-center justify-end space-x-2 border-t border-gray-200 pt-1 dark:border-gray-600'>
+      <div className='flex items-center justify-end space-x-2 border-t border-gray-200 pt-1 dark:border-gray-700'>
         <button
           type='button'
           onClick={() => onEdit(definition)}

@@ -201,14 +201,14 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
         )}
       </div>
 
-      <div className='flex flex-shrink-0 overflow-hidden rounded text-xs'>
+      <div className='glass-panel flex flex-shrink-0 overflow-hidden rounded text-xs'>
         <button
           type='button'
           onClick={() => onTogglePreview(false)}
           className={`px-3 py-1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
             !isPreview
-              ? 'bg-primary-600 text-white'
-              : 'bg-gray-200 text-gray-600 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-300 dark:hover:bg-gray-500'
+              ? 'glass-button-primary'
+              : 'glass-interactive text-gray-600 dark:text-gray-300'
           }`}
         >
           Edit
@@ -216,10 +216,10 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
         <button
           type='button'
           onClick={() => onTogglePreview(true)}
-          className={`px-3 py-1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
+          className={`segmented-divider px-3 py-1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
             isPreview
-              ? 'bg-primary-600 text-white'
-              : 'bg-gray-200 text-gray-600 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-300 dark:hover:bg-gray-500'
+              ? 'glass-button-primary'
+              : 'glass-interactive text-gray-600 dark:text-gray-300'
           }`}
         >
           Preview

@@ -111,7 +111,7 @@ export const EntityCard = <T extends BaseEntity>({
     if (config.sequenceStyle === 'detailed') {
       // Question card style - with "No." label
       return (
-        <div className='mr-2 w-12 flex-shrink-0 border-r border-gray-100 pt-1 dark:border-gray-700/50'>
+        <div className='mr-2 w-12 flex-shrink-0 border-r border-gray-100 pt-1 dark:border-gray-700'>
           <div className='flex flex-col items-center justify-center'>
             <span className='text-xs font-bold uppercase tracking-tighter text-primary-700 dark:text-primary-400'>
               No.

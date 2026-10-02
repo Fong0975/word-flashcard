@@ -17,7 +17,7 @@ export const DefinitionsSection: React.FC<DefinitionsSectionProps> = ({
 
   return (
     <div className='mt-3 space-y-3'>
-      <h4 className='mb-4 text-base font-medium text-gray-900 dark:text-gray-300'>
+      <h4 className='mb-4 text-base font-medium text-gray-900 dark:text-white'>
         Definitions
       </h4>
       {definitions.map(def => (
@@ -32,7 +32,7 @@ export const DefinitionsSection: React.FC<DefinitionsSectionProps> = ({
                   {def.pos}
                 </span>
               </div>
-              <p className='mb-2 text-sm text-gray-900 dark:text-gray-100'>
+              <p className='mb-2 text-sm text-gray-900 dark:text-white'>
                 <span className='font-medium'>{def.translation}</span>{' '}
                 {def.text}
               </p>
