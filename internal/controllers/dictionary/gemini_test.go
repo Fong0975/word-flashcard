@@ -1,10 +1,13 @@
 package dictionary
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"sync/atomic"
+	"time"
 
 	"word-flashcard/internal/controllers/common"
 	"word-flashcard/internal/models"
@@ -16,6 +19,7 @@ func newTestControllerWithGeminiServer(handler http.HandlerFunc) (*Controller, f
 	server := httptest.NewServer(handler)
 	controller := New()
 	controller.geminiBaseURL = server.URL
+	controller.retryPolicy = fastRetryPolicy()
 	return controller, server.Close
 }
 
@@ -41,9 +45,11 @@ func (suite *ControllerTestSuite) TestFetchWordDataFromGemini() {
 		language             string
 		unreachable          bool
 		emptyAPIKey          bool
+		failFirstN           int32
 		handler              http.HandlerFunc
 		wantErrIs            error
 		wantErrContains      string
+		wantRequests         int32
 		wantWord             string
 		wantPOS              []string
 		wantDefinitionLen    int
@@ -103,19 +109,40 @@ func (suite *ControllerTestSuite) TestFetchWordDataFromGemini() {
 			wantErrIs: errWordNotFound,
 		},
 		{
-			name:     "returns a generic error when Gemini responds with a server error",
+			name:     "retries a persistent server error up to the attempt limit before failing",
 			word:     "hello",
 			language: "en-tw",
 			handler: func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusInternalServerError)
 			},
 			wantErrContains: "HTTP 500",
+			wantRequests:    geminiMaxAttempts,
 		},
 		{
-			name:        "returns a generic error when the origin is unreachable",
-			word:        "hello",
-			language:    "en-tw",
-			unreachable: true,
+			name:     "does not retry a client error",
+			word:     "hello",
+			language: "en-tw",
+			handler: func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(http.StatusBadRequest)
+			},
+			wantErrContains: "HTTP 400",
+			wantRequests:    1,
+		},
+		{
+			name:              "recovers when a transient 503 is followed by a successful response",
+			word:              "hello",
+			language:          "en-tw",
+			failFirstN:        2,
+			wantRequests:      3,
+			wantWord:          "hello",
+			wantPOS:           []string{"exclamation", "noun"},
+			wantDefinitionLen: 2,
+		},
+		{
+			name:            "returns a generic error when the origin is unreachable",
+			word:            "hello",
+			language:        "en-tw",
+			unreachable:     true,
 			wantErrContains: "failed to fetch dictionary data",
 		},
 		{
@@ -132,20 +159,41 @@ func (suite *ControllerTestSuite) TestFetchWordDataFromGemini() {
 
 	for _, tt := range tests {
 		suite.Run(tt.name, func() {
+			var requests atomic.Int32
+			handler := tt.handler
+			if tt.failFirstN > 0 {
+				handler = func(w http.ResponseWriter, r *http.Request) {
+					if requests.Load() < tt.failFirstN {
+						w.WriteHeader(http.StatusServiceUnavailable)
+						return
+					}
+					w.WriteHeader(http.StatusOK)
+					_, _ = w.Write(geminiEnvelopeJSON(helloGeminiPayloadJSON))
+				}
+			}
+
 			var controller *Controller
 			if tt.unreachable {
 				controller = New()
 				controller.geminiBaseURL = "http://127.0.0.1:1"
+				controller.retryPolicy = fastRetryPolicy()
 			} else {
 				var closeServer func()
-				controller, closeServer = newTestControllerWithGeminiServer(tt.handler)
+				controller, closeServer = newTestControllerWithGeminiServer(func(w http.ResponseWriter, r *http.Request) {
+					defer requests.Add(1)
+					handler(w, r)
+				})
 				defer closeServer()
 			}
 			if tt.emptyAPIKey {
 				controller.geminiAPIKey = ""
 			}
 
-			response, err := controller.fetchWordDataFromGemini(tt.word, tt.language)
+			response, err := controller.fetchWordDataFromGemini(context.Background(), tt.word, tt.language)
+
+			if tt.wantRequests > 0 {
+				suite.Equal(tt.wantRequests, requests.Load())
+			}
 
 			switch {
 			case tt.wantErrIs != nil:
@@ -204,6 +252,29 @@ func (suite *ControllerTestSuite) TestBuildGeminiRequestBody() {
 	}
 }
 
+// TestParseRetryAfterSeconds tests that parseRetryAfterSeconds accepts only
+// positive delta-seconds and treats everything else as "no server hint".
+func (suite *ControllerTestSuite) TestParseRetryAfterSeconds() {
+	tests := []struct {
+		name  string
+		value string
+		want  time.Duration
+	}{
+		{name: "parses delta-seconds", value: "30", want: 30 * time.Second},
+		{name: "trims surrounding whitespace", value: " 2 ", want: 2 * time.Second},
+		{name: "returns zero for an empty header", value: "", want: 0},
+		{name: "returns zero for an HTTP-date", value: "Wed, 21 Oct 2026 07:28:00 GMT", want: 0},
+		{name: "returns zero for zero seconds", value: "0", want: 0},
+		{name: "returns zero for negative seconds", value: "-5", want: 0},
+	}
+
+	for _, tt := range tests {
+		suite.Run(tt.name, func() {
+			suite.Equal(tt.want, parseRetryAfterSeconds(tt.value))
+		})
+	}
+}
+
 // TestNewGeminiUpstreamError tests that newGeminiUpstreamError keeps a stable
 // public "HTTP <status>" message while attaching the request URL, the
 // Retry-After header and a whitespace-collapsed body snippet as log-only
@@ -213,10 +284,11 @@ func (suite *ControllerTestSuite) TestNewGeminiUpstreamError() {
 	endpoint := "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent"
 
 	tests := []struct {
-		name       string
-		headers    map[string]string
-		body       string
-		wantDetail []any
+		name           string
+		headers        map[string]string
+		body           string
+		wantDetail     []any
+		wantRetryAfter time.Duration
 	}{
 		{
 			name: "captures the Retry-After header and collapses a multi-line body into one snippet",
@@ -229,6 +301,7 @@ func (suite *ControllerTestSuite) TestNewGeminiUpstreamError() {
 				"retry_after", "30",
 				"body_snippet", "Quota exceeded. Please retry after some time.",
 			},
+			wantRetryAfter: 30 * time.Second,
 		},
 		{
 			name:    "leaves the header and body snippet empty when the response has none",
@@ -260,6 +333,11 @@ func (suite *ControllerTestSuite) TestNewGeminiUpstreamError() {
 			gotErr := newGeminiUpstreamError(endpoint, resp)
 
 			suite.EqualError(gotErr, "gemini request returned HTTP 429")
+
+			var statusErr httpStatusError
+			suite.Require().True(errors.As(gotErr, &statusErr))
+			suite.Equal(http.StatusTooManyRequests, statusErr.HTTPStatus())
+			suite.Equal(tt.wantRetryAfter, statusErr.RetryAfterDelay())
 
 			var de *common.DetailedError
 			suite.Require().True(errors.As(gotErr, &de))

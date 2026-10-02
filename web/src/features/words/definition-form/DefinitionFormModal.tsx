@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 
 import { Modal, ToastContainer } from '../../../components/ui';
 import { useToast } from '../../../hooks/ui/useToast';
@@ -36,11 +36,17 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
     onError: showError,
   });
 
+  const slowLookupToast = useMemo(
+    () => ({ show: showWarning, dismiss: removeToast }),
+    [showWarning, removeToast],
+  );
+
   const dictionaryLogic = useDictionaryData(
     wordText,
     showSuccess,
     showError,
     externalDictionaryState,
+    slowLookupToast,
   );
   const { copySuccess, copyToClipboard } = useCopyToClipboard({
     onError: (error, message) => showError(message),

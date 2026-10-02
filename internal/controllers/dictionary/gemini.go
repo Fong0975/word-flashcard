@@ -2,12 +2,16 @@ package dictionary
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
+	"strconv"
 	"strings"
+	"time"
 
 	"word-flashcard/internal/controllers/common"
 	"word-flashcard/internal/models"
@@ -56,10 +60,12 @@ Respond only with JSON matching the provided schema.`
 
 // fetchWordDataFromGemini asks Gemini to look up word and parses its
 // structured JSON output into the response shape returned by the dictionary
-// API. The pronunciation field is always left empty: Gemini is a text model
+// API. Transient upstream failures are retried per dc.retryPolicy, and
+// cancelling ctx (e.g. the client disconnecting) stops any further attempts.
+// The pronunciation field is always left empty: Gemini is a text model
 // and cannot provide real pronunciation audio, so the frontend falls back to
 // the browser's built-in speech synthesis instead.
-func (dc *Controller) fetchWordDataFromGemini(word, slugLanguage string) (*models.CambridgeResponse, error) {
+func (dc *Controller) fetchWordDataFromGemini(ctx context.Context, word, slugLanguage string) (*models.CambridgeResponse, error) {
 	word = strings.TrimSpace(word)
 	if word == "" {
 		return nil, fmt.Errorf("word cannot be empty")
@@ -81,7 +87,36 @@ func (dc *Controller) fetchWordDataFromGemini(word, slugLanguage string) (*model
 
 	endpoint := fmt.Sprintf("%s/v1beta/models/%s:generateContent", dc.geminiBaseURL, dc.geminiModel)
 
-	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewReader(reqBody))
+	respBody, attempts, err := doWithRetry(ctx, dc.retryPolicy,
+		func(attemptCtx context.Context) ([]byte, error) {
+			return dc.requestGemini(attemptCtx, endpoint, reqBody)
+		},
+		func(attempt int, err error, delay time.Duration) {
+			slog.Warn("Gemini request failed, retrying",
+				"word", word,
+				"attempt", fmt.Sprintf("%d/%d", attempt, dc.retryPolicy.MaxAttempts),
+				"status", statusOf(err),
+				"next_delay", delay,
+				"error", err,
+			)
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	if attempts > 1 {
+		slog.Info("Gemini request recovered after retry", "word", word, "attempts", attempts)
+	}
+
+	return parseGeminiResponse(respBody, word)
+}
+
+// requestGemini performs one Gemini generateContent attempt and returns the
+// raw response body. The request is rebuilt on every call so a retry never
+// reuses an already-consumed body, and the body is read under ctx so the
+// attempt timeout covers the whole exchange.
+func (dc *Controller) requestGemini(ctx context.Context, endpoint string, reqBody []byte) ([]byte, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(reqBody))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
@@ -104,8 +139,7 @@ func (dc *Controller) fetchWordDataFromGemini(word, slugLanguage string) (*model
 	if err != nil {
 		return nil, fmt.Errorf("failed to read Gemini response: %w", err)
 	}
-
-	return parseGeminiResponse(respBody, word)
+	return respBody, nil
 }
 
 // buildGeminiRequestBody builds the JSON request body asking Gemini to look
@@ -127,22 +161,51 @@ func buildGeminiRequestBody(word, targetLanguage string) ([]byte, error) {
 	return json.Marshal(reqBody)
 }
 
+// geminiHTTPError is the error for a non-200 Gemini response. It exposes the
+// status and parsed Retry-After to the retry logic (httpStatusError) while
+// unwrapping to a common.DetailedError that carries the log-only diagnostics.
+type geminiHTTPError struct {
+	statusCode int
+	retryAfter time.Duration
+	detail     error
+}
+
+func (e *geminiHTTPError) Error() string                  { return e.detail.Error() }
+func (e *geminiHTTPError) Unwrap() error                  { return e.detail }
+func (e *geminiHTTPError) HTTPStatus() int                { return e.statusCode }
+func (e *geminiHTTPError) RetryAfterDelay() time.Duration { return e.retryAfter }
+
+// parseRetryAfterSeconds parses a Retry-After header given in delta-seconds.
+// HTTP-date values and malformed input yield zero, i.e. no server hint.
+func parseRetryAfterSeconds(value string) time.Duration {
+	seconds, err := strconv.Atoi(strings.TrimSpace(value))
+	if err != nil || seconds <= 0 {
+		return 0
+	}
+	return time.Duration(seconds) * time.Second
+}
+
 // newGeminiUpstreamError builds the error returned when Gemini responds with
 // a status other than 200. The request URL, a Retry-After header (set on a
 // 429 quota-exceeded response) and a whitespace-collapsed body snippet are
 // attached as log-only detail via common.NewDetailedError, so a future
 // occurrence can be diagnosed from the log alone. The URL never contains the
-// API key, since fetchWordDataFromGemini sends it as a header.
+// API key, since requestGemini sends it as a header.
 func newGeminiUpstreamError(endpoint string, resp *http.Response) error {
 	bodyBytes, _ := io.ReadAll(io.LimitReader(resp.Body, maxDiagnosticBodySnippetBytes))
 	bodySnippet := strings.Join(strings.Fields(string(bodyBytes)), " ")
+	retryAfter := resp.Header.Get("Retry-After")
 
-	return common.NewDetailedError(
-		fmt.Sprintf("gemini request returned HTTP %d", resp.StatusCode),
-		"url", endpoint,
-		"retry_after", resp.Header.Get("Retry-After"),
-		"body_snippet", bodySnippet,
-	)
+	return &geminiHTTPError{
+		statusCode: resp.StatusCode,
+		retryAfter: parseRetryAfterSeconds(retryAfter),
+		detail: common.NewDetailedError(
+			fmt.Sprintf("gemini request returned HTTP %d", resp.StatusCode),
+			"url", endpoint,
+			"retry_after", retryAfter,
+			"body_snippet", bodySnippet,
+		),
+	}
 }
 
 // parseGeminiResponse decodes a Gemini generateContent response and maps its

@@ -111,6 +111,22 @@ describe('ApiService', () => {
       );
     });
 
+    it.each([
+      ['uses the dictionary lookup timeout by default', undefined, 30000],
+      ['lets callers override the timeout', { timeout: 5000 }, 5000],
+    ])('%s', async (_name, options, expectedTimeout) => {
+      const setTimeoutSpy = vi.spyOn(globalThis, 'setTimeout');
+      fetchMock.mockResolvedValueOnce(buildMockResponse({ word: 'apple' }));
+
+      await apiService.lookupWord('apple', options);
+
+      expect(setTimeoutSpy).toHaveBeenCalledWith(
+        expect.any(Function),
+        expectedTimeout,
+      );
+      setTimeoutSpy.mockRestore();
+    });
+
     it('URL-encodes words containing spaces and special characters', async () => {
       fetchMock.mockResolvedValueOnce(buildMockResponse({}));
 

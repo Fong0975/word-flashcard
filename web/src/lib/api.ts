@@ -39,6 +39,10 @@ import { API_CONFIG, API_ENDPOINTS } from './api-config';
 // ApiRequestOptions.timeout).
 const DATA_TRANSFER_TIMEOUT_MS = 60000;
 
+// A dictionary lookup can include the backend's automatic retries against the
+// upstream model (up to ~25s), so it needs a timeout that outlasts them.
+export const DICTIONARY_LOOKUP_TIMEOUT_MS = 30000;
+
 // Custom error class for API errors
 export class ApiError extends Error {
   constructor(
@@ -572,7 +576,10 @@ class ApiService {
     word: string,
     options?: ApiRequestOptions,
   ): Promise<T> {
-    return this.get<T>(API_ENDPOINTS.dictionaryLookup(word), options);
+    return this.get<T>(API_ENDPOINTS.dictionaryLookup(word), {
+      timeout: DICTIONARY_LOOKUP_TIMEOUT_MS,
+      ...options,
+    });
   }
 }
 

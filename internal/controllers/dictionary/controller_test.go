@@ -122,4 +122,5 @@ func (suite *ControllerTestSuite) setupMockGeminiServer() {
 	}))
 
 	suite.controller.geminiBaseURL = suite.mockGeminiServer.URL
+	suite.controller.retryPolicy = fastRetryPolicy()
 }
