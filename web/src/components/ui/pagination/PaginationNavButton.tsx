@@ -50,9 +50,14 @@ const desktopEnabledClass = `
   active:bg-gray-200/70 dark:active:bg-gray-700/70
 `;
 
-const disabledClass = `
-  bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500
-  cursor-not-allowed opacity-60
+const mobileDisabledClass =
+  'glass-panel text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-60';
+
+// Same fill and blur as `.glass-panel`, but without its border/shadow so the
+// segmented bar keeps its own visible per-button border.
+const desktopDisabledClass = `
+  bg-white/10 dark:bg-gray-800/20 backdrop-blur-lg
+  text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-60
 `;
 
 // Shared First/Previous/Next/Last pagination button, used for both the
@@ -69,6 +74,8 @@ export const PaginationNavButton: React.FC<PaginationNavButtonProps> = ({
       : `${desktopBaseClass} ${DESKTOP_ROUNDED_CLASS[type] || ''}`;
   const enabledClass =
     layout === 'mobile' ? mobileEnabledClass : desktopEnabledClass;
+  const disabledClass =
+    layout === 'mobile' ? mobileDisabledClass : desktopDisabledClass;
 
   return (
     <button

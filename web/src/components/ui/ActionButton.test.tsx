@@ -31,8 +31,12 @@ describe('ActionButton', () => {
     const user = userEvent.setup();
     render(<ActionButton label='Actions' items={buildItems()} disabled />);
 
-    await user.click(screen.getByRole('button', { name: /actions/i }));
+    const trigger = screen.getByRole('button', { name: /actions/i });
+    await user.click(trigger);
 
     expect(screen.queryByRole('menuitem')).not.toBeInTheDocument();
+    expect(trigger).toBeDisabled();
+    expect(trigger).toHaveClass('glass-panel', 'cursor-not-allowed');
+    expect(trigger).not.toHaveClass('glass-interactive');
   });
 });

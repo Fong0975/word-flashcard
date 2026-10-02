@@ -58,18 +58,18 @@ Tailwind `gray` is the only neutral scale.
 
 ### 2.3 Semantic (status) colors
 
-All semantic colors use the stock Tailwind scales; each has a light surface/text pair and a dark pair.
+All semantic colors use the stock Tailwind scales; each has a light surface/text pair and a dark pair. Toast and inline `ErrorMessage` surfaces use the `.glass-alert-*` classes (§4.2).
 
 | Status | Light surface / border | Light text | Dark surface / border | Dark text | Icon / progress |
 | --- | --- | --- | --- | --- | --- |
-| Success | `green-50` / `green-200` | `green-800` | `green-900/60` / `green-700` | `green-200` | `green-400` (bar `green-400`, dark `green-500`) |
-| Error / danger | `red-50` / `red-200` | `red-800` (body `red-700`) | `red-900/60` (inline: `red-900/20`) / `red-700` | `red-200` (body `red-300`) | `red-400` |
-| Warning | `yellow-50` / `yellow-200` | `yellow-800` | `yellow-900/60` / `yellow-700` | `yellow-200` | `yellow-400` |
-| Info | `blue-50` / `blue-200` | `blue-800` | `blue-900/60` / `blue-700` | `blue-200` | `blue-400` |
+| Success | `green-50/70` / `green-200` | `green-800` | `green-900/40` / `green-700` | `green-200` | `green-400` (bar `green-400`, dark `green-500`) |
+| Error / danger | `red-50/70` / `red-200` | `red-800` (body `red-700`) | `red-900/40` / `red-700` | `red-200` (body `red-300`) | `red-400` |
+| Warning | `yellow-50/70` / `yellow-200` | `yellow-800` | `yellow-900/40` / `yellow-700` | `yellow-200` | `yellow-400` |
+| Info | `blue-50/70` / `blue-200` | `blue-800` | `blue-900/40` / `blue-700` | `blue-200` | `blue-400` |
 
 Solid action fills: danger `red-600` (hover `red-700`), warning `yellow-600`, success CTA `green-600/90` (see `.glass-button-success`), info = `.glass-button-primary`.
 
-Markdown alerts (`.markdown-alert-*`) use a 4px left border: note = blue, tip = green, important = purple, warning = yellow, caution = red (`-500` light, `-400` dark; title text `-600` light, `-400` dark). Their body surface is the one place a flat `gray-50` / `gray-700` fill is used.
+Markdown alerts (`.markdown-alert-*`) use a 4px left border: note = blue, tip = green, important = purple, warning = yellow, caution = red (`-500` light, `-400` dark; title text `-600` light, `-400` dark). Their body surface is translucent glass (`gray-50/70` light, `gray-900/40` dark, `backdrop-blur-md`, `shadow-sm`), matching `.glass-alert-neutral`; only the left border and title carry the type color.
 
 ### 2.4 Backdrop (what the glass blurs)
 
@@ -139,6 +139,7 @@ Higher blur = higher elevation in the layer stack (page → panel → card → o
 | `.glass-panel-strong` | `white/[55%]` | `white/80` | `gray-800/[60%]` | `white/10` | `xl` | `sm` (Modal/Dialog add `shadow-xl`) | Header, Modal, ConfirmationDialog, DropdownMenu |
 | `.glass-input` | `gray-100/70` | `white/70` | `gray-900/50` | `white/10` | `md` | `sm` | Text inputs / textareas / date pickers |
 | `.glass-checkbox` | `white/30` (checked `primary-500/80`) | `white/70` (checked `primary-500`) | `white/10` (checked `primary-500/80`) | `white/20` (checked `primary-400`) | `sm` | `sm` | Native checkbox |
+| `.glass-alert-*` (`success` / `error` / `warning` / `info` / `neutral`) | `*-50/70` | `*-200` | `*-900/40` | `*-700` | `md` | `sm` | Toast, inline `ErrorMessage` (text / icon colors set per usage) |
 | `.glass-progress-track` | `white/20` | `white/30` | `gray-800/30` | `white/10` | `sm` | `inner` | Quiz progress track (fill stays solid primary) |
 | `.glass-interactive` | transparent → `primary-500/[15%]` hover/focus, `/25` active | transparent | transparent → `primary-400/20` hover/focus, `/30` active | transparent | `lg` on hover/focus only | `sm` on hover/focus | Secondary buttons, icon buttons, back button |
 | `.glass-button-primary` | `primary-500/90` (hover `primary-600/90`) | transparent | `primary-500/60` (hover `/75`) | transparent | `md` | `md` (dark `lg`) | Primary CTA, active filter / page |
@@ -158,8 +159,8 @@ Dark vs light differences (summary): light glass is **white-tinted** with a brig
 | Surface | Light | Dark |
 | --- | --- | --- |
 | Modal / dialog scrim | `bg-black/30` | `bg-black/30` (same) |
-| Toast | solid `*-50` fill + `*-200` border | `*-900/60` fill + `*-700` border (not blurred) |
-| Inline `ErrorMessage` | `red-50` + `red-200` | `red-900/20` + `red-700` |
+| Toast | `.glass-alert-{success,error,warning,info,neutral}` | same class |
+| Inline `ErrorMessage` | `.glass-alert-error` | same class |
 | Chart tooltip | frosted dark for **both** themes: `rgba(31,41,55,.85)`, border `rgba(255,255,255,.15)`, text `#f3f4f6`, blur 6px (recharts inline styles cannot read `dark:`) | same |
 | Chart bars | stroke `rgba(255,255,255,.25)` @ 0.5px, fill opacity `0.85` | same |
 
@@ -252,7 +253,6 @@ Extraction rule: if the same glass utility combination appears more than twice, 
 ## 11. Known gaps (for awareness, not yet fixed)
 
 - `data-theme='light'` selector in `index.css` is unused (theme is class-based); see §1.
-- Some non-glass surfaces (`ErrorMessage`, `Toast`, `.markdown-alert`, `ActionButton` disabled, desktop pagination disabled state) use flat Tailwind color fills instead of a glass tier.
 - Dialog confirm buttons for `danger` / `warning` are solid (`red-600`, `yellow-600`) rather than the glass CTA pattern; only `info` uses `.glass-button-primary`.
 - Tab navigation uses `blue-500/600/400` directly instead of the `primary` scale (same hex values).
 - Empty-state and tab icons use emoji.

@@ -15,9 +15,7 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
   title = 'Error loading data',
   className = '',
 }) => (
-  <div
-    className={`mb-6 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-700 dark:bg-red-900/20 ${className}`}
-  >
+  <div className={`glass-alert-error mb-6 rounded-lg p-4 ${className}`}>
     <div className='flex items-start'>
       <div className='flex-shrink-0'>
         <svg
