@@ -4,8 +4,6 @@ import { Modal } from '../../../components/ui/Modal';
 import { CopyButton } from '../../../components/ui/CopyButton';
 import { FormActions } from '../../../components/ui/FormActions';
 import { FormErrorMessage } from '../../../components/ui/FormErrorMessage';
-import { ToastContainer } from '../../../components/ui';
-import { useToast } from '../../../hooks/ui/useToast';
 import { useTemplateButtons } from '../../../hooks/shared';
 import { Question } from '../../../types/api';
 import { formatFormDataForCopy } from '../question-detail/utils/questionFormat';
@@ -63,18 +61,13 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
     resetForm,
   });
 
-  const { toasts, showWarning, removeToast } = useToast();
-
-  // Template buttons configurations
   const { templateButtonsConfig: referenceTemplateButtons } =
     useTemplateButtons({
       configFileName: 'questionFormModalReferenceButtonsConfig.json',
-      onWarning: showWarning,
     });
 
   const { templateButtonsConfig: notesTemplateButtons } = useTemplateButtons({
     configFileName: 'questionFormModalNotesButtonsConfig.json',
-    onWarning: showWarning,
   });
 
   const handleClose = () => {
@@ -99,14 +92,15 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
         {/* Fixed Header */}
         <div className='mb-2 flex-shrink-0 px-6 pb-0 pt-4'>
           <div className='border-b border-gray-200 px-2 pb-4 pt-2 dark:border-gray-700'>
-            <h2 className='text-2xl font-bold text-gray-900 dark:text-white'>
-              {modalTitle}
-            </h2>
-            <div className='mt-3 flex justify-end'>
+            <div className='flex items-center'>
+              <h2 className='text-2xl font-bold text-gray-900 dark:text-white'>
+                {modalTitle}
+              </h2>
               <CopyButton
                 text={copyText}
                 title='Copy current form content to clipboard'
                 successText='Form content copied!'
+                className='ml-2'
               />
             </div>
           </div>
@@ -169,9 +163,6 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
           />
         </div>
       </div>
-
-      {/* Toast Notifications */}
-      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
     </Modal>
   );
 };

@@ -4,8 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { apiService } from '../../../lib/api';
 import { getApiErrorMessage } from '../../../lib/apiErrorMessage';
 import { DetailPageLayout } from '../../../components/layout';
-import { MarkdownEditorField, ToastContainer } from '../../../components/ui';
-import { useToast } from '../../../hooks/ui/useToast';
+import { MarkdownEditorField } from '../../../components/ui';
 import { useTemplateButtons } from '../../../hooks/shared';
 import { appendTemplateText } from '../../../utils/textTemplates';
 
@@ -17,10 +16,8 @@ export const NoteCreatePage: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  const { toasts, showWarning, removeToast } = useToast();
   const { templateButtonsConfig } = useTemplateButtons({
     configFileName: 'noteContentButtonsConfig.json',
-    onWarning: showWarning,
   });
 
   const appendToContent = (textToAppend: string) => {
@@ -85,13 +82,10 @@ export const NoteCreatePage: React.FC = () => {
   );
 
   return (
-    <>
-      <DetailPageLayout
-        onBack={() => navigate('/?tab=notes')}
-        header={header}
-        body={body}
-      />
-      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
-    </>
+    <DetailPageLayout
+      onBack={() => navigate('/?tab=notes')}
+      header={header}
+      body={body}
+    />
   );
 };

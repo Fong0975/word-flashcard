@@ -30,10 +30,9 @@ export const NoteDetailPage: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  const { toasts, showWarning, showError, removeToast } = useToast();
+  const { toasts, showError, removeToast } = useToast();
   const { templateButtonsConfig } = useTemplateButtons({
     configFileName: 'noteContentButtonsConfig.json',
-    onWarning: showWarning,
   });
 
   const appendToEditContent = (textToAppend: string) => {
