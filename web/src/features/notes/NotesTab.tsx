@@ -9,7 +9,9 @@ import { EmptyState } from '../../components/ui/EmptyState';
 import { ErrorMessage } from '../../components/ui/ErrorMessage';
 import { ToastContainer } from '../../components/ui';
 import { useToast } from '../../hooks/ui/useToast';
+import { ReviewTabActionButtons } from '../shared/components/ReviewTabActionButtons';
 import { TotalCountLabel } from '../shared/components/TotalCountLabel';
+import { useRefreshAction } from '../shared/hooks/useRefreshAction';
 
 import { NoteCard } from './NoteCard';
 
@@ -19,6 +21,12 @@ export const NotesTab: React.FC = () => {
   const navigate = useNavigate();
   const notesHook = useNotes({ itemsPerPage: ITEMS_PER_PAGE });
   const { toasts, showError, removeToast } = useToast();
+  const {
+    isRefreshing,
+    handleRefresh,
+    toasts: refreshToasts,
+    removeToast: removeRefreshToast,
+  } = useRefreshAction(notesHook.refresh);
 
   const [orderedNotes, setOrderedNotes] = useState<Note[]>([]);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
@@ -151,53 +159,13 @@ export const NotesTab: React.FC = () => {
         <p className='mt-1 text-gray-600 dark:text-gray-300'>
           Manage and review your notes
         </p>
-      </div>
 
-      {/* Toolbar */}
-      <div className='mb-4 flex items-center justify-end'>
-        <div className='flex gap-2'>
-          <button
-            type='button'
-            onClick={() => notesHook.refresh().catch(() => {})}
-            disabled={notesHook.loading}
-            className='glass-interactive flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-300'
-          >
-            <svg
-              className='h-4 w-4'
-              fill='none'
-              viewBox='0 0 24 24'
-              stroke='currentColor'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15'
-              />
-            </svg>
-            Refresh
-          </button>
-          <button
-            type='button'
-            onClick={() => navigate('/note/new')}
-            className='glass-button-primary flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium'
-          >
-            <svg
-              className='h-4 w-4'
-              fill='none'
-              viewBox='0 0 24 24'
-              stroke='currentColor'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M12 4v16m8-8H4'
-              />
-            </svg>
-            Add Note
-          </button>
-        </div>
+        <ReviewTabActionButtons
+          showQuiz={false}
+          onRefresh={handleRefresh}
+          isRefreshing={isRefreshing}
+          onNew={() => navigate('/note/new')}
+        />
       </div>
 
       {/* Search input */}
@@ -294,7 +262,7 @@ export const NotesTab: React.FC = () => {
             <EmptyState
               icon='📒'
               title='No notes yet'
-              description='Click "Add Note" to create your first note card.'
+              description='Click "Add" to create your first note card.'
               onRefresh={notesHook.refresh}
             />
           )
@@ -349,6 +317,10 @@ export const NotesTab: React.FC = () => {
       </div>
 
       <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
+      <ToastContainer
+        toasts={refreshToasts}
+        onRemoveToast={removeRefreshToast}
+      />
     </div>
   );
 };

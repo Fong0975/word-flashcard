@@ -125,6 +125,36 @@ describe('NotesTab', () => {
     ).toBeInTheDocument();
   });
 
+  it.each([
+    {
+      name: 'success',
+      refresh: vi.fn().mockResolvedValue(undefined),
+      toast: 'Refresh successful!',
+    },
+    {
+      name: 'failure',
+      refresh: vi.fn().mockRejectedValue(new Error('network down')),
+      toast: 'network down',
+    },
+  ])('shows a toast after Refresh ($name)', async ({ refresh, toast }) => {
+    const user = userEvent.setup();
+    renderTab({ refresh });
+
+    await user.click(screen.getByRole('button', { name: /Refresh/ }));
+
+    expect(refresh).toHaveBeenCalledTimes(1);
+    expect(await screen.findByText(toast)).toBeInTheDocument();
+  });
+
+  it('uses the shared "Add" button to open the new note page', async () => {
+    const user = userEvent.setup();
+    renderTab();
+
+    await user.click(screen.getByRole('button', { name: 'Add' }));
+
+    expect(mockNavigate).toHaveBeenCalledWith('/note/new');
+  });
+
   it('renders notes and navigates to a note on click', async () => {
     const user = userEvent.setup();
     renderTab({
