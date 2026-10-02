@@ -61,6 +61,7 @@ word-flashcard/
 │   ├── log/                      # Logging module
 │   ├── conversion_utils.go       # Type conversion utilities
 │   └── pointer_utils.go          # Pointer utility functions
+├── scripts/                       # Helper scripts
 ├── web/                           # React frontend application
 │   ├── public/                   # Public assets
 │   ├── src/                      # React source code
@@ -78,11 +79,9 @@ word-flashcard/
 ├── .env.example                  # Environment variables template
 ├── docker-compose.yml            # Definition of multi-container for services in the project
 ├── Dockerfile                    # Dockerfile for backend service
-├── export_docker.bat             # Script: Copy files required for Docker deployment
 ├── go.mod                        # Go module definition
 ├── main.go                       # Main server file
 ├── README.md                     # This file
-└── run_dev.bat                   # Development startup script for Windows
 ```
 
 ## Prerequisites

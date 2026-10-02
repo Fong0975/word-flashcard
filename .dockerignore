@@ -8,6 +8,9 @@ README.md
 *.md
 project-docs/
 
+# Helper scripts
+scripts/
+
 # Development tools
 .vscode
 .idea

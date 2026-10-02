@@ -1,4 +1,7 @@
 @echo off
+REM Always operate from the repository root, regardless of where the script is launched
+cd /d "%~dp0.."
+
 echo Starting development environment...
 echo.
 
