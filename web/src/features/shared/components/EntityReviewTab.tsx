@@ -29,6 +29,15 @@ interface EntityReviewTabProps<
   readonly quickFiltersContent?: ReactNode;
   readonly toolbarContent?: ReactNode;
   readonly onTotalCountClick?: () => void;
+  /**
+   * Enables a '+' button in the search bar. `canAdd` decides, for the
+   * committed (trimmed) search term, whether the entity is still missing.
+   */
+  readonly addFromSearch?: {
+    readonly canAdd: (term: string) => boolean;
+    readonly onAdd: (term: string) => void;
+    readonly label?: string;
+  };
 }
 
 /**
@@ -70,6 +79,7 @@ export const EntityReviewTab = <T extends BaseEntity>({
   quickFiltersContent,
   toolbarContent,
   onTotalCountClick,
+  addFromSearch,
   className = '',
 }: EntityReviewTabProps<T>) => {
   const {
@@ -121,6 +131,16 @@ export const EntityReviewTab = <T extends BaseEntity>({
     actions.onRefresh,
   );
 
+  // Only offer "add" once the list reflects exactly what is typed in the box.
+  const committedTerm = searchTerm.trim();
+  const showAddFromSearch = Boolean(
+    addFromSearch &&
+    committedTerm &&
+    !loading &&
+    inputValue.trim() === committedTerm &&
+    addFromSearch.canAdd(committedTerm),
+  );
+
   // Show loading state
   if (loading && entities.length === 0 && !searchTerm) {
     return (
@@ -169,6 +189,12 @@ export const EntityReviewTab = <T extends BaseEntity>({
           onCompositionStart={handleCompositionStart}
           onCompositionEnd={handleCompositionEnd}
           onClear={clearSearch}
+          onAdd={
+            showAddFromSearch && addFromSearch
+              ? () => addFromSearch.onAdd(committedTerm)
+              : undefined
+          }
+          addLabel={addFromSearch?.label}
           placeholder={
             config.searchPlaceholder ||
             `Search ${config.entityNamePlural.toLowerCase()}...`

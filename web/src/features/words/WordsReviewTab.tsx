@@ -11,6 +11,7 @@ import { EntityReviewTab } from '../shared/components/EntityReviewTab';
 import { useQuickFilters } from '../shared/hooks/useQuickFilters';
 import { useUrlSyncedEntityList } from '../shared/hooks/useUrlSyncedEntityList';
 import { ActionButton, ToastContainer } from '../../components/ui';
+import { ConfirmationDialog } from '../../components/ui/ConfirmationDialog';
 import { ModalLoadingFallback } from '../../components/ui/ModalLoadingFallback';
 import {
   QuizSetupModal,
@@ -21,6 +22,10 @@ import { SearchCondition, SearchOperation } from '../../types/base';
 
 import { WordFormModal } from './word-form';
 import { WordCard } from './WordCard';
+import {
+  hasExactWordMatch,
+  useAddWordFromSearch,
+} from './useAddWordFromSearch';
 import { QuickFilterButton } from './QuickFilterButton';
 
 // Pulls in `recharts`, so it's only downloaded once the stats modal is
@@ -186,6 +191,12 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
     navigate(`/word/${encodeURIComponent(word.word)}`);
   };
 
+  const { pendingWord, isAdding, requestAdd, cancelAdd, confirmAdd } =
+    useAddWordFromSearch({
+      onAdded: handleOpenWordDetailFromSuggestion,
+      onError: showError,
+    });
+
   const sortToolbar = (
     <div className='flex items-center justify-end gap-2'>
       <span className='text-sm text-gray-500 dark:text-gray-400'>Sort:</span>
@@ -246,6 +257,11 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
         }
         entityListHook={patchedWordsHook}
         onTotalCountClick={() => setIsStatsOpen(true)}
+        addFromSearch={{
+          canAdd: term => !hasExactWordMatch(wordsHook.words, term),
+          onAdd: requestAdd,
+          label: 'Add this word',
+        }}
         renderCard={(word, index) => (
           <WordCard
             key={word.id}
@@ -277,6 +293,18 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
               currentWords={wordsHook.words}
               onError={showError}
               onWarning={showWarning}
+            />
+
+            {/* Add-from-search confirmation */}
+            <ConfirmationDialog
+              isOpen={pendingWord !== null}
+              title='Add Word'
+              message={`"${pendingWord ?? ''}" was not found in your words. Add it now?`}
+              confirmText='Add Word'
+              variant='info'
+              isConfirming={isAdding}
+              onConfirm={confirmAdd}
+              onCancel={cancelAdd}
             />
 
             {/* Quiz Setup Modal */}
