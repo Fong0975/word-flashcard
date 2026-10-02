@@ -252,9 +252,23 @@ Reuse these before building new UI (`web/src/components/ui`, `web/src/components
 | Pagination | `Pagination` (segmented on desktop with `border-gray-300`/`gray-600`, standalone `.glass-interactive` on mobile) |
 | Charts | `chartGlassStyles` constants (`GLASS_TOOLTIP_*`, `CHART_TEXT_CLASSNAME`, `GLASS_BAR_*`) |
 
+### Icons
+
+Two icon styles are used on purpose, each for its own job. No icon library is installed; do not add one unless explicitly asked.
+
+| Use | Style | Why |
+| --- | --- | --- |
+| Controls and status (Header, Toast, dialogs, menus, buttons) | Inline SVG, outline style, `stroke='currentColor'`, `aria-hidden='true'` | Follows the text color and the light / dark theme |
+| Tab labels, empty states, error / result screens (📝 ❓ 📒 📚 🔍 😕 🎉 ❌ ⚠️) | Emoji | Conveys tone at a glance with zero dependencies; the platform-specific look is accepted |
+
+Rules:
+
+- Emoji are decorative, never the only carrier of meaning. Keep a text label or message next to them (tab label, empty-state title).
+- Use emoji for empty-state / result / error illustration (`text-6xl`) and tab prefixes only; use inline SVG for anything that must recolor with the theme.
+- Status marks inside text (`✓ Correct`, `✗ Incorrect`) stay plain text glyphs and are colored through the surrounding text color classes.
+
 Extraction rule: if the same glass utility combination appears more than twice, promote it to a shared component, `@layer components` class or Tailwind token.
 
 ## 11. Known gaps (for awareness, not yet fixed)
 
 - `data-theme='light'` selector in `index.css` is unused (theme is class-based); see §1.
-- Empty-state and tab icons use emoji.
