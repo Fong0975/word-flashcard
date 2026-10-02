@@ -55,7 +55,7 @@ export const DefinitionsSection: React.FC<DefinitionsSectionProps> = ({
             <button
               type='button'
               onClick={() => onApplyDefinition(def)}
-              className='ml-4 flex-shrink-0 rounded bg-green-100 px-3 py-1 text-xs font-medium text-green-700 transition-colors hover:bg-green-200 dark:bg-green-800 dark:text-green-300 dark:hover:bg-green-700'
+              className='focus-ring-success ml-4 flex-shrink-0 rounded bg-green-100 px-3 py-1 text-xs font-medium text-green-700 transition-colors hover:bg-green-200 dark:bg-green-800 dark:text-green-300 dark:hover:bg-green-700'
             >
               Apply
             </button>

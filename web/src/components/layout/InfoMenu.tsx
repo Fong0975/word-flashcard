@@ -58,7 +58,7 @@ export const InfoMenu: React.FC = () => {
             target='_blank'
             rel='noopener noreferrer'
             role='menuitem'
-            className='mt-2 flex items-center gap-1.5 rounded-md pt-1 text-xs text-gray-700 transition-colors hover:text-gray-900 dark:text-gray-200 dark:hover:text-white'
+            className='focus-ring mt-2 flex items-center gap-1.5 rounded-md pt-1 text-xs text-gray-700 transition-colors hover:text-gray-900 dark:text-gray-200 dark:hover:text-white'
           >
             <svg
               viewBox='0 0 24 24'

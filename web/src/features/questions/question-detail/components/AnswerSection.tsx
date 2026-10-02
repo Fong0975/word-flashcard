@@ -32,7 +32,7 @@ export const AnswerSection: React.FC<AnswerSectionProps> = ({
       {/* Collapsible Header */}
       <button
         onClick={onToggle}
-        className='flex w-full items-center justify-between p-4 transition-colors hover:bg-yellow-200/50 dark:hover:bg-yellow-800/30'
+        className='focus-ring-warning flex w-full items-center justify-between p-4 transition-colors hover:bg-yellow-200/50 focus-visible:bg-yellow-200/50 focus-visible:ring-inset dark:hover:bg-yellow-800/30 dark:focus-visible:bg-yellow-800/30'
       >
         <h2 className='text-lg font-semibold text-yellow-800 dark:text-yellow-200'>
           Answer & Explanation

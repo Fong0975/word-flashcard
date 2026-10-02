@@ -204,7 +204,7 @@ export const NoteDetailPage: React.FC = () => {
               type='button'
               onClick={deleteConfirmation.confirmDelete}
               disabled={deleteConfirmation.isDeleting}
-              className='rounded-md bg-red-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50'
+              className='focus-ring-danger rounded-md bg-red-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50'
             >
               {deleteConfirmation.isDeleting ? 'Deleting...' : 'Delete'}
             </button>

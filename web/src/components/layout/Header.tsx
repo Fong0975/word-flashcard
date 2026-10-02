@@ -16,7 +16,10 @@ export const Header: React.FC = () => {
         <div className='flex h-16 items-center justify-between'>
           {/* Logo and Title */}
           <div className='flex items-center space-x-4'>
-            <Link to='/' className='flex items-center space-x-3'>
+            <Link
+              to='/'
+              className='focus-ring flex items-center space-x-3 rounded-lg'
+            >
               <img
                 src={logo}
                 alt='Flashcard App Logo'

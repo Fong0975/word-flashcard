@@ -108,7 +108,7 @@ export const FormFields: React.FC<FormFieldsProps> = ({
                 <button
                   type='button'
                   onClick={() => handlers.removeExampleInput(index)}
-                  className='p-2 text-red-600 transition-colors hover:text-red-800 dark:text-red-400 dark:hover:text-red-300'
+                  className='focus-ring-danger rounded-md p-2 text-red-600 transition-colors hover:text-red-800 dark:text-red-400 dark:hover:text-red-300'
                 >
                   <svg
                     className='h-4 w-4'
@@ -131,7 +131,7 @@ export const FormFields: React.FC<FormFieldsProps> = ({
         <button
           type='button'
           onClick={handlers.addExampleInput}
-          className='mt-3 inline-flex items-center rounded-md border border-transparent bg-primary-100 px-4 py-2 text-sm font-medium text-primary-700 transition-colors hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800'
+          className='focus-ring mt-3 inline-flex items-center rounded-md border border-transparent bg-primary-100 px-4 py-2 text-sm font-medium text-primary-700 transition-colors hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800'
         >
           <svg
             className='mr-2 h-4 w-4'

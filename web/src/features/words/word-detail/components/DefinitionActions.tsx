@@ -35,7 +35,7 @@ export const DefinitionActions: React.FC<DefinitionActionsProps> = ({
         <button
           type='button'
           onClick={() => onEdit(definition)}
-          className='rounded-md p-2 text-gray-600 transition-colors hover:bg-primary-50 hover:text-primary-600 dark:text-gray-400 dark:hover:bg-primary-900/20 dark:hover:text-primary-400'
+          className='focus-ring rounded-md p-2 text-gray-600 transition-colors hover:bg-primary-50 hover:text-primary-600 dark:text-gray-400 dark:hover:bg-primary-900/20 dark:hover:text-primary-400'
           title='Edit definition'
         >
           <svg
@@ -55,7 +55,7 @@ export const DefinitionActions: React.FC<DefinitionActionsProps> = ({
         <button
           type='button'
           onClick={handleDeleteClick}
-          className='rounded-md p-2 text-gray-600 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-900/20 dark:hover:text-red-400'
+          className='focus-ring-danger rounded-md p-2 text-gray-600 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-900/20 dark:hover:text-red-400'
           title='Delete definition'
         >
           <svg

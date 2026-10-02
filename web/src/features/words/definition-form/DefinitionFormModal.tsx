@@ -124,7 +124,7 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
                 <p className='text-lg text-gray-600 dark:text-gray-400'>
                   for &quot;
                   <a
-                    className='font-semibold text-gray-800 dark:text-primary-500 hover:dark:text-primary-300'
+                    className='focus-ring rounded-sm font-semibold text-gray-800 dark:text-primary-500 hover:dark:text-primary-300'
                     href={`https://dictionary.cambridge.org/zht/%E8%A9%9E%E5%85%B8/%E8%8B%B1%E8%AA%9E-%E6%BC%A2%E8%AA%9E-%E7%B9%81%E9%AB%94/${wordText}`}
                     target='_blank'
                     rel='noopener noreferrer'

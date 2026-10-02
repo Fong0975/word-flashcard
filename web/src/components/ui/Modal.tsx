@@ -88,7 +88,7 @@ export const Modal: React.FC<ModalProps> = ({
               </h3>
               <button
                 onClick={onClose}
-                className='text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-200'
+                className='focus-ring rounded-md text-gray-500 transition-colors hover:text-gray-700 focus-visible:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 dark:focus-visible:text-gray-200'
                 aria-label='Close modal'
               >
                 <svg
@@ -115,7 +115,7 @@ export const Modal: React.FC<ModalProps> = ({
           {!title && (
             <button
               onClick={onClose}
-              className='absolute right-4 top-4 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-200'
+              className='focus-ring absolute right-4 top-4 rounded-md text-gray-500 transition-colors hover:text-gray-700 focus-visible:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 dark:focus-visible:text-gray-200'
               aria-label='Close modal'
             >
               <svg

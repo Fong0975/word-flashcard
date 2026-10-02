@@ -15,7 +15,7 @@ export const FamiliarityRatingButtons: React.FC<
     <button
       onClick={() => onSelect(FamiliarityLevel.RED)}
       disabled={disabled}
-      className='flex min-w-[150px] flex-col items-center rounded-lg border-2 border-red-200 bg-red-50 p-4 transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-700 dark:bg-red-900/20 dark:hover:bg-red-900/30'
+      className='focus-ring-danger flex min-w-[150px] flex-col items-center rounded-lg border-2 border-red-200 bg-red-50 p-4 transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-700 dark:bg-red-900/20 dark:hover:bg-red-900/30'
     >
       {loadingLevel === FamiliarityLevel.RED ? (
         <div className='flex items-center justify-center'>
@@ -40,7 +40,7 @@ export const FamiliarityRatingButtons: React.FC<
     <button
       onClick={() => onSelect(FamiliarityLevel.YELLOW)}
       disabled={disabled}
-      className='flex min-w-[150px] flex-col items-center rounded-lg border-2 border-yellow-200 bg-yellow-50 p-4 transition-colors hover:bg-yellow-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-yellow-700 dark:bg-yellow-900/20 dark:hover:bg-yellow-900/30'
+      className='focus-ring-warning flex min-w-[150px] flex-col items-center rounded-lg border-2 border-yellow-200 bg-yellow-50 p-4 transition-colors hover:bg-yellow-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-yellow-700 dark:bg-yellow-900/20 dark:hover:bg-yellow-900/30'
     >
       {loadingLevel === FamiliarityLevel.YELLOW ? (
         <div className='flex items-center justify-center'>
@@ -65,7 +65,7 @@ export const FamiliarityRatingButtons: React.FC<
     <button
       onClick={() => onSelect(FamiliarityLevel.GREEN)}
       disabled={disabled}
-      className='flex min-w-[150px] flex-col items-center rounded-lg border-2 border-green-200 bg-green-50 p-4 transition-colors hover:bg-green-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-green-700 dark:bg-green-900/20 dark:hover:bg-green-900/30'
+      className='focus-ring-success flex min-w-[150px] flex-col items-center rounded-lg border-2 border-green-200 bg-green-50 p-4 transition-colors hover:bg-green-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-green-700 dark:bg-green-900/20 dark:hover:bg-green-900/30'
     >
       {loadingLevel === FamiliarityLevel.GREEN ? (
         <div className='flex items-center justify-center'>

@@ -48,7 +48,7 @@ export const LogEntryItem: React.FC<LogEntryItemProps> = ({ entry }) => {
         <button
           type='button'
           onClick={() => setExpanded(previous => !previous)}
-          className='mt-1 text-xs font-medium text-primary-600 hover:underline dark:text-primary-400'
+          className='focus-ring mt-1 rounded-sm text-xs font-medium text-primary-600 hover:underline focus-visible:underline dark:text-primary-400'
         >
           {expanded ? 'Show less' : 'Show more'}
         </button>

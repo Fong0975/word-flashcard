@@ -81,7 +81,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({
               onMoveUp();
             }}
             disabled={isFirst}
-            className='rounded p-0.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-30 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-gray-300'
+            className='focus-ring rounded p-0.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-30 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-gray-300'
             aria-label='Move up'
           >
             <svg
@@ -99,7 +99,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({
               onMoveDown();
             }}
             disabled={isLast}
-            className='rounded p-0.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-30 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-gray-300'
+            className='focus-ring rounded p-0.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-30 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-gray-300'
             aria-label='Move down'
           >
             <svg
@@ -117,7 +117,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({
       <button
         type='button'
         onClick={onClick}
-        className='min-w-0 flex-1 text-left'
+        className='focus-ring min-w-0 flex-1 rounded-md text-left'
       >
         <p className='truncate text-sm font-medium text-gray-900 dark:text-white'>
           {note.title}

@@ -22,7 +22,7 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
       <button
         onClick={onToggle}
         aria-expanded={isOpen}
-        className='flex w-full items-center justify-between p-4 transition-colors hover:bg-gray-100/80 dark:hover:bg-gray-800/70'
+        className='focus-ring flex w-full items-center justify-between p-4 transition-colors hover:bg-gray-100/80 focus-visible:bg-gray-100/80 focus-visible:ring-inset dark:hover:bg-gray-800/70 dark:focus-visible:bg-gray-800/70'
       >
         <h2 className='text-lg font-semibold text-gray-800 dark:text-gray-200'>
           {title}

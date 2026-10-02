@@ -226,7 +226,7 @@ export const WordDetailPage: React.FC = () => {
                 <button
                   type='button'
                   onClick={() => setShowClearReminderConfirm(true)}
-                  className='mt-0.5 shrink-0 text-amber-400 transition-colors hover:text-amber-600 dark:text-amber-500 dark:hover:text-amber-300'
+                  className='focus-ring-warning mt-0.5 shrink-0 rounded-md text-amber-400 transition-colors hover:text-amber-600 dark:text-amber-500 dark:hover:text-amber-300'
                   aria-label='Clear reminder'
                 >
                   <svg

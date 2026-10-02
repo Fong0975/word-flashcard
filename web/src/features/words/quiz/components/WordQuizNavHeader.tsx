@@ -32,7 +32,7 @@ export const WordQuizNavHeader: React.FC<WordQuizNavHeaderProps> = ({
         onClick={onPrev}
         disabled={isFirstStep}
         aria-label='Previous'
-        className='flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-600 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+        className='focus-ring flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-600 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
       >
         <svg
           className='h-4 w-4'
@@ -69,7 +69,7 @@ export const WordQuizNavHeader: React.FC<WordQuizNavHeaderProps> = ({
       <button
         onClick={onNext}
         aria-label='Next'
-        className='flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-600 transition-colors hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+        className='focus-ring flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-600 transition-colors hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
       >
         <svg
           className='h-4 w-4'

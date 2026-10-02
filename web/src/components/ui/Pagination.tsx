@@ -43,6 +43,7 @@ export const Pagination: React.FC<PaginationProps> = ({
     bg-transparent text-gray-700 dark:text-gray-200 transition-colors duration-200
     hover:bg-gray-100/60 hover:backdrop-blur-md dark:hover:bg-gray-800/50
     active:bg-gray-200/70 dark:active:bg-gray-700/70
+    focus-visible:ring-2 focus-visible:ring-primary-500
   `;
 
   const buttonDisabledClass = `
@@ -133,7 +134,7 @@ export const Pagination: React.FC<PaginationProps> = ({
                 key={pageNum}
                 onClick={() => onPageChange(pageNum)}
                 disabled={loading}
-                className={`relative inline-flex items-center border px-4 py-2 text-sm font-medium ${
+                className={`relative inline-flex items-center border px-4 py-2 text-sm font-medium focus-visible:z-10 ${
                   pageNum === currentPage
                     ? buttonActiveClass
                     : loading

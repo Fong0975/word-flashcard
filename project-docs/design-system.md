@@ -148,6 +148,7 @@ Higher blur = higher elevation in the layer stack (page → panel → card → o
 | `.glass-button-success` | `green-700/90` (hover `green-800/90`) | transparent | `green-600/60` (hover `/75`) | transparent | `md` | `md` (dark `lg`) | Success / fetch CTA |
 | `.glass-button-danger` | `red-600/90` (hover `red-700/90`) | transparent | `red-600/60` (hover `/75`) | transparent | `md` | `md` (dark `lg`) | `ConfirmationDialog` `danger` confirm |
 | `.glass-button-warning` | `yellow-700/90` (hover `yellow-800/90`) | transparent | `yellow-600/60` (hover `/75`) | transparent | `md` | `md` (dark `lg`) | `ConfirmationDialog` `warning` confirm |
+| `.focus-ring` / `-danger` / `-success` / `-warning` / `-indigo` | unchanged | unchanged | unchanged | unchanged | none | none | Keyboard focus ring (`focus-visible:ring-2`, `primary-400/60`, `red-400/60`, `green-400/60`, `yellow-500/60`, `indigo-400/60`) for buttons/links without a glass class; add `focus-visible:ring-inset` under `overflow-hidden` parents |
 
 Layering invariants (documented in `index.css`; breaking them makes a surface vanish):
 
@@ -228,6 +229,7 @@ Light vs dark: motion is identical in both themes.
   - `.glass-interactive`: `focus-visible:` mirrors the hover tint (`primary-500/[15%]` light, `primary-400/20` dark) plus blur and shadow.
   - Pagination mobile buttons: `focus-visible:ring-2 focus-visible:ring-primary-500`.
 - Use `focus-visible:ring-*`, not `focus:ring-*`, on buttons and other click targets: `focus:` also fires on mouse click and leaves a conspicuous ring on the clicked element. `focus:ring-*` is for text fields only (`.glass-input`, search bars, the markdown editor wrapper), where the ring should show on any focus. Do not add `ring-offset-*`.
+- Buttons and links that have no glass class (`.glass-interactive`, `.glass-button-*`) take `.focus-ring` (or the `-danger` / `-success` / `-warning` / `-indigo` variant matching their hue) instead of repeating the ring utilities. Where the ring would be clipped by an `overflow-hidden` parent (e.g. `CollapsibleSection`, `AnswerSection` headers), add `focus-visible:ring-inset`.
 - Do not add `outline-none` without a replacement style. When creating a bare `<button>` check that it actually has one; several legacy controls (Modal close icon, Tab buttons: `focus:ring-0`) rely only on the color change of the active/hover state.
 - Icon-only buttons need `aria-label` (Header, Modal close, Pagination use `sr-only` text).
 - Toast: `role='alert'`, container `aria-live='polite'`, keyboard-dismissable (Enter/Space).

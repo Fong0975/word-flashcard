@@ -118,7 +118,7 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
                     ? 'cursor-not-allowed text-gray-400 dark:text-gray-500'
                     : item.isSelected
                       ? 'bg-primary-500/10 text-primary-700 dark:bg-primary-400/20 dark:text-primary-200'
-                      : 'text-gray-700 hover:bg-primary-500/[15%] hover:text-primary-700 dark:text-gray-200 dark:hover:bg-primary-400/20 dark:hover:text-primary-100'
+                      : 'text-gray-700 hover:bg-primary-500/[15%] hover:text-primary-700 focus-visible:bg-primary-500/[15%] focus-visible:text-primary-700 focus-visible:outline-none dark:text-gray-200 dark:hover:bg-primary-400/20 dark:hover:text-primary-100 dark:focus-visible:bg-primary-400/20 dark:focus-visible:text-primary-100'
                 } `}
                 role='menuitem'
               >

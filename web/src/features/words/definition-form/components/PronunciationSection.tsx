@@ -54,7 +54,7 @@ export const PronunciationSection: React.FC<PronunciationSectionProps> = ({
                   );
                 }}
                 disabled={!group.uk?.url && !group.us?.url}
-                className='rounded bg-primary-100 px-3 py-1 text-xs font-medium text-primary-700 transition-colors hover:bg-primary-200 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-primary-800 dark:text-primary-300 dark:hover:bg-primary-700'
+                className='focus-ring rounded bg-primary-100 px-3 py-1 text-xs font-medium text-primary-700 transition-colors hover:bg-primary-200 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-primary-800 dark:text-primary-300 dark:hover:bg-primary-700'
               >
                 Apply
               </button>

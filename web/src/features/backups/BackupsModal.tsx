@@ -94,7 +94,7 @@ export const BackupsModal: React.FC<BackupsModalProps> = ({
           onClick={refetch}
           disabled={loading}
           aria-label='Refresh backup list'
-          className='flex items-center gap-1 rounded-md px-2 py-1 text-xs text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white'
+          className='focus-ring flex items-center gap-1 rounded-md px-2 py-1 text-xs text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white'
         >
           <svg
             viewBox='0 0 24 24'
@@ -150,7 +150,7 @@ export const BackupsModal: React.FC<BackupsModalProps> = ({
                       <a
                         href={`${API_CONFIG.baseURL}${API_ENDPOINTS.downloadBackup(backup.name)}`}
                         download={backup.name}
-                        className='text-primary-600 hover:underline dark:text-primary-400'
+                        className='focus-ring rounded-sm text-primary-600 hover:underline focus-visible:underline dark:text-primary-400'
                       >
                         {stripJsonExtension(backup.name)}
                       </a>

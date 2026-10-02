@@ -30,7 +30,7 @@ export const TotalCountLabel: React.FC<TotalCountLabelProps> = ({
         <button
           type='button'
           onClick={onClick}
-          className='text-xs text-gray-400 underline-offset-2 hover:text-gray-600 hover:underline dark:text-gray-500 dark:hover:text-gray-300'
+          className='focus-ring rounded-sm text-xs text-gray-400 underline-offset-2 hover:text-gray-600 hover:underline focus-visible:text-gray-600 focus-visible:underline dark:text-gray-500 dark:hover:text-gray-300 dark:focus-visible:text-gray-300'
         >
           {text}
         </button>

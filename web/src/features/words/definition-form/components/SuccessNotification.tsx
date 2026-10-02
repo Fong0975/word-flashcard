@@ -30,7 +30,7 @@ export const SuccessNotification: React.FC<SuccessNotificationProps> = ({
       <button
         type='button'
         onClick={onClose}
-        className='text-green-600 transition-colors hover:text-green-800 dark:text-green-400 dark:hover:text-green-200'
+        className='focus-ring-success rounded-md text-green-600 transition-colors hover:text-green-800 dark:text-green-400 dark:hover:text-green-200'
       >
         <svg
           className='h-4 w-4'

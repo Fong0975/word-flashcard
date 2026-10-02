@@ -230,7 +230,7 @@ export const NotesTab: React.FC = () => {
             <button
               type='button'
               onClick={() => notesHook.setSearchTerm('')}
-              className='absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
+              className='focus-ring absolute inset-y-0 right-0 flex items-center rounded-md pr-3 text-gray-400 hover:text-gray-600 focus-visible:text-gray-600 dark:hover:text-gray-200 dark:focus-visible:text-gray-200'
               aria-label='Clear search'
             >
               <svg
@@ -329,7 +329,7 @@ export const NotesTab: React.FC = () => {
               type='button'
               onClick={notesHook.previousPage}
               disabled={!notesHook.hasPrevious}
-              className='rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700'
+              className='focus-ring rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700'
             >
               Previous
             </button>
@@ -340,7 +340,7 @@ export const NotesTab: React.FC = () => {
               type='button'
               onClick={notesHook.nextPage}
               disabled={!notesHook.hasNext}
-              className='rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700'
+              className='focus-ring rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700'
             >
               Next
             </button>

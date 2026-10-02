@@ -40,13 +40,13 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
         <div className='mt-3 flex space-x-3'>
           <button
             onClick={onRetry}
-            className='rounded-md bg-red-100 px-3 py-1 text-sm font-medium text-red-800 transition-colors hover:bg-red-200 dark:bg-red-800 dark:text-red-200 dark:hover:bg-red-700'
+            className='focus-ring-danger rounded-md bg-red-100 px-3 py-1 text-sm font-medium text-red-800 transition-colors hover:bg-red-200 dark:bg-red-800 dark:text-red-200 dark:hover:bg-red-700'
           >
             Try again
           </button>
           <button
             onClick={onDismiss}
-            className='text-sm font-medium text-red-700 hover:text-red-900 dark:text-red-300 dark:hover:text-red-100'
+            className='focus-ring-danger rounded-md text-sm font-medium text-red-700 hover:text-red-900 dark:text-red-300 dark:hover:text-red-100'
           >
             Dismiss
           </button>
