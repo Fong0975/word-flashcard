@@ -45,7 +45,6 @@ body {
 @layer base {
   *:focus {
     outline: none !important;
-    box-shadow: none !important;
   }
 }
 
@@ -176,12 +175,12 @@ body {
    * stays the clearest, highest-contrast action on the page.
    */
   .glass-button-primary {
-    @apply border border-transparent bg-primary-500/90 text-white shadow-md backdrop-blur-md transition-colors duration-200 hover:bg-primary-600/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400/60 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-primary-500/60 dark:shadow-lg dark:hover:bg-primary-500/75;
+    @apply hover:bg-primary-700/90 focus-visible:outline-none border border-transparent bg-primary-600/90 text-white shadow-md backdrop-blur-md transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-primary-400/60 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-primary-500/60 dark:shadow-lg dark:hover:bg-primary-500/75;
   }
 
   /* Same treatment as `.glass-button-primary`, tinted green for success/fetch-style CTAs */
   .glass-button-success {
-    @apply border border-transparent bg-green-600/90 text-white shadow-md backdrop-blur-md transition-colors duration-200 hover:bg-green-700/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400/60 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-green-600/60 dark:shadow-lg dark:hover:bg-green-600/75;
+    @apply hover:bg-green-800/90 focus-visible:outline-none border border-transparent bg-green-700/90 text-white shadow-md backdrop-blur-md transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-green-400/60 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-green-600/60 dark:shadow-lg dark:hover:bg-green-600/75;
   }
 
   /*
@@ -212,12 +211,12 @@ body {
 
   /* Same treatment as `.glass-button-primary`, tinted red for destructive confirmations */
   .glass-button-danger {
-    @apply border border-transparent bg-red-600/90 text-white shadow-md backdrop-blur-md transition-colors duration-200 hover:bg-red-700/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/60 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-600/60 dark:shadow-lg dark:hover:bg-red-600/75;
+    @apply border border-transparent bg-red-600/90 text-white shadow-md backdrop-blur-md transition-colors duration-200 hover:bg-red-700/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/60 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-600/60 dark:shadow-lg dark:hover:bg-red-600/75;
   }
 
   /* Same treatment as `.glass-button-primary`, tinted yellow for cautionary confirmations */
   .glass-button-warning {
-    @apply border border-transparent bg-yellow-600/90 text-white shadow-md backdrop-blur-md transition-colors duration-200 hover:bg-yellow-700/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400/60 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-yellow-600/60 dark:shadow-lg dark:hover:bg-yellow-600/75;
+    @apply hover:bg-yellow-800/90 focus-visible:outline-none border border-transparent bg-yellow-700/90 text-white shadow-md backdrop-blur-md transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-yellow-400/60 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-yellow-600/60 dark:shadow-lg dark:hover:bg-yellow-600/75;
   }
 
   /*

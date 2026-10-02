@@ -46,7 +46,7 @@ export const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({
                     key={suggestedWord.id}
                     type='button'
                     onClick={() => onSuggestionClick(suggestedWord)}
-                    className='block w-full rounded px-2 py-1 text-left text-sm text-primary-600 transition-colors hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:text-primary-400 dark:hover:bg-yellow-800/30'
+                    className='block w-full rounded px-2 py-1 text-left text-sm text-primary-600 transition-colors hover:bg-yellow-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:text-primary-400 dark:hover:bg-yellow-800/30'
                   >
                     {suggestedWord.word}
                   </button>

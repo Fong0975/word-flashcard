@@ -123,7 +123,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
           icon: null,
           iconBg: 'bg-gray-100 dark:bg-gray-900',
           confirmButton:
-            'text-white bg-gray-600 hover:bg-gray-700 focus:ring-gray-500',
+            'text-white bg-gray-600 hover:bg-gray-700 focus-visible:ring-gray-500',
         };
     }
   };
@@ -167,7 +167,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
             type='button'
             onClick={onConfirm}
             disabled={isConfirming}
-            className={`flex items-center rounded-md px-4 py-2 text-sm font-medium shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${styles.confirmButton}`}
+            className={`flex items-center rounded-md px-4 py-2 text-sm font-medium shadow-sm transition-colors focus:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 ${styles.confirmButton}`}
           >
             {isConfirming && (
               <svg

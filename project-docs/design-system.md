@@ -37,9 +37,9 @@ Use `primary-*` for brand and interaction colors (active tab, focus rings, selec
 | `primary-200` | `#bfdbfe` | Light backdrop blob; dark selected-menu text |
 | `primary-300` | `#93c5fd` | Light backdrop blobs |
 | `primary-400` | `#60a5fa` | Dark hover/focus tint, focus ring, dark checked border |
-| `primary-500` | `#3b82f6` | Primary CTA fill, hover tint, light focus ring |
-| `primary-600` | `#2563eb` | CTA hover; dark backdrop blob |
-| `primary-700` | `#1d4ed8` | Light selected-menu text; dark backdrop blob |
+| `primary-500` | `#3b82f6` | Dark primary CTA fill, hover tint, light focus ring |
+| `primary-600` | `#2563eb` | Light primary CTA fill; dark CTA hover; dark backdrop blob |
+| `primary-700` | `#1d4ed8` | Light CTA hover; light selected-menu text; dark backdrop blob |
 | `primary-800` | `#1e40af` | Dark backdrop blob |
 | `primary-900` | `#1e3a8a` | Dark backdrop blob |
 
@@ -69,7 +69,7 @@ All semantic colors use the stock Tailwind scales; each has a light surface/text
 | Warning | `yellow-50/70` / `yellow-200` | `yellow-800` | `yellow-900/40` / `yellow-700` | `yellow-200` | `yellow-400` |
 | Info | `blue-50/70` / `blue-200` | `blue-800` | `blue-900/40` / `blue-700` | `blue-200` | `blue-400` |
 
-Confirm / action fills are glass CTAs: danger = `.glass-button-danger` (`red-600/90`), warning = `.glass-button-warning` (`yellow-600/90`), success = `.glass-button-success` (`green-600/90`), info = `.glass-button-primary`.
+Confirm / action fills are glass CTAs: danger = `.glass-button-danger` (`red-600/90`), warning = `.glass-button-warning` (`yellow-700/90`), success = `.glass-button-success` (`green-700/90`), info = `.glass-button-primary` (`primary-600/90`). Light fills are one step darker than the status hue's usual `-500`/`-600` so white text stays at WCAG AA (4.5:1); dark fills keep their lower alpha.
 
 Markdown alerts (`.markdown-alert-*`) use a 4px left border: note = blue, tip = green, important = purple, warning = yellow, caution = red (`-500` light, `-400` dark; title text `-600` light, `-400` dark). Their body surface is translucent glass (`gray-50/70` light, `gray-900/40` dark, `backdrop-blur-md`, `shadow-sm`), matching `.glass-alert-neutral`; only the left border and title carry the type color.
 
@@ -144,10 +144,10 @@ Higher blur = higher elevation in the layer stack (page → panel → card → o
 | `.glass-alert-*` (`success` / `error` / `warning` / `info` / `neutral`) | `*-50/70` | `*-200` | `*-900/40` | `*-700` | `md` | `sm` | Toast, inline `ErrorMessage` (text / icon colors set per usage) |
 | `.glass-progress-track` | `white/20` | `white/30` | `gray-800/30` | `white/10` | `sm` | `inner` | Quiz progress track (fill stays solid primary) |
 | `.glass-interactive` | transparent → `primary-500/[15%]` hover/focus, `/25` active | transparent | transparent → `primary-400/20` hover/focus, `/30` active | transparent | `lg` on hover/focus only | `sm` on hover/focus | Secondary buttons, icon buttons, back button |
-| `.glass-button-primary` | `primary-500/90` (hover `primary-600/90`) | transparent | `primary-500/60` (hover `/75`) | transparent | `md` | `md` (dark `lg`) | Primary CTA, active filter / page |
-| `.glass-button-success` | `green-600/90` (hover `green-700/90`) | transparent | `green-600/60` (hover `/75`) | transparent | `md` | `md` (dark `lg`) | Success / fetch CTA |
+| `.glass-button-primary` | `primary-600/90` (hover `primary-700/90`) | transparent | `primary-500/60` (hover `/75`) | transparent | `md` | `md` (dark `lg`) | Primary CTA, active filter / page |
+| `.glass-button-success` | `green-700/90` (hover `green-800/90`) | transparent | `green-600/60` (hover `/75`) | transparent | `md` | `md` (dark `lg`) | Success / fetch CTA |
 | `.glass-button-danger` | `red-600/90` (hover `red-700/90`) | transparent | `red-600/60` (hover `/75`) | transparent | `md` | `md` (dark `lg`) | `ConfirmationDialog` `danger` confirm |
-| `.glass-button-warning` | `yellow-600/90` (hover `yellow-700/90`) | transparent | `yellow-600/60` (hover `/75`) | transparent | `md` | `md` (dark `lg`) | `ConfirmationDialog` `warning` confirm |
+| `.glass-button-warning` | `yellow-700/90` (hover `yellow-800/90`) | transparent | `yellow-600/60` (hover `/75`) | transparent | `md` | `md` (dark `lg`) | `ConfirmationDialog` `warning` confirm |
 
 Layering invariants (documented in `index.css`; breaking them makes a surface vanish):
 
@@ -222,11 +222,12 @@ Light vs dark: motion is identical in both themes.
 
 ## 9. Focus and accessibility
 
-- By design there is **no browser-default focus ring**. `index.css` has a single `@layer base { *:focus { outline: none !important; box-shadow: none !important } }` rule and no other global outline rule, so there is no global focus ring. Every interactive element must supply its own visible keyboard indicator:
-  - Primary / success CTA, checkbox: `focus-visible:ring-2` (`primary-400/60` or `green-400/60` with `ring-offset-2` for buttons; `primary-500` for checkbox).
+- By design there is **no browser-default focus ring**. `index.css` has a single `@layer base { *:focus { outline: none !important } }` rule and no other global outline rule, so there is no global focus ring. Every interactive element must supply its own visible keyboard indicator:
+  - Primary / success CTA, checkbox: `focus-visible:ring-2` (`primary-400/60`, `green-400/60`, `red-400/60` or `yellow-400/60` for buttons; `primary-500` for checkbox). No `ring-offset-*`: its default offset color is white and shows as a white gap around the ring on dark glass.
   - `.glass-input`: `focus:border-primary-400/70 focus:ring-2 focus:ring-primary-400/30` (dark: `/50` border, `/20` ring).
   - `.glass-interactive`: `focus-visible:` mirrors the hover tint (`primary-500/[15%]` light, `primary-400/20` dark) plus blur and shadow.
-  - Pagination mobile buttons: `focus:ring-2 focus:ring-primary-500`.
+  - Pagination mobile buttons: `focus-visible:ring-2 focus-visible:ring-primary-500`.
+- Use `focus-visible:ring-*`, not `focus:ring-*`, on buttons and other click targets: `focus:` also fires on mouse click and leaves a conspicuous ring on the clicked element. `focus:ring-*` is for text fields only (`.glass-input`, search bars, the markdown editor wrapper), where the ring should show on any focus. Do not add `ring-offset-*`.
 - Do not add `outline-none` without a replacement style. When creating a bare `<button>` check that it actually has one; several legacy controls (Modal close icon, Tab buttons: `focus:ring-0`) rely only on the color change of the active/hover state.
 - Icon-only buttons need `aria-label` (Header, Modal close, Pagination use `sr-only` text).
 - Toast: `role='alert'`, container `aria-live='polite'`, keyboard-dismissable (Enter/Space).

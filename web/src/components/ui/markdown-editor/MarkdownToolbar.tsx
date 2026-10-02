@@ -154,7 +154,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
               onClick={() => onFormat(action)}
               title={label}
               aria-label={label}
-              className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 ${
+              className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
                 formatButtonsDisabled
                   ? 'cursor-not-allowed text-gray-300 dark:text-gray-600'
                   : 'text-gray-600 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-600'
@@ -182,7 +182,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
                   onClick={onOpenSymbolMenu}
                   title='Symbols'
                   aria-label='Symbols'
-                  className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 ${
+                  className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
                     formatButtonsDisabled
                       ? 'cursor-not-allowed text-gray-300 dark:text-gray-600'
                       : 'text-gray-600 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-600'
@@ -205,7 +205,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
         <button
           type='button'
           onClick={() => onTogglePreview(false)}
-          className={`px-3 py-1 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 ${
+          className={`px-3 py-1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
             !isPreview
               ? 'bg-primary-600 text-white'
               : 'bg-gray-200 text-gray-600 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-300 dark:hover:bg-gray-500'
@@ -216,7 +216,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
         <button
           type='button'
           onClick={() => onTogglePreview(true)}
-          className={`px-3 py-1 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 ${
+          className={`px-3 py-1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
             isPreview
               ? 'bg-primary-600 text-white'
               : 'bg-gray-200 text-gray-600 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-300 dark:hover:bg-gray-500'

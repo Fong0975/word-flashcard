@@ -46,14 +46,14 @@ export const WordLinkSuggestionPopup: React.FC<
               <button
                 type='button'
                 onClick={onInsert}
-                className='rounded px-2 py-1 text-sm font-medium text-primary-600 transition-colors hover:bg-primary-100 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:text-primary-400 dark:hover:bg-primary-800/30'
+                className='rounded px-2 py-1 text-sm font-medium text-primary-600 transition-colors hover:bg-primary-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:text-primary-400 dark:hover:bg-primary-800/30'
               >
                 Add link
               </button>
               <button
                 type='button'
                 onClick={onDismiss}
-                className='rounded px-2 py-1 text-sm text-gray-600 transition-colors hover:bg-primary-100 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:text-gray-400 dark:hover:bg-primary-800/30'
+                className='rounded px-2 py-1 text-sm text-gray-600 transition-colors hover:bg-primary-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:text-gray-400 dark:hover:bg-primary-800/30'
               >
                 Skip
               </button>

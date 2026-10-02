@@ -136,7 +136,7 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
                 <button
                   type='button'
                   onClick={handleCopyWord}
-                  className='ml-2 rounded-md p-1 text-gray-500 transition-colors hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:text-gray-400 dark:hover:text-gray-200'
+                  className='ml-2 rounded-md p-1 text-gray-500 transition-colors hover:text-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:text-gray-400 dark:hover:text-gray-200'
                   title='Copy word text to clipboard'
                 >
                   {copySuccess ? (

@@ -158,7 +158,7 @@ export const QuestionStatsModal: React.FC<QuestionStatsModalProps> = ({
               <button
                 type='button'
                 onClick={() => setActiveTab('accuracy')}
-                className={`rounded-l-md px-4 py-1.5 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 ${
+                className={`rounded-l-md px-4 py-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
                   activeTab === 'accuracy'
                     ? 'glass-button-primary'
                     : 'glass-interactive text-gray-600 dark:text-gray-300'
@@ -169,7 +169,7 @@ export const QuestionStatsModal: React.FC<QuestionStatsModalProps> = ({
               <button
                 type='button'
                 onClick={() => setActiveTab('trend')}
-                className={`rounded-r-md border-l border-white/30 px-4 py-1.5 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 dark:border-white/10 ${
+                className={`rounded-r-md border-l border-white/30 px-4 py-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-white/10 ${
                   activeTab === 'trend'
                     ? 'glass-button-primary'
                     : 'glass-interactive text-gray-600 dark:text-gray-300'

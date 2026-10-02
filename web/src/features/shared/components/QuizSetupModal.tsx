@@ -168,7 +168,7 @@ export const QuizSetupModal: React.FC<QuizSetupModalProps> = ({
               <button
                 type='button'
                 onClick={() => setCountMode('total')}
-                className={`rounded-l-md px-4 py-1.5 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 ${
+                className={`rounded-l-md px-4 py-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
                   countMode === 'total'
                     ? 'bg-primary-600 text-white'
                     : 'bg-white text-gray-600 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
@@ -179,7 +179,7 @@ export const QuizSetupModal: React.FC<QuizSetupModalProps> = ({
               <button
                 type='button'
                 onClick={() => setCountMode('category')}
-                className={`rounded-r-md border-l border-gray-300 px-4 py-1.5 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 dark:border-gray-600 ${
+                className={`rounded-r-md border-l border-gray-300 px-4 py-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-gray-600 ${
                   countMode === 'category'
                     ? 'bg-primary-600 text-white'
                     : 'bg-white text-gray-600 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
