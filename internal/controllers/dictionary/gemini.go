@@ -47,9 +47,11 @@ Look up the English word "%s".
 If it is not a real English word, set "found" to false and leave the other fields empty.
 If it is a real English word, set "found" to true and provide:
 - "word": the word itself, lowercase unless it is a proper noun.
-- "pos": the distinct parts of speech this word can take (e.g. "noun", "verb", "adjective").
+- "pos": the distinct parts of speech this word can take, each one of the allowed values in the schema.
+  Use "phrase" for any multi-word expression (phrasal verbs, idioms, prepositional phrases, etc.)
+  and "other" for anything that fits none of the other values (pronoun, determiner, interjection, etc.).
 - "definitions": up to 5 of its most common senses, ordered from the one most frequently tested on TOEIC and used in everyday English to the least, each with:
-  - "pos": the part of speech for this sense.
+  - "pos": the part of speech for this sense, one of the allowed values in the schema.
   - "text": a concise English definition.
   - "translation": a natural %s translation of the definition.
   - "examples": at least 2 short example sentences in English (when the

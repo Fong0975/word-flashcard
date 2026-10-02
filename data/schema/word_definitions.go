@@ -13,6 +13,24 @@ const (
 	WORD_DEFINITIONS_NOTES          = "notes"
 )
 
+// WordDefinitionPartsOfSpeech lists the only values a definition's
+// part_of_speech may hold. A definition with several parts of speech stores
+// them joined by WordDefinitionPartOfSpeechSeparator.
+var WordDefinitionPartsOfSpeech = []string{
+	"noun",
+	"verb",
+	"adjective",
+	"adverb",
+	"preposition",
+	"conjunction",
+	"phrase",
+	"other",
+}
+
+// WordDefinitionPartOfSpeechSeparator joins multiple parts of speech in the
+// part_of_speech column.
+const WordDefinitionPartOfSpeechSeparator = ","
+
 // WordDefinitionsTable defines the word_definitions table structure
 func WordDefinitionsTable() *domain.TableDefinition {
 	return &domain.TableDefinition{

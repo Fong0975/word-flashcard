@@ -236,8 +236,72 @@ func (suite *HelperTestSuite) TestValidateWordDefinitionFields() {
 	validDef := "a short definition"
 	longPOS := strings.Repeat("a", 51)
 	longText := strings.Repeat("b", 21846)
+	multiPOS := "noun,verb"
+	unknownPOS := "prepositional phrase"
+	partlyUnknownPOS := "noun,idiom"
+	spacedPOS := "noun, verb"
+	emptyPOS := ""
 
 	testCases := []testCase{
+		{
+			name: "create - multiple allowed parts of speech",
+			input: models.WordDefinition{
+				PartOfSpeech: &multiPOS,
+				Definition:   &validDef,
+			},
+			isUpdate: false,
+			wantErr:  false,
+		},
+		{
+			name: "create - unsupported part_of_speech",
+			input: models.WordDefinition{
+				PartOfSpeech: &unknownPOS,
+				Definition:   &validDef,
+			},
+			isUpdate:   false,
+			wantErr:    true,
+			wantErrMsg: "part_of_speech is invalid",
+			wantDetail: []any{"reason", "unsupported value", "value", "prepositional phrase", "allowed", "noun,verb,adjective,adverb,preposition,conjunction,phrase,other"},
+		},
+		{
+			name: "update - one unsupported entry among allowed ones",
+			input: models.WordDefinition{
+				PartOfSpeech: &partlyUnknownPOS,
+				Definition:   &validDef,
+			},
+			isUpdate:   true,
+			wantErr:    true,
+			wantErrMsg: "part_of_speech is invalid",
+			wantDetail: []any{"reason", "unsupported value", "value", "idiom", "allowed", "noun,verb,adjective,adverb,preposition,conjunction,phrase,other"},
+		},
+		{
+			name: "update - entries must not carry surrounding spaces",
+			input: models.WordDefinition{
+				PartOfSpeech: &spacedPOS,
+			},
+			isUpdate:   true,
+			wantErr:    true,
+			wantErrMsg: "part_of_speech is invalid",
+			wantDetail: []any{"reason", "unsupported value", "value", " verb", "allowed", "noun,verb,adjective,adverb,preposition,conjunction,phrase,other"},
+		},
+		{
+			name: "update - empty part_of_speech",
+			input: models.WordDefinition{
+				PartOfSpeech: &emptyPOS,
+			},
+			isUpdate:   true,
+			wantErr:    true,
+			wantErrMsg: "part_of_speech is invalid",
+			wantDetail: []any{"reason", "unsupported value", "value", "", "allowed", "noun,verb,adjective,adverb,preposition,conjunction,phrase,other"},
+		},
+		{
+			name: "update - part_of_speech omitted",
+			input: models.WordDefinition{
+				Definition: &validDef,
+			},
+			isUpdate: true,
+			wantErr:  false,
+		},
 		{
 			name: "create - valid fields",
 			input: models.WordDefinition{

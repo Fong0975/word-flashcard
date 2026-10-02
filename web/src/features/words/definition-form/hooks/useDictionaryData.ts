@@ -15,6 +15,7 @@ import {
   formatPronunciationSuccessMessage,
   formatDefinitionSuccessMessage,
 } from '../utils/dictionaryFormatting';
+import { normalizePartOfSpeech } from '../utils/partOfSpeech';
 
 import { SlowLookupToast, useSlowLookupToast } from './useSlowLookupToast';
 
@@ -145,7 +146,9 @@ export const useDictionaryData = (
 
       if (updateFormData) {
         updateFormData({
-          part_of_speech: definition.pos ? [definition.pos] : [],
+          part_of_speech: definition.pos
+            ? [normalizePartOfSpeech(definition.pos)]
+            : [],
           definition: `${definition.translation} ${definition.text}`,
           examples: examples.length > 0 ? examples : [],
         });

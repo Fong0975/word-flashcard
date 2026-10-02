@@ -83,6 +83,23 @@ describe('useDefinitionForm', () => {
     });
   });
 
+  it('maps stored parts of speech outside the allowed values in edit mode', () => {
+    const definition = buildDefinition({
+      part_of_speech: 'prepositional phrase,noun,idiom',
+    });
+    const { result } = renderHook(() =>
+      useDefinitionForm({
+        isOpen: true,
+        mode: 'edit',
+        wordId: null,
+        definition,
+        onClose: vi.fn(),
+      }),
+    );
+
+    expect(result.current.formData.part_of_speech).toEqual(['phrase', 'noun']);
+  });
+
   it('toggles a part of speech on and off', () => {
     const { result } = renderHook(() =>
       useDefinitionForm({
