@@ -7,7 +7,7 @@ coverage policy: *"If the logic is non-trivial or involves branching/validation,
 a test is required."* The entries below do not qualify.
 
 Whole-**file** exclusions are handled separately by the machine-read `grep -v -E`
-filter in [`.github/workflows/unit-test.yml`](.github/workflows/unit-test.yml).
+filter in [`.github/workflows/unit-test.yml`](../.github/workflows/unit-test.yml).
 This document exists for single **function/method** exclusions that live inside
 otherwise-tested files, where a file-level filter would also hide functions that
 genuinely are covered. No tool reads this file — it exists purely so reviewers

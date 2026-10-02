@@ -28,7 +28,7 @@ robocopy "./" "%DEST_DIR%" /E ^
     *.tsbuildinfo *.code-workspace npm-debug.log* yarn-debug.log* yarn-error.log* ^
     *.json.example .env.example *.test.ts *.test.tsx *.test.js *.test.jsx ^
     apiTestHelpers.ts setupTests.ts ^
-    CLAUDE.md COVERAGE_EXCLUSIONS.md coverage.out
+    CLAUDE.md coverage.out
 
 :: Note: Robocopy returns exit codes. 1 means files were copied successfully.
 if %ERRORLEVEL% LEQ 1 (
