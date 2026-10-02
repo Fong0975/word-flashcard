@@ -141,7 +141,7 @@ export const CopyButton: React.FC<CopyButtonProps> = ({
         </svg>
       ) : copyError ? (
         <svg
-          className={`${getIconSize()} text-red-500 dark:text-red-400`}
+          className={`${getIconSize()} text-error`}
           fill='none'
           viewBox='0 0 24 24'
           strokeWidth='2'

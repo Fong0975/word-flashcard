@@ -262,7 +262,7 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
                 <h1 className='mb-1 text-xl font-bold leading-relaxed text-gray-900 dark:text-white lg:text-2xl'>
                   {currentQuestion.question}
                 </h1>
-                <p className='mb-6 text-xs text-gray-400 dark:text-gray-500'>
+                <p className='text-supporting mb-6 text-xs'>
                   Accuracy:{' '}
                   {formatAccuracyWithCount(
                     currentQuestion.count_practise,
@@ -289,13 +289,13 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
             >
               {/* Question Display */}
               <div className='mb-6'>
-                <p className='mb-1 text-xs text-gray-400 dark:text-gray-500'>
+                <p className='text-supporting mb-1 text-xs'>
                   #{currentQuestion.id}
                 </p>
                 <h1 className='mb-1 text-xl font-bold leading-relaxed text-gray-900 dark:text-white'>
                   {currentQuestion.question}
                 </h1>
-                <p className='mb-4 text-xs text-gray-400 dark:text-gray-500'>
+                <p className='text-supporting mb-4 text-xs'>
                   Accuracy:{' '}
                   {formatAccuracyWithCount(
                     currentQuestion.count_practise,

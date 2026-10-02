@@ -113,10 +113,10 @@ export const EntityCard = <T extends BaseEntity>({
       return (
         <div className='mr-2 w-12 flex-shrink-0 border-r border-gray-100 pt-1 dark:border-gray-700/50'>
           <div className='flex flex-col items-center justify-center'>
-            <span className='text-xs font-bold uppercase tracking-tighter text-primary-500 opacity-70 dark:text-primary-400'>
+            <span className='text-xs font-bold uppercase tracking-tighter text-primary-700 dark:text-primary-400'>
               No.
             </span>
-            <span className='font-mono text-base font-bold tabular-nums text-gray-800 transition-colors group-hover:text-primary-600 dark:text-gray-500 dark:group-hover:text-primary-400'>
+            <span className='font-mono text-base font-bold tabular-nums text-gray-800 transition-colors group-hover:text-primary-600 dark:text-gray-400 dark:group-hover:text-primary-400'>
               {index}
             </span>
           </div>
@@ -127,7 +127,7 @@ export const EntityCard = <T extends BaseEntity>({
     // Simple style - just number
     return (
       <div className='mr-3 flex w-10 flex-shrink-0 items-center justify-center'>
-        <span className='text-sm font-medium tabular-nums text-gray-400 transition-colors group-hover:text-primary-500 dark:text-gray-500'>
+        <span className='text-supporting text-sm font-medium tabular-nums transition-colors group-hover:text-primary-500'>
           {index}
         </span>
       </div>
@@ -173,7 +173,7 @@ export const EntityCard = <T extends BaseEntity>({
         {config.showRightArrow !== false && (
           <div className='ml-4 flex-shrink-0'>
             <svg
-              className='h-5 w-5 text-gray-400 transition-colors group-hover:text-primary-500 dark:text-gray-500 dark:group-hover:text-primary-400'
+              className='text-subtle h-5 w-5 transition-colors group-hover:text-primary-500 dark:group-hover:text-primary-400'
               fill='none'
               viewBox='0 0 24 24'
               strokeWidth='2'

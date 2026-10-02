@@ -117,7 +117,7 @@ export const BackupsModal: React.FC<BackupsModalProps> = ({
       {loading && <LoadingSpinner message='' />}
 
       {error && (
-        <div className='flex h-24 items-center justify-center text-sm text-red-500'>
+        <div className='text-error flex h-24 items-center justify-center text-sm'>
           {error}
         </div>
       )}
@@ -161,9 +161,7 @@ export const BackupsModal: React.FC<BackupsModalProps> = ({
                     <td className='whitespace-nowrap py-2 pr-2 text-gray-500 dark:text-gray-400'>
                       <div className='flex flex-col'>
                         <span>{date}</span>
-                        <span className='text-xs text-gray-400 dark:text-gray-500'>
-                          {time}
-                        </span>
+                        <span className='text-supporting text-xs'>{time}</span>
                       </div>
                     </td>
                   </tr>

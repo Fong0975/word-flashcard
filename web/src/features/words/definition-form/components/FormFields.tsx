@@ -38,7 +38,7 @@ export const FormFields: React.FC<FormFieldsProps> = ({
       {/* Part of Speech - Required */}
       <div>
         <label className='mb-3 block text-sm font-medium text-gray-700 dark:text-gray-300'>
-          Part of Speech <span className='text-red-500'>*</span>
+          Part of Speech <span className='text-error'>*</span>
         </label>
         <div className='grid grid-cols-2 gap-3 md:grid-cols-4'>
           {partOfSpeechOptions.map(pos => (
@@ -61,7 +61,7 @@ export const FormFields: React.FC<FormFieldsProps> = ({
           ))}
         </div>
         {formData.part_of_speech.length === 0 && (
-          <p className='mt-2 text-sm text-red-500'>
+          <p className='text-error mt-2 text-sm'>
             Please select at least one part of speech
           </p>
         )}
@@ -70,7 +70,7 @@ export const FormFields: React.FC<FormFieldsProps> = ({
       {/* Definition - Required */}
       <div>
         <label className='mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300'>
-          Definition <span className='text-red-500'>*</span>
+          Definition <span className='text-error'>*</span>
         </label>
         <textarea
           value={formData.definition}
@@ -81,7 +81,7 @@ export const FormFields: React.FC<FormFieldsProps> = ({
           required
         />
         {!formData.definition.trim() && (
-          <p className='mt-1 text-sm text-red-500'>Definition is required</p>
+          <p className='text-error mt-1 text-sm'>Definition is required</p>
         )}
       </div>
 

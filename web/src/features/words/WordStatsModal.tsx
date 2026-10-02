@@ -98,7 +98,7 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
       {loading && <LoadingSpinner message='' />}
 
       {error && (
-        <div className='flex h-48 items-center justify-center text-sm text-red-500'>
+        <div className='text-error flex h-48 items-center justify-center text-sm'>
           {error}
         </div>
       )}
@@ -198,7 +198,7 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
 
               <div className='mt-4 grid grid-cols-3 gap-3 text-center'>
                 <div className='rounded-lg bg-red-50 p-3 dark:bg-red-900/20'>
-                  <div className='text-xl font-bold text-red-500'>
+                  <div className='text-error text-xl font-bold'>
                     {stats.familiarity_distribution.red}
                   </div>
                   <div className='text-xs text-gray-500 dark:text-gray-400'>
@@ -206,7 +206,7 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
                   </div>
                 </div>
                 <div className='rounded-lg bg-yellow-50 p-3 dark:bg-yellow-900/20'>
-                  <div className='text-xl font-bold text-yellow-500'>
+                  <div className='text-xl font-bold text-yellow-700 dark:text-yellow-400'>
                     {stats.familiarity_distribution.yellow}
                   </div>
                   <div className='text-xs text-gray-500 dark:text-gray-400'>
@@ -214,7 +214,7 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
                   </div>
                 </div>
                 <div className='rounded-lg bg-green-50 p-3 dark:bg-green-900/20'>
-                  <div className='text-xl font-bold text-green-500'>
+                  <div className='text-xl font-bold text-green-700 dark:text-green-400'>
                     {stats.familiarity_distribution.green}
                   </div>
                   <div className='text-xs text-gray-500 dark:text-gray-400'>
@@ -268,7 +268,7 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
                   />
                 </BarChart>
               </ResponsiveContainer>
-              <p className='mt-2 text-center text-xs text-gray-400 dark:text-gray-500'>
+              <p className='text-supporting mt-2 text-center text-xs'>
                 Times practiced (per word)
               </p>
             </>
@@ -280,7 +280,7 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
               {trendLoading && <LoadingSpinner message='Loading trend...' />}
 
               {trendError && (
-                <div className='flex h-48 items-center justify-center text-sm text-red-500'>
+                <div className='text-error flex h-48 items-center justify-center text-sm'>
                   {trendError}
                 </div>
               )}

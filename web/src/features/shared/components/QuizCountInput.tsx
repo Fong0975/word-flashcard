@@ -37,7 +37,7 @@ export const QuizCountInput: React.FC<QuizCountInputProps> = ({
           error ? 'border-red-500 dark:border-red-400' : ''
         } `}
       />
-      {error && <p className='text-sm text-red-500'>{error}</p>}
+      {error && <p className='text-error text-sm'>{error}</p>}
       {!error && count > 0 && (
         <p className='text-sm text-gray-500 dark:text-gray-400'>
           Quiz will contain {count} question

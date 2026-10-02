@@ -141,7 +141,7 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
                 >
                   {copySuccess ? (
                     <svg
-                      className='h-5 w-5 text-green-500'
+                      className='h-5 w-5 text-green-600 dark:text-green-400'
                       fill='none'
                       viewBox='0 0 24 24'
                       strokeWidth='2'

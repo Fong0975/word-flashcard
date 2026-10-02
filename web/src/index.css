@@ -246,6 +246,26 @@ body {
   }
 
   /*
+   * Two tiers below body copy. `supporting` is for any text that is less
+   * prominent than body copy (dates, counts, captions) and stays WCAG AA on
+   * glass. `subtle` is only for icons and decorative glyphs (3:1 is enough
+   * there); dark `gray-500` is below AA for text, so never use it on text.
+   * Plain utilities (hover:, group-hover:) still override both.
+   */
+  .text-supporting {
+    @apply text-gray-600 dark:text-gray-400;
+  }
+
+  .text-subtle {
+    @apply text-gray-500 dark:text-gray-500;
+  }
+
+  /* Error text and icons on light/dark glass; `red-500` is below AA on light. */
+  .text-error {
+    @apply text-red-600 dark:text-red-400;
+  }
+
+  /*
    * Native checkboxes: no `@tailwindcss/forms` plugin is installed, so a
    * plain `<input type="checkbox">` ignores border/color/rounded utilities
    * and falls back to the browser's flat default box. `appearance-none`

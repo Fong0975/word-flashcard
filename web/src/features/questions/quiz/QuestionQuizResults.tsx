@@ -193,7 +193,7 @@ export const QuestionQuizResults: React.FC<QuestionQuizResultsProps> = ({
                       </div>
                     )}
 
-                    <p className='text-xs text-gray-400 dark:text-gray-500'>
+                    <p className='text-supporting text-xs'>
                       {result.updatedStats.countPractise} practised &middot;{' '}
                       {result.updatedStats.countFailurePractise} incorrect
                       &middot;{' '}

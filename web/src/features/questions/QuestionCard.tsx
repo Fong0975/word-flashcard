@@ -50,10 +50,10 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
           <div className='mb-4 flex items-center justify-between border-b border-gray-100 pb-2 dark:border-gray-700'>
             {/* Index Number */}
             <div className='flex items-center'>
-              <span className='mr-1 text-xs font-bold uppercase tracking-tighter text-primary-500 opacity-70 dark:text-primary-400'>
+              <span className='mr-1 text-xs font-bold uppercase tracking-tighter text-primary-700 dark:text-primary-400'>
                 No.
               </span>
-              <span className='font-mono text-base font-bold tabular-nums text-gray-400 transition-colors group-hover:text-primary-600 dark:text-gray-500 dark:group-hover:text-primary-400'>
+              <span className='text-supporting font-mono text-base font-bold tabular-nums transition-colors group-hover:text-primary-600 dark:group-hover:text-primary-400'>
                 {index}
               </span>
             </div>
@@ -61,7 +61,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
             {/* Enter Detail Arrow */}
             <div className='flex-shrink-0'>
               <svg
-                className='h-5 w-5 text-gray-400 transition-colors group-hover:text-primary-500 dark:text-gray-500 dark:group-hover:text-primary-400'
+                className='text-subtle h-5 w-5 transition-colors group-hover:text-primary-500 dark:group-hover:text-primary-400'
                 fill='none'
                 viewBox='0 0 24 24'
                 strokeWidth='2'

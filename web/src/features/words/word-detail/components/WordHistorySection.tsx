@@ -85,7 +85,7 @@ export const WordHistorySection: React.FC<WordHistorySectionProps> = ({
       {loading && <LoadingSpinner message='Loading history...' />}
 
       {error && (
-        <div className='py-4 text-center text-sm text-red-500'>{error}</div>
+        <div className='text-error py-4 text-center text-sm'>{error}</div>
       )}
 
       {!loading && !error && logs && logs.length === 0 && (
@@ -155,7 +155,7 @@ export const WordHistorySection: React.FC<WordHistorySectionProps> = ({
                 </span>
                 <span className='flex items-center gap-1.5'>
                   <FamiliarityBadge familiarity={entry.previous_familiarity} />
-                  <span className='text-gray-400'>&rarr;</span>
+                  <span className='text-subtle'>&rarr;</span>
                   <FamiliarityBadge familiarity={entry.familiarity} />
                 </span>
               </li>

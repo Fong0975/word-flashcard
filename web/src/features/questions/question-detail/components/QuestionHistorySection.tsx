@@ -97,7 +97,7 @@ export const QuestionHistorySection: React.FC<QuestionHistorySectionProps> = ({
       {loading && <LoadingSpinner message='Loading history...' />}
 
       {error && (
-        <div className='py-4 text-center text-sm text-red-500'>{error}</div>
+        <div className='text-error py-4 text-center text-sm'>{error}</div>
       )}
 
       {!loading && !error && entries && entries.length === 0 && (

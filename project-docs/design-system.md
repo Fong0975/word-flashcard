@@ -52,7 +52,8 @@ Tailwind `gray` is the only neutral scale.
 | Page base (`PageBackground`) | `gray-100` | `gray-950` |
 | Heading / primary text | `gray-900` | `white` |
 | Body text | `gray-700` / `gray-600` | `gray-200` / `gray-300` |
-| Secondary / muted text | `gray-500` | `gray-400` |
+| Supporting text (dates, counts, captions) | `gray-600` (`.text-supporting`) | `gray-400` |
+| Subtle icons / decorative glyphs only (never text) | `gray-500` (`.text-subtle`) | `gray-500` |
 | Disabled text | `gray-400` | `gray-500` |
 | Divider (non-glass) | `gray-200` | `gray-700` |
 | Input placeholder | `gray-500` | `gray-400` |
@@ -112,6 +113,10 @@ Thin (8px), transparent track, pill thumb.
 | Rank / numeric badge | `font-mono text-base font-bold tabular-nums` |
 | Log / code | `font-mono text-xs` |
 | Chart labels & tooltips | `text-xs` (12px) |
+
+Use `.text-supporting` / `.text-subtle` instead of hand-writing gray pairs for these two tiers; plain `hover:` / `group-hover:` color utilities still override them. Not every existing usage has been migrated yet.
+
+Use `.text-error` (`red-600` light, `red-400` dark) for error text, required-field asterisks and error icons instead of `text-red-500`, which is below AA on light glass. Status-colored icons and numbers on tinted light backgrounds use `*-600`/`*-700` (`yellow-700`, `amber-700`), keeping `*-400` for dark only.
 
 Contrast rule: body and control text must reach WCAG AA (4.5:1) on the glass surface they sit on. The lightest allowed text on light glass is `gray-500`; on dark glass `gray-400`. `gray-400` on light and `gray-500` on dark are for disabled states only.
 

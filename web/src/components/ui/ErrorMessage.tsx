@@ -19,7 +19,7 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
     <div className='flex items-start'>
       <div className='flex-shrink-0'>
         <svg
-          className='h-5 w-5 text-red-400'
+          className='text-error h-5 w-5'
           fill='none'
           viewBox='0 0 24 24'
           strokeWidth='2'

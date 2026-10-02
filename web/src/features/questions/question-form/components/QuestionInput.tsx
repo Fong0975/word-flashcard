@@ -19,7 +19,7 @@ export const QuestionInput: React.FC<QuestionInputProps> = ({
         htmlFor='question'
         className='mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300'
       >
-        Question <span className='text-red-500'>*</span>
+        Question <span className='text-error'>*</span>
       </label>
       <textarea
         id='question'

@@ -21,7 +21,7 @@ export const WordLinkSuggestionPopup: React.FC<
       <div className='rounded-md border border-blue-200 bg-blue-50 p-3 dark:border-blue-700 dark:bg-blue-900/20'>
         <div className='flex items-start'>
           <svg
-            className='mr-2 mt-0.5 h-5 w-5 flex-shrink-0 text-blue-400'
+            className='mr-2 mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600 dark:text-blue-400'
             fill='none'
             viewBox='0 0 24 24'
             strokeWidth='2'

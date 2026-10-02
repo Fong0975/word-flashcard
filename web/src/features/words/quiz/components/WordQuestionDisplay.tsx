@@ -55,7 +55,7 @@ export const WordQuestionDisplay: React.FC<WordQuestionDisplayProps> = ({
         {word.definitions.length > 1 ? 's' : ''}
       </div>
     )}
-    <p className='mb-8 text-xs text-gray-400 dark:text-gray-500'>
+    <p className='text-supporting mb-8 text-xs'>
       Practice #{word.count_practise + 1}
     </p>
 

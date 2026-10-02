@@ -72,7 +72,7 @@ export const CategoryCountInputs: React.FC<CategoryCountInputsProps> = ({
       Set a category to 0 to skip it.
     </p>
     {allZero && (
-      <p className='mt-2 text-sm text-red-500'>
+      <p className='text-error mt-2 text-sm'>
         Please set at least one category count greater than 0.
       </p>
     )}

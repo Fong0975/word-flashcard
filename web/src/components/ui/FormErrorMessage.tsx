@@ -15,7 +15,7 @@ export const FormErrorMessage: React.FC<FormErrorMessageProps> = ({
     <div className='rounded-md border border-red-200 bg-red-50 p-3 dark:border-red-700 dark:bg-red-900/20'>
       <div className='flex items-center'>
         <svg
-          className='mr-2 h-5 w-5 text-red-400'
+          className='text-error mr-2 h-5 w-5'
           fill='none'
           viewBox='0 0 24 24'
           strokeWidth='2'

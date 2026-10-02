@@ -35,7 +35,7 @@ export const LogEntryItem: React.FC<LogEntryItemProps> = ({ entry }) => {
         >
           {entry.level}
         </span>
-        <span className='font-mono text-xs text-gray-400 dark:text-gray-500'>
+        <span className='text-supporting font-mono text-xs'>
           {entry.source}
         </span>
       </div>

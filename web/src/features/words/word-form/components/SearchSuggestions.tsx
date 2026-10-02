@@ -23,7 +23,7 @@ export const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({
       <div className='rounded-md border border-yellow-200 bg-yellow-50 p-3 dark:border-yellow-700 dark:bg-yellow-900/20'>
         <div className='flex items-start'>
           <svg
-            className='mr-2 mt-0.5 h-5 w-5 flex-shrink-0 text-yellow-400'
+            className='mr-2 mt-0.5 h-5 w-5 flex-shrink-0 text-yellow-700 dark:text-yellow-400'
             fill='none'
             viewBox='0 0 24 24'
             strokeWidth='2'

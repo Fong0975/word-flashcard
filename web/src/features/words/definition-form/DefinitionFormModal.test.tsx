@@ -294,7 +294,7 @@ describe('DefinitionFormModal', () => {
 
       expect(navigator.clipboard.writeText).toHaveBeenCalledWith('apple');
       await waitFor(() =>
-        expect(copyButton.innerHTML).toContain('text-green-500'),
+        expect(copyButton.innerHTML).toContain('text-green-600'),
       );
     });
 

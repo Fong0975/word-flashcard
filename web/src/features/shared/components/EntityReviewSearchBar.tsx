@@ -23,7 +23,7 @@ export const EntityReviewSearchBar: React.FC<EntityReviewSearchBarProps> = ({
     <div className='relative'>
       <div className='pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3'>
         <svg
-          className='h-5 w-5 text-gray-400'
+          className='text-subtle h-5 w-5'
           fill='none'
           viewBox='0 0 24 24'
           strokeWidth='2'
@@ -50,7 +50,7 @@ export const EntityReviewSearchBar: React.FC<EntityReviewSearchBarProps> = ({
         <button
           type='button'
           onClick={onClear}
-          className='focus-ring absolute inset-y-0 right-0 flex items-center rounded-md pr-3 text-gray-400 hover:text-gray-600 focus-visible:text-gray-600 dark:hover:text-gray-200 dark:focus-visible:text-gray-200'
+          className='focus-ring text-supporting absolute inset-y-0 right-0 flex items-center rounded-md pr-3 hover:text-gray-900 focus-visible:text-gray-900 dark:hover:text-gray-200 dark:focus-visible:text-gray-200'
           aria-label='Clear search'
         >
           <svg

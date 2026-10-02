@@ -51,15 +51,15 @@ export const Toast: React.FC<ToastProps> = ({
   const getIconColor = () => {
     switch (type) {
       case 'success':
-        return 'text-green-400';
+        return 'text-green-600 dark:text-green-400';
       case 'error':
-        return 'text-red-400';
+        return 'text-error';
       case 'warning':
-        return 'text-yellow-400';
+        return 'text-yellow-700 dark:text-yellow-400';
       case 'info':
-        return 'text-blue-400';
+        return 'text-blue-600 dark:text-blue-400';
       default:
-        return 'text-gray-400';
+        return 'text-subtle';
     }
   };
 

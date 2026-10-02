@@ -46,7 +46,7 @@ export const WordCard: React.FC<WordCardProps> = ({
           </h3>
 
           {/* Definition count and practise count hint */}
-          <p className='mt-1 text-xs text-gray-400 dark:text-gray-500'>
+          <p className='text-supporting mt-1 text-xs'>
             {word.definitions.length} definition
             {word.definitions.length !== 1 ? 's' : ''} &middot;{' '}
             {word.count_practise ?? 0} practise

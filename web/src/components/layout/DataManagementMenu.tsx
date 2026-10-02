@@ -168,7 +168,7 @@ export const DataManagementMenu: React.FC = () => {
             role='menu'
           >
             <div className='py-1'>
-              <span className='block px-4 py-1 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500'>
+              <span className='text-supporting block px-4 py-1 text-xs font-semibold uppercase tracking-wide'>
                 Data
               </span>
               <button
@@ -240,7 +240,7 @@ export const DataManagementMenu: React.FC = () => {
               </button>
             </div>
             <div className='border-t border-gray-100 py-1 dark:border-gray-700'>
-              <span className='block px-4 py-1 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500'>
+              <span className='text-supporting block px-4 py-1 text-xs font-semibold uppercase tracking-wide'>
                 System
               </span>
               <button

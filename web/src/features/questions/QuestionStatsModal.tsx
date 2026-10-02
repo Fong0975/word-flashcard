@@ -61,7 +61,7 @@ export const CustomTooltip = ({
       </div>
       {breakdown.length > 0 && (
         <div className='mt-1 border-t border-white/10 pt-1'>
-          <div className='text-gray-400'>By practice count:</div>
+          <div className='text-supporting'>By practice count:</div>
           {breakdown.map(bucket => (
             <div key={bucket.range} className='flex justify-between gap-3'>
               <span>{bucket.range}</span>
@@ -145,7 +145,7 @@ export const QuestionStatsModal: React.FC<QuestionStatsModalProps> = ({
       {loading && <LoadingSpinner message='' />}
 
       {error && (
-        <div className='flex h-48 items-center justify-center text-sm text-red-500'>
+        <div className='text-error flex h-48 items-center justify-center text-sm'>
           {error}
         </div>
       )}
@@ -249,7 +249,7 @@ export const QuestionStatsModal: React.FC<QuestionStatsModalProps> = ({
               {trendLoading && <LoadingSpinner message='' />}
 
               {trendError && (
-                <div className='flex h-48 items-center justify-center text-sm text-red-500'>
+                <div className='text-error flex h-48 items-center justify-center text-sm'>
                   {trendError}
                 </div>
               )}
