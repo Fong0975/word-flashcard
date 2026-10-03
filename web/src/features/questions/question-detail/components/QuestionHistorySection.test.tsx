@@ -83,8 +83,32 @@ describe('QuestionHistorySection', () => {
       (await screen.findAllByText('Correct')).length,
     ).toBeGreaterThanOrEqual(2);
     expect(screen.getAllByText('Incorrect').length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText('Option B').length).toBeGreaterThan(0);
-    expect(screen.getByText('Option A')).toBeInTheDocument();
+    expect(screen.getAllByText('(B) 4').length).toBeGreaterThan(0);
+    expect(screen.getByText('(A) 3')).toBeInTheDocument();
+  });
+
+  it('formats the selected option with its text, falling back to the letter alone', async () => {
+    const tests = [
+      { name: 'option with text', selected: 'C', expected: '(C) 5' },
+      { name: 'option without text', selected: 'D', expected: '(D)' },
+    ];
+
+    for (const tt of tests) {
+      const user = userEvent.setup();
+      vi.spyOn(apiService, 'getQuestionLogs').mockResolvedValue([
+        buildEntry({ selected_option: tt.selected, is_correct: false }),
+      ]);
+
+      const { unmount } = render(
+        <QuestionHistorySection question={buildQuestion()} />,
+      );
+      await user.click(
+        screen.getByRole('button', { name: 'Recent Answer History' }),
+      );
+
+      expect(await screen.findByText(tt.expected), tt.name).toBeInTheDocument();
+      unmount();
+    }
   });
 
   it('shows a loading state while fetching', async () => {

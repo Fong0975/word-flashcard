@@ -220,7 +220,7 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
         <p className='mb-6 text-gray-600 dark:text-gray-300'>{error}</p>
         <button
           onClick={onBackToHome}
-          className='glass-interactive focus-ring rounded-lg px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300'
+          className='glass-interactive glass-border-subtle focus-ring rounded-lg px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300'
         >
           Back to Home
         </button>

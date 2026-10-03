@@ -23,7 +23,7 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
     ${
       disabled
         ? 'glass-panel text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-60'
-        : 'glass-interactive text-gray-700 dark:text-gray-200'
+        : 'glass-interactive glass-border-subtle text-gray-700 dark:text-gray-200'
     }
     ${className}
   `;

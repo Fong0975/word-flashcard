@@ -56,7 +56,7 @@ export const QuizCountInput: React.FC<QuizCountInputProps> = ({
               key={option}
               type='button'
               onClick={() => onQuickSelect(option)}
-              className='glass-interactive focus-ring rounded-md px-3 py-1 text-xs font-medium text-gray-600 dark:text-gray-300'
+              className='glass-interactive glass-border-subtle focus-ring rounded-md px-3 py-1 text-xs font-medium text-gray-600 dark:text-gray-300'
             >
               {option}
             </button>

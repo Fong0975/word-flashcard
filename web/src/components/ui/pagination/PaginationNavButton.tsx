@@ -42,7 +42,8 @@ const desktopBaseClass =
 
 // Mobile nav buttons are standalone (not edge-to-edge), so they can go fully
 // transparent at rest and reveal the glass surface on hover/focus/active.
-const mobileEnabledClass = 'glass-interactive text-gray-700 dark:text-gray-200';
+const mobileEnabledClass =
+  'glass-interactive glass-border-subtle text-gray-700 dark:text-gray-200';
 
 const desktopEnabledClass = `
   bg-transparent text-gray-700 dark:text-gray-200 transition-colors duration-200

@@ -32,7 +32,7 @@ export const PageSelect: React.FC<PageSelectProps> = ({
             disabled={loading}
             aria-label='Select page'
             aria-haspopup='true'
-            className='glass-interactive flex items-center justify-center gap-1 rounded px-2 py-1 text-sm font-medium text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-200'
+            className='glass-interactive glass-border-subtle flex items-center justify-center gap-1 rounded px-2 py-1 text-sm font-medium text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-200'
             style={{ width: 'fit-content', minWidth: '3rem' }}
           >
             {currentPage}
