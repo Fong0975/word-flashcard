@@ -57,7 +57,8 @@ Tailwind `gray` is the only neutral scale.
 | Disabled text | `gray-400` | `gray-500` |
 | Divider (non-glass) | `gray-200` | `gray-700` |
 | Input placeholder | `gray-500` | `gray-400` |
-| Glass edge highlight | `white/60`–`white/80` | `white/10`–`white/[15%]` |
+| Glass border | `white/50`–`white/70` | `white/10`–`white/[12%]` |
+| Glass top highlight (`--glass-highlight`) | `white` / .70 | `white` / .14 |
 
 ### 2.3 Semantic (status) colors
 
@@ -85,12 +86,12 @@ Two kinds of shape, sized in `vmax` so the composition scales with the viewport:
 
 | Shape | Radius | Position | Light (peak) | Dark (peak) |
 | --- | --- | --- | --- | --- |
-| Wash, top-left | 46vmax | 0% 0% | `primary-300` / .70 | `primary-600` / .45 |
-| Wash, top-right | 44vmax | 100% 5% | `indigo-300` / .55 | `indigo-600` / .40 |
+| Wash, top-left | 46vmax | 0% 0% | `primary-300` / .70 | `primary-600` / .28 |
+| Wash, top-right | 44vmax | 100% 5% | `indigo-300` / .55 | `indigo-600` / .30 |
 | Wash, bottom-left | 42vmax | 30% 105% | `sky-300` / .60 | `sky-700` / .35 |
 | Orb, right | 16vmax | 78% 38% | `primary-400` / .35 | `primary-500` / .22 |
 | Orb, left | 13vmax | 18% 62% | `indigo-300` / .50 | `indigo-500` / .28 |
-| Orb, bottom-right | 20vmax | 92% 92% | `primary-300` / .60 | `primary-700` / .45 |
+| Orb, bottom-right | 20vmax | 92% 92% | `primary-300` / .60 | `primary-700` / .32 |
 | Orb, center | 11vmax | 50% 46% | `sky-300` / .45 | `sky-600` / .20 |
 
 `sky` and `indigo` are backdrop-only accents adjacent to the primary blue; do not use them for UI elements. The peak alphas are capped so supporting text keeps AA on the lightest glass tier — re-check contrast before raising one or overlapping two cores.
@@ -131,7 +132,7 @@ Contrast rule: body and control text must reach WCAG AA (4.5:1) on the glass sur
 
 ## 4. Glass system
 
-All glass surfaces are shared `@layer components` classes in `index.css`. Use them; do not re-spell the utility strings. A glass surface = **translucent fill + 1px light edge + backdrop blur + soft shadow**.
+All glass surfaces are shared `@layer components` classes in `index.css`. Use them; do not re-spell the utility strings. A glass surface = **translucent fill + 1px light edge + top highlight + backdrop blur + soft shadow**. Blurred tiers that sit directly over the backdrop or page content (`.glass-panel`, `.glass-panel-strong`, `.glass-panel-dropdown`) also apply `backdrop-saturate-150`, so the colors behind come through vivid rather than washed out; it shares the blur's single `backdrop-filter` pass.
 
 ### 4.1 Blur scale
 
@@ -149,16 +150,16 @@ Higher blur = higher elevation in the layer stack (page → panel → card → o
 
 | Class | Light fill | Light border | Dark fill | Dark border | Blur | Shadow | Role |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `.glass-panel` | `white/[10%]` | `white/60` | `gray-800/[20%]` | `white/10` | `lg` | `sm` | Page content card, tab wrapper, large containers |
-| `.glass-panel-card` | `white/[30%]` | `white/80` | `gray-800/[44%]` | `white/[15%]` | `lg` | `sm` | Per-record rows nested **inside** a `.glass-panel` (EntityCard, NoteCard, CollapsibleSection) |
-| `.glass-panel-strong` | `white/[55%]` | `white/80` | `gray-800/[60%]` | `white/10` | `xl` | `sm` (Modal/Dialog add `shadow-xl`) | Header, Modal, ConfirmationDialog, DropdownMenu |
+| `.glass-panel` | gradient `white/[22%]` → `white/[8%]` (to bottom-right) | `white/50` | gradient `white/[5%]` → `white/[2%]` | `white/10` | `lg` + saturate 150 | `glass` | Page content card, tab wrapper, large containers |
+| `.glass-panel-card` | `white/[22%]` | `white/60` | `white/[5%]` | `white/[12%]` | `lg` | `glass` | Per-record rows nested **inside** a `.glass-panel` (EntityCard, NoteCard, CollapsibleSection) |
+| `.glass-panel-strong` | gradient `white/[62%]` → `white/[50%]` | `white/70` | gradient `gray-800/[58%]` → `gray-800/[46%]` | `white/10` | `xl` + saturate 150 | `glass` (Modal/Dialog add `shadow-glass-raised`) | Header, Modal, ConfirmationDialog, DropdownMenu |
 | `.glass-input` | `gray-100/70` | `white/70` | `gray-900/50` | `white/10` | `md` | `sm` | Text inputs / textareas / date pickers |
 | `.glass-checkbox` | `white/30` (checked `primary-500/80`) | `white/70` (checked `primary-500`) | `white/10` (checked `primary-500/80`) | `white/20` (checked `primary-400`) | `sm` | `sm` | Native checkbox |
 | `.glass-radio` | `white/60` (checked `primary-500/80`) | `gray-500` (checked `primary-500`) | `white/10` (checked `primary-500/80`) | `gray-400` (checked `primary-400`) | `sm` | `sm` | Native radio (round, white dot when checked), same keyboard focus ring as `.glass-checkbox`. Unchecked edge is a solid gray (≥3:1) rather than `white/*`, which vanishes on white cards |
 | `.glass-alert-*` (`success` / `error` / `warning` / `info` / `neutral`) | `*-50/70` | `*-200` | `*-900/40` | `*-700` | `md` | `sm` | Toast, inline `ErrorMessage` (text / icon colors set per usage) |
 | `.glass-progress-track` | `white/20` | `white/30` | `gray-800/30` | `white/10` | `sm` | `inner` | Quiz progress track (fill stays solid primary) |
-| `.glass-card-hover` | hover: `gray-100/80`, border `primary-300`, `shadow-md` | unchanged | hover: `gray-800/70`, border `primary-600` | unchanged | none | `md` on hover | Add next to `.glass-panel-card` on clickable record rows (EntityCard, NoteCard) |
-| `.glass-panel-dropdown` | `white/80` | `white/80` | `gray-800/90` | `white/10` | `xl` (radius `md`) | `lg` | Info and Settings dropdown panels (more opaque than `.glass-panel-strong` so text stays readable over page content) |
+| `.glass-card-hover` | hover: `gray-100/80`, border `primary-300`, `shadow-glass-raised` | unchanged | hover: `gray-800/70`, border `primary-600` | unchanged | none | `glass-raised` on hover | Add next to `.glass-panel-card` on clickable record rows (EntityCard, NoteCard) |
+| `.glass-panel-dropdown` | `white/70` | `white/70` | `gray-800/80` | `white/10` | `xl` + saturate 150 (radius `md`) | `glass-raised` | Info and Settings dropdown panels (more opaque than `.glass-panel-strong` so text stays readable over page content) |
 | `.glass-tint-green` / `.glass-tint-yellow` | `green-100/50` / `yellow-100/50` | `green-300/60` / `yellow-300/60` | `green-900/30` / `yellow-900/30` | `green-700/40` / `yellow-700/40` | `lg` | none | Collapsible status sections: dictionary lookup (green), Answer & Explanation (yellow); add `overflow-hidden` and rounding per use |
 | `.glass-interactive` | transparent → `primary-500/[15%]` hover/focus, `/25` active | transparent | transparent → `primary-400/20` hover/focus, `/30` active | transparent | `lg` on hover/focus only | `sm` on hover/focus | Secondary buttons, icon buttons, back button |
 | `.glass-border-subtle` | n/a (border only) | `gray-500/25` | n/a | `white/15` | none | none | Modifier stacked on `.glass-interactive` for standalone buttons (Cancel, Quick select, ActionButton, mobile pagination) so they read as buttons at rest. Do not use inside an already-bordered group (segmented toggles, toolbars). Defined after `.glass-interactive` so it overrides its transparent border |
@@ -174,11 +175,13 @@ Higher blur = higher elevation in the layer stack (page → panel → card → o
 Layering invariants (documented in `index.css`; breaking them makes a surface vanish):
 
 1. A panel tone must stay visibly different from the page base (light `gray-100`, dark `gray-950`). Blending a color onto an identical backdrop is a no-op.
-2. A nested surface must be **less transparent (higher alpha)** than its container: `glass-panel` (10 / 20 %) < `glass-panel-card` (30 / 44 %) < `glass-panel-strong` (55 / 60 %).
+2. A nested surface must read as **less transparent** than its container. A `glass-panel-card` (22 / 5 %) stacks its fill on top of the `glass-panel` behind it (22→8 / 5→2 %) and is outlined by its border and top highlight; `glass-panel-strong` (62→50 % white / 58→46 % `gray-800`) is the densest tier.
 3. A field must be more opaque than the modal it sits in (`glass-input` reads as a well).
 4. Primary CTAs are far more opaque than `.glass-interactive`'s resting state so they stay the clearest action.
 
-Dark vs light differences (summary): light glass is **white-tinted** with a bright white edge (`white/60–80`); dark glass is **gray-800/900-tinted** with a faint white edge (`white/10–15`). Dark fills use *higher* alpha than light for the same tier (20 vs 10, 44 vs 30, 60 vs 55) because dark backdrops are less luminous and need more fill to separate. Dark CTAs drop from `/90` to `/60` alpha so the blur and backdrop colors still read.
+Dark vs light differences (summary): light glass is **white-tinted** with a bright white edge (`white/50–70`). Dark `.glass-panel` and `.glass-panel-card` are tinted with **low-alpha white** (2–5 %), which brightens the backdrop instead of graying it, with a faint white edge (`white/10–12`); the tiers that sit over sharp content (`.glass-panel-strong`, `.glass-panel-dropdown`, inputs) stay **gray-800/900-tinted** for legibility. Dark CTAs drop from `/90` to `/60` alpha so the backdrop colors still read.
+
+Contrast budget: every white fill in dark raises the surface luminance, so the dark panel/card alphas and the dark backdrop peaks (§2.4) are tuned together to keep `gray-400` text at AA on a card over the brightest backdrop shape. Raise one only after re-checking the other. `.glass-panel-strong` keeps a dense light fill because the modal scrim darkens what is behind it, which would otherwise pull `gray-600` text below AA.
 
 ### 4.3 Overlays and non-glass surfaces
 
@@ -206,15 +209,22 @@ Rule: controls = `md`, containers = `lg`, pills/circles = `full`. Nothing larger
 
 Shadows are deliberately low-key so glass edges, not drop shadows, carry the depth.
 
+The `glass` tokens (`tailwind.config.js`) bundle the glass lighting into one `box-shadow`: an inset 1px top highlight, an inset 1px bottom edge, and a soft ambient shadow. Their colors are the `--glass-highlight`, `--glass-edge` and `--glass-shadow` variables in `index.css` (`:root` for light, `.dark` for dark), so one class serves both themes. A stock `shadow-*` utility on the same element replaces the whole value, highlight included — use `shadow-glass-raised` to lift a glass panel instead.
+
 | Token | Use |
 | --- | --- |
-| `shadow-sm` | Every glass tier at rest, inputs, checkbox |
+| `shadow-glass` | `.glass-panel`, `.glass-panel-card`, `.glass-panel-strong` at rest |
+| `shadow-glass-raised` | Modal and dialog panels, `.glass-panel-dropdown`, `.glass-card-hover` on hover |
+| `shadow-sm` | Inputs, checkbox, radio, alerts, pagination group |
 | `shadow-inner` | Progress track |
-| `shadow-md` (dark: `shadow-lg`) | Primary / success CTA |
+| `shadow-md` (dark: `shadow-lg`) | CTA buttons |
 | `shadow-lg` (hover `shadow-xl`) | Toast |
-| `shadow-xl` | Modal and ConfirmationDialog panels |
 
-Light vs dark: shadows are identical in light; in dark only the CTA steps up one level (`md` → `lg`) to stay visible against the dark backdrop.
+| Variable | Light | Dark |
+| --- | --- | --- |
+| `--glass-highlight` | `rgb(255 255 255 / .70)` | `rgb(255 255 255 / .14)` |
+| `--glass-edge` | `rgb(15 23 42 / .06)` | `rgb(0 0 0 / .25)` |
+| `--glass-shadow` | `rgb(30 58 138 / .14)` | `rgb(0 0 0 / .45)` |
 
 ## 7. Spacing and layout
 

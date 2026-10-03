@@ -20,10 +20,10 @@ const glassBackdrop = [
 const glassBackdropDark = [
   'radial-gradient(circle 16vmax at 78% 38%, rgb(59 130 246 / 0.22) 0%, rgb(59 130 246 / 0.18) 50%, transparent 68%)',
   'radial-gradient(circle 13vmax at 18% 62%, rgb(99 102 241 / 0.28) 0%, rgb(99 102 241 / 0.22) 50%, transparent 68%)',
-  'radial-gradient(circle 20vmax at 92% 92%, rgb(29 78 216 / 0.45) 0%, rgb(29 78 216 / 0.36) 48%, transparent 66%)',
+  'radial-gradient(circle 20vmax at 92% 92%, rgb(29 78 216 / 0.32) 0%, rgb(29 78 216 / 0.26) 48%, transparent 66%)',
   'radial-gradient(circle 11vmax at 50% 46%, rgb(2 132 199 / 0.2) 0%, rgb(2 132 199 / 0.16) 50%, transparent 68%)',
-  'radial-gradient(circle 46vmax at 0% 0%, rgb(37 99 235 / 0.45) 0%, rgb(37 99 235 / 0.22) 45%, transparent 75%)',
-  'radial-gradient(circle 44vmax at 100% 5%, rgb(79 70 229 / 0.4) 0%, transparent 72%)',
+  'radial-gradient(circle 46vmax at 0% 0%, rgb(37 99 235 / 0.28) 0%, rgb(37 99 235 / 0.14) 45%, transparent 75%)',
+  'radial-gradient(circle 44vmax at 100% 5%, rgb(79 70 229 / 0.3) 0%, transparent 72%)',
   'radial-gradient(circle 42vmax at 30% 105%, rgb(3 105 161 / 0.35) 0%, transparent 72%)',
 ].join(', ');
 
@@ -58,6 +58,15 @@ module.exports = {
           800: '#1e40af',
           900: '#1e3a8a',
         },
+      },
+      // Glass lighting: a top-edge highlight and a faint bottom edge (both
+      // inset) plus a soft ambient shadow. Colors come from the `--glass-*`
+      // variables in index.css, so one class serves both themes.
+      boxShadow: {
+        glass:
+          'inset 0 1px 0 0 var(--glass-highlight), inset 0 -1px 0 0 var(--glass-edge), 0 6px 16px -6px var(--glass-shadow)',
+        'glass-raised':
+          'inset 0 1px 0 0 var(--glass-highlight), inset 0 -1px 0 0 var(--glass-edge), 0 16px 36px -10px var(--glass-shadow)',
       },
       backgroundImage: {
         'glass-backdrop': glassBackdrop,

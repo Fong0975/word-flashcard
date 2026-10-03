@@ -12,10 +12,21 @@
   --primary-800: #1e40af;
   --primary-900: #1e3a8a;
   --app-bg: #1f2937;
+
+  /* Glass lighting, consumed by the `shadow-glass*` tokens in tailwind.config.js */
+  --glass-highlight: rgb(255 255 255 / 0.7);
+  --glass-edge: rgb(15 23 42 / 0.06);
+  --glass-shadow: rgb(30 58 138 / 0.14);
 }
 
 [data-theme='light'] {
   --app-bg: #ffffff;
+}
+
+.dark {
+  --glass-highlight: rgb(255 255 255 / 0.14);
+  --glass-edge: rgb(0 0 0 / 0.25);
+  --glass-shadow: rgb(0 0 0 / 0.45);
 }
 
 /* Smooth scrolling for better UX */
@@ -144,13 +155,29 @@ body {
    * Panel tones must stay visibly lighter than PageBackground's own base fill
    * (light: gray-100, dark: gray-950) — alpha-blending a color onto an
    * identical backdrop is a no-op, so panel and base must never match.
+   *
+   * Large surfaces use a diagonal fill (brighter top-left) plus the
+   * `shadow-glass` top highlight so they read as lit glass, and
+   * `backdrop-saturate-150` so the backdrop colors come through vivid instead
+   * of washed out. Dark fills are low-alpha white (they brighten the backdrop)
+   * rather than gray (which would tint it gray); their alphas are bounded by
+   * the contrast of `gray-400` text over the brightest backdrop shape.
+   *
+   * `bg-transparent` is required next to the gradient: the gradient is a
+   * background image, so without it an element with an opaque user-agent
+   * background color (e.g. `<input>`) would show solid white underneath.
    */
   .glass-panel {
-    @apply border border-white/60 bg-white/[10%] shadow-sm backdrop-blur-lg dark:border-white/10 dark:bg-gray-800/[20%];
+    @apply border border-white/50 bg-transparent bg-gradient-to-br from-white/[22%] to-white/[8%] shadow-glass backdrop-blur-lg backdrop-saturate-150 dark:border-white/10 dark:from-white/[5%] dark:to-white/[2%];
   }
 
+  /*
+   * Sits over sharp page content (Header, Modal, dialogs), often behind a
+   * dark scrim, so its fill stays dense enough for supporting text to keep
+   * WCAG AA.
+   */
   .glass-panel-strong {
-    @apply border border-white/80 bg-white/[55%] shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-gray-800/[60%];
+    @apply border border-white/70 bg-transparent bg-gradient-to-br from-white/[62%] to-white/[50%] shadow-glass backdrop-blur-xl backdrop-saturate-150 dark:border-white/10 dark:from-gray-800/[58%] dark:to-gray-800/[46%];
   }
 
   /*
@@ -159,7 +186,7 @@ body {
    * its text must stay readable. Add width and padding per use.
    */
   .glass-panel-dropdown {
-    @apply rounded-md border border-white/80 bg-white/80 shadow-lg backdrop-blur-xl dark:border-white/10 dark:bg-gray-800/90;
+    @apply rounded-md border border-white/70 bg-white/70 shadow-glass-raised backdrop-blur-xl backdrop-saturate-150 dark:border-white/10 dark:bg-gray-800/80;
   }
 
   /*
@@ -178,16 +205,17 @@ body {
   /*
    * Per-record list rows (EntityCard/NoteCard) nest inside a `.glass-panel`
    * container (e.g. the tab wrapper), so they must stay visibly LESS
-   * transparent (higher alpha) than it — otherwise a row and the container
-   * behind it read as the same surface and the row disappears.
+   * transparent than it — otherwise a row and the container behind it read
+   * as the same surface and the row disappears. The row's own fill stacks on
+   * top of the container's, and its edge highlight draws the outline.
    */
   .glass-panel-card {
-    @apply border border-white/80 bg-white/[30%] shadow-sm backdrop-blur-lg dark:border-white/[15%] dark:bg-gray-800/[44%];
+    @apply border border-white/60 bg-white/[22%] shadow-glass backdrop-blur-lg dark:border-white/[12%] dark:bg-white/[5%];
   }
 
   /* Hover state for clickable `.glass-panel-card` rows (EntityCard, NoteCard): primary-tinted border, denser fill, lifted shadow */
   .glass-card-hover {
-    @apply hover:border-primary-300 hover:bg-gray-100/80 hover:shadow-md dark:hover:border-primary-600 dark:hover:bg-gray-800/70;
+    @apply hover:border-primary-300 hover:bg-gray-100/80 hover:shadow-glass-raised dark:hover:border-primary-600 dark:hover:bg-gray-800/70;
   }
 
   /* Secondary buttons/icons: transparent at rest, glass surface only on hover/focus/active */

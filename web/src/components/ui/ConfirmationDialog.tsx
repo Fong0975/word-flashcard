@@ -136,7 +136,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
   // block for fixed-position descendants.
   return createPortal(
     <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/30'>
-      <div className='glass-panel-strong mx-4 w-full max-w-sm rounded-lg p-6 shadow-xl'>
+      <div className='glass-panel-strong mx-4 w-full max-w-sm rounded-lg p-6 shadow-glass-raised'>
         <div className='mb-4 flex items-center'>
           <div
             className={`h-10 w-10 flex-shrink-0 rounded-full ${styles.iconBg} flex items-center justify-center`}
