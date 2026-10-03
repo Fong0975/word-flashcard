@@ -21,7 +21,7 @@ export const AnswerReviewList: React.FC<AnswerReviewListProps> = ({
       return (
         <div
           key={option.key}
-          className={`flex items-start space-x-3 rounded-lg p-3 backdrop-blur-md ${
+          className={`flex items-start space-x-3 rounded-lg p-3 ${
             option.key === correctAnswer
               ? 'border border-green-400/50 bg-green-500/15 dark:border-green-400/30 dark:bg-green-400/10'
               : isUserWrongAnswer

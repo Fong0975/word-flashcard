@@ -267,7 +267,7 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
             key={word.id}
             index={index}
             word={word}
-            className='transition-transform duration-200 hover:scale-[1.02]'
+            className='hover:scale-[1.02]'
             onWordUpdated={() => wordsHook.refresh().catch(() => {})}
           />
         )}

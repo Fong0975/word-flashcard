@@ -166,7 +166,7 @@ export const NoteDetailPage: React.FC = () => {
           <button
             type='button'
             onClick={deleteConfirmation.showDeleteConfirm}
-            className='rounded-md border border-transparent px-3 py-1.5 text-sm font-medium text-red-600 transition-colors duration-200 hover:bg-red-500/[15%] hover:shadow-sm hover:backdrop-blur-lg focus-visible:bg-red-500/[15%] focus-visible:shadow-sm focus-visible:backdrop-blur-lg active:bg-red-500/25 dark:text-red-400 dark:hover:bg-red-400/20 dark:focus-visible:bg-red-400/20 dark:active:bg-red-400/30'
+            className='rounded-md border border-transparent px-3 py-1.5 text-sm font-medium text-red-600 transition-colors duration-200 hover:bg-red-500/[15%] hover:shadow-sm focus-visible:bg-red-500/[15%] focus-visible:shadow-sm active:bg-red-500/25 dark:text-red-400 dark:hover:bg-red-400/20 dark:focus-visible:bg-red-400/20 dark:active:bg-red-400/30'
           >
             Delete
           </button>

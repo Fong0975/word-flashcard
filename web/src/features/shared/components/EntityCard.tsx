@@ -157,7 +157,7 @@ export const EntityCard = <T extends BaseEntity>({
   return (
     <>
       <div
-        className={`glass-panel-card glass-card-hover group flex cursor-pointer items-center rounded-lg p-4 transition-all duration-200 ease-in-out ${config.sequenceStyle === 'detailed' ? 'items-start' : 'items-center'} ${className} `}
+        className={`glass-panel-card glass-card-hover group flex cursor-pointer items-center rounded-lg p-4 transition-[transform,background-color,border-color,box-shadow] duration-200 ease-in-out ${config.sequenceStyle === 'detailed' ? 'items-start' : 'items-center'} ${className} `}
         onClick={handleCardClick}
       >
         {/* Left color indicator */}

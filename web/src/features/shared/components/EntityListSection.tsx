@@ -57,7 +57,7 @@ export const EntityListSection = <T extends BaseEntity>({
     </div>
 
     {loading && (
-      <div className='flex items-center justify-center rounded-lg bg-white/80 py-4 backdrop-blur-sm dark:bg-gray-900/80'>
+      <div className='flex items-center justify-center rounded-lg bg-white/80 py-4 dark:bg-gray-900/80'>
         <div className='h-6 w-6 animate-spin rounded-full border-b-2 border-primary-500'></div>
         <span className='ml-2 text-sm text-gray-600 dark:text-gray-400'>
           Loading...
