@@ -53,6 +53,10 @@ func rotatedFileRE(base string) *regexp.Regexp {
 // keeps the order stable even when mtimes are unreliable, which is the same
 // reasoning behind the sort in backup/backups_list.go.
 //
+// Only regular files are listed. A symlink carrying a log file's name would
+// otherwise be followed when the file is read, letting anyone who can write
+// to the log directory expose an arbitrary file through this API.
+//
 // A missing directory is reported as no files rather than an error, since
 // that is simply the "nothing logged yet" state.
 func ListLogFiles(logFilePath string) ([]LogFileInfo, error) {
@@ -74,7 +78,7 @@ func ListLogFiles(logFilePath string) ([]LogFileInfo, error) {
 	for _, entry := range entries {
 		name := entry.Name()
 		isCurrent := name == base
-		if entry.IsDir() || (!isCurrent && !rotatedRE.MatchString(name)) {
+		if !entry.Type().IsRegular() || (!isCurrent && !rotatedRE.MatchString(name)) {
 			continue
 		}
 

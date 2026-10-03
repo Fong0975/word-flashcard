@@ -49,3 +49,12 @@ func (m *MockLogsController) MarkLogsRead(c *gin.Context) {
 		"status":     "ok",
 	})
 }
+
+// DownloadLogs mock implementation
+func (m *MockLogsController) DownloadLogs(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"method":     "DownloadLogs",
+		"controller": "LogsController",
+		"status":     "ok",
+	})
+}

@@ -140,4 +140,5 @@ func SetupAPIRoutesWithDependencies(router *gin.Engine, deps *ControllerDependen
 	apiGroup.GET("/logs/count", deps.LogsController.CountLogs)
 	apiGroup.GET("/logs/unread", deps.LogsController.UnreadLogs)
 	apiGroup.POST("/logs/read", deps.LogsController.MarkLogsRead)
+	apiGroup.GET("/logs/download", deps.LogsController.DownloadLogs)
 }

@@ -33,9 +33,9 @@ import {
 
 import { API_CONFIG, API_ENDPOINTS } from './api-config';
 
-// Export/import move the entire database in one request, so they're given a
-// longer default timeout than the rest of the API (still overridable via
-// ApiRequestOptions.timeout).
+// Export/import move the entire database in one request, and a log download
+// moves every log file, so they're given a longer default timeout than the
+// rest of the API (still overridable via ApiRequestOptions.timeout).
 const DATA_TRANSFER_TIMEOUT_MS = 60000;
 
 // A dictionary lookup can include the backend's automatic retries against the
@@ -127,10 +127,23 @@ class ApiService {
     };
   }
 
-  // Generic request method
-  private async request<T>(
+  /**
+   * Sends a request and hands the successful response to `parse`.
+   *
+   * Owns everything the body format does not affect: option merging, the
+   * timeout, and turning HTTP, timeout and network failures into `ApiError`.
+   * Parsing runs inside the same error handling, so a body that fails to
+   * read is reported the same way as a failed fetch.
+   *
+   * @param endpoint - Path appended to the API base URL.
+   * @param options - Fetch options plus the per-request API options.
+   * @param parse - Reads the body of a successful response.
+   * @returns Whatever `parse` resolves to.
+   */
+  private async execute<T>(
     endpoint: string,
-    options: RequestInit & ApiRequestOptions = {},
+    options: RequestInit & ApiRequestOptions,
+    parse: (response: Response) => Promise<T>,
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
 
@@ -180,13 +193,7 @@ class ApiService {
         );
       }
 
-      // Handle empty responses
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        return {} as T;
-      }
-
-      return await response.json();
+      return await parse(response);
     } catch (error) {
       // Handle fetch errors (network, timeout, etc.)
       if (error instanceof ApiError) {
@@ -203,6 +210,35 @@ class ApiService {
         error instanceof Error ? error.message : 'Unknown error',
       );
     }
+  }
+
+  // Generic request method
+  private async request<T>(
+    endpoint: string,
+    options: RequestInit & ApiRequestOptions = {},
+  ): Promise<T> {
+    return this.execute<T>(endpoint, options, async response => {
+      // Handle empty responses
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        return {} as T;
+      }
+
+      return await response.json();
+    });
+  }
+
+  // GET request for a binary/file body, which `request` would discard as a
+  // non-JSON response.
+  private async requestBlob(
+    endpoint: string,
+    options?: ApiRequestOptions,
+  ): Promise<Blob> {
+    return this.execute<Blob>(
+      endpoint,
+      { method: 'GET', ...options },
+      response => response.blob(),
+    );
   }
 
   // GET request
@@ -559,6 +595,23 @@ class ApiService {
 
   async markLogsRead(options?: ApiRequestOptions): Promise<LogReadState> {
     return this.post<LogReadState>(API_ENDPOINTS.logsRead, {}, options);
+  }
+
+  /**
+   * Downloads every backend log file in one request.
+   *
+   * The backend answers with the plain `.log` file when there is only one,
+   * and with a zip archive once rotated siblings exist; the blob's `type`
+   * tells the two apart.
+   *
+   * @param options - Per-request overrides (timeout, headers, signal).
+   * @returns The file contents, typed by the response's Content-Type.
+   */
+  async downloadLogs(options?: ApiRequestOptions): Promise<Blob> {
+    return this.requestBlob(API_ENDPOINTS.logsDownload, {
+      timeout: DATA_TRANSFER_TIMEOUT_MS,
+      ...options,
+    });
   }
 
   // Dictionary API methods

@@ -32,6 +32,7 @@ func TestListLogFiles(t *testing.T) {
 		name       string
 		files      []string
 		dirs       []string
+		symlinks   []string
 		missingDir bool
 		wantNames  []string
 	}{
@@ -93,6 +94,18 @@ func TestListLogFiles(t *testing.T) {
 			dirs:      []string{"app-2026-08-30T20-44-51.123.log"},
 			wantNames: []string{"app.log"},
 		},
+		{
+			name:      "a symlinked rotation is ignored",
+			files:     []string{"app.log"},
+			symlinks:  []string{"app-2026-08-30T20-44-51.123.log"},
+			wantNames: []string{"app.log"},
+		},
+		{
+			name:      "a symlinked current file is ignored",
+			files:     []string{"app-2026-08-30T20-44-51.123.log"},
+			symlinks:  []string{"app.log"},
+			wantNames: []string{"app-2026-08-30T20-44-51.123.log"},
+		},
 	}
 
 	for _, tt := range tests {
@@ -110,6 +123,19 @@ func TestListLogFiles(t *testing.T) {
 			for _, name := range tt.dirs {
 				if err := os.Mkdir(filepath.Join(dir, name), 0o755); err != nil {
 					t.Fatalf("failed to create directory %s: %v", name, err)
+				}
+			}
+
+			if len(tt.symlinks) > 0 {
+				target := filepath.Join(t.TempDir(), "secret.txt")
+				if err := os.WriteFile(target, []byte("secret"), 0o644); err != nil {
+					t.Fatalf("failed to create symlink target: %v", err)
+				}
+				for _, name := range tt.symlinks {
+					// Creating symlinks needs elevated rights on Windows.
+					if err := os.Symlink(target, filepath.Join(dir, name)); err != nil {
+						t.Skipf("symlinks are not available here: %v", err)
+					}
 				}
 			}
 

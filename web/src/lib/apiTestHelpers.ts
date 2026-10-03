@@ -20,5 +20,6 @@ export const buildMockResponse = (
     statusText,
     headers: { get: () => contentType },
     json: vi.fn().mockResolvedValue(body),
+    blob: vi.fn().mockResolvedValue(body),
   } as unknown as Response;
 };
