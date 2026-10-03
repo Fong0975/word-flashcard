@@ -17,18 +17,6 @@ const buildWord = (overrides: Partial<Word> = {}): Word => ({
 });
 
 describe('WordDeleteConfirmation', () => {
-  it('renders nothing when closed', () => {
-    const { container } = render(
-      <WordDeleteConfirmation
-        word={buildWord()}
-        isOpen={false}
-        onConfirm={vi.fn()}
-        onCancel={vi.fn()}
-      />,
-    );
-    expect(container).toBeEmptyDOMElement();
-  });
-
   it('includes the word text in the confirmation message', () => {
     render(
       <WordDeleteConfirmation

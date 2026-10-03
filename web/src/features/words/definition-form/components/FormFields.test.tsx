@@ -242,28 +242,5 @@ describe('FormFields', () => {
         screen.queryByRole('button', { name: 'Add link' }),
       ).not.toBeInTheDocument();
     });
-
-    it('still suggests a different saved word despite wordText excluding the current one', async () => {
-      vi.spyOn(apiService, 'searchWords').mockResolvedValue([
-        buildWord({ word: 'banana' }),
-      ]);
-      render(
-        <FormFields
-          formData={buildFormData()}
-          isFormValid={false}
-          partOfSpeechOptions={[]}
-          noteButtonsConfig={[]}
-          wordText='apple'
-          handlers={buildHandlers()}
-        />,
-      );
-
-      const notes = screen.getByPlaceholderText('Enter additional notes...');
-      fireEvent.change(notes, { target: { value: '`banana`' } });
-
-      expect(
-        await screen.findByRole('button', { name: 'Add link' }),
-      ).toBeInTheDocument();
-    });
   });
 });

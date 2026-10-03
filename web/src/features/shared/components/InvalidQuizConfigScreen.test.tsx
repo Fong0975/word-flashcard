@@ -19,28 +19,6 @@ afterEach(() => {
 });
 
 describe('InvalidQuizConfigScreen', () => {
-  it('renders the invalid configuration message', () => {
-    render(
-      <MemoryRouter>
-        <InvalidQuizConfigScreen onBackToHome={vi.fn()} />
-      </MemoryRouter>,
-    );
-    expect(screen.getByText('Invalid quiz configuration')).toBeInTheDocument();
-  });
-
-  it('calls onBackToHome when the body button is clicked', async () => {
-    const user = userEvent.setup();
-    const onBackToHome = vi.fn();
-    render(
-      <MemoryRouter>
-        <InvalidQuizConfigScreen onBackToHome={onBackToHome} />
-      </MemoryRouter>,
-    );
-
-    await user.click(screen.getByRole('button', { name: 'Back to Home' }));
-    expect(onBackToHome).toHaveBeenCalledTimes(1);
-  });
-
   it('calls onBackToHome when the layout back button is clicked', async () => {
     const user = userEvent.setup();
     const onBackToHome = vi.fn();

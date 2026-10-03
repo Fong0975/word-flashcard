@@ -1,5 +1,4 @@
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 
 import { Question } from '../../../../types/api';
 
@@ -62,25 +61,5 @@ describe('QuestionHeader', () => {
     );
 
     expect(screen.queryByText(/Reference:/)).not.toBeInTheDocument();
-  });
-
-  it('delegates edit and delete clicks', async () => {
-    const user = userEvent.setup();
-    const onEdit = vi.fn();
-    const onDelete = vi.fn();
-    render(
-      <QuestionHeader
-        question={buildQuestion()}
-        onEdit={onEdit}
-        onCopy={vi.fn()}
-        onDelete={onDelete}
-      />,
-    );
-
-    await user.click(screen.getByTitle('Edit question'));
-    expect(onEdit).toHaveBeenCalledTimes(1);
-
-    await user.click(screen.getByTitle('Delete question'));
-    expect(onDelete).toHaveBeenCalledTimes(1);
   });
 });

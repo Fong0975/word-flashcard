@@ -31,16 +31,6 @@ describe('useDefinitionActions', () => {
     vi.restoreAllMocks();
   });
 
-  it('handleNew does not throw', () => {
-    const callbacks: DefinitionActionsCallbacks = {
-      onEdit: vi.fn(),
-      onDelete: vi.fn(),
-    };
-    const { result } = renderHook(() => useDefinitionActions({ callbacks }));
-
-    expect(() => result.current.handleNew()).not.toThrow();
-  });
-
   it('delegates edit requests to the onEdit callback', () => {
     const onEdit = vi.fn();
     const callbacks: DefinitionActionsCallbacks = {

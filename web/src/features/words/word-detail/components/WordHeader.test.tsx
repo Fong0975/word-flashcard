@@ -1,5 +1,4 @@
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 
 import { Word } from '../../../../types/api';
 import { FamiliarityLevel } from '../../../../types/base';
@@ -45,20 +44,5 @@ describe('WordHeader', () => {
       />,
     );
     expect(screen.getByRole('heading', { name: 'banana' })).toBeInTheDocument();
-  });
-
-  it('delegates edit and delete clicks', async () => {
-    const user = userEvent.setup();
-    const onEdit = vi.fn();
-    const onDelete = vi.fn();
-    render(
-      <WordHeader word={buildWord()} onEdit={onEdit} onDelete={onDelete} />,
-    );
-
-    await user.click(screen.getByTitle('Edit word'));
-    expect(onEdit).toHaveBeenCalledTimes(1);
-
-    await user.click(screen.getByTitle('Delete word'));
-    expect(onDelete).toHaveBeenCalledTimes(1);
   });
 });

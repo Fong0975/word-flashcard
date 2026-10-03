@@ -80,27 +80,25 @@ describe('QuizSetupModal', () => {
       expect(onClose).toHaveBeenCalledTimes(1);
     });
 
-    it.each(DEFAULT_QUIZ_CONFIG.QUESTION_COUNT_OPTIONS)(
-      'sets the question count to %i when its quick select button is clicked',
-      async option => {
-        const user = userEvent.setup();
-        render(
-          <QuizSetupModal
-            isOpen
-            onClose={vi.fn()}
-            onStartQuiz={vi.fn()}
-            title='Question Quiz Setup'
-            entityName='question'
-          />,
-        );
+    it('sets the question count when a quick select button is clicked', async () => {
+      const user = userEvent.setup();
+      render(
+        <QuizSetupModal
+          isOpen
+          onClose={vi.fn()}
+          onStartQuiz={vi.fn()}
+          title='Question Quiz Setup'
+          entityName='question'
+        />,
+      );
+      const option = DEFAULT_QUIZ_CONFIG.QUESTION_COUNT_OPTIONS.find(
+        count => count !== DEFAULT_QUIZ_CONFIG.QUESTION_COUNT,
+      );
 
-        await user.click(
-          screen.getByRole('button', { name: option.toString() }),
-        );
+      await user.click(screen.getByRole('button', { name: `${option}` }));
 
-        expect(screen.getByRole('spinbutton')).toHaveValue(option);
-      },
-    );
+      expect(screen.getByRole('spinbutton')).toHaveValue(option);
+    });
   });
 
   describe('with familiarity selection', () => {

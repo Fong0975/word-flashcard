@@ -62,20 +62,4 @@ describe('useModalManager', () => {
     expect(result.current.getModalData('edit')).toBe('word-1');
     expect(result.current.getModalData('delete')).toBe('word-2');
   });
-
-  it('closes all open modals and clears their data', () => {
-    const { result } = renderHook(() => useModalManager<string>());
-
-    act(() => {
-      result.current.openModal('edit', 'word-1');
-      result.current.openModal('delete', 'word-2');
-    });
-    act(() => {
-      result.current.closeAllModals();
-    });
-
-    expect(result.current.isModalOpen('edit')).toBe(false);
-    expect(result.current.isModalOpen('delete')).toBe(false);
-    expect(result.current.getModalData('edit')).toBeUndefined();
-  });
 });

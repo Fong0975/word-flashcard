@@ -36,16 +36,6 @@ describe('ApiService - notes', () => {
     });
   });
 
-  it('sends a GET request for getAllNotes', async () => {
-    fetchMock.mockResolvedValueOnce(buildMockResponse([]));
-
-    await apiService.getAllNotes();
-
-    const [url, options] = fetchMock.mock.calls[0];
-    expect(url).toBe(`${API_CONFIG.baseURL}${API_ENDPOINTS.notes}`);
-    expect(options.method).toBe('GET');
-  });
-
   it('sends a GET request for getNote', async () => {
     fetchMock.mockResolvedValueOnce(buildMockResponse({ id: 1 }));
 

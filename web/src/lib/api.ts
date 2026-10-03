@@ -19,7 +19,6 @@ import {
   Note,
   CreateNoteRequest,
   UpdateNoteRequest,
-  NotesListParams,
   NotesSearchParams,
 } from '../types/api';
 import { DataExportPayload, ImportSummary } from '../types/data-export';
@@ -458,15 +457,6 @@ class ApiService {
   }
 
   // Note API methods
-  async getAllNotes(
-    params: NotesListParams = {},
-    options?: ApiRequestOptions,
-  ): Promise<Note[]> {
-    const endpoint = `${API_ENDPOINTS.notes}${buildListQueryString(params)}`;
-
-    return this.get<Note[]>(endpoint, options);
-  }
-
   async searchNotes(
     params: NotesSearchParams = {},
     options?: ApiRequestOptions,

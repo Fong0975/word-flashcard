@@ -45,12 +45,6 @@ export const useWordActions = ({
     setIsEditModalOpen(false);
   }, []);
 
-  const handleWordUpdated = useCallback(() => {
-    if (callbacks.onWordUpdated) {
-      callbacks.onWordUpdated();
-    }
-  }, [callbacks]);
-
   const handleDeleteWord = useCallback(() => {
     deleteConfirmation.showDeleteConfirm();
     callbacks.onDelete();
@@ -61,7 +55,6 @@ export const useWordActions = ({
     showDeleteConfirm: deleteConfirmation.showConfirm,
     handleEdit,
     handleCloseEditModal,
-    handleWordUpdated,
     handleDeleteWord,
     handleDeleteWordConfirm: deleteConfirmation.confirmDelete,
     handleDeleteWordCancel: deleteConfirmation.cancelDelete,
