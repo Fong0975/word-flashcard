@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { apiService } from '../../../lib/api';
 import { getApiErrorMessage } from '../../../lib/apiErrorMessage';
 import { DetailPageLayout } from '../../../components/layout';
-import { MarkdownEditorField } from '../../../components/ui';
+import { MarkdownEditorField } from '../../../components/ui/markdown-editor/MarkdownEditorField';
 import { useTemplateButtons } from '../../../hooks/shared';
 import { appendTemplateText } from '../../../utils/textTemplates';
 

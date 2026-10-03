@@ -5,11 +5,9 @@ import { Note } from '../../../types/api';
 import { apiService } from '../../../lib/api';
 import { getApiErrorMessage } from '../../../lib/apiErrorMessage';
 import { DetailPageLayout } from '../../../components/layout';
-import {
-  MarkdownContent,
-  MarkdownEditorField,
-  ToastContainer,
-} from '../../../components/ui';
+import { ToastContainer } from '../../../components/ui';
+import { MarkdownContent } from '../../../components/ui/MarkdownContent';
+import { MarkdownEditorField } from '../../../components/ui/markdown-editor/MarkdownEditorField';
 import { useToast } from '../../../hooks/ui/useToast';
 import { useDeleteConfirmation } from '../../../hooks/ui/useDeleteConfirmation';
 import { useTemplateButtons } from '../../../hooks/shared';

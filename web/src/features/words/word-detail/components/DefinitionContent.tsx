@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { MarkdownContent } from '../../../../components/ui';
+import { MarkdownContent } from '../../../../components/ui/MarkdownContent';
 import { WordDefinition } from '../../../../types/api';
 
 interface DefinitionContentProps {
