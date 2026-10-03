@@ -1,3 +1,5 @@
+// @vitest-environment node
+
 import { calculateAccuracyRate } from './accuracyCalculation';
 
 describe('calculateAccuracyRate', () => {

@@ -1,3 +1,5 @@
+// @vitest-environment node
+
 import { generateQuizSessionId } from './quizSessionId';
 
 describe('generateQuizSessionId', () => {

@@ -1,3 +1,5 @@
+// @vitest-environment node
+
 import {
   PART_OF_SPEECH_OPTIONS,
   normalizePartOfSpeech,

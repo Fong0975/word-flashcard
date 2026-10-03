@@ -1,3 +1,5 @@
+// @vitest-environment node
+
 const registerSWMock = vi.fn();
 
 vi.mock('virtual:pwa-register', () => ({

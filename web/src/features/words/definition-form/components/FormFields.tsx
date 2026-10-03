@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { MarkdownEditorField } from '../../../../components/ui';
+import { MarkdownEditorField } from '../../../../components/ui/markdown-editor/MarkdownEditorField';
 import { TemplateButton } from '../../../../types/components';
 import { DefinitionForm } from '../types';
 

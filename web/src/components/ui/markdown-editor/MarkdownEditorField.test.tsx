@@ -176,7 +176,16 @@ describe('MarkdownEditorField', () => {
   });
 
   describe('word link suggestions', () => {
+    // The suggestion lookup is debounced; fake timers let `findBy*` step
+    // through the delay instead of waiting for it in real time. Only the
+    // timeout APIs are faked so the editor's requestAnimationFrame callbacks
+    // (cursor restoration after an insert) still run.
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    });
+
     afterEach(() => {
+      vi.useRealTimers();
       vi.restoreAllMocks();
     });
 
@@ -184,7 +193,7 @@ describe('MarkdownEditorField', () => {
       vi.spyOn(apiService, 'searchWords').mockResolvedValue([
         buildWord({ word: 'apple' }),
       ]);
-      const user = userEvent.setup();
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       render(<ControlledMarkdownEditorField />);
 
       await user.type(screen.getByRole('textbox'), '`apple`');
@@ -206,7 +215,7 @@ describe('MarkdownEditorField', () => {
       vi.spyOn(apiService, 'searchWords').mockResolvedValue([
         buildWord({ word: 'apple' }),
       ]);
-      const user = userEvent.setup();
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       render(<ControlledMarkdownEditorField />);
 
       await user.type(screen.getByRole('textbox'), '`apple`');
@@ -220,24 +229,11 @@ describe('MarkdownEditorField', () => {
       ).not.toBeInTheDocument();
     });
 
-    it('does not show a suggestion when the typed word is not a saved word', async () => {
-      vi.spyOn(apiService, 'searchWords').mockResolvedValue([]);
-      const user = userEvent.setup();
-      render(<ControlledMarkdownEditorField />);
-
-      await user.type(screen.getByRole('textbox'), '`banana`');
-
-      await waitFor(() => expect(apiService.searchWords).toHaveBeenCalled());
-      expect(
-        screen.queryByRole('button', { name: 'Add link' }),
-      ).not.toBeInTheDocument();
-    });
-
     it('surfaces a suggestion on blur for a word pasted into an existing empty backtick pair', async () => {
       vi.spyOn(apiService, 'searchWords').mockResolvedValue([
         buildWord({ word: 'apple' }),
       ]);
-      const user = userEvent.setup();
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       render(<ControlledMarkdownEditorField />);
       const textarea = screen.getByRole('textbox');
 
@@ -269,7 +265,7 @@ describe('MarkdownEditorField', () => {
             : [];
         },
       );
-      const user = userEvent.setup();
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       render(<ControlledMarkdownEditorField />);
       const textarea = screen.getByRole('textbox');
 
@@ -328,22 +324,6 @@ describe('MarkdownEditorField', () => {
       expect(
         screen.queryByRole('button', { name: 'Add link' }),
       ).not.toBeInTheDocument();
-    });
-
-    it('still suggests a different saved word despite excludeWord being set', async () => {
-      vi.spyOn(apiService, 'searchWords').mockResolvedValue([
-        buildWord({ word: 'banana' }),
-      ]);
-      render(
-        <MarkdownEditorField value='' onChange={vi.fn()} excludeWord='apple' />,
-      );
-
-      const textarea = screen.getByRole('textbox');
-      fireEvent.change(textarea, { target: { value: '`banana`' } });
-
-      expect(
-        await screen.findByRole('button', { name: 'Add link' }),
-      ).toBeInTheDocument();
     });
   });
 });

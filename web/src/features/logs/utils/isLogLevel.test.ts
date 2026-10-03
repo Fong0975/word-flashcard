@@ -1,3 +1,5 @@
+// @vitest-environment node
+
 import { isLogLevel } from './isLogLevel';
 
 describe('isLogLevel', () => {

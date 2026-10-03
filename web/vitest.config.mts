@@ -1,6 +1,37 @@
-import { defineConfig, mergeConfig } from 'vitest/config';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import { configDefaults, defineConfig, mergeConfig } from 'vitest/config';
 
 import viteConfig from './vite.config.mts';
+
+const TEST_FILE_GLOB = 'src/**/*.test.{ts,tsx}';
+const TEST_FILE_PATTERN = /\.test\.tsx?$/;
+const MODULE_MOCKING_PATTERN = /\bvi\.(mock|doMock|resetModules)\(/;
+
+/**
+ * Finds the test files that replace or reset modules.
+ *
+ * Module mocks only take effect when the module under test is evaluated
+ * after the mock is registered. In a worker that shares its module cache
+ * between test files, an earlier file may already have cached that module
+ * with real (or differently mocked) dependencies, so these files must keep
+ * running in isolation.
+ *
+ * @returns Paths relative to this config file, using forward slashes.
+ */
+const findModuleMockingTestFiles = (): string[] => {
+  const root = fileURLToPath(new URL('.', import.meta.url));
+  return readdirSync(join(root, 'src'), { recursive: true, encoding: 'utf8' })
+    .filter(file => TEST_FILE_PATTERN.test(file))
+    .map(file => `src/${file.replace(/\\/g, '/')}`)
+    .filter(file =>
+      MODULE_MOCKING_PATTERN.test(readFileSync(join(root, file), 'utf8')),
+    );
+};
+
+const moduleMockingTestFiles = findModuleMockingTestFiles();
 
 export default mergeConfig(
   viteConfig,
@@ -10,6 +41,28 @@ export default mergeConfig(
       setupFiles: ['./src/setupTests.ts'],
       globals: true,
       css: false,
+      // Creating a jsdom environment and re-importing React/Testing Library
+      // for every test file dominated the run time, so files share a worker's
+      // module cache unless they need module mocking.
+      projects: [
+        {
+          extends: true,
+          test: {
+            name: 'shared',
+            include: [TEST_FILE_GLOB],
+            exclude: [...configDefaults.exclude, ...moduleMockingTestFiles],
+            isolate: false,
+          },
+        },
+        {
+          extends: true,
+          test: {
+            name: 'isolated',
+            include: moduleMockingTestFiles,
+            isolate: true,
+          },
+        },
+      ],
       coverage: {
         provider: 'v8',
         reporter: ['json', 'text', 'lcov', 'clover', 'json-summary'],

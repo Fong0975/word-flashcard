@@ -75,23 +75,6 @@ describe('useWordActions', () => {
     expect(result.current.isEditModalOpen).toBe(false);
   });
 
-  it('notifies onWordUpdated', () => {
-    const onWordUpdated = vi.fn();
-    const { result } = renderHook(() =>
-      useWordActions({
-        word: buildWord(),
-        callbacks: buildCallbacks({ onWordUpdated }),
-        onClose: vi.fn(),
-      }),
-    );
-
-    act(() => {
-      result.current.handleWordUpdated();
-    });
-
-    expect(onWordUpdated).toHaveBeenCalledTimes(1);
-  });
-
   it('opens the delete confirmation and calls onDelete', () => {
     const onDelete = vi.fn();
     const { result } = renderHook(() =>

@@ -1,3 +1,5 @@
+// @vitest-environment node
+
 import type { Mock } from 'vitest';
 
 import { apiService } from './api';
@@ -32,16 +34,6 @@ describe('ApiService - notes', () => {
       const [, options] = fetchMock.mock.calls[0];
       expect(JSON.parse(options.body)).toEqual({});
     });
-  });
-
-  it('sends a GET request for getAllNotes', async () => {
-    fetchMock.mockResolvedValueOnce(buildMockResponse([]));
-
-    await apiService.getAllNotes();
-
-    const [url, options] = fetchMock.mock.calls[0];
-    expect(url).toBe(`${API_CONFIG.baseURL}${API_ENDPOINTS.notes}`);
-    expect(options.method).toBe('GET');
   });
 
   it('sends a GET request for getNote', async () => {

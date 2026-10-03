@@ -71,17 +71,7 @@ describe('QuestionDetailPage', () => {
     expect(getQuestionSpy).not.toHaveBeenCalled();
   });
 
-  it('shows a loading spinner while fetching', () => {
-    vi.spyOn(apiService, 'getQuestion').mockReturnValue(
-      new Promise<Question>(() => {}),
-    );
-
-    renderPage();
-
-    expect(screen.getByRole('status')).toBeInTheDocument();
-  });
-
-  it('navigates back with browser history when Go back is clicked while loading', async () => {
+  it('shows a loading spinner while fetching, and navigates back with browser history when Go back is clicked', async () => {
     const user = userEvent.setup();
     vi.spyOn(apiService, 'getQuestion').mockReturnValue(
       new Promise<Question>(() => {}),

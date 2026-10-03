@@ -1,3 +1,5 @@
+// @vitest-environment node
+
 export {};
 
 describe('API_CONFIG', () => {

@@ -1,3 +1,5 @@
+// @vitest-environment node
+
 import { Word } from '../../../../types/api';
 import {
   SearchOperation,

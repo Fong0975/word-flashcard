@@ -157,13 +157,6 @@ export interface UpdateNoteRequest {
 }
 
 /**
- * Notes list parameters
- */
-export interface NotesListParams extends PaginationParams {
-  readonly sort?: string;
-}
-
-/**
  * Notes search parameters
  */
 export interface NotesSearchParams extends PaginationParams {

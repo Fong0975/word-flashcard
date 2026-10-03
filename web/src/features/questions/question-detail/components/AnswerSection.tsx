@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { MarkdownContent } from '../../../../components/ui';
+import { MarkdownContent } from '../../../../components/ui/MarkdownContent';
 import { AnswerSectionProps } from '../types/question-detail';
 
 export const AnswerSection: React.FC<AnswerSectionProps> = ({

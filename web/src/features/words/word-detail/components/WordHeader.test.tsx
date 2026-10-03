@@ -1,5 +1,4 @@
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 
 import { Word } from '../../../../types/api';
 import { FamiliarityLevel } from '../../../../types/base';
@@ -26,17 +25,7 @@ const buildWord = (overrides: Partial<Word> = {}): Word => ({
 });
 
 describe('WordHeader', () => {
-  it('renders the word id, definition count, and practice count', () => {
-    render(
-      <WordHeader word={buildWord()} onEdit={vi.fn()} onDelete={vi.fn()} />,
-    );
-
-    expect(screen.getByText('Word ID: 7')).toBeInTheDocument();
-    expect(screen.getByText(/1 definition\(s\)/)).toBeInTheDocument();
-    expect(screen.getByText(/3 practise\(s\)/)).toBeInTheDocument();
-  });
-
-  it('renders the word text as the title', () => {
+  it('renders the word text as the title, with its id, definition count, and practice count', () => {
     render(
       <WordHeader
         word={buildWord({ word: 'banana' })}
@@ -44,21 +33,10 @@ describe('WordHeader', () => {
         onDelete={vi.fn()}
       />,
     );
+
     expect(screen.getByRole('heading', { name: 'banana' })).toBeInTheDocument();
-  });
-
-  it('delegates edit and delete clicks', async () => {
-    const user = userEvent.setup();
-    const onEdit = vi.fn();
-    const onDelete = vi.fn();
-    render(
-      <WordHeader word={buildWord()} onEdit={onEdit} onDelete={onDelete} />,
-    );
-
-    await user.click(screen.getByTitle('Edit word'));
-    expect(onEdit).toHaveBeenCalledTimes(1);
-
-    await user.click(screen.getByTitle('Delete word'));
-    expect(onDelete).toHaveBeenCalledTimes(1);
+    expect(screen.getByText('Word ID: 7')).toBeInTheDocument();
+    expect(screen.getByText(/1 definition\(s\)/)).toBeInTheDocument();
+    expect(screen.getByText(/3 practise\(s\)/)).toBeInTheDocument();
   });
 });

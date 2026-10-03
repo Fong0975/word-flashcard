@@ -15,7 +15,6 @@ export interface UseModalManagerReturn<T = unknown> {
   modalState: Record<string, ModalConfig<T>>;
   openModal: (modalName: string, data?: T) => void;
   closeModal: (modalName: string) => void;
-  closeAllModals: () => void;
   isModalOpen: (modalName: string) => boolean;
   getModalData: <K = T>(modalName: string) => K | undefined;
   setModalData: (modalName: string, data: T) => void;
@@ -27,7 +26,6 @@ export interface UseModalManagerReturn<T = unknown> {
  * Provides a unified way to handle modal state management, including:
  * - Opening/closing modals
  * - Associated data management
- * - Bulk operations
  *
  * @example
  * ```tsx
@@ -71,19 +69,6 @@ export const useModalManager = <T = unknown>(): UseModalManagerReturn<T> => {
     }));
   }, []);
 
-  const closeAllModals = useCallback(() => {
-    setModalState(prev => {
-      const newState: Record<string, ModalConfig<T>> = {};
-      Object.keys(prev).forEach(key => {
-        newState[key] = {
-          isOpen: false,
-          data: undefined,
-        };
-      });
-      return newState;
-    });
-  }, []);
-
   const isModalOpen = useCallback(
     (modalName: string): boolean => {
       return modalState[modalName]?.isOpen ?? false;
@@ -112,7 +97,6 @@ export const useModalManager = <T = unknown>(): UseModalManagerReturn<T> => {
     modalState,
     openModal,
     closeModal,
-    closeAllModals,
     isModalOpen,
     getModalData,
     setModalData,

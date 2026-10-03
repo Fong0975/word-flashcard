@@ -1,10 +1,11 @@
 // Extends Jest's `expect` with DOM-specific matchers (e.g. toBeInTheDocument).
 import '@testing-library/jest-dom';
-
 // jsdom's test environment doesn't expose TextEncoder/TextDecoder as globals,
 // but react-router references them at module load time. Node's `util` module
 // has always provided them; just wire them onto the global object.
 import { TextEncoder, TextDecoder } from 'util';
+
+import { cleanup } from '@testing-library/react';
 
 // @testing-library/dom's `waitFor` only drives its polling loop through fake
 // timers when `typeof jest !== 'undefined'` (see jestFakeTimersAreEnabled in
@@ -21,6 +22,15 @@ if (typeof (globalThis as { jest?: unknown }).jest === 'undefined') {
     advanceTimersByTime: (...args) => vi.advanceTimersByTime(...args),
   };
 }
+
+// @testing-library/react registers its automatic cleanup in an `afterEach`
+// at module-evaluation time. With `isolate: false` the module is evaluated
+// once per worker, so only the first test file in each worker would get it
+// and later files would see DOM left over from earlier tests. Setup files
+// run for every test file, so register it here instead.
+afterEach(() => {
+  cleanup();
+});
 
 if (typeof global.TextEncoder === 'undefined') {
   global.TextEncoder = TextEncoder;

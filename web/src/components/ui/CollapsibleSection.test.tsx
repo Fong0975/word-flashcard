@@ -4,26 +4,27 @@ import userEvent from '@testing-library/user-event';
 import { CollapsibleSection } from './CollapsibleSection';
 
 describe('CollapsibleSection', () => {
-  it('renders the title but not children when closed', () => {
-    render(
-      <CollapsibleSection title='History' isOpen={false} onToggle={vi.fn()}>
-        <p>Section content</p>
-      </CollapsibleSection>,
-    );
+  it.each([
+    { state: 'closed', isOpen: false, ariaExpanded: 'false' },
+    { state: 'open', isOpen: true, ariaExpanded: 'true' },
+  ])(
+    'shows the title, and the children only when open ($state)',
+    ({ isOpen, ariaExpanded }) => {
+      render(
+        <CollapsibleSection title='History' isOpen={isOpen} onToggle={vi.fn()}>
+          <p>Section content</p>
+        </CollapsibleSection>,
+      );
 
-    expect(screen.getByText('History')).toBeInTheDocument();
-    expect(screen.queryByText('Section content')).not.toBeInTheDocument();
-  });
-
-  it('renders children when open', () => {
-    render(
-      <CollapsibleSection title='History' isOpen onToggle={vi.fn()}>
-        <p>Section content</p>
-      </CollapsibleSection>,
-    );
-
-    expect(screen.getByText('Section content')).toBeInTheDocument();
-  });
+      expect(screen.getByRole('button', { name: 'History' })).toHaveAttribute(
+        'aria-expanded',
+        ariaExpanded,
+      );
+      expect(screen.queryAllByText('Section content')).toHaveLength(
+        isOpen ? 1 : 0,
+      );
+    },
+  );
 
   it('calls onToggle when the header button is clicked', async () => {
     const user = userEvent.setup();
@@ -36,31 +37,5 @@ describe('CollapsibleSection', () => {
 
     await user.click(screen.getByRole('button', { name: 'History' }));
     expect(onToggle).toHaveBeenCalledTimes(1);
-  });
-
-  it('sets aria-expanded to false when closed', () => {
-    render(
-      <CollapsibleSection title='History' isOpen={false} onToggle={vi.fn()}>
-        <p>Section content</p>
-      </CollapsibleSection>,
-    );
-
-    expect(screen.getByRole('button', { name: 'History' })).toHaveAttribute(
-      'aria-expanded',
-      'false',
-    );
-  });
-
-  it('sets aria-expanded to true when open', () => {
-    render(
-      <CollapsibleSection title='History' isOpen onToggle={vi.fn()}>
-        <p>Section content</p>
-      </CollapsibleSection>,
-    );
-
-    expect(screen.getByRole('button', { name: 'History' })).toHaveAttribute(
-      'aria-expanded',
-      'true',
-    );
   });
 });

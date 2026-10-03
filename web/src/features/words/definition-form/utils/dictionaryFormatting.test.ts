@@ -1,3 +1,5 @@
+// @vitest-environment node
+
 import { CambridgePronunciation, CambridgeDefinition } from '../types';
 
 import {

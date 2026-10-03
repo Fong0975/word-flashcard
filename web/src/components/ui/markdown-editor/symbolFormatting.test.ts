@@ -1,3 +1,5 @@
+// @vitest-environment node
+
 import { insertSymbol, SYMBOL_CURSOR_MARKER } from './symbolFormatting';
 
 describe('insertSymbol', () => {

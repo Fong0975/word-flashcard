@@ -14,10 +14,6 @@ export const useDefinitionActions = ({
   callbacks,
   onError,
 }: UseDefinitionActionsProps) => {
-  const handleNew = useCallback(() => {
-    // This will be handled by parent component through onOpenDefinitionModal
-  }, []);
-
   const handleEditDefinition = useCallback(
     (definition: WordDefinition) => {
       callbacks.onEdit(definition);
@@ -42,7 +38,6 @@ export const useDefinitionActions = ({
   );
 
   return {
-    handleNew,
     handleEditDefinition,
     handleDeleteDefinition,
   };

@@ -1,3 +1,5 @@
+// @vitest-environment node
+
 import { appendTemplateText } from './textTemplates';
 
 describe('appendTemplateText', () => {
