@@ -232,7 +232,7 @@ export const QuizSetupModal: React.FC<QuizSetupModalProps> = ({
           <button
             type='button'
             onClick={handleClose}
-            className='glass-interactive flex-1 rounded-md px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300'
+            className='glass-interactive glass-border-subtle flex-1 rounded-md px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300'
           >
             Cancel
           </button>

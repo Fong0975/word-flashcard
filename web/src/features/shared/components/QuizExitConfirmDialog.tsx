@@ -58,7 +58,7 @@ export const QuizExitConfirmDialog: React.FC<QuizExitConfirmDialogProps> = ({
           <button
             type='button'
             onClick={onCancel}
-            className='glass-interactive rounded-md px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300'
+            className='glass-interactive glass-border-subtle rounded-md px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300'
           >
             Continue Quiz
           </button>

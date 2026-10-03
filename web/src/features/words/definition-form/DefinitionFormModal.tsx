@@ -167,7 +167,7 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
               type='button'
               onClick={onClose}
               disabled={formLogic.isSubmitting}
-              className='glass-interactive rounded-md px-6 py-2 text-sm font-medium text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-300'
+              className='glass-interactive glass-border-subtle rounded-md px-6 py-2 text-sm font-medium text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-300'
             >
               Cancel
             </button>

@@ -161,7 +161,7 @@ export const NoteDetailPage: React.FC = () => {
           <button
             type='button'
             onClick={handleEdit}
-            className='glass-interactive rounded-md px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300'
+            className='glass-interactive glass-border-subtle rounded-md px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300'
           >
             Edit
           </button>
@@ -211,7 +211,7 @@ export const NoteDetailPage: React.FC = () => {
               type='button'
               onClick={deleteConfirmation.cancelDelete}
               disabled={deleteConfirmation.isDeleting}
-              className='glass-interactive rounded-md px-4 py-1.5 text-sm font-medium text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-300'
+              className='glass-interactive glass-border-subtle rounded-md px-4 py-1.5 text-sm font-medium text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-300'
             >
               Cancel
             </button>
@@ -254,7 +254,7 @@ export const NoteDetailPage: React.FC = () => {
           type='button'
           onClick={handleCancel}
           disabled={isSaving}
-          className='glass-interactive rounded-md px-4 py-1.5 text-sm font-medium text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-300'
+          className='glass-interactive glass-border-subtle rounded-md px-4 py-1.5 text-sm font-medium text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-300'
         >
           Cancel
         </button>

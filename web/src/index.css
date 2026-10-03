@@ -192,7 +192,12 @@ body {
 
   /* Secondary buttons/icons: transparent at rest, glass surface only on hover/focus/active */
   .glass-interactive {
-    @apply border border-transparent bg-transparent transition-colors duration-200 hover:bg-primary-500/[15%] hover:shadow-sm hover:backdrop-blur-lg focus-visible:bg-primary-500/[15%] focus-visible:shadow-sm focus-visible:backdrop-blur-lg active:bg-primary-500/25 dark:hover:bg-primary-400/20 dark:focus-visible:bg-primary-400/20 dark:active:bg-primary-400/30;
+    @apply border border-transparent bg-transparent transition-[color,background-color,border-color,box-shadow,backdrop-filter] duration-200 hover:bg-primary-500/[15%] hover:shadow-sm hover:backdrop-blur-lg focus-visible:bg-primary-500/[15%] focus-visible:shadow-sm focus-visible:backdrop-blur-lg active:bg-primary-500/25 dark:hover:bg-primary-400/20 dark:focus-visible:bg-primary-400/20 dark:active:bg-primary-400/30;
+  }
+
+  /* Barely-visible resting outline for standalone `.glass-interactive` buttons so they still read as buttons; must stay after `.glass-interactive` to override its transparent border */
+  .glass-border-subtle {
+    @apply border-gray-500/25 dark:border-white/15;
   }
 
   /* Hover-only glass fill for bordered buttons (pagination); border and text color stay with the usage */

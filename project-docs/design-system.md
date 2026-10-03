@@ -153,6 +153,7 @@ Higher blur = higher elevation in the layer stack (page → panel → card → o
 | `.glass-panel-dropdown` | `white/80` | `white/80` | `gray-800/90` | `white/10` | `xl` (radius `md`) | `lg` | Info and Settings dropdown panels (more opaque than `.glass-panel-strong` so text stays readable over page content) |
 | `.glass-tint-green` / `.glass-tint-yellow` | `green-100/50` / `yellow-100/50` | `green-300/60` / `yellow-300/60` | `green-900/30` / `yellow-900/30` | `green-700/40` / `yellow-700/40` | `lg` | none | Collapsible status sections: dictionary lookup (green), Answer & Explanation (yellow); add `overflow-hidden` and rounding per use |
 | `.glass-interactive` | transparent → `primary-500/[15%]` hover/focus, `/25` active | transparent | transparent → `primary-400/20` hover/focus, `/30` active | transparent | `lg` on hover/focus only | `sm` on hover/focus | Secondary buttons, icon buttons, back button |
+| `.glass-border-subtle` | n/a (border only) | `gray-500/25` | n/a | `white/15` | none | none | Modifier stacked on `.glass-interactive` for standalone buttons (Cancel, Quick select, ActionButton, mobile pagination) so they read as buttons at rest. Do not use inside an already-bordered group (segmented toggles, toolbars). Defined after `.glass-interactive` so it overrides its transparent border |
 | `.glass-nav-button` / `.glass-nav-button-group` | transparent → `gray-100/60` hover/focus (`-group`: parent `group` hover or focus-within) | transparent | transparent → `gray-800/50` hover/focus | transparent | `md` on hover/focus only | none | Header icon buttons (theme toggle; `-group` variant for the Info and Settings dropdown triggers). Icon `gray-500` / `gray-400` → `gray-900` / `white` |
 | `.glass-hover-fill` | transparent → `gray-100/60` hover | transparent | transparent → `gray-800/50` hover | transparent | `md` on hover only | none | Hover fill for bordered buttons (Pagination nav buttons); border and text color stay with the usage |
 | `.segmented-divider` | `border-l white/30` | `white/30` | `border-l white/10` | `white/10` | none | none | Left divider on every segment except the first in a segmented control (Stats modal tabs) |
@@ -219,7 +220,7 @@ Light vs dark: shadows are identical in light; in dark only the CTA steps up one
 
 | Pattern | Duration / easing | Notes |
 | --- | --- | --- |
-| Color / surface transitions (`transition-colors`) | 200ms (Tailwind default easing) | Buttons, glass-interactive, tabs, menu items |
+| Color / surface transitions (`transition-colors`) | 200ms (Tailwind default easing) | Buttons, tabs, menu items. `.glass-interactive` also transitions `box-shadow` and `backdrop-filter` so blur fades in with the fill instead of flashing a white haze first |
 | Modal panel (`transition-all`) | 200ms `ease-in-out` | Scrim uses `transition-opacity` |
 | Chevron rotate | 200ms | `CollapsibleSection`, `ActionButton` |
 | Header theme icon | moon `-rotate-12` 300ms `ease-out`; sun `rotate-180` 500ms `ease-out` | Hover only |
@@ -261,7 +262,7 @@ Reuse these before building new UI (`web/src/components/ui`, `web/src/components
 | Menu | `DropdownMenu`, `ActionButton` (selected item: `primary-500/10` + `primary-700` light, `primary-400/20` + `primary-200` dark) |
 | Section | `CollapsibleSection` (`glass-panel-card`, hover `gray-100/80` / `gray-800/70`) |
 | Primary action | `.glass-button-primary` + `rounded-md px-4 py-2 text-sm font-medium` |
-| Secondary action | `.glass-interactive` + `rounded-md px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300` |
+| Secondary action | `.glass-interactive .glass-border-subtle` + `rounded-md px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300` |
 | Form field | `.glass-input` (add width, padding, rounding per use), `.glass-checkbox` |
 | Feedback | `Toast`/`ToastContainer`, `ErrorMessage`, `EmptyState`, `LoadingSpinner` |
 | Pagination | `Pagination` (segmented on desktop with `border-gray-300`/`gray-600`, standalone `.glass-interactive` on mobile) |
