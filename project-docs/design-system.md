@@ -194,6 +194,15 @@ Contrast budget: every white fill in dark raises the surface luminance, so the d
 | Chart tooltip | frosted dark for **both** themes: `rgba(31,41,55,.85)`, border `rgba(255,255,255,.15)`, text `#f3f4f6`, blur 6px (recharts inline styles cannot read `dark:`) | same |
 | Chart bars | stroke `rgba(255,255,255,.25)` @ 0.5px, fill opacity `0.85` | same |
 
+### 4.4 Fallbacks
+
+Both live at the end of the `@layer components` block in `index.css`, after the glass classes they override. A new blurred tier must be added to both.
+
+| Condition | What changes |
+| --- | --- |
+| `@supports not (backdrop-filter)` | Tiers that float over sharp content take a near-opaque fill so text stays legible without blur: `.glass-panel-strong` and `.glass-panel-dropdown` → `white/95` / `gray-800/95`; `.glass-alert-*` → solid `*-50` / `*-950` (neutral `gray-50` / `gray-900`). `.glass-panel` is unchanged (the backdrop behind it is already soft). |
+| `prefers-reduced-transparency: reduce` | Every blurred tier drops its blur and gradient: `.glass-panel` → `white/90` / `gray-900/95`; the others as above. Their border becomes solid (`gray-200` / `gray-700`). Nested surfaces keep their fills. |
+
 ## 5. Radius
 
 | Token | px | Used by |

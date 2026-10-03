@@ -425,6 +425,91 @@ body {
   .glass-progress-track {
     @apply h-2 w-full overflow-hidden rounded-full border border-white/30 bg-white/20 shadow-inner dark:border-white/10 dark:bg-gray-800/30;
   }
+
+  /*
+   * Fallbacks for the blurred tiers. These must stay after the glass classes
+   * above: they override them at equal specificity by source order.
+   *
+   * No `backdrop-filter` support: the tiers that float over sharp page
+   * content (overlays, dropdowns, toasts) lose the blur that keeps their text
+   * legible, so their fill becomes near-opaque. `.glass-panel` needs nothing
+   * here, since the backdrop behind it is already soft.
+   */
+  @supports not (
+    (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+  ) {
+    .glass-panel-strong {
+      @apply bg-white/95 bg-none dark:bg-gray-800/95;
+    }
+
+    .glass-panel-dropdown {
+      @apply bg-white/95 dark:bg-gray-800/95;
+    }
+
+    .glass-alert-success {
+      @apply bg-green-50 dark:bg-green-950;
+    }
+
+    .glass-alert-error {
+      @apply bg-red-50 dark:bg-red-950;
+    }
+
+    .glass-alert-warning {
+      @apply bg-yellow-50 dark:bg-yellow-950;
+    }
+
+    .glass-alert-info {
+      @apply bg-blue-50 dark:bg-blue-950;
+    }
+
+    .glass-alert-neutral {
+      @apply bg-gray-50 dark:bg-gray-900;
+    }
+  }
+
+  /*
+   * The user asked the OS for less transparency: every blurred tier drops its
+   * blur and takes a near-opaque fill, with a solid border since a white edge
+   * no longer stands out against it. Surfaces nested inside (cards, inputs,
+   * buttons) keep their own fills; with an opaque container behind them
+   * nothing shows through any more.
+   */
+  @media (prefers-reduced-transparency: reduce) {
+    .glass-panel,
+    .glass-panel-strong,
+    .glass-panel-dropdown {
+      @apply border-gray-200 bg-none backdrop-filter-none dark:border-gray-700;
+    }
+
+    .glass-panel {
+      @apply bg-white/90 dark:bg-gray-900/95;
+    }
+
+    .glass-panel-strong,
+    .glass-panel-dropdown {
+      @apply bg-white/95 dark:bg-gray-800/95;
+    }
+
+    .glass-alert-success {
+      @apply bg-green-50 backdrop-filter-none dark:bg-green-950;
+    }
+
+    .glass-alert-error {
+      @apply bg-red-50 backdrop-filter-none dark:bg-red-950;
+    }
+
+    .glass-alert-warning {
+      @apply bg-yellow-50 backdrop-filter-none dark:bg-yellow-950;
+    }
+
+    .glass-alert-info {
+      @apply bg-blue-50 backdrop-filter-none dark:bg-blue-950;
+    }
+
+    .glass-alert-neutral {
+      @apply bg-gray-50 backdrop-filter-none dark:bg-gray-900;
+    }
+  }
 }
 
 /* Toast Animations */
