@@ -26,6 +26,33 @@ describe('CollapsibleSection', () => {
     },
   );
 
+  it.each([
+    { state: 'with an iconPath', iconPath: 'M12 6v6h4.5', iconCount: 1 },
+    { state: 'without an iconPath', iconPath: undefined, iconCount: 0 },
+  ])(
+    'renders the title icon only when given one ($state)',
+    ({ iconPath, iconCount }) => {
+      render(
+        <CollapsibleSection
+          title='History'
+          isOpen={false}
+          onToggle={vi.fn()}
+          iconPath={iconPath}
+        >
+          <p>Section content</p>
+        </CollapsibleSection>,
+      );
+
+      const icons = screen.queryAllByTestId('collapsible-section-icon');
+      expect(icons).toHaveLength(iconCount);
+      icons.forEach(icon => expect(icon).toContainHTML(iconPath ?? ''));
+      // The icon is decorative, so the button keeps the title as its name.
+      expect(
+        screen.getByRole('button', { name: 'History' }),
+      ).toBeInTheDocument();
+    },
+  );
+
   it('calls onToggle when the header button is clicked', async () => {
     const user = userEvent.setup();
     const onToggle = vi.fn();

@@ -22,6 +22,55 @@ const FamiliarityBadge: React.FC<{ familiarity: string }> = ({
   );
 };
 
+interface SummaryStatProps {
+  /** Name of the stat, shown in the hover tooltip (e.g. `Improved`). */
+  label: string;
+  count: number;
+  /** Accessible name of the count element. */
+  countLabel: string;
+  /** Text color shared by the arrow and the count. */
+  colorClassName: string;
+  /** Arrow glyph shown before the count; omit to show a dot instead. */
+  arrow?: string;
+  /** Fill of the dot shown when there is no `arrow`. */
+  dotClassName?: string;
+}
+
+/**
+ * One block of the quiz summary: a marker (dot or arrow) and a count, with a
+ * short tooltip such as `Improved: 6 words` explaining what the count means.
+ */
+const SummaryStat: React.FC<SummaryStatProps> = ({
+  label,
+  count,
+  countLabel,
+  colorClassName,
+  arrow,
+  dotClassName,
+}) => (
+  <span
+    className={`glass-panel-card flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2 ${colorClassName}`}
+    title={`${label}: ${count} ${count === 1 ? 'word' : 'words'}`}
+  >
+    {arrow ? (
+      <span className='text-base font-bold'>{arrow}</span>
+    ) : (
+      <span
+        className={`h-2.5 w-2.5 flex-shrink-0 rounded-full ${dotClassName}`}
+      ></span>
+    )}
+    <span aria-label={countLabel} className='text-lg font-bold'>
+      {count}
+    </span>
+  </span>
+);
+
+const STAT_COLORS = {
+  red: 'text-red-700 dark:text-red-300',
+  yellow: 'text-yellow-700 dark:text-yellow-300',
+  green: 'text-green-700 dark:text-green-300',
+} as const;
+
 export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
   results,
 }) => {
@@ -67,6 +116,61 @@ export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
     },
   );
 
+  const summaryRows: { heading: string; stats: SummaryStatProps[] }[] = [
+    {
+      heading: 'After',
+      stats: [
+        {
+          label: 'Unfamiliar',
+          count: redCount,
+          countLabel: 'red count',
+          colorClassName: STAT_COLORS.red,
+          dotClassName: 'bg-red-500',
+        },
+        {
+          label: 'Somewhat Familiar',
+          count: yellowCount,
+          countLabel: 'yellow count',
+          colorClassName: STAT_COLORS.yellow,
+          dotClassName: 'bg-yellow-500',
+        },
+        {
+          label: 'Familiar',
+          count: greenCount,
+          countLabel: 'green count',
+          colorClassName: STAT_COLORS.green,
+          dotClassName: 'bg-green-500',
+        },
+      ],
+    },
+    {
+      heading: 'Change',
+      stats: [
+        {
+          label: 'Improved',
+          count: improvementCount,
+          countLabel: 'improvement count',
+          colorClassName: STAT_COLORS.green,
+          arrow: '↑',
+        },
+        {
+          label: 'Unchanged',
+          count: stayCount,
+          countLabel: 'stay count',
+          colorClassName: STAT_COLORS.yellow,
+          arrow: '→',
+        },
+        {
+          label: 'Worsened',
+          count: worsenedCount,
+          countLabel: 'worsened count',
+          colorClassName: STAT_COLORS.red,
+          arrow: '↓',
+        },
+      ],
+    },
+  ];
+
   return (
     <div className='mx-auto max-w-4xl pt-8'>
       {/* Header */}
@@ -87,83 +191,21 @@ export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
           {totalQuestions}
         </div>
 
-        {/* Familiarity Distribution */}
-        <div className='flex items-center gap-4 border-t border-gray-200 pt-4 dark:border-gray-700'>
-          <span className='text-supporting w-16 flex-shrink-0 text-right text-xs font-medium uppercase tracking-wide'>
-            After
-          </span>
-          <div className='flex flex-1 gap-2'>
-            <span className='flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-50 px-3 py-2 dark:bg-red-900/20'>
-              <span className='h-2.5 w-2.5 flex-shrink-0 rounded-full bg-red-500'></span>
-              <span
-                aria-label='red count'
-                className='text-lg font-bold text-red-700 dark:text-red-300'
-              >
-                {redCount}
-              </span>
+        {summaryRows.map(row => (
+          <div
+            key={row.heading}
+            className='flex items-center gap-4 border-t border-gray-200 pt-4 dark:border-gray-700'
+          >
+            <span className='text-supporting w-16 flex-shrink-0 text-right text-xs font-medium uppercase tracking-wide'>
+              {row.heading}
             </span>
-            <span className='flex flex-1 items-center justify-center gap-2 rounded-lg bg-yellow-50 px-3 py-2 dark:bg-yellow-900/20'>
-              <span className='h-2.5 w-2.5 flex-shrink-0 rounded-full bg-yellow-500'></span>
-              <span
-                aria-label='yellow count'
-                className='text-lg font-bold text-yellow-700 dark:text-yellow-300'
-              >
-                {yellowCount}
-              </span>
-            </span>
-            <span className='flex flex-1 items-center justify-center gap-2 rounded-lg bg-green-50 px-3 py-2 dark:bg-green-900/20'>
-              <span className='h-2.5 w-2.5 flex-shrink-0 rounded-full bg-green-500'></span>
-              <span
-                aria-label='green count'
-                className='text-lg font-bold text-green-700 dark:text-green-300'
-              >
-                {greenCount}
-              </span>
-            </span>
+            <div className='flex flex-1 gap-2'>
+              {row.stats.map(stat => (
+                <SummaryStat key={stat.countLabel} {...stat} />
+              ))}
+            </div>
           </div>
-        </div>
-
-        {/* Statistics */}
-        <div className='flex items-center gap-4 border-t border-gray-200 pt-4 dark:border-gray-700'>
-          <span className='text-supporting w-16 flex-shrink-0 text-right text-xs font-medium uppercase tracking-wide'>
-            Change
-          </span>
-          <div className='flex flex-1 gap-2'>
-            <span className='glass-panel-card flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2'>
-              <span className='text-base font-bold text-primary-500 dark:text-primary-400'>
-                ↑
-              </span>
-              <span
-                aria-label='improvement count'
-                className='text-lg font-bold text-gray-700 dark:text-gray-200'
-              >
-                {improvementCount}
-              </span>
-            </span>
-            <span className='glass-panel-card flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2'>
-              <span className='text-base font-bold text-gray-900 dark:text-white'>
-                →
-              </span>
-              <span
-                aria-label='stay count'
-                className='text-lg font-bold text-gray-700 dark:text-gray-200'
-              >
-                {stayCount}
-              </span>
-            </span>
-            <span className='glass-panel-card flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2'>
-              <span className='text-base font-bold text-orange-600 dark:text-orange-400'>
-                ↓
-              </span>
-              <span
-                aria-label='worsened count'
-                className='text-lg font-bold text-gray-700 dark:text-gray-200'
-              >
-                {worsenedCount}
-              </span>
-            </span>
-          </div>
-        </div>
+        ))}
       </div>
 
       {/* Results List */}

@@ -29,6 +29,8 @@ interface QuestionHistorySectionProps {
   question: Question;
 }
 
+const CLOCK_ICON_PATH = 'M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z';
+
 const OPTION_LETTERS = ['A', 'B', 'C', 'D'] as const;
 type OptionLetter = (typeof OPTION_LETTERS)[number];
 
@@ -153,6 +155,7 @@ export const QuestionHistorySection: React.FC<QuestionHistorySectionProps> = ({
       title='Recent Answer History'
       isOpen={isOpen}
       onToggle={() => setIsOpen(open => !open)}
+      iconPath={CLOCK_ICON_PATH}
     >
       {loading && <LoadingSpinner message='Loading history...' />}
 

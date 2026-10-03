@@ -13,14 +13,10 @@ export const ReferenceAndExplanation: React.FC<
   <>
     {reference && (
       <div className='mb-6'>
-        <h3 className='mb-3 text-lg font-semibold text-gray-900 dark:text-white'>
+        <h3 className='mb-2 border-b border-gray-200/40 pb-1 text-lg font-semibold text-gray-900 dark:border-gray-700/40 dark:text-white'>
           Reference
         </h3>
-        <div className='rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20'>
-          <p className='text-sm text-gray-700 dark:text-gray-300'>
-            {reference}
-          </p>
-        </div>
+        <p className='text-sm text-gray-700 dark:text-gray-300'>{reference}</p>
       </div>
     )}
 

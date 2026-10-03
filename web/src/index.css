@@ -192,16 +192,11 @@ body {
   }
 
   /*
-   * Tinted glass containers for collapsible status sections (dictionary
-   * lookup = green, answer & explanation = yellow). Add `overflow-hidden`
-   * and rounding per use.
+   * Green-tinted container for the collapsible dictionary lookup section.
+   * Add `overflow-hidden` and rounding per use.
    */
   .glass-tint-green {
     @apply border border-green-300/60 bg-green-100/50 dark:border-green-700/40 dark:bg-green-900/30;
-  }
-
-  .glass-tint-yellow {
-    @apply border border-yellow-300/60 bg-yellow-100/50 dark:border-yellow-700/40 dark:bg-yellow-900/30;
   }
 
   /*
