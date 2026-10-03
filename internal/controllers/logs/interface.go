@@ -8,4 +8,5 @@ type ControllerInterface interface {
 	CountLogs(c *gin.Context)
 	UnreadLogs(c *gin.Context)
 	MarkLogsRead(c *gin.Context)
+	DownloadLogs(c *gin.Context)
 }

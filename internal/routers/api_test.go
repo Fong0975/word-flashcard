@@ -122,6 +122,7 @@ func (s *apiRoutesTestSuite) TestAPIRouteMappings() {
 		{"GET", "/api/logs/count", "LogsController.CountLogs", "CountLogs", "LogsController"},
 		{"GET", "/api/logs/unread", "LogsController.UnreadLogs", "UnreadLogs", "LogsController"},
 		{"POST", "/api/logs/read", "LogsController.MarkLogsRead", "MarkLogsRead", "LogsController"},
+		{"GET", "/api/logs/download", "LogsController.DownloadLogs", "DownloadLogs", "LogsController"},
 	}
 
 	// Test each route mapping calls the correct method

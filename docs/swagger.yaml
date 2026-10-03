@@ -797,6 +797,30 @@ paths:
             $ref: '#/definitions/models.ErrorResponse'
       tags:
       - logs
+  /api/logs/download:
+    get:
+      description: Downloads the current log file and its rotated siblings as an attachment.
+        A single file is sent as plain text; several are sent as one zip archive built
+        in memory.
+      produces:
+      - text/plain
+      - application/zip
+      responses:
+        "200":
+          description: The log file, or a zip archive of all log files
+          schema:
+            type: file
+        "404":
+          description: Not found - No log files exist yet
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error - Failed to read or compress the log
+            files
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      tags:
+      - logs
   /api/logs/read:
     post:
       description: Advances the read watermark to now, clearing the unread count.
