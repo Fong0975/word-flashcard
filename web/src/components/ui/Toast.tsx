@@ -18,6 +18,52 @@ export interface ToastProps {
   readonly onClose: (id: string) => void;
 }
 
+interface ToastTypeStyle {
+  /** Tinted circle behind the icon. */
+  readonly chip: string;
+  /** Icon stroke color. */
+  readonly icon: string;
+  /** Countdown line along the bottom edge. */
+  readonly progress: string;
+  /** SVG path of the status icon (24x24 outline). */
+  readonly iconPath: string;
+}
+
+/**
+ * The toast surface itself is neutral glass; status is carried only by the
+ * icon chip and the progress line. Each status has its own icon shape so it
+ * never depends on color alone.
+ */
+const TOAST_TYPE_STYLES: Record<ToastProps['type'], ToastTypeStyle> = {
+  success: {
+    chip: 'bg-green-100 dark:bg-green-900/50',
+    icon: 'text-green-600 dark:text-green-400',
+    progress: 'bg-green-400 dark:bg-green-500',
+    iconPath: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
+  },
+  error: {
+    chip: 'bg-red-100 dark:bg-red-900/50',
+    icon: 'text-error',
+    progress: 'bg-red-400 dark:bg-red-500',
+    iconPath:
+      'M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+  },
+  warning: {
+    chip: 'bg-yellow-100 dark:bg-yellow-900/50',
+    icon: 'text-yellow-700 dark:text-yellow-400',
+    progress: 'bg-yellow-400 dark:bg-yellow-500',
+    iconPath:
+      'M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z',
+  },
+  info: {
+    chip: 'bg-blue-100 dark:bg-blue-900/50',
+    icon: 'text-blue-600 dark:text-blue-400',
+    progress: 'bg-blue-400 dark:bg-blue-500',
+    iconPath:
+      'M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z',
+  },
+};
+
 export const Toast: React.FC<ToastProps> = ({
   id,
   message,
@@ -33,108 +79,11 @@ export const Toast: React.FC<ToastProps> = ({
     return () => clearTimeout(timer);
   }, [id, duration, onClose]);
 
-  const getTypeStyles = () => {
-    switch (type) {
-      case 'success':
-        return 'glass-alert-success';
-      case 'error':
-        return 'glass-alert-error';
-      case 'warning':
-        return 'glass-alert-warning';
-      case 'info':
-        return 'glass-alert-info';
-      default:
-        return 'glass-alert-neutral';
-    }
-  };
-
-  const getIconColor = () => {
-    switch (type) {
-      case 'success':
-        return 'text-green-600 dark:text-green-400';
-      case 'error':
-        return 'text-error';
-      case 'warning':
-        return 'text-yellow-700 dark:text-yellow-400';
-      case 'info':
-        return 'text-blue-600 dark:text-blue-400';
-      default:
-        return 'text-subtle';
-    }
-  };
-
-  const getIcon = () => {
-    switch (type) {
-      case 'success':
-        return (
-          <path
-            strokeLinecap='round'
-            strokeLinejoin='round'
-            d='M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'
-          />
-        );
-      case 'error':
-        return (
-          <path
-            strokeLinecap='round'
-            strokeLinejoin='round'
-            d='M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z'
-          />
-        );
-      case 'warning':
-        return (
-          <path
-            strokeLinecap='round'
-            strokeLinejoin='round'
-            d='M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z'
-          />
-        );
-      case 'info':
-        return (
-          <path
-            strokeLinecap='round'
-            strokeLinejoin='round'
-            d='M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z'
-          />
-        );
-      default:
-        return null;
-    }
-  };
-
-  const getTextColor = () => {
-    switch (type) {
-      case 'success':
-        return 'text-green-800 dark:text-green-200';
-      case 'error':
-        return 'text-red-800 dark:text-red-200';
-      case 'warning':
-        return 'text-yellow-800 dark:text-yellow-200';
-      case 'info':
-        return 'text-blue-800 dark:text-blue-200';
-      default:
-        return 'text-gray-800 dark:text-gray-200';
-    }
-  };
-
-  const getProgressBarColor = () => {
-    switch (type) {
-      case 'success':
-        return 'bg-green-400 dark:bg-green-500';
-      case 'error':
-        return 'bg-red-400 dark:bg-red-500';
-      case 'warning':
-        return 'bg-yellow-400 dark:bg-yellow-500';
-      case 'info':
-        return 'bg-blue-400 dark:bg-blue-500';
-      default:
-        return 'bg-gray-400 dark:bg-gray-500';
-    }
-  };
+  const styles = TOAST_TYPE_STYLES[type];
 
   return (
     <div
-      className={`animate-slide-in-right relative mb-4 flex min-h-16 w-full transform cursor-pointer flex-col justify-center overflow-hidden rounded-lg border p-2 shadow-lg transition-all duration-300 hover:shadow-xl sm:w-96 md:p-4 ${getTypeStyles()} `}
+      className='glass-panel-dropdown focus-ring animate-slide-in-right relative mb-4 flex min-h-16 w-full cursor-pointer flex-col justify-center overflow-hidden rounded-lg p-3 sm:w-96 md:p-4'
       role='alert'
       onClick={() => onClose(id)}
       onKeyDown={e => {
@@ -146,24 +95,32 @@ export const Toast: React.FC<ToastProps> = ({
       tabIndex={0}
       aria-label={`${type} notification: ${message}. Click to dismiss.`}
     >
-      <div className='flex items-start'>
-        <div className={`flex-shrink-0 ${getIconColor()}`}>
+      <div className='flex items-center'>
+        <div
+          className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full ${styles.chip} ${styles.icon}`}
+          data-testid='toast-icon-chip'
+        >
           <svg
             className='h-5 w-5'
             fill='none'
             strokeWidth='2'
             stroke='currentColor'
             viewBox='0 0 24 24'
+            aria-hidden='true'
           >
-            {getIcon()}
+            <path
+              strokeLinecap='round'
+              strokeLinejoin='round'
+              d={styles.iconPath}
+            />
           </svg>
         </div>
-        <div className={`ml-3 text-sm font-medium ${getTextColor()}`}>
+        <div className='ml-3 text-sm font-medium text-gray-900 dark:text-gray-100'>
           {message}
         </div>
       </div>
       <div
-        className={`animate-toast-progress absolute bottom-0 left-0 h-1 w-full ${getProgressBarColor()}`}
+        className={`animate-toast-progress absolute bottom-0 left-0 h-0.5 w-full ${styles.progress}`}
         style={{ animationDuration: `${duration}ms` }}
         data-testid='toast-progress-bar'
       />

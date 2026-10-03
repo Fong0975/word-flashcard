@@ -55,10 +55,10 @@ const desktopEnabledClass = `
 const mobileDisabledClass =
   'glass-panel text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-60';
 
-// Same fill and blur as `.glass-panel`, but without its border/shadow so the
+// A faint translucent fill without a border/shadow of its own, so the
 // segmented bar keeps its own visible per-button border.
 const desktopDisabledClass = `
-  bg-white/10 dark:bg-gray-800/20 backdrop-blur-lg
+  bg-white/10 dark:bg-white/5
   text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-60
 `;
 

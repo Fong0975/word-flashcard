@@ -47,14 +47,26 @@ describe('Toast', () => {
     vi.useRealTimers();
   });
 
-  it('renders info type styles and icon', () => {
-    render(<Toast id='1' message='FYI' type='info' onClose={vi.fn()} />);
+  it.each([
+    ['success', 'bg-green-100', 'bg-green-400', 'M9 12l2 2 4-4'],
+    ['error', 'bg-red-100', 'bg-red-400', 'M9.75 9.75l4.5 4.5'],
+    ['warning', 'bg-yellow-100', 'bg-yellow-400', 'M12 9v3.75'],
+    ['info', 'bg-blue-100', 'bg-blue-400', 'M11.25 11.25l.041-.02'],
+  ] as const)(
+    'renders the %s status on the icon chip and progress line only',
+    (type, chipClass, progressClass, iconPathStart) => {
+      render(<Toast id='1' message='FYI' type={type} onClose={vi.fn()} />);
 
-    const alert = screen.getByRole('alert');
-    expect(alert).toHaveClass('glass-alert-info');
-    expect(alert).toContainHTML('M11.25 11.25l.041-.02');
-    expect(screen.getByText('FYI')).toHaveClass('text-blue-800');
-  });
+      const alert = screen.getByRole('alert');
+      expect(alert).toHaveClass('glass-panel-dropdown', 'focus-ring');
+      expect(alert).toContainHTML(iconPathStart);
+      expect(screen.getByTestId('toast-icon-chip')).toHaveClass(chipClass);
+      expect(screen.getByTestId('toast-progress-bar')).toHaveClass(
+        progressClass,
+      );
+      expect(screen.getByText('FYI')).toHaveClass('text-gray-900');
+    },
+  );
 
   it('renders a progress bar timed to the auto-dismiss duration', () => {
     render(
@@ -67,9 +79,9 @@ describe('Toast', () => {
       />,
     );
 
-    const progressBar = screen.getByTestId('toast-progress-bar');
-    expect(progressBar).toHaveClass('bg-green-400');
-    expect(progressBar).toHaveStyle({ animationDuration: '1500ms' });
+    expect(screen.getByTestId('toast-progress-bar')).toHaveStyle({
+      animationDuration: '1500ms',
+    });
   });
 
   it('defaults the progress bar duration to 4000ms', () => {

@@ -254,7 +254,7 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({
           key={question.id}
           index={index}
           question={question}
-          className='transition-transform duration-200 hover:scale-[1.01]'
+          className='hover:scale-[1.01]'
         />
       )}
       additionalContent={

@@ -73,6 +73,22 @@ describe('WordQuizResults', () => {
     expect(screen.getByLabelText('worsened count')).toHaveTextContent('1');
   });
 
+  // A single red -> yellow result: one improvement that lands in "yellow".
+  it.each([
+    ['Unfamiliar: 0 words', 'red count'],
+    ['Somewhat Familiar: 1 word', 'yellow count'],
+    ['Familiar: 0 words', 'green count'],
+    ['Improved: 1 word', 'improvement count'],
+    ['Unchanged: 0 words', 'stay count'],
+    ['Worsened: 0 words', 'worsened count'],
+  ])('explains a summary block with the tooltip "%s"', (title, countLabel) => {
+    render(<WordQuizResults results={[buildResult()]} />);
+
+    expect(screen.getByTitle(title)).toContainElement(
+      screen.getByLabelText(countLabel),
+    );
+  });
+
   it("renders each result's word name and first definition", () => {
     const results: WordQuizResult[] = [
       buildResult({

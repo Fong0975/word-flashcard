@@ -1,3 +1,32 @@
+/**
+ * Page backdrop painted by `PageBackground`: three large corner washes plus
+ * four smaller, tighter orbs. The orbs keep a near-flat core and a short
+ * falloff so they stay recognisable shapes through a panel's backdrop blur;
+ * the centered one gives tall overlays (e.g. a large modal) color to reveal.
+ * Sizes are in `vmax` so the composition scales from phone to desktop.
+ * Peak alphas are capped so supporting text keeps WCAG AA on the lightest
+ * glass tier; re-check contrast before raising any of them.
+ */
+const glassBackdrop = [
+  'radial-gradient(circle 16vmax at 78% 38%, rgb(96 165 250 / 0.35) 0%, rgb(96 165 250 / 0.3) 50%, transparent 68%)',
+  'radial-gradient(circle 13vmax at 18% 62%, rgb(165 180 252 / 0.5) 0%, rgb(165 180 252 / 0.42) 50%, transparent 68%)',
+  'radial-gradient(circle 20vmax at 92% 92%, rgb(147 197 253 / 0.6) 0%, rgb(147 197 253 / 0.5) 48%, transparent 66%)',
+  'radial-gradient(circle 11vmax at 50% 46%, rgb(125 211 252 / 0.45) 0%, rgb(125 211 252 / 0.38) 50%, transparent 68%)',
+  'radial-gradient(circle 46vmax at 0% 0%, rgb(147 197 253 / 0.7) 0%, rgb(147 197 253 / 0.35) 45%, transparent 75%)',
+  'radial-gradient(circle 44vmax at 100% 5%, rgb(165 180 252 / 0.55) 0%, transparent 72%)',
+  'radial-gradient(circle 42vmax at 30% 105%, rgb(125 211 252 / 0.6) 0%, transparent 72%)',
+].join(', ');
+
+const glassBackdropDark = [
+  'radial-gradient(circle 16vmax at 78% 38%, rgb(59 130 246 / 0.22) 0%, rgb(59 130 246 / 0.18) 50%, transparent 68%)',
+  'radial-gradient(circle 13vmax at 18% 62%, rgb(99 102 241 / 0.28) 0%, rgb(99 102 241 / 0.22) 50%, transparent 68%)',
+  'radial-gradient(circle 20vmax at 92% 92%, rgb(29 78 216 / 0.32) 0%, rgb(29 78 216 / 0.26) 48%, transparent 66%)',
+  'radial-gradient(circle 11vmax at 50% 46%, rgb(2 132 199 / 0.2) 0%, rgb(2 132 199 / 0.16) 50%, transparent 68%)',
+  'radial-gradient(circle 46vmax at 0% 0%, rgb(37 99 235 / 0.28) 0%, rgb(37 99 235 / 0.14) 45%, transparent 75%)',
+  'radial-gradient(circle 44vmax at 100% 5%, rgb(79 70 229 / 0.3) 0%, transparent 72%)',
+  'radial-gradient(circle 42vmax at 30% 105%, rgb(3 105 161 / 0.35) 0%, transparent 72%)',
+].join(', ');
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ['./src/**/*.{js,jsx,ts,tsx}', './index.html'],
@@ -29,6 +58,19 @@ module.exports = {
           800: '#1e40af',
           900: '#1e3a8a',
         },
+      },
+      // Glass lighting: a top-edge highlight and a faint bottom edge (both
+      // inset) plus a soft ambient shadow. Colors come from the `--glass-*`
+      // variables in index.css, so one class serves both themes.
+      boxShadow: {
+        glass:
+          'inset 0 1px 0 0 var(--glass-highlight), inset 0 -1px 0 0 var(--glass-edge), 0 6px 16px -6px var(--glass-shadow)',
+        'glass-raised':
+          'inset 0 1px 0 0 var(--glass-highlight), inset 0 -1px 0 0 var(--glass-edge), 0 16px 36px -10px var(--glass-shadow)',
+      },
+      backgroundImage: {
+        'glass-backdrop': glassBackdrop,
+        'glass-backdrop-dark': glassBackdropDark,
       },
     },
   },

@@ -10,7 +10,7 @@ import { LoadingSpinner } from './LoadingSpinner';
  */
 export const ModalLoadingFallback: React.FC = () => (
   <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/30'>
-    <div className='glass-panel-strong rounded-lg px-6 shadow-xl'>
+    <div className='glass-panel-strong rounded-lg px-6 shadow-glass-raised'>
       <LoadingSpinner />
     </div>
   </div>

@@ -39,7 +39,7 @@ describe('PaginationNavButton', () => {
   });
 
   it.each([
-    ['desktop', ['bg-white/10', 'backdrop-blur-lg'], ['bg-gray-100']],
+    ['desktop', ['bg-white/10'], ['bg-gray-100', 'backdrop-blur-lg']],
     ['mobile', ['glass-panel'], ['bg-gray-100']],
   ] as const)(
     'is disabled with the %s disabled surface when isEnabled is false',

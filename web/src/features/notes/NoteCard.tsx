@@ -42,7 +42,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({
       onDragOver={showReorderControls ? onDragOver : undefined}
       onDrop={showReorderControls ? onDrop : undefined}
       onDragEnd={showReorderControls ? onDragEnd : undefined}
-      className={`group flex items-center gap-3 rounded-lg border p-3 transition-all ${
+      className={`group flex items-center gap-3 rounded-lg border p-3 transition-[opacity,background-color,border-color,box-shadow] ${
         showReorderControls && isDragging
           ? 'opacity-50'
           : showReorderControls && isDragOver

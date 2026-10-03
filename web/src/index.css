@@ -12,10 +12,21 @@
   --primary-800: #1e40af;
   --primary-900: #1e3a8a;
   --app-bg: #1f2937;
+
+  /* Glass lighting, consumed by the `shadow-glass*` tokens in tailwind.config.js */
+  --glass-highlight: rgb(255 255 255 / 0.7);
+  --glass-edge: rgb(15 23 42 / 0.06);
+  --glass-shadow: rgb(30 58 138 / 0.14);
 }
 
 [data-theme='light'] {
   --app-bg: #ffffff;
+}
+
+.dark {
+  --glass-highlight: rgb(255 255 255 / 0.14);
+  --glass-edge: rgb(0 0 0 / 0.25);
+  --glass-shadow: rgb(0 0 0 / 0.45);
 }
 
 /* Smooth scrolling for better UX */
@@ -89,7 +100,7 @@ body {
 /* GitHub-style alert blocks rendered by remark-github-blockquote-alert */
 @layer components {
   .markdown-alert {
-    @apply mb-4 rounded-r-md border-l-4 border-gray-300 bg-gray-50/70 px-4 py-3 shadow-sm backdrop-blur-md dark:border-gray-600 dark:bg-gray-900/40;
+    @apply mb-4 rounded-r-md border-l-4 border-gray-300 bg-gray-50/70 px-4 py-3 shadow-sm dark:border-gray-600 dark:bg-gray-900/40;
   }
 
   .markdown-alert > :last-child {
@@ -144,55 +155,74 @@ body {
    * Panel tones must stay visibly lighter than PageBackground's own base fill
    * (light: gray-100, dark: gray-950) — alpha-blending a color onto an
    * identical backdrop is a no-op, so panel and base must never match.
+   *
+   * Large surfaces use a diagonal fill (brighter top-left) plus the
+   * `shadow-glass` top highlight so they read as lit glass, and
+   * `backdrop-saturate-150` so the backdrop colors come through vivid instead
+   * of washed out. Dark fills are low-alpha white (they brighten the backdrop)
+   * rather than gray (which would tint it gray); their alphas are bounded by
+   * the contrast of `gray-400` text over the brightest backdrop shape.
+   *
+   * `bg-transparent` is required next to the gradient: the gradient is a
+   * background image, so without it an element with an opaque user-agent
+   * background color (e.g. `<input>`) would show solid white underneath.
    */
   .glass-panel {
-    @apply border border-white/60 bg-white/[10%] shadow-sm backdrop-blur-lg dark:border-white/10 dark:bg-gray-800/[20%];
-  }
-
-  .glass-panel-strong {
-    @apply border border-white/80 bg-white/[55%] shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-gray-800/[60%];
+    @apply border border-white/50 bg-transparent bg-gradient-to-br from-white/[22%] to-white/[8%] shadow-glass backdrop-blur-lg backdrop-saturate-150 dark:border-white/10 dark:from-white/[5%] dark:to-white/[2%];
   }
 
   /*
-   * Floating menu panel (Info / Settings dropdowns): `.glass-panel-strong`
-   * with a more opaque fill, since it sits over arbitrary page content and
-   * its text must stay readable. Add width and padding per use.
+   * Sits over sharp page content (Header, Modal, dialogs), often behind a
+   * dark scrim, so its fill stays dense enough for supporting text to keep
+   * WCAG AA.
+   */
+  .glass-panel-strong {
+    @apply border border-white/70 bg-transparent bg-gradient-to-br from-white/[66%] to-white/[55%] shadow-glass backdrop-blur-xl backdrop-saturate-150 dark:border-white/10 dark:from-gray-800/[68%] dark:to-gray-800/[60%];
+  }
+
+  /*
+   * Floating panel (Info / Settings dropdowns, `DropdownMenu`, `Toast`): a
+   * near-opaque fill, since it opens over arbitrary page content (list rows,
+   * form fields) whose text would otherwise show through and compete with its
+   * own. Readability wins over translucency here. Add width and
+   * padding per use.
    */
   .glass-panel-dropdown {
-    @apply rounded-md border border-white/80 bg-white/80 shadow-lg backdrop-blur-xl dark:border-white/10 dark:bg-gray-800/90;
+    @apply rounded-md border border-white/70 bg-white/90 shadow-glass-raised backdrop-blur-xl backdrop-saturate-150 dark:border-white/10 dark:bg-gray-800/90;
   }
 
   /*
-   * Tinted glass containers for collapsible status sections (dictionary
-   * lookup = green, answer & explanation = yellow). Add `overflow-hidden`
-   * and rounding per use.
+   * Green-tinted container for the collapsible dictionary lookup section.
+   * Add `overflow-hidden` and rounding per use.
    */
   .glass-tint-green {
-    @apply border border-green-300/60 bg-green-100/50 backdrop-blur-lg dark:border-green-700/40 dark:bg-green-900/30;
-  }
-
-  .glass-tint-yellow {
-    @apply border border-yellow-300/60 bg-yellow-100/50 backdrop-blur-lg dark:border-yellow-700/40 dark:bg-yellow-900/30;
+    @apply border border-green-300/60 bg-green-100/50 dark:border-green-700/40 dark:bg-green-900/30;
   }
 
   /*
    * Per-record list rows (EntityCard/NoteCard) nest inside a `.glass-panel`
    * container (e.g. the tab wrapper), so they must stay visibly LESS
-   * transparent (higher alpha) than it — otherwise a row and the container
-   * behind it read as the same surface and the row disappears.
+   * transparent than it — otherwise a row and the container behind it read
+   * as the same surface and the row disappears. The row's own fill stacks on
+   * top of the container's, and its edge highlight draws the outline.
+   *
+   * No backdrop blur of its own: what is behind a row is the container's
+   * already-blurred surface, so a second blur would cost a filter pass per
+   * row and change nothing visible. The same holds for every control that
+   * lives inside a panel (inputs, buttons, checkboxes, tints).
    */
   .glass-panel-card {
-    @apply border border-white/80 bg-white/[30%] shadow-sm backdrop-blur-lg dark:border-white/[15%] dark:bg-gray-800/[44%];
+    @apply border border-white/60 bg-white/[22%] shadow-glass dark:border-white/[12%] dark:bg-white/[5%];
   }
 
   /* Hover state for clickable `.glass-panel-card` rows (EntityCard, NoteCard): primary-tinted border, denser fill, lifted shadow */
   .glass-card-hover {
-    @apply hover:border-primary-300 hover:bg-gray-100/80 hover:shadow-md dark:hover:border-primary-600 dark:hover:bg-gray-800/70;
+    @apply hover:border-primary-300 hover:bg-gray-100/80 hover:shadow-glass-raised dark:hover:border-primary-600 dark:hover:bg-gray-800/70;
   }
 
-  /* Secondary buttons/icons: transparent at rest, glass surface only on hover/focus/active */
+  /* Secondary buttons/icons: transparent at rest, tinted fill only on hover/focus/active */
   .glass-interactive {
-    @apply border border-transparent bg-transparent transition-[color,background-color,border-color,box-shadow,backdrop-filter] duration-200 hover:bg-primary-500/[15%] hover:shadow-sm hover:backdrop-blur-lg focus-visible:bg-primary-500/[15%] focus-visible:shadow-sm focus-visible:backdrop-blur-lg active:bg-primary-500/25 dark:hover:bg-primary-400/20 dark:focus-visible:bg-primary-400/20 dark:active:bg-primary-400/30;
+    @apply border border-transparent bg-transparent transition-[color,background-color,border-color,box-shadow] duration-200 hover:bg-primary-500/[15%] hover:shadow-sm focus-visible:bg-primary-500/[15%] focus-visible:shadow-sm active:bg-primary-500/25 dark:hover:bg-primary-400/20 dark:focus-visible:bg-primary-400/20 dark:active:bg-primary-400/30;
   }
 
   /* Barely-visible resting outline for standalone `.glass-interactive` buttons so they still read as buttons; must stay after `.glass-interactive` to override its transparent border */
@@ -200,19 +230,19 @@ body {
     @apply border-gray-500/25 dark:border-white/15;
   }
 
-  /* Hover-only glass fill for bordered buttons (pagination); border and text color stay with the usage */
+  /* Hover-only translucent fill for bordered buttons (pagination); border and text color stay with the usage */
   .glass-hover-fill {
-    @apply hover:bg-gray-100/60 hover:backdrop-blur-md dark:hover:bg-gray-800/50;
+    @apply hover:bg-gray-100/60 dark:hover:bg-gray-800/50;
   }
 
   /* Header icon buttons: muted icon that gains a glass chip and full-contrast color on hover/keyboard focus */
   .glass-nav-button {
-    @apply rounded-md p-2 text-gray-500 transition-colors duration-200 hover:bg-gray-100/60 hover:text-gray-900 hover:backdrop-blur-md focus:outline-none focus-visible:bg-gray-100/60 focus-visible:text-gray-900 focus-visible:backdrop-blur-md dark:text-gray-400 dark:hover:bg-gray-800/50 dark:hover:text-white dark:focus-visible:bg-gray-800/50 dark:focus-visible:text-white;
+    @apply rounded-md p-2 text-gray-500 transition-colors duration-200 hover:bg-gray-100/60 hover:text-gray-900 focus:outline-none focus-visible:bg-gray-100/60 focus-visible:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/50 dark:hover:text-white dark:focus-visible:bg-gray-800/50 dark:focus-visible:text-white;
   }
 
   /* Same as `.glass-nav-button`, but driven by a parent `group` (hover or focus inside) so a dropdown panel keeps the chip lit */
   .glass-nav-button-group {
-    @apply rounded-md p-2 text-gray-500 transition-colors duration-200 focus:outline-none group-focus-within:bg-gray-100/60 group-focus-within:text-gray-900 group-focus-within:backdrop-blur-md group-hover:bg-gray-100/60 group-hover:text-gray-900 group-hover:backdrop-blur-md dark:text-gray-400 dark:group-focus-within:bg-gray-800/50 dark:group-focus-within:text-white dark:group-hover:bg-gray-800/50 dark:group-hover:text-white;
+    @apply rounded-md p-2 text-gray-500 transition-colors duration-200 focus:outline-none group-focus-within:bg-gray-100/60 group-focus-within:text-gray-900 group-hover:bg-gray-100/60 group-hover:text-gray-900 dark:text-gray-400 dark:group-focus-within:bg-gray-800/50 dark:group-focus-within:text-white dark:group-hover:bg-gray-800/50 dark:group-hover:text-white;
   }
 
   /* Left divider between buttons of a segmented control (apply to every segment except the first) */
@@ -222,53 +252,36 @@ body {
 
   /*
    * Primary CTA buttons (Submit/Start Quiz/Retry/active filter/active page):
-   * a tinted glass surface, translucent enough for `backdrop-blur` to read,
-   * but kept far more opaque than `.glass-interactive`'s resting state so it
-   * stays the clearest, highest-contrast action on the page.
+   * a tinted translucent surface, kept far more opaque than
+   * `.glass-interactive`'s resting state so it stays the clearest,
+   * highest-contrast action on the page.
    */
   .glass-button-primary {
-    @apply border border-transparent bg-primary-600/90 text-white shadow-md backdrop-blur-md transition-colors duration-200 hover:bg-primary-700/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400/60 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-primary-500/60 dark:shadow-lg dark:hover:bg-primary-500/75;
+    @apply border border-transparent bg-primary-600/90 text-white shadow-md transition-colors duration-200 hover:bg-primary-700/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400/60 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-primary-500/60 dark:shadow-lg dark:hover:bg-primary-500/75;
   }
 
   /* Same treatment as `.glass-button-primary`, tinted green for success/fetch-style CTAs */
   .glass-button-success {
-    @apply border border-transparent bg-green-700/90 text-white shadow-md backdrop-blur-md transition-colors duration-200 hover:bg-green-800/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400/60 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-green-600/60 dark:shadow-lg dark:hover:bg-green-600/75;
+    @apply border border-transparent bg-green-700/90 text-white shadow-md transition-colors duration-200 hover:bg-green-800/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400/60 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-green-600/60 dark:shadow-lg dark:hover:bg-green-600/75;
   }
 
   /*
-   * Status surfaces (Toast, inline ErrorMessage): a tinted glass fill with a
-   * solid-hue border. Text and icon colors stay with each usage. Kept
-   * translucent enough for `backdrop-blur` to read while the `-800`/`-200`
-   * text above them still clears WCAG AA.
+   * Inline error banner (ErrorMessage): a red-tinted translucent fill with a
+   * solid-hue border. Text and icon colors stay with the usage. It sits in
+   * the page flow inside a panel, so it carries no blur of its own.
    */
-  .glass-alert-success {
-    @apply border border-green-200 bg-green-50/70 shadow-sm backdrop-blur-md dark:border-green-700 dark:bg-green-900/40;
-  }
-
   .glass-alert-error {
-    @apply border border-red-200 bg-red-50/70 shadow-sm backdrop-blur-md dark:border-red-700 dark:bg-red-900/40;
-  }
-
-  .glass-alert-warning {
-    @apply border border-yellow-200 bg-yellow-50/70 shadow-sm backdrop-blur-md dark:border-yellow-700 dark:bg-yellow-900/40;
-  }
-
-  .glass-alert-info {
-    @apply border border-blue-200 bg-blue-50/70 shadow-sm backdrop-blur-md dark:border-blue-700 dark:bg-blue-900/40;
-  }
-
-  .glass-alert-neutral {
-    @apply border border-gray-200 bg-gray-50/70 shadow-sm backdrop-blur-md dark:border-gray-700 dark:bg-gray-900/40;
+    @apply border border-red-200 bg-red-50/70 shadow-sm dark:border-red-700 dark:bg-red-900/40;
   }
 
   /* Same treatment as `.glass-button-primary`, tinted red for destructive confirmations */
   .glass-button-danger {
-    @apply border border-transparent bg-red-600/90 text-white shadow-md backdrop-blur-md transition-colors duration-200 hover:bg-red-700/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/60 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-600/60 dark:shadow-lg dark:hover:bg-red-600/75;
+    @apply border border-transparent bg-red-600/90 text-white shadow-md transition-colors duration-200 hover:bg-red-700/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/60 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-600/60 dark:shadow-lg dark:hover:bg-red-600/75;
   }
 
   /* Same treatment as `.glass-button-primary`, tinted yellow for cautionary confirmations */
   .glass-button-warning {
-    @apply border border-transparent bg-yellow-700/90 text-white shadow-md backdrop-blur-md transition-colors duration-200 hover:bg-yellow-800/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400/60 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-yellow-600/60 dark:shadow-lg dark:hover:bg-yellow-600/75;
+    @apply border border-transparent bg-yellow-700/90 text-white shadow-md transition-colors duration-200 hover:bg-yellow-800/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400/60 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-yellow-600/60 dark:shadow-lg dark:hover:bg-yellow-600/75;
   }
 
   /*
@@ -326,7 +339,7 @@ body {
    * since there is no longer a native one to rely on.
    */
   .glass-checkbox {
-    @apply h-4 w-4 shrink-0 cursor-pointer appearance-none rounded border border-white/70 bg-white/30 shadow-sm backdrop-blur-sm transition-colors checked:border-primary-500 checked:bg-primary-500/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/20 dark:bg-white/10 dark:checked:border-primary-400 dark:checked:bg-primary-500/80;
+    @apply h-4 w-4 shrink-0 cursor-pointer appearance-none rounded border border-white/70 bg-white/30 shadow-sm transition-colors checked:border-primary-500 checked:bg-primary-500/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/20 dark:bg-white/10 dark:checked:border-primary-400 dark:checked:bg-primary-500/80;
     background-position: center;
     background-repeat: no-repeat;
     background-size: 70% 70%;
@@ -338,7 +351,7 @@ body {
 
   /* Native radio restyled to match `.glass-checkbox`: round glass well, white dot when checked */
   .glass-radio {
-    @apply h-4 w-4 shrink-0 cursor-pointer appearance-none rounded-full border border-gray-500 bg-white/60 shadow-sm backdrop-blur-sm transition-colors checked:border-primary-500 checked:bg-primary-500/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-400 dark:bg-white/10 dark:checked:border-primary-400 dark:checked:bg-primary-500/80;
+    @apply h-4 w-4 shrink-0 cursor-pointer appearance-none rounded-full border border-gray-500 bg-white/60 shadow-sm transition-colors checked:border-primary-500 checked:bg-primary-500/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-400 dark:bg-white/10 dark:checked:border-primary-400 dark:checked:bg-primary-500/80;
     background-position: center;
     background-repeat: no-repeat;
     background-size: 100% 100%;
@@ -349,7 +362,7 @@ body {
   }
 
   /*
-   * Text inputs/textareas: only the surface (border/bg/blur/text/focus/
+   * Text inputs/textareas: only the surface (border/bg/text/focus/
    * disabled) is defined here — width, padding and rounding are left to each
    * usage since they vary (search bars, compact filters, full-width fields).
    * Kept more opaque than `.glass-panel-strong` (the Modal panels these
@@ -357,7 +370,7 @@ body {
    * blending into its container, mirroring the `.glass-panel-card` rule.
    */
   .glass-input {
-    @apply rounded-md border border-white/70 bg-gray-100/70 text-gray-900 placeholder-gray-500 shadow-sm backdrop-blur-md transition-colors focus:border-primary-400/70 focus:outline-none focus:ring-2 focus:ring-primary-400/30 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:bg-gray-900/50 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary-400/50 dark:focus:ring-primary-400/20;
+    @apply rounded-md border border-white/70 bg-gray-100/70 text-gray-900 placeholder-gray-500 shadow-sm transition-colors focus:border-primary-400/70 focus:outline-none focus:ring-2 focus:ring-primary-400/30 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:bg-gray-900/50 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary-400/50 dark:focus:ring-primary-400/20;
     /* Without this, native controls (date/time picker icon, selected-segment
        highlight) keep rendering in light-scheme colors even inside a dark
        glass field, which reads as a mismatched opaque widget rather than
@@ -390,7 +403,52 @@ body {
   /* Quiz progress bar track: the filled portion stays a solid primary color
      (it's the one piece of "content" here), only the track gets the glass treatment. */
   .glass-progress-track {
-    @apply h-2 w-full overflow-hidden rounded-full border border-white/30 bg-white/20 shadow-inner backdrop-blur-sm dark:border-white/10 dark:bg-gray-800/30;
+    @apply h-2 w-full overflow-hidden rounded-full border border-white/30 bg-white/20 shadow-inner dark:border-white/10 dark:bg-gray-800/30;
+  }
+
+  /*
+   * Fallbacks for the blurred tiers. These must stay after the glass classes
+   * above: they override them at equal specificity by source order.
+   *
+   * No `backdrop-filter` support: the tiers that float over sharp page
+   * content (overlays, dropdowns, toasts) lose the blur that keeps their text
+   * legible, so their fill becomes near-opaque. `.glass-panel` needs nothing
+   * here, since the backdrop behind it is already soft.
+   */
+  @supports not (
+    (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+  ) {
+    .glass-panel-strong {
+      @apply bg-white/95 bg-none dark:bg-gray-800/95;
+    }
+
+    .glass-panel-dropdown {
+      @apply bg-white/95 dark:bg-gray-800/95;
+    }
+  }
+
+  /*
+   * The user asked the OS for less transparency: every blurred tier drops its
+   * blur and takes a near-opaque fill, with a solid border since a white edge
+   * no longer stands out against it. Surfaces nested inside (cards, inputs,
+   * buttons) keep their own fills; with an opaque container behind them
+   * nothing shows through any more.
+   */
+  @media (prefers-reduced-transparency: reduce) {
+    .glass-panel,
+    .glass-panel-strong,
+    .glass-panel-dropdown {
+      @apply border-gray-200 bg-none backdrop-filter-none dark:border-gray-700;
+    }
+
+    .glass-panel {
+      @apply bg-white/90 dark:bg-gray-900/95;
+    }
+
+    .glass-panel-strong,
+    .glass-panel-dropdown {
+      @apply bg-white/95 dark:bg-gray-800/95;
+    }
   }
 }
 
