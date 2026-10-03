@@ -50,6 +50,63 @@ const getAvailableOptions = (question: Question): OptionLetter[] => {
   });
 };
 
+/** Returns the text of the given option, or an empty string when the question has none. */
+const getOptionText = (question: Question, option: string): string => {
+  switch (option) {
+    case 'A':
+      return question.option_a ?? '';
+    case 'B':
+      return question.option_b ?? '';
+    case 'C':
+      return question.option_c ?? '';
+    case 'D':
+      return question.option_d ?? '';
+    default:
+      return '';
+  }
+};
+
+/** Formats an option as `(A) text`, or just `(A)` when the option has no text. */
+const formatOptionLabel = (question: Question, option: string): string => {
+  const text = getOptionText(question, option);
+  return text ? `(${option}) ${text}` : `(${option})`;
+};
+
+const MAX_TICK_TEXT_LENGTH = 12;
+
+const truncateText = (text: string, maxLength: number): string =>
+  text.length > maxLength ? `${text.slice(0, maxLength - 1)}…` : text;
+
+interface OptionTickProps {
+  x?: number;
+  y?: number;
+  payload?: { value: string };
+  optionTexts: Readonly<Record<string, string>>;
+}
+
+/** X-axis tick showing the option letter with a truncated option text beneath it. */
+const OptionTick: React.FC<OptionTickProps> = ({
+  x = 0,
+  y = 0,
+  payload,
+  optionTexts,
+}) => {
+  const letter = payload?.value ?? '';
+  const text = truncateText(optionTexts[letter] ?? '', MAX_TICK_TEXT_LENGTH);
+  return (
+    <text x={x} y={y} textAnchor='middle' fill='currentColor' fontSize={11}>
+      <tspan x={x} dy='0.9em' fontWeight={600}>
+        {letter}
+      </tspan>
+      {text && (
+        <tspan x={x} dy='1.3em'>
+          {text}
+        </tspan>
+      )}
+    </text>
+  );
+};
+
 interface OptionCount {
   option: string;
   correct: number;
@@ -87,6 +144,9 @@ export const QuestionHistorySection: React.FC<QuestionHistorySectionProps> = ({
 
   const options = getAvailableOptions(question);
   const optionCounts = entries ? buildOptionCounts(options, entries) : [];
+  const optionTexts = Object.fromEntries(
+    options.map(opt => [opt, getOptionText(question, opt)]),
+  );
 
   return (
     <CollapsibleSection
@@ -110,10 +170,13 @@ export const QuestionHistorySection: React.FC<QuestionHistorySectionProps> = ({
         <>
           <ResponsiveContainer
             width='100%'
-            height={200}
+            height={230}
             className={CHART_TEXT_CLASSNAME}
           >
-            <BarChart data={optionCounts}>
+            <BarChart
+              data={optionCounts}
+              margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
+            >
               <CartesianGrid
                 strokeDasharray='3 3'
                 stroke='currentColor'
@@ -121,13 +184,21 @@ export const QuestionHistorySection: React.FC<QuestionHistorySectionProps> = ({
               />
               <XAxis
                 dataKey='option'
-                tick={{ fontSize: 11, fill: 'currentColor' }}
+                height={50}
+                interval={0}
+                tick={<OptionTick optionTexts={optionTexts} />}
               />
               <YAxis
+                width={30}
                 tick={{ fontSize: 11, fill: 'currentColor' }}
                 allowDecimals={false}
               />
-              <Tooltip contentStyle={GLASS_TOOLTIP_STYLE} />
+              <Tooltip
+                contentStyle={GLASS_TOOLTIP_STYLE}
+                labelFormatter={label =>
+                  formatOptionLabel(question, String(label))
+                }
+              />
               <Legend
                 wrapperStyle={{ fontSize: '12px' }}
                 formatter={glassLegendFormatter}
@@ -160,14 +231,14 @@ export const QuestionHistorySection: React.FC<QuestionHistorySectionProps> = ({
                 key={entry.id}
                 className='flex items-center justify-between gap-2 text-sm'
               >
-                <span className='text-gray-500 dark:text-gray-400'>
+                <span className='min-w-0 flex-1 break-words text-gray-500 dark:text-gray-400'>
                   {formatDateTime(entry.created_at)}
                 </span>
-                <span className='font-medium text-gray-700 dark:text-gray-300'>
-                  Option {entry.selected_option}
+                <span className='min-w-0 flex-1 break-words font-medium text-gray-700 dark:text-gray-300'>
+                  {formatOptionLabel(question, entry.selected_option)}
                 </span>
                 <span
-                  className={`rounded-full px-2 py-0.5 text-xs font-bold ${
+                  className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-bold ${
                     entry.is_correct
                       ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
                       : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
