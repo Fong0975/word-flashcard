@@ -34,14 +34,14 @@ Use `primary-*` for brand and interaction colors (active tab, focus rings, selec
 | --- | --- | --- |
 | `primary-50` | `#eff6ff` | |
 | `primary-100` | `#dbeafe` | |
-| `primary-200` | `#bfdbfe` | Light backdrop blob; dark selected-menu text |
-| `primary-300` | `#93c5fd` | Light backdrop blobs |
-| `primary-400` | `#60a5fa` | Dark hover/focus tint, focus ring, dark checked border |
-| `primary-500` | `#3b82f6` | Dark primary CTA fill, hover tint, light focus ring |
-| `primary-600` | `#2563eb` | Light primary CTA fill; dark CTA hover; dark backdrop blob |
-| `primary-700` | `#1d4ed8` | Light CTA hover; light selected-menu text; dark backdrop blob |
-| `primary-800` | `#1e40af` | Dark backdrop blob |
-| `primary-900` | `#1e3a8a` | Dark backdrop blob |
+| `primary-200` | `#bfdbfe` | Dark selected-menu text |
+| `primary-300` | `#93c5fd` | Light backdrop |
+| `primary-400` | `#60a5fa` | Dark hover/focus tint, focus ring, dark checked border; light backdrop |
+| `primary-500` | `#3b82f6` | Dark primary CTA fill, hover tint, light focus ring; dark backdrop |
+| `primary-600` | `#2563eb` | Light primary CTA fill; dark CTA hover; dark backdrop |
+| `primary-700` | `#1d4ed8` | Light CTA hover; light selected-menu text; dark backdrop |
+| `primary-800` | `#1e40af` | |
+| `primary-900` | `#1e3a8a` | |
 
 ### 2.2 Neutrals
 
@@ -76,15 +76,24 @@ Markdown alerts (`.markdown-alert-*`) use a 4px left border: note = blue, tip = 
 
 ### 2.4 Backdrop (what the glass blurs)
 
-`PageBackground` renders fixed, blurred (`blur-3xl`) circles on the page base. Glass has nothing to show without them, so every page shell must include it.
+`PageBackground` is one fixed element painting the page base plus a stack of static `radial-gradient`s (`bg-glass-backdrop` / `dark:bg-glass-backdrop-dark`, defined in `tailwind.config.js`). No `filter` and no animation. Glass has nothing to show without it, so every page shell must include it.
 
-| Blob | Light | Dark |
-| --- | --- | --- |
-| Top-left (34rem) | `primary-300/70` | `primary-600/40` |
-| Top-right (36rem) | `primary-300/70` | `primary-800/50` |
-| Bottom-left-center (30rem) | `primary-200/80` | `primary-900/50` |
-| Bottom-right-center (24rem) | `gray-400/60` | `gray-700/40` |
-| Center (32rem) | `primary-200/50` | `primary-700/30` |
+Two kinds of shape, sized in `vmax` so the composition scales with the viewport:
+
+- **Washes** fade evenly to transparent and set the overall tone.
+- **Orbs** keep a near-flat core and a short falloff, so they remain recognisable shapes through a panel's backdrop blur. This shape detail is what makes a panel read as glass rather than as a flat tint.
+
+| Shape | Radius | Position | Light (peak) | Dark (peak) |
+| --- | --- | --- | --- | --- |
+| Wash, top-left | 46vmax | 0% 0% | `primary-300` / .70 | `primary-600` / .45 |
+| Wash, top-right | 44vmax | 100% 5% | `indigo-300` / .55 | `indigo-600` / .40 |
+| Wash, bottom-left | 42vmax | 30% 105% | `sky-300` / .60 | `sky-700` / .35 |
+| Orb, right | 16vmax | 78% 38% | `primary-400` / .35 | `primary-500` / .22 |
+| Orb, left | 13vmax | 18% 62% | `indigo-300` / .50 | `indigo-500` / .28 |
+| Orb, bottom-right | 20vmax | 92% 92% | `primary-300` / .60 | `primary-700` / .45 |
+| Orb, center | 11vmax | 50% 46% | `sky-300` / .45 | `sky-600` / .20 |
+
+`sky` and `indigo` are backdrop-only accents adjacent to the primary blue; do not use them for UI elements. The peak alphas are capped so supporting text keeps AA on the lightest glass tier — re-check contrast before raising one or overlapping two cores.
 
 ### 2.5 Scrollbar
 
@@ -132,7 +141,6 @@ All glass surfaces are shared `@layer components` classes in `index.css`. Use th
 | `backdrop-blur-md` | 12px | `.glass-button-primary/-success/-danger/-warning`, `.glass-input`, hover surface of nav buttons / header icon button |
 | `backdrop-blur-lg` | 16px | `.glass-panel`, `.glass-panel-card`, `.glass-interactive` (on hover/focus) |
 | `backdrop-blur-xl` | 24px | `.glass-panel-strong` |
-| `blur-3xl` (filter, not backdrop) | 64px | `PageBackground` blobs only |
 | chart tooltip | `6px` (inline style) / `backdrop-blur-md` | `chartGlassStyles` |
 
 Higher blur = higher elevation in the layer stack (page → panel → card → overlay).
@@ -190,7 +198,7 @@ Dark vs light differences (summary): light glass is **white-tinted** with a brig
 | `rounded-md` | 6 | Buttons, inputs (`.glass-input`), dropdown panel, tabs' hover chips, header icon buttons, toast progress edge |
 | `rounded-lg` | 8 | Panels, cards, modals, dialogs, toasts, error banners, logo |
 | `rounded-r-md` | 6 (right only) | `.markdown-alert` |
-| `rounded-full` | 9999 | Spinners, progress track, scrollbar thumb, icon bubbles, backdrop blobs |
+| `rounded-full` | 9999 | Spinners, progress track, scrollbar thumb, icon bubbles |
 
 Rule: controls = `md`, containers = `lg`, pills/circles = `full`. Nothing larger than `lg` is used on rectangular surfaces.
 
