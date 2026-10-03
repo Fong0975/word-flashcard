@@ -28,7 +28,7 @@ Authoritative sources:
 
 Tailwind `primary` scale (blue, equal to Tailwind `blue`), defined in `tailwind.config.js`. `index.css` mirrors 50/100/500–900 as `--primary-*` CSS variables.
 
-Use `primary-*` for brand and interaction colors (active tab, focus rings, selected toggles, spinners, links, hover tints). Use `blue-*` only for the **info** status (Toast, `.glass-alert-info`, `.markdown-alert-note`, log level INFO, informational banners).
+Use `primary-*` for brand and interaction colors (active tab, focus rings, selected toggles, spinners, links, hover tints). Use `blue-*` only for the **info** status (Toast, `.markdown-alert-note`, log level INFO, informational banners).
 
 | Token | Hex | Typical use |
 | --- | --- | --- |
@@ -62,7 +62,7 @@ Tailwind `gray` is the only neutral scale.
 
 ### 2.3 Semantic (status) colors
 
-All semantic colors use the stock Tailwind scales; each has a light surface/text pair and a dark pair. Toast and inline `ErrorMessage` surfaces use the `.glass-alert-*` classes (§4.2).
+All semantic colors use the stock Tailwind scales; each has a light surface/text pair and a dark pair. The surface / border / text columns below describe tinted status surfaces such as the inline `ErrorMessage` (`.glass-alert-error`, §4.2). A Toast is neutral glass (`.glass-panel-dropdown`) with neutral text (`gray-900` / `gray-100`); it shows its status only on the icon chip (`*-100` light, `*-900/50` dark, icon `*-600` / `*-400`, warning `yellow-700` / `yellow-400`) and the 2px progress line.
 
 | Status | Light surface / border | Light text | Dark surface / border | Dark text | Icon / progress |
 | --- | --- | --- | --- | --- | --- |
@@ -73,7 +73,7 @@ All semantic colors use the stock Tailwind scales; each has a light surface/text
 
 Confirm / action fills are glass CTAs: danger = `.glass-button-danger` (`red-600/90`), warning = `.glass-button-warning` (`yellow-700/90`), success = `.glass-button-success` (`green-700/90`), info = `.glass-button-primary` (`primary-600/90`). Light fills are one step darker than the status hue's usual `-500`/`-600` so white text stays at WCAG AA (4.5:1); dark fills keep their lower alpha.
 
-Markdown alerts (`.markdown-alert-*`) use a 4px left border: note = blue, tip = green, important = purple, warning = yellow, caution = red (`-500` light, `-400` dark; title text `-600` light, `-400` dark). Their body surface is translucent glass (`gray-50/70` light, `gray-900/40` dark, `shadow-sm`, no blur), matching `.glass-alert-neutral`; only the left border and title carry the type color.
+Markdown alerts (`.markdown-alert-*`) use a 4px left border: note = blue, tip = green, important = purple, warning = yellow, caution = red (`-500` light, `-400` dark; title text `-600` light, `-400` dark). Their body surface is translucent glass (`gray-50/70` light, `gray-900/40` dark, `shadow-sm`, no blur); only the left border and title carry the type color.
 
 ### 2.4 Backdrop (what the glass blurs)
 
@@ -138,7 +138,6 @@ All glass surfaces are shared `@layer components` classes in `index.css`. Use th
 
 | Tailwind | Radius | Used by |
 | --- | --- | --- |
-| `backdrop-blur-md` | 12px | `.glass-alert-*` (Toast floats over page content) |
 | `backdrop-blur-lg` | 16px | `.glass-panel` |
 | `backdrop-blur-xl` | 24px | `.glass-panel-strong`, `.glass-panel-dropdown` |
 | chart tooltip | `6px` (inline style) / `backdrop-blur-md` | `chartGlassStyles` |
@@ -157,10 +156,10 @@ Blur budget: `backdrop-filter` is the most expensive property in the system, so 
 | `.glass-input` | `gray-100/70` | `white/70` | `gray-900/50` | `white/10` | none | `sm` | Text inputs / textareas / date pickers |
 | `.glass-checkbox` | `white/30` (checked `primary-500/80`) | `white/70` (checked `primary-500`) | `white/10` (checked `primary-500/80`) | `white/20` (checked `primary-400`) | none | `sm` | Native checkbox |
 | `.glass-radio` | `white/60` (checked `primary-500/80`) | `gray-500` (checked `primary-500`) | `white/10` (checked `primary-500/80`) | `gray-400` (checked `primary-400`) | none | `sm` | Native radio (round, white dot when checked), same keyboard focus ring as `.glass-checkbox`. Unchecked edge is a solid gray (≥3:1) rather than `white/*`, which vanishes on white cards |
-| `.glass-alert-*` (`success` / `error` / `warning` / `info` / `neutral`) | `*-50/70` | `*-200` | `*-900/40` | `*-700` | `md` | `sm` | Toast, inline `ErrorMessage` (text / icon colors set per usage) |
+| `.glass-alert-error` | `red-50/70` | `red-200` | `red-900/40` | `red-700` | none | `sm` | Inline `ErrorMessage` banner (text / icon colors set per usage) |
 | `.glass-progress-track` | `white/20` | `white/30` | `gray-800/30` | `white/10` | none | `inner` | Quiz progress track (fill stays solid primary) |
 | `.glass-card-hover` | hover: `gray-100/80`, border `primary-300`, `shadow-glass-raised` | unchanged | hover: `gray-800/70`, border `primary-600` | unchanged | none | `glass-raised` on hover | Add next to `.glass-panel-card` on clickable record rows (EntityCard, NoteCard) |
-| `.glass-panel-dropdown` | `white/90` | `white/70` | `gray-800/90` | `white/10` | `xl` + saturate 150 (radius `md`) | `glass-raised` | Every floating menu: Info and Settings dropdown panels and `DropdownMenu` (sort, page, answer and familiarity selects, action menus). Near-opaque so menu items stay readable over the list rows and form fields behind them; do not use `.glass-panel-strong` for a menu |
+| `.glass-panel-dropdown` | `white/90` | `white/70` | `gray-800/90` | `white/10` | `xl` + saturate 150 (radius `md`) | `glass-raised` | Every small floating panel: Info and Settings dropdown panels, `DropdownMenu` (sort, page, answer and familiarity selects, action menus) and `Toast` (which adds `rounded-lg`). Near-opaque so its text stays readable over the list rows and form fields behind it; do not use `.glass-panel-strong` for a menu or toast |
 | `.glass-tint-green` / `.glass-tint-yellow` | `green-100/50` / `yellow-100/50` | `green-300/60` / `yellow-300/60` | `green-900/30` / `yellow-900/30` | `green-700/40` / `yellow-700/40` | none | none | Collapsible status sections: dictionary lookup (green), Answer & Explanation (yellow); add `overflow-hidden` and rounding per use |
 | `.glass-interactive` | transparent → `primary-500/[15%]` hover/focus, `/25` active | transparent | transparent → `primary-400/20` hover/focus, `/30` active | transparent | none | `sm` on hover/focus | Secondary buttons, icon buttons, back button |
 | `.glass-border-subtle` | n/a (border only) | `gray-500/25` | n/a | `white/15` | none | none | Modifier stacked on `.glass-interactive` for standalone buttons (Cancel, Quick select, ActionButton, mobile pagination) so they read as buttons at rest. Do not use inside an already-bordered group (segmented toggles, toolbars). Defined after `.glass-interactive` so it overrides its transparent border |
@@ -189,7 +188,7 @@ Contrast budget: every white fill in dark raises the surface luminance, so the d
 | Surface | Light | Dark |
 | --- | --- | --- |
 | Modal / dialog scrim | `bg-black/30` | `bg-black/30` (same) |
-| Toast | `.glass-alert-{success,error,warning,info,neutral}` | same class |
+| Toast | `.glass-panel-dropdown` + status icon chip + 2px progress line | same class |
 | Inline `ErrorMessage` | `.glass-alert-error` | same class |
 | Chart tooltip | frosted dark for **both** themes: `rgba(31,41,55,.85)`, border `rgba(255,255,255,.15)`, text `#f3f4f6`, blur 6px (recharts inline styles cannot read `dark:`) | same |
 | Chart bars | stroke `rgba(255,255,255,.25)` @ 0.5px, fill opacity `0.85` | same |
@@ -200,7 +199,7 @@ Both live at the end of the `@layer components` block in `index.css`, after the 
 
 | Condition | What changes |
 | --- | --- |
-| `@supports not (backdrop-filter)` | Tiers that float over sharp content take a near-opaque fill so text stays legible without blur: `.glass-panel-strong` and `.glass-panel-dropdown` → `white/95` / `gray-800/95`; `.glass-alert-*` → solid `*-50` / `*-950` (neutral `gray-50` / `gray-900`). `.glass-panel` is unchanged (the backdrop behind it is already soft). |
+| `@supports not (backdrop-filter)` | Tiers that float over sharp content take a near-opaque fill so text stays legible without blur: `.glass-panel-strong` and `.glass-panel-dropdown` → `white/95` / `gray-800/95`. `.glass-panel` is unchanged (the backdrop behind it is already soft). |
 | `prefers-reduced-transparency: reduce` | Every blurred tier drops its blur and gradient: `.glass-panel` → `white/90` / `gray-900/95`; the others as above. Their border becomes solid (`gray-200` / `gray-700`). Nested surfaces keep their fills. |
 
 ## 5. Radius
@@ -224,11 +223,10 @@ The `glass` tokens (`tailwind.config.js`) bundle the glass lighting into one `bo
 | Token | Use |
 | --- | --- |
 | `shadow-glass` | `.glass-panel`, `.glass-panel-card`, `.glass-panel-strong` at rest |
-| `shadow-glass-raised` | Modal and dialog panels, `.glass-panel-dropdown`, `.glass-card-hover` on hover |
-| `shadow-sm` | Inputs, checkbox, radio, alerts, pagination group |
+| `shadow-glass-raised` | Modal and dialog panels, `.glass-panel-dropdown` (menus, Toast), `.glass-card-hover` on hover |
+| `shadow-sm` | Inputs, checkbox, radio, error banner, pagination group |
 | `shadow-inner` | Progress track |
 | `shadow-md` (dark: `shadow-lg`) | CTA buttons |
-| `shadow-lg` (hover `shadow-xl`) | Toast |
 
 | Variable | Light | Dark |
 | --- | --- | --- |
@@ -274,7 +272,8 @@ Light vs dark: motion is identical in both themes.
 - Do not add `outline-none` without a replacement style. When creating a bare `<button>` check that it actually has one; several legacy controls (Modal close icon, Tab buttons: `focus:ring-0`) rely only on the color change of the active/hover state.
 - Icon-only buttons need `aria-label` (Header, Modal close, Pagination use `sr-only` text).
 - Toast: `role='alert'`, container `aria-live='polite'`, keyboard-dismissable (Enter/Space).
-- Do not rely on color alone for status: toasts pair a color with an icon and message; keep this when adding statuses.
+- Do not rely on color alone for status: toasts pair a color with a status-specific icon shape (check, x, triangle, i) and message; keep this when adding statuses.
+- Toast is focusable (`tabIndex={0}`) and uses `.focus-ring` for its keyboard focus indicator.
 
 ## 10. Component recipes
 
