@@ -177,16 +177,18 @@ body {
    * WCAG AA.
    */
   .glass-panel-strong {
-    @apply border border-white/70 bg-transparent bg-gradient-to-br from-white/[62%] to-white/[50%] shadow-glass backdrop-blur-xl backdrop-saturate-150 dark:border-white/10 dark:from-gray-800/[58%] dark:to-gray-800/[46%];
+    @apply border border-white/70 bg-transparent bg-gradient-to-br from-white/[66%] to-white/[55%] shadow-glass backdrop-blur-xl backdrop-saturate-150 dark:border-white/10 dark:from-gray-800/[68%] dark:to-gray-800/[60%];
   }
 
   /*
-   * Floating menu panel (Info / Settings dropdowns): `.glass-panel-strong`
-   * with a more opaque fill, since it sits over arbitrary page content and
-   * its text must stay readable. Add width and padding per use.
+   * Floating menu panel (Info / Settings dropdowns, `DropdownMenu`): a
+   * near-opaque fill, since it opens over arbitrary page content (list rows,
+   * form fields) whose text would otherwise show through and compete with the
+   * menu items. Readability wins over translucency here. Add width and
+   * padding per use.
    */
   .glass-panel-dropdown {
-    @apply rounded-md border border-white/70 bg-white/70 shadow-glass-raised backdrop-blur-xl backdrop-saturate-150 dark:border-white/10 dark:bg-gray-800/80;
+    @apply rounded-md border border-white/70 bg-white/90 shadow-glass-raised backdrop-blur-xl backdrop-saturate-150 dark:border-white/10 dark:bg-gray-800/90;
   }
 
   /*

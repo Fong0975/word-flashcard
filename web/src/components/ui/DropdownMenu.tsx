@@ -105,7 +105,7 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
       {/* Dropdown menu */}
       {isOpen && (
         <div
-          className={`glass-panel-strong absolute right-0 z-10 ${openUpward ? 'bottom-full mb-2' : 'top-full mt-2'} ${menuWidthClassName} rounded-md focus:outline-none`}
+          className={`glass-panel-dropdown absolute right-0 z-10 ${openUpward ? 'bottom-full mb-2' : 'top-full mt-2'} ${menuWidthClassName} focus:outline-none`}
         >
           <div className='max-h-64 overflow-y-auto py-1' role='menu'>
             {items.map(item => (
