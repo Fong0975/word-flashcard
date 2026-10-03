@@ -176,7 +176,16 @@ describe('MarkdownEditorField', () => {
   });
 
   describe('word link suggestions', () => {
+    // The suggestion lookup is debounced; fake timers let `findBy*` step
+    // through the delay instead of waiting for it in real time. Only the
+    // timeout APIs are faked so the editor's requestAnimationFrame callbacks
+    // (cursor restoration after an insert) still run.
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    });
+
     afterEach(() => {
+      vi.useRealTimers();
       vi.restoreAllMocks();
     });
 
@@ -184,7 +193,7 @@ describe('MarkdownEditorField', () => {
       vi.spyOn(apiService, 'searchWords').mockResolvedValue([
         buildWord({ word: 'apple' }),
       ]);
-      const user = userEvent.setup();
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       render(<ControlledMarkdownEditorField />);
 
       await user.type(screen.getByRole('textbox'), '`apple`');
@@ -206,7 +215,7 @@ describe('MarkdownEditorField', () => {
       vi.spyOn(apiService, 'searchWords').mockResolvedValue([
         buildWord({ word: 'apple' }),
       ]);
-      const user = userEvent.setup();
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       render(<ControlledMarkdownEditorField />);
 
       await user.type(screen.getByRole('textbox'), '`apple`');
@@ -224,7 +233,7 @@ describe('MarkdownEditorField', () => {
       vi.spyOn(apiService, 'searchWords').mockResolvedValue([
         buildWord({ word: 'apple' }),
       ]);
-      const user = userEvent.setup();
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       render(<ControlledMarkdownEditorField />);
       const textarea = screen.getByRole('textbox');
 
@@ -256,7 +265,7 @@ describe('MarkdownEditorField', () => {
             : [];
         },
       );
-      const user = userEvent.setup();
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       render(<ControlledMarkdownEditorField />);
       const textarea = screen.getByRole('textbox');
 

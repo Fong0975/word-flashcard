@@ -87,12 +87,17 @@ describe('WordQuizPage', () => {
   });
 
   describe('config validation', () => {
-    it('shows the invalid config screen when no params are provided', () => {
+    it('shows the invalid config screen when no params are provided, and navigates home from it', async () => {
+      const user = userEvent.setup();
       renderPage('/word/quiz');
 
       expect(
         screen.getByText('Invalid quiz configuration'),
       ).toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: 'Back to Home' }));
+
+      expect(mockNavigate).toHaveBeenCalledWith('/');
     });
 
     it('shows the invalid config screen when the category counts are all zero', () => {
@@ -101,15 +106,6 @@ describe('WordQuizPage', () => {
       expect(
         screen.getByText('Invalid quiz configuration'),
       ).toBeInTheDocument();
-    });
-
-    it('navigates home when "Back to Home" is pressed on an invalid config', async () => {
-      const user = userEvent.setup();
-      renderPage('/word/quiz');
-
-      await user.click(screen.getByRole('button', { name: 'Back to Home' }));
-
-      expect(mockNavigate).toHaveBeenCalledWith('/');
     });
 
     it('renders the quiz with count/familiarity mode when valid', () => {
@@ -134,22 +130,15 @@ describe('WordQuizPage', () => {
   });
 
   describe('state transitions', () => {
-    it('switches to the results view and shows the retake footer when the quiz completes', async () => {
+    it('switches to the results view with the retake footer when the quiz completes, and back to the quiz when retaking', async () => {
       const user = userEvent.setup();
       renderPage('/word/quiz?count=5&familiarity=green');
 
       await user.click(screen.getByRole('button', { name: 'Complete Quiz' }));
 
       expect(screen.getByText('Results: 1')).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Again' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Home' })).toBeInTheDocument();
-    });
 
-    it('returns to the quiz view when retaking', async () => {
-      const user = userEvent.setup();
-      renderPage('/word/quiz?count=5&familiarity=green');
-
-      await user.click(screen.getByRole('button', { name: 'Complete Quiz' }));
       await user.click(screen.getByRole('button', { name: 'Again' }));
 
       expect(screen.getByTestId('word-quiz-props')).toBeInTheDocument();
@@ -167,7 +156,7 @@ describe('WordQuizPage', () => {
   });
 
   describe('exit guard while a quiz is in progress', () => {
-    it('shows a confirmation dialog instead of navigating immediately', async () => {
+    it('shows a confirmation dialog instead of navigating immediately, and stays on the quiz when the exit is cancelled', async () => {
       const user = userEvent.setup();
       renderPage('/word/quiz?count=5&familiarity=green');
 
@@ -176,6 +165,14 @@ describe('WordQuizPage', () => {
       expect(
         screen.getByRole('heading', { name: 'Exit Quiz' }),
       ).toBeInTheDocument();
+      expect(mockNavigate).not.toHaveBeenCalled();
+
+      await user.click(screen.getByRole('button', { name: 'Continue Quiz' }));
+
+      expect(
+        screen.queryByRole('heading', { name: 'Exit Quiz' }),
+      ).not.toBeInTheDocument();
+      expect(screen.getByTestId('word-quiz-props')).toBeInTheDocument();
       expect(mockNavigate).not.toHaveBeenCalled();
     });
 
@@ -187,19 +184,6 @@ describe('WordQuizPage', () => {
       await user.click(screen.getByRole('button', { name: 'Exit Quiz' }));
 
       expect(mockNavigate).toHaveBeenCalledWith('/');
-    });
-
-    it('stays on the quiz when the exit is cancelled', async () => {
-      const user = userEvent.setup();
-      renderPage('/word/quiz?count=5&familiarity=green');
-
-      await user.click(screen.getByRole('button', { name: 'Go back' }));
-      await user.click(screen.getByRole('button', { name: 'Continue Quiz' }));
-
-      expect(
-        screen.queryByRole('heading', { name: 'Exit Quiz' }),
-      ).not.toBeInTheDocument();
-      expect(screen.getByTestId('word-quiz-props')).toBeInTheDocument();
     });
 
     it('navigates home directly, without a dialog, when going back from the results view', async () => {

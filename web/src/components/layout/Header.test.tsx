@@ -19,7 +19,7 @@ describe('Header', () => {
     vi.restoreAllMocks();
   });
 
-  it('renders the app title linking to home', () => {
+  it('renders the home link and the info and settings entry points', () => {
     mockMatchMedia(false);
     render(
       <MemoryRouter>
@@ -29,31 +29,11 @@ describe('Header', () => {
 
     const link = screen.getByRole('link', { name: /Flashcard/ });
     expect(link).toHaveAttribute('href', '/');
-  });
 
-  it('renders the info entry point', () => {
-    // Full coverage of the info panel's version/copyright/GitHub-link
-    // content lives in InfoMenu.test.tsx; this just checks Header wires it in.
-    mockMatchMedia(false);
-    render(
-      <MemoryRouter>
-        <Header />
-      </MemoryRouter>,
-    );
-
+    // Full coverage of the info panel and of the data management dropdown
+    // lives in InfoMenu.test.tsx and DataManagementMenu.test.tsx; this just
+    // checks Header wires them in.
     expect(screen.getByRole('button', { name: 'Info' })).toBeInTheDocument();
-  });
-
-  it('renders the data management settings entry point', () => {
-    // Full coverage of the dropdown's Import/Export behavior lives in
-    // DataManagementMenu.test.tsx; this just checks Header wires it in.
-    mockMatchMedia(false);
-    render(
-      <MemoryRouter>
-        <Header />
-      </MemoryRouter>,
-    );
-
     expect(
       screen.getByRole('button', { name: 'Settings' }),
     ).toBeInTheDocument();

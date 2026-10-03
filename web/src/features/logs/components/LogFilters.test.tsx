@@ -67,11 +67,16 @@ describe('LogFilters', () => {
     expect(props.onToChange).toHaveBeenCalled();
   });
 
-  it('shows the current range values', () => {
-    renderFilters({ from: '2026-08-01T09:00', to: '2026-08-31T18:30' });
+  it('shows the current range and keyword values', () => {
+    renderFilters({
+      from: '2026-08-01T09:00',
+      to: '2026-08-31T18:30',
+      keyword: 'disk full',
+    });
 
     expect(screen.getByLabelText('From')).toHaveValue('2026-08-01T09:00');
     expect(screen.getByLabelText('To')).toHaveValue('2026-08-31T18:30');
+    expect(screen.getByLabelText('Search logs')).toHaveValue('disk full');
   });
 
   it('reports keyword input changes', async () => {
@@ -82,27 +87,19 @@ describe('LogFilters', () => {
     expect(props.onKeywordChange).toHaveBeenCalled();
   });
 
-  it('shows the current keyword value', () => {
-    renderFilters({ keyword: 'disk full' });
+  it.each([
+    { keyword: '', clearButtons: 0 },
+    { keyword: 'disk', clearButtons: 1 },
+  ])(
+    'shows the clear button only once a keyword is entered ("$keyword")',
+    ({ keyword, clearButtons }) => {
+      renderFilters({ keyword });
 
-    expect(screen.getByLabelText('Search logs')).toHaveValue('disk full');
-  });
-
-  it('hides the clear button when the keyword is empty', () => {
-    renderFilters();
-
-    expect(
-      screen.queryByRole('button', { name: 'Clear search' }),
-    ).not.toBeInTheDocument();
-  });
-
-  it('shows the clear button once a keyword is entered', () => {
-    renderFilters({ keyword: 'disk' });
-
-    expect(
-      screen.getByRole('button', { name: 'Clear search' }),
-    ).toBeInTheDocument();
-  });
+      expect(
+        screen.queryAllByRole('button', { name: 'Clear search' }),
+      ).toHaveLength(clearButtons);
+    },
+  );
 
   it('clears the keyword when the clear button is clicked', async () => {
     const user = userEvent.setup();

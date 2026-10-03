@@ -27,6 +27,7 @@ describe('WordFormModal', () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     consoleErrorSpy.mockRestore();
     vi.restoreAllMocks();
   });
@@ -121,7 +122,10 @@ describe('WordFormModal', () => {
   });
 
   it('navigates to word detail and closes the modal when a suggestion is clicked', async () => {
-    const user = userEvent.setup();
+    // The suggestion search is debounced; fake timers let `findBy*` step
+    // through the delay instead of waiting for it in real time.
+    vi.useFakeTimers();
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     const suggestedWord = buildWord({ id: 2, word: 'apple' });
     (apiService.searchWords as Mock).mockResolvedValue([suggestedWord]);
     const onClose = vi.fn();

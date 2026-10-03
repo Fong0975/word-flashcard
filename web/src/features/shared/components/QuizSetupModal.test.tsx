@@ -163,7 +163,7 @@ describe('QuizSetupModal', () => {
       expect(screen.getByRole('button', { name: 'Start Quiz' })).toBeDisabled();
     });
 
-    it('switches to total-count mode showing familiarity selection', async () => {
+    it('switches to total-count mode showing familiarity selection, and back to category mode', async () => {
       const user = userEvent.setup();
       render(
         <QuizSetupModal
@@ -181,23 +181,6 @@ describe('QuizSetupModal', () => {
       expect(screen.getByText('Select Familiarity Levels')).toBeInTheDocument();
       expect(screen.getByRole('spinbutton')).toBeInTheDocument();
       expect(screen.queryByText('Words per Category')).not.toBeInTheDocument();
-    });
-
-    it('switches back to category mode from total mode', async () => {
-      const user = userEvent.setup();
-      render(
-        <QuizSetupModal
-          isOpen
-          onClose={vi.fn()}
-          onStartQuiz={vi.fn()}
-          title='Word Quiz Setup'
-          entityName='word'
-          enableFamiliaritySelection
-        />,
-      );
-
-      await user.click(screen.getByRole('button', { name: 'Total Count' }));
-      expect(screen.getByText('Select Familiarity Levels')).toBeInTheDocument();
 
       await user.click(screen.getByRole('button', { name: 'By Category' }));
 

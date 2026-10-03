@@ -113,12 +113,17 @@ describe('QuestionQuizPage', () => {
   });
 
   describe('config validation', () => {
-    it('shows the invalid config screen when count is missing', () => {
+    it('shows the invalid config screen when count is missing, and navigates home from it', async () => {
+      const user = userEvent.setup();
       renderPage('/question/quiz');
 
       expect(
         screen.getByText('Invalid quiz configuration'),
       ).toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: 'Back to Home' }));
+
+      expect(mockNavigate).toHaveBeenCalledWith('/?tab=questions');
     });
 
     it('shows the invalid config screen when count is not positive', () => {
@@ -127,15 +132,6 @@ describe('QuestionQuizPage', () => {
       expect(
         screen.getByText('Invalid quiz configuration'),
       ).toBeInTheDocument();
-    });
-
-    it('navigates home when "Back to Home" is pressed', async () => {
-      const user = userEvent.setup();
-      renderPage('/question/quiz');
-
-      await user.click(screen.getByRole('button', { name: 'Back to Home' }));
-
-      expect(mockNavigate).toHaveBeenCalledWith('/?tab=questions');
     });
 
     it('renders the quiz when count is valid', () => {
@@ -148,14 +144,23 @@ describe('QuestionQuizPage', () => {
   });
 
   describe('dynamically reported footer action', () => {
-    it('renders the reported action as the footer button', async () => {
+    it('renders the reported action as an enabled, spinner-free footer button', async () => {
       const user = userEvent.setup();
       renderPage('/question/quiz?count=5');
 
       await user.click(
         screen.getByRole('button', { name: 'Report Submit Action' }),
       );
-      await user.click(screen.getByRole('button', { name: 'Submit Answer' }));
+
+      const footerButton = screen.getByRole('button', {
+        name: 'Submit Answer',
+      });
+      expect(footerButton).not.toBeDisabled();
+      expect(
+        within(footerButton).queryByTestId('footer-action-spinner'),
+      ).not.toBeInTheDocument();
+
+      await user.click(footerButton);
 
       expect(mockActionClick).toHaveBeenCalled();
     });
@@ -195,42 +200,18 @@ describe('QuestionQuizPage', () => {
         within(footerButton).getByTestId('footer-action-spinner'),
       ).toBeInTheDocument();
     });
-
-    it('keeps the footer button enabled and spinner-free when not loading', async () => {
-      const user = userEvent.setup();
-      renderPage('/question/quiz?count=5');
-
-      await user.click(
-        screen.getByRole('button', { name: 'Report Submit Action' }),
-      );
-
-      const footerButton = screen.getByRole('button', {
-        name: 'Submit Answer',
-      });
-      expect(footerButton).not.toBeDisabled();
-      expect(
-        within(footerButton).queryByTestId('footer-action-spinner'),
-      ).not.toBeInTheDocument();
-    });
   });
 
   describe('state transitions', () => {
-    it('switches to results and shows the retake footer', async () => {
+    it('switches to results with the retake footer, and back to the quiz when retaking', async () => {
       const user = userEvent.setup();
       renderPage('/question/quiz?count=5');
 
       await user.click(screen.getByRole('button', { name: 'Complete Quiz' }));
 
       expect(screen.getByText('Results: 1')).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Again' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Home' })).toBeInTheDocument();
-    });
 
-    it('returns to the quiz view when retaking', async () => {
-      const user = userEvent.setup();
-      renderPage('/question/quiz?count=5');
-
-      await user.click(screen.getByRole('button', { name: 'Complete Quiz' }));
       await user.click(screen.getByRole('button', { name: 'Again' }));
 
       expect(
@@ -250,7 +231,7 @@ describe('QuestionQuizPage', () => {
   });
 
   describe('exit guard while a quiz is in progress', () => {
-    it('shows a confirmation dialog instead of navigating', async () => {
+    it('shows a confirmation dialog instead of navigating, and stays on the quiz when the exit is cancelled', async () => {
       const user = userEvent.setup();
       renderPage('/question/quiz?count=5');
 
@@ -259,6 +240,13 @@ describe('QuestionQuizPage', () => {
       expect(
         screen.getByRole('heading', { name: 'Exit Quiz' }),
       ).toBeInTheDocument();
+      expect(mockNavigate).not.toHaveBeenCalled();
+
+      await user.click(screen.getByRole('button', { name: 'Continue Quiz' }));
+
+      expect(
+        screen.queryByRole('heading', { name: 'Exit Quiz' }),
+      ).not.toBeInTheDocument();
       expect(mockNavigate).not.toHaveBeenCalled();
     });
 
@@ -270,18 +258,6 @@ describe('QuestionQuizPage', () => {
       await user.click(screen.getByRole('button', { name: 'Exit Quiz' }));
 
       expect(mockNavigate).toHaveBeenCalledWith('/?tab=questions');
-    });
-
-    it('stays on the quiz when the exit is cancelled', async () => {
-      const user = userEvent.setup();
-      renderPage('/question/quiz?count=5');
-
-      await user.click(screen.getByRole('button', { name: 'Go back' }));
-      await user.click(screen.getByRole('button', { name: 'Continue Quiz' }));
-
-      expect(
-        screen.queryByRole('heading', { name: 'Exit Quiz' }),
-      ).not.toBeInTheDocument();
     });
 
     it('navigates home directly, without a dialog, from results', async () => {

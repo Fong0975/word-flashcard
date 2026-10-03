@@ -3,19 +3,13 @@ import { render, screen } from '@testing-library/react';
 import { PracticeStats } from './PracticeStats';
 
 describe('PracticeStats', () => {
-  it('renders the practice and failure counts', () => {
+  it('renders the practice and failure counts, with the accuracy badge once there is at least one practice', () => {
     render(
       <PracticeStats practiceCount={10} failureCount={2} accuracyRate={80} />,
     );
 
     expect(screen.getByText('10')).toBeInTheDocument();
     expect(screen.getByText('2')).toBeInTheDocument();
-  });
-
-  it('shows the accuracy badge once there is at least one practice', () => {
-    render(
-      <PracticeStats practiceCount={10} failureCount={2} accuracyRate={80} />,
-    );
     expect(screen.getByText('Accuracy Rate: 80%')).toBeInTheDocument();
   });
 

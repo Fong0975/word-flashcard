@@ -38,24 +38,11 @@ describe('PaginationNavButton', () => {
     expect(onClick).toHaveBeenCalledTimes(1);
   });
 
-  it('is disabled when isEnabled is false', () => {
-    render(
-      <PaginationNavButton
-        type='next'
-        layout='desktop'
-        isEnabled={false}
-        onClick={vi.fn()}
-      />,
-    );
-
-    expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
-  });
-
   it.each([
     ['desktop', ['bg-white/10', 'backdrop-blur-lg'], ['bg-gray-100']],
     ['mobile', ['glass-panel'], ['bg-gray-100']],
   ] as const)(
-    'applies the %s disabled surface',
+    'is disabled with the %s disabled surface when isEnabled is false',
     (layout, expectedClasses, absentClasses) => {
       render(
         <PaginationNavButton
@@ -67,6 +54,7 @@ describe('PaginationNavButton', () => {
       );
 
       const button = screen.getByRole('button', { name: 'Next' });
+      expect(button).toBeDisabled();
       expect(button).toHaveClass('cursor-not-allowed', ...expectedClasses);
       absentClasses.forEach(cls => expect(button).not.toHaveClass(cls));
     },

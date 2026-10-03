@@ -6,17 +6,13 @@ import { OptionsGroup } from './OptionsGroup';
 const options = { A: '4', B: '3', C: '5', D: '6' };
 
 describe('OptionsGroup', () => {
-  it('renders an input for every option with the current values', () => {
+  it('renders an input for every option with the current values, marking only option A as required', () => {
     render(<OptionsGroup options={options} onChange={vi.fn()} />);
 
     expect(screen.getByLabelText(/Option A/)).toHaveValue('4');
     expect(screen.getByLabelText(/Option B/)).toHaveValue('3');
     expect(screen.getByLabelText(/Option C/)).toHaveValue('5');
     expect(screen.getByLabelText(/Option D/)).toHaveValue('6');
-  });
-
-  it('marks only option A as required', () => {
-    render(<OptionsGroup options={options} onChange={vi.fn()} />);
     expect(screen.getAllByText('*')).toHaveLength(1);
   });
 

@@ -25,17 +25,7 @@ const buildWord = (overrides: Partial<Word> = {}): Word => ({
 });
 
 describe('WordHeader', () => {
-  it('renders the word id, definition count, and practice count', () => {
-    render(
-      <WordHeader word={buildWord()} onEdit={vi.fn()} onDelete={vi.fn()} />,
-    );
-
-    expect(screen.getByText('Word ID: 7')).toBeInTheDocument();
-    expect(screen.getByText(/1 definition\(s\)/)).toBeInTheDocument();
-    expect(screen.getByText(/3 practise\(s\)/)).toBeInTheDocument();
-  });
-
-  it('renders the word text as the title', () => {
+  it('renders the word text as the title, with its id, definition count, and practice count', () => {
     render(
       <WordHeader
         word={buildWord({ word: 'banana' })}
@@ -43,6 +33,10 @@ describe('WordHeader', () => {
         onDelete={vi.fn()}
       />,
     );
+
     expect(screen.getByRole('heading', { name: 'banana' })).toBeInTheDocument();
+    expect(screen.getByText('Word ID: 7')).toBeInTheDocument();
+    expect(screen.getByText(/1 definition\(s\)/)).toBeInTheDocument();
+    expect(screen.getByText(/3 practise\(s\)/)).toBeInTheDocument();
   });
 });

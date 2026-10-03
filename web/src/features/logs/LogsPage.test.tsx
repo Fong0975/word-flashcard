@@ -56,17 +56,24 @@ describe('LogsPage', () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.restoreAllMocks();
     sessionStorage.clear();
     localStorage.clear();
     document.documentElement.classList.remove('dark');
   });
 
-  it('loads and renders entries newest first', async () => {
+  // Pagination renders a nav for its responsive container plus a nested one
+  // for the desktop page-number group, so the pagination tests assert on the
+  // count rather than a single element.
+  it('loads and renders entries, without pagination when everything fits on one page', async () => {
     renderPage();
 
     expect(await screen.findByText('Disk almost full')).toBeInTheDocument();
     expect(screen.getByText('Starting server')).toBeInTheDocument();
+    expect(
+      screen.queryAllByRole('navigation', { name: 'Pagination' }),
+    ).toHaveLength(0);
   });
 
   it('shows the total entry count', async () => {
@@ -119,18 +126,19 @@ describe('LogsPage', () => {
   });
 
   it('filters by keyword after the debounce delay', async () => {
-    const user = userEvent.setup();
+    // Fake timers let `waitFor` step through the search debounce instead of
+    // waiting for it in real time.
+    vi.useFakeTimers();
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     renderPage();
     await screen.findByText('Disk almost full');
 
     await user.type(screen.getByLabelText('Search logs'), 'disk');
 
-    await waitFor(
-      () =>
-        expect(getLogs).toHaveBeenLastCalledWith(
-          expect.objectContaining({ keyword: 'disk' }),
-        ),
-      { timeout: 1000 },
+    await waitFor(() =>
+      expect(getLogs).toHaveBeenLastCalledWith(
+        expect.objectContaining({ keyword: 'disk' }),
+      ),
     );
     expect(getLogsCount).toHaveBeenLastCalledWith(
       expect.objectContaining({ keyword: 'disk' }),
@@ -161,18 +169,6 @@ describe('LogsPage', () => {
     renderPage();
 
     expect(await screen.findByText('Error loading logs')).toBeInTheDocument();
-  });
-
-  // Pagination renders a nav for its responsive container plus a nested one
-  // for the desktop page-number group, so these assert on the count rather
-  // than a single element.
-  it('hides pagination when everything fits on one page', async () => {
-    renderPage();
-    await screen.findByText('Disk almost full');
-
-    expect(
-      screen.queryAllByRole('navigation', { name: 'Pagination' }),
-    ).toHaveLength(0);
   });
 
   it('shows pagination once the results span several pages', async () => {
