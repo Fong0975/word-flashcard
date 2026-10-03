@@ -1,3 +1,5 @@
+// @vitest-environment node
+
 import type { Mock } from 'vitest';
 
 import { FamiliarityLevel, SearchOperation, SearchLogic } from '../types/base';

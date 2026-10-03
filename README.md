@@ -293,8 +293,11 @@ go tool cover -html=coverage.out -o coverage.html
 # Navigate to the web directory
 cd web
 
-# Run tests in interactive watch mode
+# Run all tests once without coverage
 npm test
+
+# Run tests in interactive watch mode
+npm run test:watch
 
 # Run all tests once with a coverage report (used in CI)
 npm run test:ci

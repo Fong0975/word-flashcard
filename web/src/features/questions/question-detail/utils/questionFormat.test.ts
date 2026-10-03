@@ -1,3 +1,5 @@
+// @vitest-environment node
+
 import { Question } from '../../../../types/api';
 import { QuestionFormData } from '../../question-form/types/question-form';
 

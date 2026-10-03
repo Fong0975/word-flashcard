@@ -1,3 +1,5 @@
+// @vitest-environment node
+
 import { shuffleArray } from './shuffle';
 
 describe('shuffleArray', () => {

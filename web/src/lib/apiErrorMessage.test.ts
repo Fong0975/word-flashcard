@@ -1,3 +1,5 @@
+// @vitest-environment node
+
 import type { MockInstance } from 'vitest';
 
 import { getApiErrorMessage, getApiErrorCode } from './apiErrorMessage';

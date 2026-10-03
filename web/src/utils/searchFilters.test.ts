@@ -1,3 +1,5 @@
+// @vitest-environment node
+
 import { SearchOperation, SearchLogic } from '../types/base';
 
 import { createExactWordSearchFilter } from './searchFilters';
