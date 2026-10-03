@@ -50,6 +50,7 @@ export const API_ENDPOINTS = {
   logsCount: '/logs/count',
   logsUnread: '/logs/unread',
   logsRead: '/logs/read',
+  logsDownload: '/logs/download',
   dataExport: '/data/export',
   dataImport: '/data/import',
   dataBackups: '/data/backups',

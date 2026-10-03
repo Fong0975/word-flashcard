@@ -13,8 +13,10 @@ import { useDebouncedSearchInput } from '../shared/hooks/useDebouncedSearchInput
 import { useQuickFilters } from '../shared/hooks/useQuickFilters';
 import { useUrlSyncedEntityList } from '../shared/hooks/useUrlSyncedEntityList';
 
+import { LogDownloadButton } from './components/LogDownloadButton';
 import { LogEntryItem } from './components/LogEntryItem';
 import { LogFilters } from './components/LogFilters';
+import { HEADER_ICON_BUTTON_CLASS } from './constants';
 import { isLogLevel } from './utils/isLogLevel';
 
 const SESSION_LEVELS_KEY = 'log-view-levels';
@@ -109,9 +111,12 @@ export const LogsPage: React.FC = () => {
   const header = (
     <div className='space-y-3 pb-3'>
       <div className='flex items-center justify-between'>
-        <h1 className='text-lg font-semibold text-gray-900 dark:text-white'>
-          Backend Logs
-        </h1>
+        <div className='flex items-center gap-2'>
+          <h1 className='text-lg font-semibold text-gray-900 dark:text-white'>
+            Backend Logs
+          </h1>
+          <LogDownloadButton />
+        </div>
         <div className='flex items-center gap-2'>
           <span className='text-xs text-gray-500 dark:text-gray-400'>
             {totalCount} entries
@@ -122,7 +127,7 @@ export const LogsPage: React.FC = () => {
             disabled={loading}
             aria-label='Refresh logs'
             title='Refresh'
-            className='focus-ring rounded-md p-1 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white'
+            className={HEADER_ICON_BUTTON_CLASS}
           >
             <svg
               className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`}

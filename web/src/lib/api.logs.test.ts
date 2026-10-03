@@ -136,4 +136,63 @@ describe('ApiService - logs', () => {
       expect(result).toEqual(state);
     });
   });
+
+  describe('downloadLogs', () => {
+    it.each([
+      {
+        name: 'returns a single log file as a plain-text blob',
+        blob: new Blob(['line'], { type: 'text/plain; charset=utf-8' }),
+        contentType: 'text/plain; charset=utf-8',
+      },
+      {
+        name: 'returns several log files as a zip blob',
+        blob: new Blob(['PK'], { type: 'application/zip' }),
+        contentType: 'application/zip',
+      },
+    ])('$name', async ({ blob, contentType }) => {
+      fetchMock.mockResolvedValueOnce(buildMockResponse(blob, { contentType }));
+
+      const result = await apiService.downloadLogs();
+
+      const [url, options] = fetchMock.mock.calls[0];
+      expect(url).toBe(`${API_CONFIG.baseURL}${API_ENDPOINTS.logsDownload}`);
+      expect(options.method).toBe('GET');
+      expect(result).toBe(blob);
+    });
+
+    it.each([
+      {
+        name: 'reports the backend message when there are no log files',
+        mockFetch: () =>
+          fetchMock.mockResolvedValueOnce(
+            buildMockResponse(
+              { error: 'No log files found', code: 'NOT_FOUND' },
+              { ok: false, status: 404, statusText: 'Not Found' },
+            ),
+          ),
+        expected: { status: 404, message: 'No log files found' },
+      },
+      {
+        name: 'reports a timeout when the request is aborted',
+        mockFetch: () =>
+          fetchMock.mockRejectedValueOnce(
+            new DOMException('The operation was aborted.', 'AbortError'),
+          ),
+        expected: { status: 0, message: 'Request timed out' },
+      },
+      {
+        name: 'reports a network failure',
+        mockFetch: () =>
+          fetchMock.mockRejectedValueOnce(new Error('Failed to fetch')),
+        expected: { status: 0, message: 'Failed to fetch' },
+      },
+    ])('$name', async ({ mockFetch, expected }) => {
+      mockFetch();
+
+      await expect(apiService.downloadLogs()).rejects.toMatchObject({
+        name: 'ApiError',
+        ...expected,
+      });
+    });
+  });
 });

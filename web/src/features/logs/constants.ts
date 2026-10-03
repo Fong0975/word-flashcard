@@ -1,11 +1,15 @@
 /**
- * Log level presentation constants
+ * Log viewer presentation constants
  *
- * Colours follow the same severity intuition as the familiarity dots:
+ * Level colours follow the same severity intuition as the familiarity dots:
  * neutral for noise, blue for normal, amber for warnings, red for errors.
  */
 
 import { LogLevel } from '../../types/logs';
+
+/** Icon-only action buttons in the log viewer's header row. */
+export const HEADER_ICON_BUTTON_CLASS =
+  'focus-ring rounded-md p-1 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white';
 
 /** Dot colour for each level's quick-filter pill. */
 export const LOG_LEVEL_DOT_CLASSES: Readonly<Record<LogLevel, string>> = {

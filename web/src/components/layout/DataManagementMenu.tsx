@@ -5,6 +5,7 @@ import { useLogUnread } from '../../contexts/LogUnreadContext';
 import { BackupsModal } from '../../features/backups/BackupsModal';
 import { useToast } from '../../hooks/ui/useToast';
 import { apiService } from '../../lib/api';
+import { downloadBlob, timestampForFilename } from '../../lib/fileDownload';
 import { DataExportPayload, ImportSummary } from '../../types/data-export';
 import { ToastContainer } from '../ui';
 import { ConfirmationDialog } from '../ui/ConfirmationDialog';
@@ -13,20 +14,8 @@ const downloadAsJsonFile = (data: unknown, filename: string): void => {
   const blob = new Blob([JSON.stringify(data, null, 2)], {
     type: 'application/json',
   });
-  const url = URL.createObjectURL(blob);
-
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-
-  URL.revokeObjectURL(url);
+  downloadBlob(blob, filename);
 };
-
-const timestampForFilename = (): string =>
-  new Date().toISOString().replace(/[:.]/g, '-');
 
 const errorMessage = (error: unknown): string =>
   error instanceof Error ? error.message : 'Unknown error';

@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import type { MockInstance } from 'vitest';
@@ -154,6 +154,22 @@ describe('LogsPage', () => {
     await user.click(screen.getByRole('button', { name: 'Refresh logs' }));
 
     await waitFor(() => expect(getLogs).toHaveBeenCalledTimes(1));
+  });
+
+  it('renders the download button right after the page title', async () => {
+    renderPage();
+    await screen.findByText('Disk almost full');
+
+    const titleGroup = screen.getByRole('heading', {
+      name: 'Backend Logs',
+    }).parentElement;
+
+    expect(titleGroup).not.toBeNull();
+    expect(
+      within(titleGroup as HTMLElement).getByRole('button', {
+        name: 'Download logs',
+      }),
+    ).toBeInTheDocument();
   });
 
   it('renders an empty state when nothing matches', async () => {
