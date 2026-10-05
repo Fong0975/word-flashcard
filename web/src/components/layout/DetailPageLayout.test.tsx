@@ -71,4 +71,34 @@ describe('DetailPageLayout', () => {
 
     expect(screen.getByText('Footer content')).toBeInTheDocument();
   });
+
+  it.each([
+    {
+      name: 'keeps only the glass panel classes when omitted',
+      cardClassName: undefined,
+      expected:
+        'glass-panel flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg',
+    },
+    {
+      name: 'appends the extra classes when provided',
+      cardClassName: 'glass-glow glass-glow-green',
+      expected:
+        'glass-panel flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg glass-glow glass-glow-green',
+    },
+  ])('cardClassName: $name', ({ cardClassName, expected }) => {
+    render(
+      <MemoryRouter>
+        <DetailPageLayout
+          onBack={vi.fn()}
+          body={<p>Body content</p>}
+          cardClassName={cardClassName}
+        />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByTestId('detail-page-card')).toHaveAttribute(
+      'class',
+      expected,
+    );
+  });
 });

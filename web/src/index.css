@@ -17,6 +17,11 @@
   --glass-highlight: rgb(255 255 255 / 0.7);
   --glass-edge: rgb(15 23 42 / 0.06);
   --glass-shadow: rgb(30 58 138 / 0.14);
+
+  /* Alphas of the tinted rim light (`shadow-glass-glow`, `.glass-glow`) */
+  --glass-glow-inner: 0.35;
+  --glass-glow-outer: 0.55;
+  --glass-glow-edge: 0.7;
 }
 
 [data-theme='light'] {
@@ -27,6 +32,9 @@
   --glass-highlight: rgb(255 255 255 / 0.14);
   --glass-edge: rgb(0 0 0 / 0.25);
   --glass-shadow: rgb(0 0 0 / 0.45);
+  --glass-glow-inner: 0.3;
+  --glass-glow-outer: 0.45;
+  --glass-glow-edge: 0.6;
 }
 
 /* Smooth scrolling for better UX */
@@ -189,6 +197,64 @@ body {
    */
   .glass-panel-dropdown {
     @apply rounded-md border border-white/70 bg-white/90 shadow-glass-raised backdrop-blur-xl backdrop-saturate-150 dark:border-white/10 dark:bg-gray-800/90;
+  }
+
+  /*
+   * Tinted rim light for a glass panel, as if colored light were hitting its
+   * edge. Stack on a `.glass-panel*` class together with one tone class; the
+   * tone class is required, since it supplies `--glass-glow`.
+   *
+   * Static by design: no keyframes and no extra layer, so it costs nothing at
+   * rest. The transition only runs when the tone changes. The `.dark`
+   * selector is repeated so the tinted edge also beats the panel's own
+   * `dark:border-*` color.
+   */
+  .glass-glow {
+    @apply shadow-glass-glow transition-[box-shadow,border-color] duration-300;
+  }
+
+  .glass-glow,
+  .dark .glass-glow {
+    border-color: rgb(var(--glass-glow) / var(--glass-glow-edge));
+  }
+
+  .glass-glow-green {
+    --glass-glow: 34 197 94;
+  }
+
+  .glass-glow-yellow {
+    --glass-glow: 234 179 8;
+  }
+
+  .glass-glow-red {
+    --glass-glow: 239 68 68;
+  }
+
+  .dark .glass-glow-green {
+    --glass-glow: 74 222 128;
+  }
+
+  .dark .glass-glow-yellow {
+    --glass-glow: 250 204 21;
+  }
+
+  .dark .glass-glow-red {
+    --glass-glow: 248 113 113;
+  }
+
+  /*
+   * Thin status bar drawn as a lit glass rod: a translucent fill in the tone
+   * color, the glass top highlight and a soft halo of the same hue. Add a
+   * `.glass-glow-*` tone class for the color (neutral gray without one) and
+   * width per use. Static like `.glass-glow`: only a tone change transitions.
+   */
+  .glass-glow-bar {
+    @apply h-2 rounded-full border border-white/50 transition-[background-color,box-shadow] duration-300 dark:border-white/20;
+    background-color: rgb(var(--glass-glow, 156 163 175) / 0.8);
+    box-shadow:
+      inset 0 1px 0 0 var(--glass-highlight),
+      inset 0 -1px 0 0 var(--glass-edge),
+      0 0 10px 0 rgb(var(--glass-glow, 156 163 175) / var(--glass-glow-outer));
   }
 
   /*

@@ -47,22 +47,40 @@ export const FAMILIARITY_OPTIONS: readonly FamiliarityOption[] = [
 ] as const;
 
 /**
- * Get familiarity color class for display elements
+ * Get the tone class that sets the glow hue (`--glass-glow`) for a familiarity
+ * level. Pair it with `.glass-glow` or `.glass-glow-bar`.
+ *
+ * @param familiarity - Familiarity level to visualize
+ * @returns The `.glass-glow-*` tone class, or an empty string for an unknown level
  */
-export const getFamiliarityColor = (
+export const getFamiliarityToneClass = (
   familiarity: FamiliarityLevel | string,
 ): string => {
   const level = familiarity as FamiliarityLevel;
   switch (level) {
     case FamiliarityLevel.GREEN:
-      return 'bg-green-500 dark:bg-green-400';
+      return 'glass-glow-green';
     case FamiliarityLevel.YELLOW:
-      return 'bg-yellow-500 dark:bg-yellow-400';
+      return 'glass-glow-yellow';
     case FamiliarityLevel.RED:
-      return 'bg-red-500 dark:bg-red-400';
+      return 'glass-glow-red';
     default:
-      return 'bg-gray-400 dark:bg-gray-500';
+      return '';
   }
+};
+
+/**
+ * Get the glass rim-light classes that tint a `.glass-panel` edge with the
+ * familiarity color.
+ *
+ * @param familiarity - Familiarity level to visualize
+ * @returns The `.glass-glow` class pair, or an empty string for an unknown level
+ */
+export const getFamiliarityGlowClass = (
+  familiarity: FamiliarityLevel | string,
+): string => {
+  const toneClass = getFamiliarityToneClass(familiarity);
+  return toneClass ? `glass-glow ${toneClass}` : '';
 };
 
 /**

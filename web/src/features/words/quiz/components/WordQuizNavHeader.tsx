@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Word } from '../../../../types/api';
-import { getFamiliarityColor } from '../../../shared/constants/familiarity';
+import { FamiliarityBar } from '../../../shared/components/FamiliarityBar';
 
 interface WordQuizNavHeaderProps {
   currentWordIndex: number;
@@ -10,6 +10,8 @@ interface WordQuizNavHeaderProps {
   isFirstStep: boolean;
   showAnswer: boolean;
   currentWord: Word;
+  /** Familiarity to show; defaults to the word's stored level. */
+  familiarity?: string;
   onPrev: () => void;
   onNext: () => void;
 }
@@ -21,6 +23,7 @@ export const WordQuizNavHeader: React.FC<WordQuizNavHeaderProps> = ({
   isFirstStep,
   showAnswer,
   currentWord,
+  familiarity = currentWord.familiarity,
   onPrev,
   onNext,
 }) => (
@@ -94,14 +97,10 @@ export const WordQuizNavHeader: React.FC<WordQuizNavHeaderProps> = ({
           {currentWord.word}
         </h1>
 
-        {/* Familiarity Bar */}
-        {currentWord.familiarity && (
-          <div className='mb-2 text-center md:mb-4'>
-            <div
-              className={`mx-auto h-2 w-40 rounded-full transition-colors duration-300 ${getFamiliarityColor(currentWord.familiarity)}`}
-            />
-          </div>
-        )}
+        <FamiliarityBar
+          familiarity={familiarity}
+          className='mb-2 w-40 md:mb-4'
+        />
       </div>
     )}
   </div>

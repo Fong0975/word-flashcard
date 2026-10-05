@@ -60,7 +60,7 @@ interface EntityCardProps<T extends BaseEntity> {
  *       <p>{word.definitions?.length} definitions</p>
  *     </div>
  *   )}
- *   getLeftIndicatorColor={(word) => getFamiliarityColor(word.familiarity)}
+ *   getLeftIndicatorColor={(word) => getStatusColorClass(word)}
  *   additionalModals={<>Word specific modals here</>}
  * />
  *

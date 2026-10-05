@@ -160,6 +160,8 @@ Blur budget: `backdrop-filter` is the most expensive property in the system, so 
 | `.glass-progress-track` | `white/20` | `white/30` | `gray-800/30` | `white/10` | none | `inner` | Quiz progress track (fill stays solid primary) |
 | `.glass-card-hover` | hover: `gray-100/80`, border `primary-300`, `shadow-glass-raised` | unchanged | hover: `gray-800/70`, border `primary-600` | unchanged | none | `glass-raised` on hover | Add next to `.glass-panel-card` on clickable record rows (EntityCard, NoteCard) |
 | `.glass-panel-dropdown` | `white/90` | `white/70` | `gray-800/90` | `white/10` | `xl` + saturate 150 (radius `md`) | `glass-raised` | Every small floating panel: Info and Settings dropdown panels, `DropdownMenu` (sort, page, answer and familiarity selects, action menus) and `Toast` (which adds `rounded-lg`). Near-opaque so its text stays readable over the list rows and form fields behind it; do not use `.glass-panel-strong` for a menu or toast |
+| `.glass-glow` + `.glass-glow-green` / `-yellow` / `-red` | unchanged | tone / .70 (`green-500`, `yellow-500`, `red-500`) | unchanged | tone / .60 (`green-400`, `yellow-400`, `red-400`) | none | `glass-glow` | Modifier stacked on a `.glass-panel*` surface: a tinted rim light (inner edge glow + short outer halo) in a status hue. Used by the word quiz content card (`DetailPageLayout` `cardClassName`) to show the current word's familiarity. A tone class is required (it sets `--glass-glow`). Static: no keyframes, no extra layer, no blur. Pair it with a text equivalent (`sr-only`) so the status is not carried by color alone |
+| `.glass-glow-bar` (+ a `.glass-glow-*` tone) | tone / .80 (`gray-400` without a tone) | `white/50` | tone / .80 | `white/20` | none | inset highlight + edge, `0 0 10px` halo in the tone | Familiarity bar (shared `FamiliarityBar`: word detail header, word quiz question and answer stages, and as a vertical `h-12 w-1.5` band on the left of each `WordCard` row). `h-2`, `rounded-full`; add size and margin per use. Static; only a tone change transitions (300ms) |
 | `.glass-tint-green` | `green-100/50` | `green-300/60` | `green-900/30` | `green-700/40` | none | none | Collapsible dictionary lookup section; add `overflow-hidden` and rounding per use. Other collapsible sections use the neutral `CollapsibleSection` (`.glass-panel-card`) |
 | `.glass-interactive` | transparent → `primary-500/[15%]` hover/focus, `/25` active | transparent | transparent → `primary-400/20` hover/focus, `/30` active | transparent | none | `sm` on hover/focus | Secondary buttons, icon buttons, back button |
 | `.glass-border-subtle` | n/a (border only) | `gray-500/25` | n/a | `white/15` | none | none | Modifier stacked on `.glass-interactive` for standalone buttons (Cancel, Quick select, ActionButton, mobile pagination) so they read as buttons at rest. Do not use inside an already-bordered group (segmented toggles, toolbars). Defined after `.glass-interactive` so it overrides its transparent border |
@@ -224,6 +226,7 @@ The `glass` tokens (`tailwind.config.js`) bundle the glass lighting into one `bo
 | --- | --- |
 | `shadow-glass` | `.glass-panel`, `.glass-panel-card`, `.glass-panel-strong` at rest |
 | `shadow-glass-raised` | Modal and dialog panels, `.glass-panel-dropdown` (menus, Toast), `.glass-card-hover` on hover |
+| `shadow-glass-glow` | `.glass-glow`: `shadow-glass` plus `inset 0 0 28px -8px` and `0 0 14px 0` in the `--glass-glow` hue. The outer halo is kept within the 12px page gutter so the `overflow-hidden` page shell does not cut it off at phone width |
 | `shadow-sm` | Inputs, checkbox, radio, error banner, pagination group |
 | `shadow-inner` | Progress track |
 | `shadow-md` (dark: `shadow-lg`) | CTA buttons |
@@ -233,6 +236,8 @@ The `glass` tokens (`tailwind.config.js`) bundle the glass lighting into one `bo
 | `--glass-highlight` | `rgb(255 255 255 / .70)` | `rgb(255 255 255 / .14)` |
 | `--glass-edge` | `rgb(15 23 42 / .06)` | `rgb(0 0 0 / .25)` |
 | `--glass-shadow` | `rgb(30 58 138 / .14)` | `rgb(0 0 0 / .45)` |
+| `--glass-glow` (RGB channels, set by the tone class) | `-500` of the tone | `-400` of the tone |
+| `--glass-glow-inner` / `-outer` / `-edge` (alphas) | `.35` / `.55` / `.70` | `.30` / `.45` / `.60` |
 
 ## 7. Spacing and layout
 
@@ -248,6 +253,7 @@ The `glass` tokens (`tailwind.config.js`) bundle the glass lighting into one `bo
 | --- | --- | --- |
 | Color / surface transitions (`transition-colors`) | 200ms (Tailwind default easing) | Buttons, tabs, menu items. `.glass-interactive` also transitions `box-shadow`. List rows (`EntityCard`, `NoteCard`) name their transitioned properties explicitly instead of `transition-all` |
 | Modal panel (`transition-all`) | 200ms `ease-in-out` | Scrim uses `transition-opacity` |
+| Glass glow tone change (`.glass-glow`) | 300ms, `box-shadow` + `border-color` only | Runs once when the tone changes; the glow itself never animates (no pulse) |
 | Chevron rotate | 200ms | `CollapsibleSection`, `ActionButton` |
 | Header theme icon | moon `-rotate-12` 300ms `ease-out`; sun `rotate-180` 500ms `ease-out` | Hover only |
 | Toast enter | `slide-in-right` 0.3s `ease-out` (below 640px: `slide-in-bottom`) | Defined in `index.css` |

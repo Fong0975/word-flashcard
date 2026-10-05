@@ -3,18 +3,30 @@
 import { FamiliarityLevel } from '../../../types/base';
 
 import {
-  getFamiliarityColor,
   getFamiliarityDisplayColors,
+  getFamiliarityGlowClass,
+  getFamiliarityToneClass,
 } from './familiarity';
 
-describe('getFamiliarityColor', () => {
+describe('getFamiliarityToneClass', () => {
   it.each([
-    [FamiliarityLevel.GREEN, 'bg-green-500 dark:bg-green-400'],
-    [FamiliarityLevel.YELLOW, 'bg-yellow-500 dark:bg-yellow-400'],
-    [FamiliarityLevel.RED, 'bg-red-500 dark:bg-red-400'],
-    ['invalid', 'bg-gray-400 dark:bg-gray-500'],
+    [FamiliarityLevel.GREEN, 'glass-glow-green'],
+    [FamiliarityLevel.YELLOW, 'glass-glow-yellow'],
+    [FamiliarityLevel.RED, 'glass-glow-red'],
+    ['invalid', ''],
   ] as const)('returns %s -> %s', (familiarity, expected) => {
-    expect(getFamiliarityColor(familiarity)).toBe(expected);
+    expect(getFamiliarityToneClass(familiarity)).toBe(expected);
+  });
+});
+
+describe('getFamiliarityGlowClass', () => {
+  it.each([
+    [FamiliarityLevel.GREEN, 'glass-glow glass-glow-green'],
+    [FamiliarityLevel.YELLOW, 'glass-glow glass-glow-yellow'],
+    [FamiliarityLevel.RED, 'glass-glow glass-glow-red'],
+    ['invalid', ''],
+  ] as const)('returns %s -> %s', (familiarity, expected) => {
+    expect(getFamiliarityGlowClass(familiarity)).toBe(expected);
   });
 });
 

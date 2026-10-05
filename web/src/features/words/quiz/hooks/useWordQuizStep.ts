@@ -8,6 +8,8 @@ type QuizStage = 'question' | 'answer';
 interface UseWordQuizStepReturn {
   currentWordIndex: number;
   currentWord: Word;
+  /** The current word's familiarity, reflecting a rating made in this quiz. */
+  currentFamiliarity: FamiliarityLevel | undefined;
   showAnswer: boolean;
   isFirstStep: boolean;
   isLastStep: boolean;
@@ -50,6 +52,8 @@ export const useWordQuizStep = (words: Word[]): UseWordQuizStepReturn => {
       ? ((currentWordIndex + (showAnswer ? 1 : 0)) / words.length) * 100
       : 0;
   const currentWord = words[currentWordIndex];
+  const currentFamiliarity =
+    decisions[currentWordIndex] ?? currentWord?.familiarity;
 
   const recordDecision = (index: number, level: FamiliarityLevel) => {
     setDecisions(prev => ({ ...prev, [index]: level }));
@@ -87,6 +91,7 @@ export const useWordQuizStep = (words: Word[]): UseWordQuizStepReturn => {
   return {
     currentWordIndex,
     currentWord,
+    currentFamiliarity,
     showAnswer,
     isFirstStep,
     isLastStep,

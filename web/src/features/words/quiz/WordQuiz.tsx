@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { WordQuizResult } from '../../../types/api';
 import { FamiliarityLevel } from '../../../types/base';
@@ -29,6 +29,12 @@ interface WordQuizProps {
   onQuizComplete: (results: WordQuizResult[]) => void;
   onBackToHome: () => void;
   onError?: (message: string) => void;
+  /**
+   * Reports the familiarity the surrounding card should glow with: the level
+   * being submitted, else the word's latest rating. `undefined` whenever no
+   * word is on screen (loading, error, completed, unmounted).
+   */
+  onFamiliarityGlowChange?: (level: FamiliarityLevel | undefined) => void;
 }
 
 export const WordQuiz: React.FC<WordQuizProps> = ({
@@ -38,6 +44,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
   onQuizComplete,
   onBackToHome,
   onError,
+  onFamiliarityGlowChange,
 }) => {
   const { state, setState, words, error, setError } = useWordQuizData({
     selectedFamiliarity,
@@ -48,6 +55,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
   const {
     currentWordIndex,
     currentWord,
+    currentFamiliarity,
     showAnswer,
     isFirstStep,
     isLastStep,
@@ -74,6 +82,20 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
   // (navigating back and re-rating an already-answered word) apart from a
   // new practice event.
   const [quizSessionId] = useState(() => generateQuizSessionId());
+
+  const isWordOnScreen = state === 'quiz' && !error && !!currentWord;
+  const glowLevel = isWordOnScreen
+    ? (processingLevel ?? currentFamiliarity)
+    : undefined;
+
+  useEffect(() => {
+    onFamiliarityGlowChange?.(glowLevel);
+  }, [glowLevel, onFamiliarityGlowChange]);
+
+  useEffect(
+    () => () => onFamiliarityGlowChange?.(undefined),
+    [onFamiliarityGlowChange],
+  );
 
   const completeQuiz = (extraDecisions?: Record<number, FamiliarityLevel>) => {
     const allResults = buildAllResults(extraDecisions);
@@ -178,6 +200,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
 
     return (
       <div className='flex min-h-0 flex-1 flex-col overflow-hidden'>
+        {glowLevel && <span className='sr-only'>Familiarity: {glowLevel}</span>}
         <WordQuizNavHeader
           currentWordIndex={currentWordIndex}
           totalWords={words.length}
@@ -185,6 +208,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
           isFirstStep={isFirstStep}
           showAnswer={showAnswer}
           currentWord={currentWord}
+          familiarity={glowLevel}
           onPrev={handlePrev}
           onNext={handleNext}
         />
@@ -194,6 +218,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
           <div className='mx-auto flex w-full max-w-4xl flex-1 flex-col overflow-y-auto'>
             <WordQuestionDisplay
               word={currentWord}
+              familiarity={glowLevel}
               pronunciationUrls={pronunciationUrls}
               hasUkUrl={hasUkUrl}
               hasUsUrl={hasUsUrl}

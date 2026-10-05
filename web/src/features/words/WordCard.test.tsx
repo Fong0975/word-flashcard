@@ -49,6 +49,23 @@ describe('WordCard', () => {
     expect(screen.getByText(/1 practise\b/)).toBeInTheDocument();
   });
 
+  it.each([
+    [FamiliarityLevel.GREEN, 'glass-glow-green'],
+    [FamiliarityLevel.YELLOW, 'glass-glow-yellow'],
+    [FamiliarityLevel.RED, 'glass-glow-red'],
+  ] as const)(
+    'shows a vertical glass familiarity band for %s',
+    (familiarity, expected) => {
+      renderWithRouter(buildWord({ familiarity }));
+
+      expect(screen.getByTestId('familiarity-bar')).toHaveClass(
+        'glass-glow-bar',
+        'flex-shrink-0',
+        expected,
+      );
+    },
+  );
+
   it('navigates to the word detail page when clicked', async () => {
     const user = userEvent.setup();
     renderWithRouter(buildWord({ word: 'apple' }));

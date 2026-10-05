@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { Word } from '../../types/api';
 import { EntityCard } from '../shared/components/EntityCard';
-import { getFamiliarityColor } from '../shared/constants/familiarity';
+import { FamiliarityBar } from '../shared/components/FamiliarityBar';
 
 interface WordCardProps {
   index: number;
@@ -32,7 +32,7 @@ export const WordCard: React.FC<WordCardProps> = ({
         showSequence: true,
         sequenceStyle: 'simple',
         showLeftIndicator: true,
-        leftIndicatorType: 'color-band',
+        leftIndicatorType: 'custom',
       }}
       actions={{
         onClick: handleCardClick,
@@ -54,9 +54,13 @@ export const WordCard: React.FC<WordCardProps> = ({
           </p>
         </div>
       )}
-      getLeftIndicatorColor={word =>
-        getFamiliarityColor(word.familiarity || '')
-      }
+      renderLeftIndicator={word => (
+        <FamiliarityBar
+          familiarity={word.familiarity}
+          orientation='vertical'
+          className='mr-4 h-12 w-1.5'
+        />
+      )}
       className={className}
     />
   );
