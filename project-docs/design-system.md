@@ -307,13 +307,13 @@ Two icon styles are used on purpose, each for its own job. No icon library is in
 
 | Use | Style | Why |
 | --- | --- | --- |
-| Controls and status (Header, Toast, dialogs, menus, buttons) | Inline SVG, outline style, `stroke='currentColor'`, `aria-hidden='true'` | Follows the text color and the light / dark theme |
-| Tab labels, empty states, error / result screens (📝 ❓ 📒 📚 🔍 😕 🎉 ❌ ⚠️) | Emoji | Conveys tone at a glance with zero dependencies; the platform-specific look is accepted |
+| Controls and status (Header, Toast, dialogs, menus, buttons, tab labels) | Inline SVG, outline style, `stroke='currentColor'`, `aria-hidden='true'` | Follows the text color and the light / dark theme |
+| Empty states, error / result screens (📝 📚 🧠 🔍 😕 🎉 ❌ ⚠️) | Emoji | Conveys tone at a glance with zero dependencies; the platform-specific look is accepted |
 
 Rules:
 
 - Emoji are decorative, never the only carrier of meaning. Keep a text label or message next to them (tab label, empty-state title).
-- Use emoji for empty-state / result / error illustration (`text-6xl`) and tab prefixes only; use inline SVG for anything that must recolor with the theme.
+- Use emoji for empty-state / result / error illustration (`text-6xl`) only; use inline SVG for anything that must recolor with the theme. Tab labels (`TabNavigation`) use a `h-4 w-4` outline SVG (`strokeWidth` 1.5) shown from `sm` up.
 - Status marks inside text (`✓ Correct`, `✗ Incorrect`) stay plain text glyphs and are colored through the surrounding text color classes.
 
 Extraction rule: if the same glass utility combination appears more than twice, promote it to a shared component, `@layer components` class or Tailwind token.

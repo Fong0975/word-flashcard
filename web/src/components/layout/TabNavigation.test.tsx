@@ -12,6 +12,21 @@ describe('TabNavigation', () => {
     expect(screen.getByRole('tab', { name: /Notes/ })).toBeInTheDocument();
   });
 
+  it.each(['Words', 'Questions', 'Notes'])(
+    'labels the %s tab with a decorative SVG icon and plain text only',
+    label => {
+      render(<TabNavigation currentTab='words' onTabChange={vi.fn()} />);
+
+      const tab = screen.getByRole('tab', { name: label });
+      const icon = tab.querySelector('svg');
+
+      expect(icon).toHaveAttribute('aria-hidden', 'true');
+      expect(icon).toHaveAttribute('stroke', 'currentColor');
+      expect(icon).toHaveClass('hidden', 'sm:block');
+      expect(tab).toHaveTextContent(new RegExp(`^${label}$`));
+    },
+  );
+
   it('marks the current tab as selected', () => {
     render(<TabNavigation currentTab='questions' onTabChange={vi.fn()} />);
 
