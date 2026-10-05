@@ -42,6 +42,31 @@ describe('WordQuestionDisplay', () => {
     expect(screen.getByText('Practice #3')).toBeInTheDocument();
   });
 
+  it.each([
+    {
+      name: 'the word level by default',
+      familiarity: undefined,
+      expected: 'glass-glow-green',
+    },
+    {
+      name: 'the given level when provided',
+      familiarity: FamiliarityLevel.RED,
+      expected: 'glass-glow-red',
+    },
+  ])('shows the familiarity bar with $name', ({ familiarity, expected }) => {
+    render(
+      <WordQuestionDisplay
+        word={buildWord()}
+        familiarity={familiarity}
+        pronunciationUrls={{}}
+        hasUkUrl={false}
+        hasUsUrl={false}
+      />,
+    );
+
+    expect(screen.getByTestId('familiarity-bar')).toHaveClass(expected);
+  });
+
   it('deduplicates parts of speech across definitions', () => {
     render(
       <WordQuestionDisplay

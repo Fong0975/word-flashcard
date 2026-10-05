@@ -25,6 +25,7 @@ vi.mock('./WordQuiz', () => ({
     questionCount: number;
     perCategoryCounts?: { red: number; yellow: number; green: number };
     onQuizComplete: (results: WordQuizResult[]) => void;
+    onFamiliarityGlowChange?: (level: FamiliarityLevel | undefined) => void;
   }) => (
     <div>
       <span data-testid='word-quiz-props'>
@@ -36,6 +37,17 @@ vi.mock('./WordQuiz', () => ({
       </span>
       <button onClick={() => props.onQuizComplete(mockResults)}>
         Complete Quiz
+      </button>
+      {(['red', 'yellow', 'green'] as FamiliarityLevel[]).map(level => (
+        <button
+          key={level}
+          onClick={() => props.onFamiliarityGlowChange?.(level)}
+        >
+          Glow {level}
+        </button>
+      ))}
+      <button onClick={() => props.onFamiliarityGlowChange?.(undefined)}>
+        Glow none
       </button>
     </div>
   ),
@@ -126,6 +138,43 @@ describe('WordQuizPage', () => {
         screen.getByTestId('word-quiz-props').textContent || '{}',
       );
       expect(props.perCategoryCounts).toEqual({ red: 2, yellow: 3, green: 0 });
+    });
+  });
+
+  describe('familiarity glow on the content card', () => {
+    it.each([
+      { button: 'Glow red', expected: 'glass-glow-red' },
+      { button: 'Glow yellow', expected: 'glass-glow-yellow' },
+      { button: 'Glow green', expected: 'glass-glow-green' },
+    ])(
+      'applies $expected when the quiz reports it',
+      async ({ button, expected }) => {
+        const user = userEvent.setup();
+        renderPage('/word/quiz?count=5&familiarity=green');
+
+        const card = screen.getByTestId('detail-page-card');
+        expect(card).not.toHaveClass('glass-glow');
+
+        await user.click(screen.getByRole('button', { name: button }));
+
+        expect(card).toHaveClass('glass-glow', expected);
+      },
+    );
+
+    it('removes the glow when the quiz reports no familiarity, and on the results view', async () => {
+      const user = userEvent.setup();
+      renderPage('/word/quiz?count=5&familiarity=green');
+      const card = screen.getByTestId('detail-page-card');
+
+      await user.click(screen.getByRole('button', { name: 'Glow red' }));
+      await user.click(screen.getByRole('button', { name: 'Glow none' }));
+      expect(card).not.toHaveClass('glass-glow');
+
+      await user.click(screen.getByRole('button', { name: 'Glow red' }));
+      await user.click(screen.getByRole('button', { name: 'Complete Quiz' }));
+      expect(screen.getByTestId('detail-page-card')).not.toHaveClass(
+        'glass-glow',
+      );
     });
   });
 

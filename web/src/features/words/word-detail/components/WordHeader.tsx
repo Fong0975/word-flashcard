@@ -1,8 +1,8 @@
 import React from 'react';
 
 import { WordHeaderProps } from '../types/word-detail';
+import { FamiliarityBar } from '../../../shared/components/FamiliarityBar';
 
-import { FamiliarityBar } from './FamiliarityBar';
 import { WordActions } from './WordActions';
 
 export const WordHeader: React.FC<WordHeaderProps> = ({
@@ -28,7 +28,7 @@ export const WordHeader: React.FC<WordHeaderProps> = ({
         </h1>
       </div>
 
-      <FamiliarityBar familiarity={word.familiarity} />
+      <FamiliarityBar familiarity={word.familiarity} className='mb-4 w-24' />
 
       <WordActions word={word} onEdit={onEdit} onDelete={onDelete} />
     </div>

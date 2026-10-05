@@ -14,10 +14,6 @@ export interface WordHeaderProps {
   onDelete: () => void;
 }
 
-export interface FamiliarityBarProps {
-  familiarity: string;
-}
-
 export interface DefinitionsListProps {
   definitions: readonly WordDefinition[];
   wordText: string;

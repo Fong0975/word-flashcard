@@ -91,7 +91,40 @@ describe('WordQuizNavHeader', () => {
     );
 
     expect(screen.queryByText('banana')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('familiarity-bar')).not.toBeInTheDocument();
   });
+
+  it.each([
+    {
+      name: 'the word level by default',
+      familiarity: undefined,
+      expected: 'glass-glow-green',
+    },
+    {
+      name: 'the given level when provided',
+      familiarity: FamiliarityLevel.RED,
+      expected: 'glass-glow-red',
+    },
+  ])(
+    'shows the familiarity bar with $name once the answer is revealed',
+    ({ familiarity, expected }) => {
+      render(
+        <WordQuizNavHeader
+          currentWordIndex={0}
+          totalWords={10}
+          progress={0}
+          isFirstStep
+          showAnswer
+          currentWord={buildWord()}
+          familiarity={familiarity}
+          onPrev={vi.fn()}
+          onNext={vi.fn()}
+        />,
+      );
+
+      expect(screen.getByTestId('familiarity-bar')).toHaveClass(expected);
+    },
+  );
 
   it('shows the word once the answer is revealed', () => {
     render(

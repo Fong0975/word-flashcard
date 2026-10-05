@@ -1,12 +1,14 @@
 import React from 'react';
 
 import { Word } from '../../../../types/api';
-import { getFamiliarityColor } from '../../../shared/constants/familiarity';
+import { FamiliarityBar } from '../../../shared/components/FamiliarityBar';
 
 import { PronunciationControls } from './PronunciationControls';
 
 interface WordQuestionDisplayProps {
   word: Word;
+  /** Familiarity to show; defaults to the word's stored level. */
+  familiarity?: string;
   pronunciationUrls: { uk?: string | null; us?: string | null };
   hasUkUrl: boolean;
   hasUsUrl: boolean;
@@ -14,6 +16,7 @@ interface WordQuestionDisplayProps {
 
 export const WordQuestionDisplay: React.FC<WordQuestionDisplayProps> = ({
   word,
+  familiarity = word.familiarity,
   pronunciationUrls,
   hasUkUrl,
   hasUsUrl,
@@ -23,14 +26,7 @@ export const WordQuestionDisplay: React.FC<WordQuestionDisplayProps> = ({
       {word.word}
     </h1>
 
-    {/* Familiarity Bar */}
-    {word.familiarity && (
-      <div className='mb-4 text-center'>
-        <div
-          className={`mx-auto h-2 w-64 rounded-full transition-colors duration-300 ${getFamiliarityColor(word.familiarity)}`}
-        />
-      </div>
-    )}
+    <FamiliarityBar familiarity={familiarity} className='mb-4 w-64' />
 
     {/* Part of Speech */}
     <div className='my-3'>

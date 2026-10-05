@@ -67,6 +67,14 @@ module.exports = {
           'inset 0 1px 0 0 var(--glass-highlight), inset 0 -1px 0 0 var(--glass-edge), 0 6px 16px -6px var(--glass-shadow)',
         'glass-raised':
           'inset 0 1px 0 0 var(--glass-highlight), inset 0 -1px 0 0 var(--glass-edge), 0 16px 36px -10px var(--glass-shadow)',
+        // `glass` plus a tinted rim light: an inner glow hugging the edge and a
+        // short outer halo. The halo stays within the 12px page gutter so the
+        // `overflow-hidden` shell does not cut it off at phone width. The hue
+        // comes from `--glass-glow`, set by a `.glass-glow-*` tone class. The
+        // glow layers are appended after the three `glass` layers so the two
+        // lists line up and the glow can fade in and out as a transition.
+        'glass-glow':
+          'inset 0 1px 0 0 var(--glass-highlight), inset 0 -1px 0 0 var(--glass-edge), 0 6px 16px -6px var(--glass-shadow), inset 0 0 28px -8px rgb(var(--glass-glow) / var(--glass-glow-inner)), 0 0 14px 0 rgb(var(--glass-glow) / var(--glass-glow-outer))',
       },
       backgroundImage: {
         'glass-backdrop': glassBackdrop,

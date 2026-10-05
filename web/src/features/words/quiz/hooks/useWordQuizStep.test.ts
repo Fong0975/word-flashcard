@@ -29,6 +29,43 @@ describe('useWordQuizStep', () => {
     expect(result.current.progress).toBe(0);
   });
 
+  it.each([
+    {
+      name: 'falls back to the word familiarity when it has not been rated',
+      words: [buildWord(1, FamiliarityLevel.RED)],
+      decision: undefined,
+      expected: FamiliarityLevel.RED,
+    },
+    {
+      name: 'prefers the rating recorded for the current word',
+      words: [buildWord(1, FamiliarityLevel.RED)],
+      decision: { index: 0, level: FamiliarityLevel.GREEN },
+      expected: FamiliarityLevel.GREEN,
+    },
+    {
+      name: 'ignores a rating recorded for another word',
+      words: [buildWord(1, FamiliarityLevel.RED), buildWord(2)],
+      decision: { index: 1, level: FamiliarityLevel.GREEN },
+      expected: FamiliarityLevel.RED,
+    },
+    {
+      name: 'is undefined when there are no words',
+      words: [],
+      decision: undefined,
+      expected: undefined,
+    },
+  ])('currentFamiliarity $name', ({ words, decision, expected }) => {
+    const { result } = renderHook(() => useWordQuizStep(words));
+
+    if (decision) {
+      act(() => {
+        result.current.recordDecision(decision.index, decision.level);
+      });
+    }
+
+    expect(result.current.currentFamiliarity).toBe(expected);
+  });
+
   it('advance moves from the question stage to the answer stage of the same word', () => {
     const words = [buildWord(1), buildWord(2)];
     const { result } = renderHook(() => useWordQuizStep(words));

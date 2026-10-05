@@ -8,6 +8,7 @@ import { useQuizExitGuard } from '../../shared/hooks/useQuizExitGuard';
 import { QuizExitConfirmDialog } from '../../shared/components/QuizExitConfirmDialog';
 import { QuizResultsFooter } from '../../shared/components/QuizResultsFooter';
 import { InvalidQuizConfigScreen } from '../../shared/components/InvalidQuizConfigScreen';
+import { getFamiliarityGlowClass } from '../../shared/constants/familiarity';
 
 import { WordQuiz } from './WordQuiz';
 import { WordQuizResults } from './WordQuizResults';
@@ -50,6 +51,9 @@ export const WordQuizPage: React.FC = () => {
 
   const [pageState, setPageState] = useState<PageState>('quiz');
   const [results, setResults] = useState<WordQuizResult[]>([]);
+  const [glowFamiliarity, setGlowFamiliarity] = useState<
+    FamiliarityLevel | undefined
+  >();
 
   const handleBackToHome = () => navigate('/');
 
@@ -81,6 +85,11 @@ export const WordQuizPage: React.FC = () => {
     <>
       <DetailPageLayout
         onBack={handleBackButton}
+        cardClassName={
+          pageState === 'quiz' && glowFamiliarity
+            ? getFamiliarityGlowClass(glowFamiliarity)
+            : undefined
+        }
         body={
           <>
             {pageState === 'quiz' && (
@@ -91,6 +100,7 @@ export const WordQuizPage: React.FC = () => {
                   perCategoryCounts={perCategoryCounts}
                   onQuizComplete={handleQuizComplete}
                   onBackToHome={handleBackButton}
+                  onFamiliarityGlowChange={setGlowFamiliarity}
                 />
               </div>
             )}

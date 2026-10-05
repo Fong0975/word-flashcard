@@ -8,6 +8,8 @@ interface DetailPageLayoutProps {
   header?: React.ReactNode;
   body: React.ReactNode;
   footer?: React.ReactNode;
+  /** Extra classes for the content card, e.g. a `.glass-glow` tone. */
+  cardClassName?: string;
 }
 
 const hasContent = (value: React.ReactNode): boolean =>
@@ -18,6 +20,7 @@ export const DetailPageLayout: React.FC<DetailPageLayoutProps> = ({
   header,
   body,
   footer,
+  cardClassName,
 }) => (
   <div className='flex h-screen flex-col overflow-hidden pb-[max(1rem,env(safe-area-inset-bottom))] pt-[env(safe-area-inset-top)] transition-colors duration-300 sm:pb-0'>
     <PageBackground />
@@ -47,7 +50,12 @@ export const DetailPageLayout: React.FC<DetailPageLayoutProps> = ({
         </button>
 
         {/* Content card */}
-        <div className='glass-panel flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg'>
+        <div
+          data-testid='detail-page-card'
+          className={`glass-panel flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg${
+            cardClassName ? ` ${cardClassName}` : ''
+          }`}
+        >
           {hasContent(header) && (
             <div className='flex-shrink-0 px-3 pt-3 lg:px-6 lg:pt-6'>
               {header}

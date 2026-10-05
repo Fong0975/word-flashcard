@@ -48,12 +48,16 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
         <div className='w-full'>
           {/* Header Row: Index on left, arrow on right */}
           <div className='mb-4 flex items-center justify-between border-b border-gray-100 pb-2 dark:border-gray-700'>
-            {/* Index Number */}
+            {/* Index Number. The label and the number differ in font family and
+                size, so centering their line boxes leaves the glyphs a pixel or
+                two apart. Trimming each box to its cap height makes
+                `items-center` center the glyphs themselves, in line with the
+                arrow. Browsers without `text-box` keep the line-box centering. */}
             <div className='flex items-center'>
-              <span className='mr-1 text-xs font-bold uppercase tracking-tighter text-primary-700 dark:text-primary-400'>
+              <span className='mr-1 text-xs font-bold uppercase tracking-tighter text-primary-700 [text-box:trim-both_cap_alphabetic] dark:text-primary-400'>
                 No.
               </span>
-              <span className='text-supporting font-mono text-base font-bold tabular-nums transition-colors group-hover:text-primary-600 dark:group-hover:text-primary-400'>
+              <span className='text-supporting font-mono text-base font-bold tabular-nums transition-colors [text-box:trim-both_cap_alphabetic] group-hover:text-primary-600 dark:group-hover:text-primary-400'>
                 {index}
               </span>
             </div>
