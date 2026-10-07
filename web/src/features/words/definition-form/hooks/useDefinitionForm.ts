@@ -30,6 +30,59 @@ interface UseDefinitionFormProps {
   onError?: (message: string) => void;
 }
 
+const createEmptyFormData = (): DefinitionForm => ({
+  part_of_speech: [],
+  definition: '',
+  examples: [''],
+  notes: '',
+  phonetics: {},
+});
+
+/**
+ * Returns the form data the form starts from: the definition being edited,
+ * or a blank form when adding (or when edit mode has no definition yet).
+ *
+ * @param mode - Whether the form adds a new definition or edits an existing one
+ * @param definition - The definition being edited, if any
+ * @returns The starting form data
+ */
+const getInitialFormData = (
+  mode: 'add' | 'edit',
+  definition?: WordDefinition | null,
+): DefinitionForm =>
+  mode === 'edit' && definition
+    ? {
+        part_of_speech: definition.part_of_speech
+          ? normalizePartsOfSpeech(definition.part_of_speech.split(','))
+          : [],
+        definition: definition.definition || '',
+        examples:
+          definition.examples && definition.examples.length > 0
+            ? [...definition.examples]
+            : [''],
+        notes: definition.notes ? definition.notes.replace(/\\n/g, '\n') : '',
+        phonetics: definition.phonetics || {},
+      }
+    : createEmptyFormData();
+
+/**
+ * Reduces form data to the parts that matter for change detection, ignoring
+ * differences that do not survive submission: part-of-speech tick order,
+ * blank example rows, and unset vs. empty phonetics.
+ *
+ * @param form - The form data to reduce
+ * @returns A string that is equal for two forms with the same content
+ */
+const toComparableContent = (form: DefinitionForm): string =>
+  JSON.stringify({
+    part_of_speech: [...form.part_of_speech].sort(),
+    definition: form.definition,
+    examples: form.examples.filter(example => example.trim()),
+    notes: form.notes,
+    uk: form.phonetics.uk ?? '',
+    us: form.phonetics.us ?? '',
+  });
+
 export const useDefinitionForm = ({
   isOpen,
   mode,
@@ -41,49 +94,16 @@ export const useDefinitionForm = ({
   onError,
 }: UseDefinitionFormProps) => {
   // Form state
-  const [formData, setFormData] = useState<DefinitionForm>({
-    part_of_speech: [],
-    definition: '',
-    examples: [''],
-    notes: '',
-    phonetics: {},
-  });
+  const [formData, setFormData] = useState<DefinitionForm>(createEmptyFormData);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Reset or populate form when modal opens/closes
   useEffect(() => {
     if (!isOpen) {
-      setFormData({
-        part_of_speech: [],
-        definition: '',
-        examples: [''],
-        notes: '',
-        phonetics: {},
-      });
-    } else if (isOpen && mode === 'edit' && definition) {
-      // Pre-populate form data for edit mode
-      setFormData({
-        part_of_speech: definition.part_of_speech
-          ? normalizePartsOfSpeech(definition.part_of_speech.split(','))
-          : [],
-        definition: definition.definition || '',
-        examples:
-          definition.examples && definition.examples.length > 0
-            ? [...definition.examples]
-            : [''],
-        notes: definition.notes ? definition.notes.replace(/\\n/g, '\n') : '',
-        phonetics: definition.phonetics || {},
-      });
-    } else if (isOpen && mode === 'add') {
-      // Reset form for add mode
-      setFormData({
-        part_of_speech: [],
-        definition: '',
-        examples: [''],
-        notes: '',
-        phonetics: {},
-      });
+      setFormData(createEmptyFormData());
+    } else if ((mode === 'edit' && definition) || mode === 'add') {
+      setFormData(getInitialFormData(mode, definition));
     }
   }, [isOpen, mode, definition]);
 
@@ -226,10 +246,15 @@ export const useDefinitionForm = ({
     formData.definition.trim() && formData.part_of_speech.length > 0,
   );
 
+  const isDirty =
+    toComparableContent(formData) !==
+    toComparableContent(getInitialFormData(mode, definition));
+
   return {
     formData,
     isSubmitting,
     isFormValid,
+    isDirty,
     handlers: {
       handlePartOfSpeechChange,
       handleDefinitionChange,

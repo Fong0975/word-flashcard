@@ -157,7 +157,7 @@ export const WordDetailPage: React.FC = () => {
   if (isLoading) {
     return (
       <DetailPageLayout
-        onBack={() => navigate(-1)}
+        onBack={() => navigate('/')}
         body={
           <div className='flex flex-1 items-center justify-center'>
             <div
@@ -197,7 +197,7 @@ export const WordDetailPage: React.FC = () => {
   return (
     <>
       <DetailPageLayout
-        onBack={() => navigate(-1)}
+        onBack={() => navigate('/')}
         header={
           <WordHeader
             word={word}

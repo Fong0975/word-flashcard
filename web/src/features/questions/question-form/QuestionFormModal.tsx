@@ -4,7 +4,9 @@ import { Modal } from '../../../components/ui/Modal';
 import { CopyButton } from '../../../components/ui/CopyButton';
 import { FormActions } from '../../../components/ui/FormActions';
 import { FormErrorMessage } from '../../../components/ui/FormErrorMessage';
+import { UnsavedChangesDialog } from '../../../components/ui/UnsavedChangesDialog';
 import { useTemplateButtons } from '../../../hooks/shared';
+import { useUnsavedChangesGuard } from '../../../hooks/ui/useUnsavedChangesGuard';
 import { Question } from '../../../types/api';
 import { formatFormDataForCopy } from '../question-detail/utils/questionFormat';
 
@@ -42,6 +44,7 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
   const {
     formData,
     isValid,
+    isDirty,
     handlers: {
       handleQuestionChange,
       handleAnswerChange,
@@ -77,13 +80,19 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
     }
   };
 
+  const unsavedChangesGuard = useUnsavedChangesGuard({
+    isEditing: isOpen,
+    isDirty: isOpen && isDirty,
+    onLeave: handleClose,
+  });
+
   const modalTitle = mode === 'create' ? 'Add New Question' : 'Edit Question';
   const copyText = formatFormDataForCopy(formData);
 
   return (
     <Modal
       isOpen={isOpen}
-      onClose={handleClose}
+      onClose={unsavedChangesGuard.requestLeave}
       maxWidth='2xl'
       disableBackdropClose={true}
       className='max-h-[95vh] overflow-hidden'
@@ -163,6 +172,12 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
           />
         </div>
       </div>
+
+      <UnsavedChangesDialog
+        isOpen={unsavedChangesGuard.showConfirm}
+        onConfirm={unsavedChangesGuard.confirmLeave}
+        onCancel={unsavedChangesGuard.cancelLeave}
+      />
     </Modal>
   );
 };

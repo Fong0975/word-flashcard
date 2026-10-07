@@ -71,7 +71,7 @@ describe('QuestionDetailPage', () => {
     expect(getQuestionSpy).not.toHaveBeenCalled();
   });
 
-  it('shows a loading spinner while fetching, and navigates back with browser history when Go back is clicked', async () => {
+  it('shows a loading spinner while fetching, and navigates to the questions tab when Go back is clicked', async () => {
     const user = userEvent.setup();
     vi.spyOn(apiService, 'getQuestion').mockReturnValue(
       new Promise<Question>(() => {}),
@@ -82,10 +82,10 @@ describe('QuestionDetailPage', () => {
     expect(screen.getByRole('status')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Go back' }));
 
-    expect(mockNavigate).toHaveBeenCalledWith(-1);
+    expect(mockNavigate).toHaveBeenCalledWith('/?tab=questions');
   });
 
-  it('shows an error screen and navigates home on failure', async () => {
+  it('shows an error screen and navigates to the questions tab on failure', async () => {
     const user = userEvent.setup();
     vi.spyOn(apiService, 'getQuestion').mockRejectedValue(
       new Error('question gone'),
@@ -97,10 +97,10 @@ describe('QuestionDetailPage', () => {
 
     await user.click(screen.getByRole('button', { name: 'Back to Home' }));
 
-    expect(mockNavigate).toHaveBeenCalledWith('/');
+    expect(mockNavigate).toHaveBeenCalledWith('/?tab=questions');
   });
 
-  it('navigates home when Go back is clicked on the error screen', async () => {
+  it('navigates to the questions tab when Go back is clicked on the error screen', async () => {
     const user = userEvent.setup();
     vi.spyOn(apiService, 'getQuestion').mockRejectedValue(
       new Error('question gone'),
@@ -112,10 +112,10 @@ describe('QuestionDetailPage', () => {
 
     await user.click(screen.getByRole('button', { name: 'Go back' }));
 
-    expect(mockNavigate).toHaveBeenCalledWith('/');
+    expect(mockNavigate).toHaveBeenCalledWith('/?tab=questions');
   });
 
-  it('renders question details, using browser-back on header', async () => {
+  it('renders question details and navigates to the questions tab when Go back is clicked', async () => {
     const user = userEvent.setup();
     vi.spyOn(apiService, 'getQuestion').mockResolvedValue(buildQuestion());
 
@@ -129,7 +129,7 @@ describe('QuestionDetailPage', () => {
 
     await user.click(screen.getByRole('button', { name: 'Go back' }));
 
-    expect(mockNavigate).toHaveBeenCalledWith(-1);
+    expect(mockNavigate).toHaveBeenCalledWith('/?tab=questions');
   });
 
   it('toggles the answer and explanation section', async () => {
@@ -190,7 +190,7 @@ describe('QuestionDetailPage', () => {
     ).toBeInTheDocument();
   });
 
-  it('deletes the question after confirming, closes back home', async () => {
+  it('deletes the question after confirming, closes back to the questions tab', async () => {
     const user = userEvent.setup();
     vi.spyOn(apiService, 'getQuestion').mockResolvedValue(buildQuestion());
     const deleteSpy = vi
@@ -208,7 +208,7 @@ describe('QuestionDetailPage', () => {
     await user.click(screen.getByRole('button', { name: 'Delete Question' }));
 
     await waitFor(() => expect(deleteSpy).toHaveBeenCalledWith(1));
-    expect(mockNavigate).toHaveBeenCalledWith('/');
+    expect(mockNavigate).toHaveBeenCalledWith('/?tab=questions');
   });
 
   it('cancels the delete confirmation without deleting', async () => {

@@ -3,6 +3,8 @@ import React, { useEffect, useCallback } from 'react';
 import { Modal } from '../../../components/ui/Modal';
 import { FormActions } from '../../../components/ui/FormActions';
 import { FormErrorMessage } from '../../../components/ui/FormErrorMessage';
+import { UnsavedChangesDialog } from '../../../components/ui/UnsavedChangesDialog';
+import { useUnsavedChangesGuard } from '../../../hooks/ui/useUnsavedChangesGuard';
 import { Word } from '../../../types/api';
 
 import { WordFormModalProps } from './types';
@@ -46,6 +48,12 @@ export const WordFormModal: React.FC<WordFormModalProps> = ({
       onClose();
     }
   }, [submitLogic.isSubmitting, onClose]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const unsavedChangesGuard = useUnsavedChangesGuard({
+    isEditing: isOpen,
+    isDirty: isOpen && formLogic.isDirty,
+    onLeave: handleClose,
+  });
 
   // Handle word input change (both form and search)
   const handleWordChange = useCallback(
@@ -94,7 +102,7 @@ export const WordFormModal: React.FC<WordFormModalProps> = ({
   return (
     <Modal
       isOpen={isOpen}
-      onClose={handleClose}
+      onClose={unsavedChangesGuard.requestLeave}
       title={modalTitle}
       maxWidth='md'
       disableBackdropClose={true}
@@ -185,6 +193,12 @@ export const WordFormModal: React.FC<WordFormModalProps> = ({
           </div>
         </div>
       </form>
+
+      <UnsavedChangesDialog
+        isOpen={unsavedChangesGuard.showConfirm}
+        onConfirm={unsavedChangesGuard.confirmLeave}
+        onCancel={unsavedChangesGuard.cancelLeave}
+      />
     </Modal>
   );
 };

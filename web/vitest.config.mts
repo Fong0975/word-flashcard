@@ -69,6 +69,7 @@ export default mergeConfig(
         reportsDirectory: './coverage',
         exclude: [
           'node_modules/',
+          'src/test-utils/**',
           '**/index.{ts,tsx}',
           'src/features/questions/question-detail/types/question-detail.ts',
           'src/features/questions/question-form/types/question-form.ts',

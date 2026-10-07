@@ -2,7 +2,9 @@ import React, { useEffect, useMemo, useRef } from 'react';
 
 import { Modal, ToastContainer } from '../../../components/ui';
 import { CopyButton } from '../../../components/ui/CopyButton';
+import { UnsavedChangesDialog } from '../../../components/ui/UnsavedChangesDialog';
 import { useToast } from '../../../hooks/ui/useToast';
+import { useUnsavedChangesGuard } from '../../../hooks/ui/useUnsavedChangesGuard';
 import { useTemplateButtons } from '../../../hooks/shared';
 
 import { DictionaryLookup, FormFields } from './components';
@@ -34,6 +36,12 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
     onDefinitionUpdated,
     onClose,
     onError: showError,
+  });
+
+  const unsavedChangesGuard = useUnsavedChangesGuard({
+    isEditing: isOpen,
+    isDirty: isOpen && formLogic.isDirty,
+    onLeave: onClose,
   });
 
   const slowLookupToast = useMemo(
@@ -97,7 +105,7 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={unsavedChangesGuard.requestLeave}
       maxWidth='xl'
       className='max-h-[95vh] overflow-hidden'
       disableBackdropClose={true}
@@ -214,6 +222,12 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
 
       {/* Toast Notifications */}
       <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
+
+      <UnsavedChangesDialog
+        isOpen={unsavedChangesGuard.showConfirm}
+        onConfirm={unsavedChangesGuard.confirmLeave}
+        onCancel={unsavedChangesGuard.cancelLeave}
+      />
     </Modal>
   );
 };

@@ -125,4 +125,88 @@ describe('useWordForm', () => {
       reminderText: '',
     });
   });
+
+  it.each<{
+    name: string;
+    mode: 'create' | 'edit';
+    word?: Word;
+    edit: (handlers: ReturnType<typeof useWordForm>['handlers']) => void;
+    expected: boolean;
+  }>([
+    {
+      name: 'clean for an untouched create form',
+      mode: 'create',
+      edit: () => {},
+      expected: false,
+    },
+    {
+      name: 'dirty once a word is typed in create mode',
+      mode: 'create',
+      edit: handlers => handlers.handleWordChange('banana'),
+      expected: true,
+    },
+    {
+      name: 'clean for an untouched edit form',
+      mode: 'edit',
+      word: buildWord(),
+      edit: () => {},
+      expected: false,
+    },
+    {
+      name: 'dirty when the word text is changed',
+      mode: 'edit',
+      word: buildWord(),
+      edit: handlers => handlers.handleWordChange('apples'),
+      expected: true,
+    },
+    {
+      name: 'clean when the word text is changed back',
+      mode: 'edit',
+      word: buildWord(),
+      edit: handlers => {
+        handlers.handleWordChange('apples');
+        handlers.handleWordChange('apple');
+      },
+      expected: false,
+    },
+    {
+      name: 'dirty when the familiarity is changed',
+      mode: 'edit',
+      word: buildWord(),
+      edit: handlers =>
+        handlers.handleFamiliarityChange(FamiliarityLevel.YELLOW),
+      expected: true,
+    },
+    {
+      name: 'dirty when the reminder text is changed',
+      mode: 'edit',
+      word: buildWord(),
+      edit: handlers => handlers.handleReminderTextChange('call tomorrow'),
+      expected: true,
+    },
+    {
+      name: 'dirty when an existing reminder is disabled',
+      mode: 'edit',
+      word: buildWord(),
+      edit: handlers => handlers.handleReminderEnabledChange(false),
+      expected: true,
+    },
+    {
+      name: 'clean when the reminder is enabled without a note',
+      mode: 'edit',
+      word: buildWord({ reminder: null }),
+      edit: handlers => handlers.handleReminderEnabledChange(true),
+      expected: false,
+    },
+  ])('isDirty is $name', ({ mode, word, edit, expected }) => {
+    const { result } = renderHook(() =>
+      useWordForm({ mode, word, isOpen: true }),
+    );
+
+    act(() => {
+      edit(result.current.handlers);
+    });
+
+    expect(result.current.isDirty).toBe(expected);
+  });
 });

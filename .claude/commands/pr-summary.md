@@ -7,10 +7,27 @@ Generate a pull request summary for the given git commit SHAs: $ARGUMENTS
    - `git show --stat --no-walk $ARGUMENTS` — get per-commit file change lists
 
 2. Based on the changed file paths, classify each change into the appropriate section using these rules:
-   - **🖥️ API Enhancements**: Go source files under `internal/`, `cmd/`, `pkg/` — backend business logic and API endpoints
-   - **🌍 Webpage Enhancements**: Files under `web/` — frontend UI, components, hooks, types
-   - **🛢 Database Enhancements**: Files under `data/` (schema definitions) or `utils/database/` (core DB utilities)
-   - **⚙️ Others**: Everything else (CI config, docs, root-level tooling, etc.)
+   - **🖥️ API Enhancements** (Backend): Everything that serves only the Go backend
+     - Go source files under `internal/`, `cmd/`, `pkg/`, `utils/` (except `utils/database/`), and root-level `main.go` — backend business logic and API endpoints
+     - Their unit tests and mocks (`*_test.go`)
+     - Go dependency changes: `go.mod`, `go.sum` (always here, regardless of what the package is used for)
+     - The root `Dockerfile` (it builds the Go backend only)
+     - Backend-only tooling and docs: `.golangci.yml`, `project-docs/COVERAGE_EXCLUSIONS.md`, generated API docs under `docs/` (`swagger.*`, `docs.go`)
+   - **🌍 Webpage Enhancements** (Frontend): Everything that serves only the frontend
+     - Files under `web/` — UI, components, hooks, types
+     - Their unit tests (`*.test.ts(x)`) and test setup
+     - Frontend dependency and build config changes: `web/package.json`, lockfile, Vite/Vitest/ESLint/Tailwind config
+     - Frontend-only docs: `project-docs/design-system.md`
+   - **🛢 Database Enhancements**: Files under `data/` (schema definitions, models, peers) or `utils/database/` (core DB utilities), including their unit tests and mocks (`data/mocks/`)
+   - **⚙️ Others**: Project-level changes only — files that do not belong to a single side
+     - `.github/` (workflows, PR template), even when a workflow targets only one side
+     - Cross-cutting deployment config: `docker-compose.yml`, `.dockerignore`, `.env.example`
+     - Project-level docs and tooling: `README.md`, `CLAUDE.md`, `.claude/`, `scripts/`, `VERSION`
+
+   Classification principles:
+   - A unit test, dependency, Dockerfile, config, or doc change is **never** "Others" just because it is not feature code — it follows the side it serves.
+   - For a file not listed above, ask which side it serves: exactly one side → that side's section; the project as a whole → Others.
+   - Tests and dependency bumps that merely accompany a feature in the same section do not need their own bullet; give them a bullet only when they are a notable change on their own (e.g. a test-only or dependency-only commit).
 
 3. Generate the output using the template structure below.
 

@@ -11,28 +11,33 @@ interface UseQuestionFormProps {
   isOpen: boolean;
 }
 
-export const useQuestionForm = ({
-  mode,
-  question,
-  isOpen,
-}: UseQuestionFormProps) => {
-  const [formData, setFormData] = useState<QuestionFormData>({
-    question: '',
-    answer: '',
-    options: {
-      A: '',
-      B: '',
-      C: '',
-      D: '',
-    },
-    notes: '',
-    reference: '',
-  });
+const createEmptyFormData = (): QuestionFormData => ({
+  question: '',
+  answer: '',
+  options: {
+    A: '',
+    B: '',
+    C: '',
+    D: '',
+  },
+  notes: '',
+  reference: '',
+});
 
-  // Initialize form values when modal opens or question changes
-  useEffect(() => {
-    if (mode === 'edit' && question) {
-      setFormData({
+/**
+ * Returns the form data the form starts from: the question being edited, or
+ * a blank form when creating (or when edit mode has no question yet).
+ *
+ * @param mode - Whether the form creates a new question or edits an existing one
+ * @param question - The question being edited, if any
+ * @returns The starting form data
+ */
+const getInitialFormData = (
+  mode: 'create' | 'edit',
+  question?: Question,
+): QuestionFormData =>
+  mode === 'edit' && question
+    ? {
         question: question.question,
         answer: question.answer,
         options: {
@@ -43,20 +48,38 @@ export const useQuestionForm = ({
         },
         notes: question.notes,
         reference: question.reference,
-      });
-    } else if (mode === 'create') {
-      setFormData({
-        question: '',
-        answer: '',
-        options: {
-          A: '',
-          B: '',
-          C: '',
-          D: '',
-        },
-        notes: '',
-        reference: '',
-      });
+      }
+    : createEmptyFormData();
+
+/**
+ * Checks whether two form data values hold the same content.
+ *
+ * @param a - First form data
+ * @param b - Second form data
+ * @returns True when every field matches
+ */
+const isSameFormData = (a: QuestionFormData, b: QuestionFormData): boolean =>
+  a.question === b.question &&
+  a.answer === b.answer &&
+  a.options.A === b.options.A &&
+  a.options.B === b.options.B &&
+  a.options.C === b.options.C &&
+  a.options.D === b.options.D &&
+  (a.notes ?? '') === (b.notes ?? '') &&
+  (a.reference ?? '') === (b.reference ?? '');
+
+export const useQuestionForm = ({
+  mode,
+  question,
+  isOpen,
+}: UseQuestionFormProps) => {
+  const [formData, setFormData] =
+    useState<QuestionFormData>(createEmptyFormData);
+
+  // Initialize form values when modal opens or question changes
+  useEffect(() => {
+    if ((mode === 'edit' && question) || mode === 'create') {
+      setFormData(getInitialFormData(mode, question));
     }
   }, [mode, question, isOpen]);
 
@@ -107,27 +130,19 @@ export const useQuestionForm = ({
 
   // Reset form
   const resetForm = useCallback(() => {
-    setFormData({
-      question: '',
-      answer: '',
-      options: {
-        A: '',
-        B: '',
-        C: '',
-        D: '',
-      },
-      notes: '',
-      reference: '',
-    });
+    setFormData(createEmptyFormData());
   }, []);
 
   // Form validation
   const validationError = validateQuestionForm(formData);
   const isValid = validationError === null;
 
+  const isDirty = !isSameFormData(formData, getInitialFormData(mode, question));
+
   return {
     formData,
     isValid,
+    isDirty,
     validationError,
     handlers: {
       handleQuestionChange,

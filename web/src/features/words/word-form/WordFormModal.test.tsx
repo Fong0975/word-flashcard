@@ -5,6 +5,7 @@ import type { Mock, MockInstance } from 'vitest';
 import { Word } from '../../../types/api';
 import { FamiliarityLevel } from '../../../types/base';
 import { apiService } from '../../../lib/api';
+import { modalLeaveMethods } from '../../../test-utils/unsavedChanges';
 
 import { WordFormModal } from './WordFormModal';
 
@@ -77,6 +78,54 @@ describe('WordFormModal', () => {
     await user.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(onClose).toHaveBeenCalledTimes(1);
   });
+
+  it('closes without confirming when the close button is clicked on an untouched form', async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+    render(
+      <WordFormModal isOpen onClose={onClose} mode='edit' word={buildWord()} />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Close modal' }));
+
+    expect(screen.queryByText('Discard changes?')).not.toBeInTheDocument();
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not close when the backdrop is clicked', async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+    render(<WordFormModal isOpen onClose={onClose} mode='create' />);
+
+    await user.click(screen.getByTestId('modal-backdrop'));
+
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it.each(modalLeaveMethods)(
+    'confirms before discarding unsaved changes when leaving via $via',
+    async ({ leave }) => {
+      const user = userEvent.setup();
+      const onClose = vi.fn();
+      render(<WordFormModal isOpen onClose={onClose} mode='create' />);
+      await user.type(screen.getByRole('textbox', { name: 'Word' }), 'banana');
+
+      await leave(user);
+      expect(screen.getByText('Discard changes?')).toBeInTheDocument();
+      await user.click(screen.getByRole('button', { name: 'Keep editing' }));
+
+      expect(screen.queryByText('Discard changes?')).not.toBeInTheDocument();
+      expect(onClose).not.toHaveBeenCalled();
+      expect(screen.getByRole('textbox', { name: 'Word' })).toHaveValue(
+        'banana',
+      );
+
+      await leave(user);
+      await user.click(screen.getByRole('button', { name: 'Discard changes' }));
+
+      expect(onClose).toHaveBeenCalledTimes(1);
+    },
+  );
 
   it('creates a new word and notifies the parent', async () => {
     const user = userEvent.setup();
