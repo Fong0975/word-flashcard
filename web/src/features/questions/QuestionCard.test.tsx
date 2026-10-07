@@ -61,6 +61,47 @@ describe('QuestionCard', () => {
     expect(screen.getByText(/Errors: 3/)).toBeInTheDocument();
   });
 
+  it.each([
+    {
+      name: 'never practiced',
+      overrides: { count_practise: 0, count_failure_practise: 0 },
+      textColor: 'text-supporting',
+      toneClass: null,
+    },
+    {
+      name: 'high accuracy',
+      overrides: { count_practise: 2, count_failure_practise: 0 },
+      textColor: 'text-green-700',
+      toneClass: 'glass-glow-green',
+    },
+    {
+      name: 'medium accuracy',
+      overrides: { count_practise: 4, count_failure_practise: 1 },
+      textColor: 'text-yellow-700',
+      toneClass: 'glass-glow-yellow',
+    },
+    {
+      name: 'low accuracy',
+      overrides: { count_practise: 4, count_failure_practise: 3 },
+      textColor: 'text-red-700',
+      toneClass: 'glass-glow-red',
+    },
+  ])(
+    'tints the statistics and the accuracy bar for $name',
+    ({ overrides, textColor, toneClass }) => {
+      renderWithRouter(buildQuestion(overrides));
+
+      expect(screen.getByTestId('question-stats')).toHaveClass(textColor);
+
+      const bar = screen.getByTestId('accuracy-bar');
+      if (toneClass === null) {
+        expect(bar.className).not.toMatch(/glass-glow-(green|yellow|red)/);
+      } else {
+        expect(bar).toHaveClass(toneClass);
+      }
+    },
+  );
+
   it('navigates to the question detail page when clicked', async () => {
     const user = userEvent.setup();
     renderWithRouter(buildQuestion({ id: 5 }));
