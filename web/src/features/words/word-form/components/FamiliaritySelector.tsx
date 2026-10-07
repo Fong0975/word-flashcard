@@ -2,7 +2,10 @@ import React from 'react';
 
 import { DropdownMenu } from '../../../../components/ui';
 import { FamiliarityLevel } from '../../../../types/base';
-import { FAMILIARITY_OPTIONS } from '../../../shared/constants/familiarity';
+import {
+  FAMILIARITY_OPTIONS,
+  getFamiliarityDisplayColors,
+} from '../../../shared/constants/familiarity';
 
 interface FamiliaritySelectorProps {
   value: FamiliarityLevel;
@@ -10,6 +13,20 @@ interface FamiliaritySelectorProps {
   disabled: boolean;
   mode: 'create' | 'edit';
 }
+
+/**
+ * Decorative dot in the familiarity color. The level itself is conveyed by the
+ * label next to it, so the dot is hidden from assistive tech.
+ */
+const FamiliarityDot: React.FC<{ familiarity: FamiliarityLevel }> = ({
+  familiarity,
+}) => (
+  <span
+    data-testid='familiarity-dot'
+    aria-hidden='true'
+    className={`block h-2 w-2 shrink-0 rounded-full ${getFamiliarityDisplayColors(familiarity).dot}`}
+  />
+);
 
 export const FamiliaritySelector: React.FC<FamiliaritySelectorProps> = ({
   value,
@@ -51,7 +68,12 @@ export const FamiliaritySelector: React.FC<FamiliaritySelectorProps> = ({
               aria-haspopup='true'
               className='glass-input flex w-full items-center justify-between px-3 py-2 text-left disabled:cursor-not-allowed disabled:opacity-50'
             >
-              <span>
+              <span className='flex min-w-0 items-center'>
+                {selectedOption && (
+                  <span className='mr-3 flex-shrink-0'>
+                    <FamiliarityDot familiarity={selectedOption.value} />
+                  </span>
+                )}
                 {selectedOption?.label ?? 'Select familiarity level...'}
               </span>
               <svg
@@ -73,6 +95,7 @@ export const FamiliaritySelector: React.FC<FamiliaritySelectorProps> = ({
           items={FAMILIARITY_OPTIONS.map(option => ({
             id: option.value,
             label: option.label,
+            icon: <FamiliarityDot familiarity={option.value} />,
             isSelected: option.value === value,
             onClick: () => onChange(option.value),
           }))}
