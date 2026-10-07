@@ -4,6 +4,7 @@ import type { MockInstance } from 'vitest';
 
 import { Question } from '../../../types/api';
 import { apiService } from '../../../lib/api';
+import { modalLeaveMethods } from '../../../test-utils/unsavedChanges';
 
 import { QuestionFormModal } from './QuestionFormModal';
 
@@ -71,6 +72,62 @@ describe('QuestionFormModal', () => {
       screen.getByRole('button', { name: 'Update Question' }),
     ).toBeInTheDocument();
   });
+
+  it('closes without confirming when the close button is clicked on an untouched form', async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+    render(
+      <QuestionFormModal
+        isOpen
+        onClose={onClose}
+        mode='edit'
+        question={buildQuestion()}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Close modal' }));
+
+    expect(screen.queryByText('Discard changes?')).not.toBeInTheDocument();
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not close when the backdrop is clicked', async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+    render(<QuestionFormModal isOpen onClose={onClose} mode='create' />);
+
+    await user.click(screen.getByTestId('modal-backdrop'));
+
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it.each(modalLeaveMethods)(
+    'confirms before discarding unsaved changes when leaving via $via',
+    async ({ leave }) => {
+      const user = userEvent.setup();
+      const onClose = vi.fn();
+      render(<QuestionFormModal isOpen onClose={onClose} mode='create' />);
+      await user.type(
+        screen.getByRole('textbox', { name: /Question/ }),
+        'New question?',
+      );
+
+      await leave(user);
+      expect(screen.getByText('Discard changes?')).toBeInTheDocument();
+      await user.click(screen.getByRole('button', { name: 'Keep editing' }));
+
+      expect(screen.queryByText('Discard changes?')).not.toBeInTheDocument();
+      expect(onClose).not.toHaveBeenCalled();
+      expect(screen.getByRole('textbox', { name: /Question/ })).toHaveValue(
+        'New question?',
+      );
+
+      await leave(user);
+      await user.click(screen.getByRole('button', { name: 'Discard changes' }));
+
+      expect(onClose).toHaveBeenCalledTimes(1);
+    },
+  );
 
   it('submits a new question and notifies the parent', async () => {
     const user = userEvent.setup();

@@ -32,6 +32,21 @@ afterEach(() => {
   cleanup();
 });
 
+// jsdom traverses history asynchronously, and with `isolate: false` its
+// window is shared by every test file in a worker, so a `history.back()`
+// issued by one test (e.g. the unsaved-changes guard dropping its history
+// entry on unmount) would fire its popstate in the middle of a later test.
+// Run the traversal synchronously instead: land on an entry without state
+// and fire popstate right away. Assigned directly rather than via `vi.spyOn`
+// so that `vi.restoreAllMocks()` in a test file does not undo it. Test files
+// that opt into the node environment have no window to patch.
+if (typeof window !== 'undefined') {
+  window.history.back = () => {
+    window.history.replaceState(null, '');
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  };
+}
+
 if (typeof global.TextEncoder === 'undefined') {
   global.TextEncoder = TextEncoder;
 }

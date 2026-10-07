@@ -3,26 +3,49 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import type { MockInstance } from 'vitest';
 
+import { Note } from '../../../types/api';
 import { apiService } from '../../../lib/api';
 import { pressBrowserBack } from '../../../test-utils/unsavedChanges';
 
-import { NoteCreatePage } from './NoteCreatePage';
+import { NoteDetailPage } from './NoteDetailPage';
 
 const mockNavigate = vi.fn();
 
 vi.mock('react-router-dom', async () => ({
   ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
+  useParams: () => ({ id: '1' }),
 }));
 
-const renderPage = () =>
+const note: Note = {
+  id: 1,
+  title: 'My note',
+  content: 'Some content',
+  sort_order: 0,
+  updated_at: '2026-07-10T10:00:00Z',
+};
+
+/**
+ * Renders the page for the stored note and switches it into edit mode.
+ *
+ * @returns The user-event instance driving the page
+ */
+const renderInEditMode = async () => {
+  const user = userEvent.setup();
+  vi.spyOn(apiService, 'getNote').mockResolvedValue(note);
+
   render(
     <MemoryRouter>
-      <NoteCreatePage />
+      <NoteDetailPage />
     </MemoryRouter>,
   );
+  await screen.findByRole('heading', { name: 'My note' });
+  await user.click(screen.getByRole('button', { name: 'Edit' }));
 
-describe('NoteCreatePage', () => {
+  return user;
+};
+
+describe('NoteDetailPage unsaved changes', () => {
   let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
@@ -44,62 +67,8 @@ describe('NoteCreatePage', () => {
     document.documentElement.classList.remove('dark');
   });
 
-  it('disables Save until a title is entered', async () => {
-    const user = userEvent.setup();
-    renderPage();
-
-    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
-
-    await user.type(screen.getByPlaceholderText('Note title'), 'My note');
-
-    expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
-  });
-
-  it('creates the note and navigates to it on save', async () => {
-    const user = userEvent.setup();
-    const createSpy = vi.spyOn(apiService, 'createNote').mockResolvedValue({
-      id: 42,
-      title: 'My note',
-      content: 'Some content',
-      sort_order: 0,
-      updated_at: null,
-    });
-
-    renderPage();
-
-    await user.type(screen.getByPlaceholderText('Note title'), 'My note');
-    await user.type(
-      screen.getByPlaceholderText('Write your note...'),
-      'Some content',
-    );
-    await user.click(screen.getByRole('button', { name: 'Save' }));
-
-    expect(createSpy).toHaveBeenCalledWith({
-      title: 'My note',
-      content: 'Some content',
-    });
-    expect(mockNavigate).toHaveBeenCalledWith('/note/42', { replace: true });
-  });
-
-  it('shows an error and re-enables Save when creation fails', async () => {
-    const user = userEvent.setup();
-    vi.spyOn(apiService, 'createNote').mockRejectedValue(
-      new Error('create failed'),
-    );
-
-    renderPage();
-
-    await user.type(screen.getByPlaceholderText('Note title'), 'My note');
-    await user.click(screen.getByRole('button', { name: 'Save' }));
-
-    expect(await screen.findByText('create failed')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
-    expect(mockNavigate).not.toHaveBeenCalled();
-  });
-
-  it('navigates back to the notes tab when Back is pressed with nothing entered', async () => {
-    const user = userEvent.setup();
-    renderPage();
+  it('navigates back without confirming when editing but nothing was changed', async () => {
+    const user = await renderInEditMode();
 
     await user.click(screen.getByRole('button', { name: 'Go back' }));
 
@@ -111,25 +80,25 @@ describe('NoteCreatePage', () => {
 
   it.each([
     {
-      name: 'title has been entered and the user discards',
+      name: 'the title was changed and the user discards',
       placeholder: 'Note title',
       choice: 'Discard changes',
       expectNavigation: true,
     },
     {
-      name: 'content has been entered and the user discards',
+      name: 'the content was changed and the user discards',
       placeholder: 'Write your note...',
       choice: 'Discard changes',
       expectNavigation: true,
     },
     {
-      name: 'title has been entered and the user keeps editing',
+      name: 'the title was changed and the user keeps editing',
       placeholder: 'Note title',
       choice: 'Keep editing',
       expectNavigation: false,
     },
     {
-      name: 'content has been entered and the user keeps editing',
+      name: 'the content was changed and the user keeps editing',
       placeholder: 'Write your note...',
       choice: 'Keep editing',
       expectNavigation: false,
@@ -137,10 +106,11 @@ describe('NoteCreatePage', () => {
   ])(
     'confirms before leaving when Back is pressed and $name',
     async ({ placeholder, choice, expectNavigation }) => {
-      const user = userEvent.setup();
-      renderPage();
+      const user = await renderInEditMode();
 
-      await user.type(screen.getByPlaceholderText(placeholder), 'Draft text');
+      const input = screen.getByPlaceholderText(placeholder);
+      await user.clear(input);
+      await user.type(input, 'Edited text');
       await user.click(screen.getByRole('button', { name: 'Go back' }));
 
       expect(screen.getByText('Discard changes?')).toBeInTheDocument();
@@ -156,25 +126,24 @@ describe('NoteCreatePage', () => {
       } else {
         expect(mockNavigate).not.toHaveBeenCalled();
         expect(screen.getByPlaceholderText(placeholder)).toHaveValue(
-          'Draft text',
+          'Edited text',
         );
       }
     },
   );
 
   it.each([
-    { name: 'asks for confirmation when dirty', draft: 'Draft text' },
-    { name: 'does not ask for confirmation when clean', draft: '' },
-  ])('browser back $name', async ({ draft }) => {
-    const user = userEvent.setup();
-    renderPage();
+    { name: 'asks for confirmation when dirty', edit: true },
+    { name: 'does not ask for confirmation when clean', edit: false },
+  ])('browser back while editing $name', async ({ edit }) => {
+    const user = await renderInEditMode();
 
-    if (draft) {
-      await user.type(screen.getByPlaceholderText('Note title'), draft);
+    if (edit) {
+      await user.type(screen.getByPlaceholderText('Note title'), ' edited');
     }
     pressBrowserBack();
 
-    if (draft) {
+    if (edit) {
       expect(screen.getByText('Discard changes?')).toBeInTheDocument();
     } else {
       expect(screen.queryByText('Discard changes?')).not.toBeInTheDocument();

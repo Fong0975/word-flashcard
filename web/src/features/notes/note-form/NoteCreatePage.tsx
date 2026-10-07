@@ -5,7 +5,9 @@ import { apiService } from '../../../lib/api';
 import { getApiErrorMessage } from '../../../lib/apiErrorMessage';
 import { DetailPageLayout } from '../../../components/layout';
 import { MarkdownEditorField } from '../../../components/ui/markdown-editor/MarkdownEditorField';
+import { UnsavedChangesDialog } from '../../../components/ui/UnsavedChangesDialog';
 import { useTemplateButtons } from '../../../hooks/shared';
+import { useUnsavedChangesGuard } from '../../../hooks/ui/useUnsavedChangesGuard';
 import { appendTemplateText } from '../../../utils/textTemplates';
 
 export const NoteCreatePage: React.FC = () => {
@@ -24,6 +26,13 @@ export const NoteCreatePage: React.FC = () => {
     setContent(prev => appendTemplateText(prev, textToAppend));
   };
 
+  const unsavedChangesGuard = useUnsavedChangesGuard({
+    isEditing: true,
+    isDirty: title.trim() !== '' || content.trim() !== '',
+    // Replaces the unsaved-changes guard entry, so it is not left in history.
+    onLeave: () => navigate('/?tab=notes', { replace: true }),
+  });
+
   const handleSave = async () => {
     /* istanbul ignore next -- unreachable: Save button is disabled when title is empty */
     if (!title.trim()) {
@@ -37,7 +46,8 @@ export const NoteCreatePage: React.FC = () => {
         title: title.trim(),
         content,
       });
-      navigate(`/note/${created.id}`);
+      // Replaces the unsaved-changes guard entry, so it is not left in history.
+      navigate(`/note/${created.id}`, { replace: true });
     } catch (error) {
       setSaveError(getApiErrorMessage(error, 'Failed to create note.'));
       setIsSaving(false);
@@ -82,10 +92,17 @@ export const NoteCreatePage: React.FC = () => {
   );
 
   return (
-    <DetailPageLayout
-      onBack={() => navigate('/?tab=notes')}
-      header={header}
-      body={body}
-    />
+    <>
+      <DetailPageLayout
+        onBack={unsavedChangesGuard.requestLeave}
+        header={header}
+        body={body}
+      />
+      <UnsavedChangesDialog
+        isOpen={unsavedChangesGuard.showConfirm}
+        onConfirm={unsavedChangesGuard.confirmLeave}
+        onCancel={unsavedChangesGuard.cancelLeave}
+      />
+    </>
   );
 };

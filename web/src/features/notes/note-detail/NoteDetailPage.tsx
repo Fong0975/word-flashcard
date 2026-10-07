@@ -8,8 +8,10 @@ import { DetailPageLayout } from '../../../components/layout';
 import { ToastContainer } from '../../../components/ui';
 import { MarkdownContent } from '../../../components/ui/MarkdownContent';
 import { MarkdownEditorField } from '../../../components/ui/markdown-editor/MarkdownEditorField';
+import { UnsavedChangesDialog } from '../../../components/ui/UnsavedChangesDialog';
 import { useToast } from '../../../hooks/ui/useToast';
 import { useDeleteConfirmation } from '../../../hooks/ui/useDeleteConfirmation';
+import { useUnsavedChangesGuard } from '../../../hooks/ui/useUnsavedChangesGuard';
 import { useTemplateButtons } from '../../../hooks/shared';
 import { appendTemplateText } from '../../../utils/textTemplates';
 import { formatNoteDateTime } from '../../../utils/dateFormat';
@@ -96,15 +98,30 @@ export const NoteDetailPage: React.FC = () => {
     }
   };
 
+  const goToNotesTab = () => navigate('/?tab=notes');
+
+  const hasUnsavedEdits =
+    isEditing &&
+    note !== null &&
+    (editTitle !== note.title || editContent !== (note.content ?? ''));
+
+  const unsavedChangesGuard = useUnsavedChangesGuard({
+    isEditing,
+    isDirty: hasUnsavedEdits,
+    // While editing, replace the unsaved-changes guard entry so it is not
+    // left in history.
+    onLeave: isEditing
+      ? () => navigate('/?tab=notes', { replace: true })
+      : goToNotesTab,
+  });
+
   const deleteConfirmation = useDeleteConfirmation({
     entity: note,
     onDelete: async n => {
       await apiService.deleteNote(n.id);
     },
     getConfirmMessage: n => `Delete "${n.title}"? This cannot be undone.`,
-    onSuccess: () => {
-      navigate('/?tab=notes');
-    },
+    onSuccess: goToNotesTab,
     onError: error => {
       showError('Failed to delete note: ' + getApiErrorMessage(error));
     },
@@ -113,7 +130,7 @@ export const NoteDetailPage: React.FC = () => {
   if (isLoading) {
     return (
       <DetailPageLayout
-        onBack={() => navigate('/?tab=notes')}
+        onBack={goToNotesTab}
         body={
           <div className='flex flex-1 items-center justify-center'>
             <div
@@ -130,7 +147,7 @@ export const NoteDetailPage: React.FC = () => {
   if (fetchError || !note) {
     return (
       <DetailPageLayout
-        onBack={() => navigate('/?tab=notes')}
+        onBack={goToNotesTab}
         body={
           <div className='flex flex-1 flex-col items-center justify-center'>
             <p className='mb-4 text-gray-500 dark:text-gray-400'>
@@ -138,7 +155,7 @@ export const NoteDetailPage: React.FC = () => {
             </p>
             <button
               type='button'
-              onClick={() => navigate('/?tab=notes')}
+              onClick={goToNotesTab}
               className='glass-button-primary rounded-md px-6 py-2 text-sm font-medium'
             >
               Back to Notes
@@ -264,9 +281,14 @@ export const NoteDetailPage: React.FC = () => {
   return (
     <>
       <DetailPageLayout
-        onBack={() => navigate('/?tab=notes')}
+        onBack={unsavedChangesGuard.requestLeave}
         header={isEditing ? editHeader : viewHeader}
         body={isEditing ? editBody : viewBody}
+      />
+      <UnsavedChangesDialog
+        isOpen={unsavedChangesGuard.showConfirm}
+        onConfirm={unsavedChangesGuard.confirmLeave}
+        onCancel={unsavedChangesGuard.cancelLeave}
       />
       <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
     </>

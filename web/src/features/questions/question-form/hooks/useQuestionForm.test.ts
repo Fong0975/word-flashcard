@@ -141,4 +141,87 @@ describe('useQuestionForm', () => {
     expect(result.current.validationError).toBe('Please enter a question');
     expect(result.current.isValid).toBe(false);
   });
+
+  it.each<{
+    name: string;
+    mode: 'create' | 'edit';
+    question?: Question;
+    edit: (handlers: ReturnType<typeof useQuestionForm>['handlers']) => void;
+    expected: boolean;
+  }>([
+    {
+      name: 'clean for an untouched create form',
+      mode: 'create',
+      edit: () => {},
+      expected: false,
+    },
+    {
+      name: 'dirty once a question is typed in create mode',
+      mode: 'create',
+      edit: handlers => handlers.handleQuestionChange('New question?'),
+      expected: true,
+    },
+    {
+      name: 'clean for an untouched edit form',
+      mode: 'edit',
+      question: buildQuestion(),
+      edit: () => {},
+      expected: false,
+    },
+    {
+      name: 'dirty when the question text is changed',
+      mode: 'edit',
+      question: buildQuestion(),
+      edit: handlers => handlers.handleQuestionChange('What is 3 + 3?'),
+      expected: true,
+    },
+    {
+      name: 'clean when the question text is changed back',
+      mode: 'edit',
+      question: buildQuestion(),
+      edit: handlers => {
+        handlers.handleQuestionChange('What is 3 + 3?');
+        handlers.handleQuestionChange('What is 2 + 2?');
+      },
+      expected: false,
+    },
+    {
+      name: 'dirty when the answer is changed',
+      mode: 'edit',
+      question: buildQuestion(),
+      edit: handlers => handlers.handleAnswerChange('B'),
+      expected: true,
+    },
+    {
+      name: 'dirty when an option is changed',
+      mode: 'edit',
+      question: buildQuestion(),
+      edit: handlers => handlers.handleOptionChange('C', '7'),
+      expected: true,
+    },
+    {
+      name: 'dirty when the notes are changed',
+      mode: 'edit',
+      question: buildQuestion(),
+      edit: handlers => handlers.handleNotesChange('other notes'),
+      expected: true,
+    },
+    {
+      name: 'dirty when the reference is changed',
+      mode: 'edit',
+      question: buildQuestion(),
+      edit: handlers => handlers.handleReferenceChange('other reference'),
+      expected: true,
+    },
+  ])('isDirty is $name', ({ mode, question, edit, expected }) => {
+    const { result } = renderHook(() =>
+      useQuestionForm({ mode, question, isOpen: true }),
+    );
+
+    act(() => {
+      edit(result.current.handlers);
+    });
+
+    expect(result.current.isDirty).toBe(expected);
+  });
 });
