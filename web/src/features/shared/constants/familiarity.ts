@@ -18,12 +18,36 @@ export interface FamiliarityOption extends SelectOption<FamiliarityLevel> {
 }
 
 /**
+ * Display label of each familiarity level. The single source of truth for how
+ * a level is named in the UI; the stored values stay `red` / `yellow` / `green`.
+ */
+export const FAMILIARITY_LABELS: Record<FamiliarityLevel, string> = {
+  [FamiliarityLevel.RED]: 'Unfamiliar',
+  [FamiliarityLevel.YELLOW]: 'Learning',
+  [FamiliarityLevel.GREEN]: 'Familiar',
+};
+
+/**
+ * Get the display label of a familiarity level.
+ *
+ * @param familiarity - Familiarity level, or a raw value from the API
+ * @returns The label from `FAMILIARITY_LABELS`, or the raw value for an unknown level
+ */
+export const getFamiliarityLabel = (
+  familiarity: FamiliarityLevel | string,
+): string => {
+  const label: string | undefined =
+    FAMILIARITY_LABELS[familiarity as FamiliarityLevel];
+  return label ?? familiarity;
+};
+
+/**
  * Predefined familiarity options for use in forms and displays
  */
 export const FAMILIARITY_OPTIONS: readonly FamiliarityOption[] = [
   {
     value: FamiliarityLevel.GREEN,
-    label: 'Green',
+    label: FAMILIARITY_LABELS[FamiliarityLevel.GREEN],
     color: 'text-green-600 dark:text-green-400',
     bgColor:
       'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700',
@@ -31,7 +55,7 @@ export const FAMILIARITY_OPTIONS: readonly FamiliarityOption[] = [
   },
   {
     value: FamiliarityLevel.YELLOW,
-    label: 'Yellow',
+    label: FAMILIARITY_LABELS[FamiliarityLevel.YELLOW],
     color: 'text-yellow-600 dark:text-yellow-400',
     bgColor:
       'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-700',
@@ -39,7 +63,7 @@ export const FAMILIARITY_OPTIONS: readonly FamiliarityOption[] = [
   },
   {
     value: FamiliarityLevel.RED,
-    label: 'Red',
+    label: FAMILIARITY_LABELS[FamiliarityLevel.RED],
     color: 'text-red-600 dark:text-red-400',
     bgColor: 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700',
     description: 'Difficult words that require frequent practice',

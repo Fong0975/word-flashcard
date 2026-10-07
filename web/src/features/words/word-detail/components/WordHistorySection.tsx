@@ -18,14 +18,31 @@ import { LoadingSpinner } from '../../../../components/ui/LoadingSpinner';
 import { apiService } from '../../../../lib/api';
 import { Word, WordPracticeLogEntry } from '../../../../types/api';
 import { useAsyncOnOpen } from '../../../shared/hooks/useAsyncOnOpen';
-import { getFamiliarityDisplayColors } from '../../../shared/constants/familiarity';
-import { formatShortDate, formatDateTime } from '../../../../utils/dateFormat';
+import { FamiliarityLevel } from '../../../../types/base';
+import {
+  FAMILIARITY_LABELS,
+  getFamiliarityDisplayColors,
+  getFamiliarityLabel,
+} from '../../../shared/constants/familiarity';
+import {
+  formatShortDate,
+  formatDateTime,
+  formatDateTimeParts,
+} from '../../../../utils/dateFormat';
 
 interface WordHistorySectionProps {
   word: Word;
 }
 
-const FAMILIARITY_LEVEL_LABELS = ['Red', 'Yellow', 'Green'];
+/** Chart tick labels, indexed by the ordinal returned from `familiarityLevel`. */
+const FAMILIARITY_LEVEL_LABELS = [
+  FamiliarityLevel.RED,
+  FamiliarityLevel.YELLOW,
+  FamiliarityLevel.GREEN,
+].map(level => FAMILIARITY_LABELS[level]);
+
+/** Wide enough for the longest familiarity label at the 11px tick font size. */
+const Y_AXIS_WIDTH = 72;
 
 export const familiarityLevel = (familiarity: string): number => {
   switch (familiarity) {
@@ -46,9 +63,9 @@ const FamiliarityBadge: React.FC<FamiliarityBadgeProps> = ({ familiarity }) => {
   const colors = getFamiliarityDisplayColors(familiarity);
   return (
     <span
-      className={`rounded px-1.5 py-0.5 text-xs font-medium capitalize ${colors.bg} ${colors.text}`}
+      className={`rounded px-1.5 py-0.5 text-xs font-medium ${colors.bg} ${colors.text}`}
     >
-      {familiarity}
+      {getFamiliarityLabel(familiarity)}
     </span>
   );
 };
@@ -103,7 +120,7 @@ export const WordHistorySection: React.FC<WordHistorySectionProps> = ({
           >
             <LineChart
               data={chartData}
-              margin={{ top: 4, right: 8, left: -16, bottom: 0 }}
+              margin={{ top: 4, right: 8, left: 0, bottom: 0 }}
             >
               <CartesianGrid
                 strokeDasharray='3 3'
@@ -118,6 +135,7 @@ export const WordHistorySection: React.FC<WordHistorySectionProps> = ({
                 }
               />
               <YAxis
+                width={Y_AXIS_WIDTH}
                 domain={[0, 2]}
                 ticks={[0, 1, 2]}
                 tick={{ fontSize: 11, fill: 'currentColor' }}
@@ -145,21 +163,27 @@ export const WordHistorySection: React.FC<WordHistorySectionProps> = ({
           </ResponsiveContainer>
 
           <ul className='mt-4 space-y-2'>
-            {logs.map(entry => (
-              <li
-                key={entry.id}
-                className='flex items-center justify-between gap-2 text-sm'
-              >
-                <span className='text-gray-500 dark:text-gray-400'>
-                  {formatDateTime(entry.created_at)}
-                </span>
-                <span className='flex items-center gap-1.5'>
-                  <FamiliarityBadge familiarity={entry.previous_familiarity} />
-                  <span className='text-subtle'>&rarr;</span>
-                  <FamiliarityBadge familiarity={entry.familiarity} />
-                </span>
-              </li>
-            ))}
+            {logs.map(entry => {
+              const { date, time } = formatDateTimeParts(entry.created_at);
+              return (
+                <li
+                  key={entry.id}
+                  className='flex items-center justify-between gap-2 text-sm'
+                >
+                  <span className='flex flex-col text-gray-500 dark:text-gray-400'>
+                    <span>{date}</span>
+                    <span className='text-xs'>{time}</span>
+                  </span>
+                  <span className='flex flex-shrink-0 items-center gap-1.5'>
+                    <FamiliarityBadge
+                      familiarity={entry.previous_familiarity}
+                    />
+                    <span className='text-subtle'>&rarr;</span>
+                    <FamiliarityBadge familiarity={entry.familiarity} />
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         </>
       )}

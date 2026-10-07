@@ -6,16 +6,16 @@ import { QuickFilterButton } from './QuickFilterButton';
 describe('QuickFilterButton', () => {
   it('renders the label', () => {
     render(
-      <QuickFilterButton label='Red' isActive={false} onClick={vi.fn()} />,
+      <QuickFilterButton label='Recent' isActive={false} onClick={vi.fn()} />,
     );
-    expect(screen.getByRole('button', { name: /Red/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Recent/ })).toBeInTheDocument();
   });
 
   it('calls onClick when clicked', async () => {
     const user = userEvent.setup();
     const onClick = vi.fn();
     render(
-      <QuickFilterButton label='Red' isActive={false} onClick={onClick} />,
+      <QuickFilterButton label='Recent' isActive={false} onClick={onClick} />,
     );
 
     await user.click(screen.getByRole('button'));
@@ -23,7 +23,7 @@ describe('QuickFilterButton', () => {
   });
 
   it('renders the label regardless of active state', () => {
-    render(<QuickFilterButton label='Red' isActive onClick={vi.fn()} />);
-    expect(screen.getByRole('button', { name: /Red/ })).toBeInTheDocument();
+    render(<QuickFilterButton label='Recent' isActive onClick={vi.fn()} />);
+    expect(screen.getByRole('button', { name: /Recent/ })).toBeInTheDocument();
   });
 });

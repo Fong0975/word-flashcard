@@ -38,7 +38,7 @@ const MAX_QUESTION_COUNT = 100;
  * Generic Quiz Setup Modal component
  *
  * Supports both quiz types:
- * - Words Quiz: with familiarity selection (red, yellow, green)
+ * - Words Quiz: with familiarity selection (one option per familiarity level)
  * - Questions Quiz: without familiarity selection
  */
 export const QuizSetupModal: React.FC<QuizSetupModalProps> = ({

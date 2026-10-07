@@ -5,9 +5,15 @@ import { MemoryRouter } from 'react-router-dom';
 import type { Mock } from 'vitest';
 
 import { SearchOperation } from '../../types';
+import { FamiliarityLevel } from '../../types/base';
 import { useWords, type UseWordsReturn } from '../../hooks/useWords';
+import { FAMILIARITY_LABELS } from '../shared/constants/familiarity';
 
 import { WordsReviewTab } from './WordsReviewTab';
+
+const RED_LABEL = FAMILIARITY_LABELS[FamiliarityLevel.RED];
+const YELLOW_LABEL = FAMILIARITY_LABELS[FamiliarityLevel.YELLOW];
+const GREEN_LABEL = FAMILIARITY_LABELS[FamiliarityLevel.GREEN];
 
 vi.mock('../../hooks/useWords');
 
@@ -98,7 +104,7 @@ describe('WordsReviewTab extraConditions', () => {
     { name: 'no active filter', clicks: [], expected: [] },
     {
       name: 'a single familiarity filter',
-      clicks: ['Unfamiliar'],
+      clicks: [RED_LABEL],
       expected: [
         {
           key: 'familiarity',
@@ -109,7 +115,7 @@ describe('WordsReviewTab extraConditions', () => {
     },
     {
       name: 'multiple familiarity filters merged',
-      clicks: ['Unfamiliar', 'Somewhat Familiar'],
+      clicks: [RED_LABEL, YELLOW_LABEL],
       expected: [
         {
           key: 'familiarity',
@@ -128,7 +134,7 @@ describe('WordsReviewTab extraConditions', () => {
     },
     {
       name: 'familiarity combined with withReminder',
-      clicks: ['Familiar', 'With Reminder'],
+      clicks: [GREEN_LABEL, 'With Reminder'],
       expected: [
         {
           key: 'familiarity',

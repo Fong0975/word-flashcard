@@ -3,10 +3,44 @@
 import { FamiliarityLevel } from '../../../types/base';
 
 import {
+  FAMILIARITY_LABELS,
+  FAMILIARITY_OPTIONS,
   getFamiliarityDisplayColors,
   getFamiliarityGlowClass,
+  getFamiliarityLabel,
   getFamiliarityToneClass,
 } from './familiarity';
+
+describe('FAMILIARITY_LABELS', () => {
+  it.each([
+    [FamiliarityLevel.RED, 'Unfamiliar'],
+    [FamiliarityLevel.YELLOW, 'Learning'],
+    [FamiliarityLevel.GREEN, 'Familiar'],
+  ] as const)('labels %s as %s', (familiarity, expected) => {
+    expect(FAMILIARITY_LABELS[familiarity]).toBe(expected);
+  });
+});
+
+describe('getFamiliarityLabel', () => {
+  it.each([
+    [FamiliarityLevel.RED, FAMILIARITY_LABELS[FamiliarityLevel.RED]],
+    [FamiliarityLevel.YELLOW, FAMILIARITY_LABELS[FamiliarityLevel.YELLOW]],
+    [FamiliarityLevel.GREEN, FAMILIARITY_LABELS[FamiliarityLevel.GREEN]],
+    ['invalid', 'invalid'],
+    ['', ''],
+  ] as const)('returns %s -> %s', (familiarity, expected) => {
+    expect(getFamiliarityLabel(familiarity)).toBe(expected);
+  });
+});
+
+describe('FAMILIARITY_OPTIONS', () => {
+  it.each(FAMILIARITY_OPTIONS.map(option => [option.value, option.label]))(
+    'labels the %s option with its shared label',
+    (value, label) => {
+      expect(label).toBe(FAMILIARITY_LABELS[value]);
+    },
+  );
+});
 
 describe('getFamiliarityToneClass', () => {
   it.each([

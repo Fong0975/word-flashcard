@@ -2,19 +2,24 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { FamiliarityLevel } from '../../../types/base';
+import { FAMILIARITY_LABELS } from '../constants';
 
 import { FamiliaritySelectionList } from './FamiliaritySelectionList';
 
 describe('FamiliaritySelectionList', () => {
-  it('renders an option for every familiarity level', () => {
-    render(
-      <FamiliaritySelectionList selectedFamiliarity={[]} onToggle={vi.fn()} />,
-    );
+  it.each(Object.values(FamiliarityLevel))(
+    'renders the %s option with its familiarity label',
+    level => {
+      render(
+        <FamiliaritySelectionList
+          selectedFamiliarity={[]}
+          onToggle={vi.fn()}
+        />,
+      );
 
-    expect(screen.getByText('Green Level')).toBeInTheDocument();
-    expect(screen.getByText('Yellow Level')).toBeInTheDocument();
-    expect(screen.getByText('Red Level')).toBeInTheDocument();
-  });
+      expect(screen.getByText(FAMILIARITY_LABELS[level])).toBeInTheDocument();
+    },
+  );
 
   it('checks the boxes for the selected levels', () => {
     render(
@@ -34,7 +39,9 @@ describe('FamiliaritySelectionList', () => {
       <FamiliaritySelectionList selectedFamiliarity={[]} onToggle={onToggle} />,
     );
 
-    await user.click(screen.getByText('Red Level'));
+    await user.click(
+      screen.getByText(FAMILIARITY_LABELS[FamiliarityLevel.RED]),
+    );
     expect(onToggle).toHaveBeenCalledWith(FamiliarityLevel.RED);
   });
 

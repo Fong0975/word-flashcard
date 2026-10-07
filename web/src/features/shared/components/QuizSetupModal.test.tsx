@@ -1,7 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { DEFAULT_QUIZ_CONFIG } from '../constants';
+import {
+  DEFAULT_QUIZ_CONFIG,
+  FAMILIARITY_LABELS,
+  FamiliarityLevel,
+} from '../constants';
 
 import { QuizSetupModal } from './QuizSetupModal';
 
@@ -204,7 +208,9 @@ describe('QuizSetupModal', () => {
       );
 
       await user.click(screen.getByRole('button', { name: 'Total Count' }));
-      const checkbox = screen.getByRole('checkbox', { name: 'Green Level' });
+      const checkbox = screen.getByRole('checkbox', {
+        name: FAMILIARITY_LABELS[FamiliarityLevel.GREEN],
+      });
 
       await user.click(checkbox);
       expect(checkbox).not.toBeChecked();

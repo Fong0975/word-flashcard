@@ -27,6 +27,8 @@ import {
 } from '../../components/ui/charts/chartGlassStyles';
 import { apiService } from '../../lib/api';
 import { WordStatsResponse, WordTrendPoint } from '../../types/api';
+import { FamiliarityLevel } from '../../types/base';
+import { FAMILIARITY_LABELS } from '../shared/constants/familiarity';
 import { useAsyncOnOpen } from '../shared/hooks/useAsyncOnOpen';
 import { formatShortDate } from '../../utils/dateFormat';
 
@@ -37,10 +39,10 @@ interface WordStatsModalProps {
 
 type ActiveTab = 'familiarity' | 'practice' | 'trend';
 
-const FAMILIARITY_COLORS = {
-  Unfamiliar: '#ef4444',
-  'Somewhat Familiar': '#eab308',
-  Familiar: '#22c55e',
+const FAMILIARITY_COLORS: Record<FamiliarityLevel, string> = {
+  [FamiliarityLevel.RED]: '#ef4444',
+  [FamiliarityLevel.YELLOW]: '#eab308',
+  [FamiliarityLevel.GREEN]: '#22c55e',
 };
 
 export const WordStatsModal: React.FC<WordStatsModalProps> = ({
@@ -75,13 +77,19 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
 
   const familiarityChartData = stats
     ? [
-        { name: 'Unfamiliar', value: stats.familiarity_distribution.red },
         {
-          name: 'Somewhat Familiar',
+          level: FamiliarityLevel.RED,
+          value: stats.familiarity_distribution.red,
+        },
+        {
+          level: FamiliarityLevel.YELLOW,
           value: stats.familiarity_distribution.yellow,
         },
-        { name: 'Familiar', value: stats.familiarity_distribution.green },
-      ]
+        {
+          level: FamiliarityLevel.GREEN,
+          value: stats.familiarity_distribution.green,
+        },
+      ].map(entry => ({ ...entry, name: FAMILIARITY_LABELS[entry.level] }))
     : [];
 
   const total = familiarityChartData.reduce((sum, d) => sum + d.value, 0);
@@ -173,12 +181,8 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
                   >
                     {familiarityChartData.map(entry => (
                       <Cell
-                        key={entry.name}
-                        fill={
-                          FAMILIARITY_COLORS[
-                            entry.name as keyof typeof FAMILIARITY_COLORS
-                          ]
-                        }
+                        key={entry.level}
+                        fill={FAMILIARITY_COLORS[entry.level]}
                         fillOpacity={GLASS_FILL_OPACITY}
                         stroke={GLASS_BAR_STROKE}
                         strokeWidth={GLASS_BAR_STROKE_WIDTH}
@@ -202,7 +206,7 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
                     {stats.familiarity_distribution.red}
                   </div>
                   <div className='text-xs text-gray-500 dark:text-gray-400'>
-                    Unfamiliar
+                    {FAMILIARITY_LABELS[FamiliarityLevel.RED]}
                   </div>
                 </div>
                 <div className='rounded-lg bg-yellow-50 p-3 dark:bg-yellow-900/20'>
@@ -210,7 +214,7 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
                     {stats.familiarity_distribution.yellow}
                   </div>
                   <div className='text-xs text-gray-500 dark:text-gray-400'>
-                    Somewhat Familiar
+                    {FAMILIARITY_LABELS[FamiliarityLevel.YELLOW]}
                   </div>
                 </div>
                 <div className='rounded-lg bg-green-50 p-3 dark:bg-green-900/20'>
@@ -218,7 +222,7 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
                     {stats.familiarity_distribution.green}
                   </div>
                   <div className='text-xs text-gray-500 dark:text-gray-400'>
-                    Familiar
+                    {FAMILIARITY_LABELS[FamiliarityLevel.GREEN]}
                   </div>
                 </div>
               </div>

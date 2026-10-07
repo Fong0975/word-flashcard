@@ -1,7 +1,12 @@
 import React from 'react';
 
 import { WordQuizResult } from '../../../types/api';
-import { getFamiliarityDisplayColors } from '../../shared/constants/familiarity';
+import { FamiliarityLevel } from '../../../types/base';
+import {
+  FAMILIARITY_LABELS,
+  getFamiliarityDisplayColors,
+  getFamiliarityLabel,
+} from '../../shared/constants/familiarity';
 
 interface WordQuizResultsProps {
   results: WordQuizResult[];
@@ -17,7 +22,7 @@ const FamiliarityBadge: React.FC<{ familiarity: string }> = ({
       className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${colors.bg} ${colors.text}`}
     >
       <div className={`h-2 w-2 ${colors.dot} mr-1 rounded-full`}></div>
-      {familiarity.charAt(0).toUpperCase() + familiarity.slice(1)}
+      {getFamiliarityLabel(familiarity)}
     </span>
   );
 };
@@ -121,23 +126,23 @@ export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
       heading: 'After',
       stats: [
         {
-          label: 'Unfamiliar',
+          label: FAMILIARITY_LABELS[FamiliarityLevel.RED],
           count: redCount,
-          countLabel: 'red count',
+          countLabel: `${FAMILIARITY_LABELS[FamiliarityLevel.RED]} count`,
           colorClassName: STAT_COLORS.red,
           dotClassName: 'bg-red-500',
         },
         {
-          label: 'Somewhat Familiar',
+          label: FAMILIARITY_LABELS[FamiliarityLevel.YELLOW],
           count: yellowCount,
-          countLabel: 'yellow count',
+          countLabel: `${FAMILIARITY_LABELS[FamiliarityLevel.YELLOW]} count`,
           colorClassName: STAT_COLORS.yellow,
           dotClassName: 'bg-yellow-500',
         },
         {
-          label: 'Familiar',
+          label: FAMILIARITY_LABELS[FamiliarityLevel.GREEN],
           count: greenCount,
-          countLabel: 'green count',
+          countLabel: `${FAMILIARITY_LABELS[FamiliarityLevel.GREEN]} count`,
           colorClassName: STAT_COLORS.green,
           dotClassName: 'bg-green-500',
         },
@@ -220,8 +225,8 @@ export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
           {/* Quiz Result - Word List */}
           {results.map((result, index) => (
             <div key={result.word.id} className='px-2 py-4 md:px-3 lg:px-6'>
-              <div className='flex items-center justify-between'>
-                <div className='flex items-center space-x-4'>
+              <div className='flex items-center justify-between gap-4'>
+                <div className='flex min-w-0 items-center space-x-4'>
                   <div className='flex-shrink-0'>
                     <span className='inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-sm font-medium text-gray-600 dark:bg-gray-700 dark:text-gray-400 md:h-10 md:w-10'>
                       {index + 1}
@@ -240,7 +245,7 @@ export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
                   </div>
                 </div>
 
-                <div className='flex flex-col items-center space-y-2'>
+                <div className='flex flex-shrink-0 flex-col items-center space-y-2'>
                   <FamiliarityBadge familiarity={result.oldFamiliarity} />
 
                   <div className='text-supporting'>to</div>
