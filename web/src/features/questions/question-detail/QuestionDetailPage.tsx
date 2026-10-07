@@ -56,7 +56,7 @@ export const QuestionDetailPage: React.FC = () => {
   const actions = useQuestionActions({
     question,
     callbacks: {
-      onClose: () => navigate('/'),
+      onClose: () => navigate('/?tab=questions'),
       onQuestionRefreshed: (updated: Question) => setQuestion(updated),
     },
     onError: showError,
@@ -65,7 +65,7 @@ export const QuestionDetailPage: React.FC = () => {
   if (isLoading) {
     return (
       <DetailPageLayout
-        onBack={() => navigate(-1)}
+        onBack={() => navigate('/?tab=questions')}
         body={
           <div className='flex flex-1 items-center justify-center'>
             <div
@@ -82,7 +82,7 @@ export const QuestionDetailPage: React.FC = () => {
   if (fetchError || !question) {
     return (
       <DetailPageLayout
-        onBack={() => navigate('/')}
+        onBack={() => navigate('/?tab=questions')}
         body={
           <div className='flex flex-1 flex-col items-center justify-center'>
             <div className='mb-4 text-6xl'>😕</div>
@@ -91,7 +91,7 @@ export const QuestionDetailPage: React.FC = () => {
             </h3>
             <button
               type='button'
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/?tab=questions')}
               className='glass-button-primary mt-4 rounded-md px-6 py-2 text-sm font-medium'
             >
               Back to Home
@@ -105,7 +105,7 @@ export const QuestionDetailPage: React.FC = () => {
   return (
     <>
       <DetailPageLayout
-        onBack={() => navigate(-1)}
+        onBack={() => navigate('/?tab=questions')}
         header={
           <QuestionHeader
             question={question}

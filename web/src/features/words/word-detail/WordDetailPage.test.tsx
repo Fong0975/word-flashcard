@@ -165,7 +165,7 @@ describe('WordDetailPage', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/');
   });
 
-  it('renders word details and uses browser-back on success', async () => {
+  it('renders word details and navigates home when Go back is clicked', async () => {
     const user = userEvent.setup();
     vi.spyOn(apiService, 'searchWords').mockResolvedValue([buildWord()]);
 
@@ -177,7 +177,7 @@ describe('WordDetailPage', () => {
     expect(screen.getByText('Word ID: 1')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Go back' }));
-    expect(mockNavigate).toHaveBeenCalledWith(-1);
+    expect(mockNavigate).toHaveBeenCalledWith('/');
   });
 
   it('navigates to new URL when the saved word was renamed', async () => {
