@@ -1,6 +1,9 @@
 import React from 'react';
 
-import { getFamiliarityToneClass } from '../constants/familiarity';
+import {
+  getFamiliarityLabel,
+  getFamiliarityToneClass,
+} from '../constants/familiarity';
 
 interface FamiliarityBarProps {
   familiarity: string;
@@ -15,7 +18,8 @@ interface FamiliarityBarProps {
 
 /**
  * Glass bar that glows in the familiarity color. An unknown level falls back
- * to the neutral gray of `.glass-glow-bar`.
+ * to the neutral gray of `.glass-glow-bar`. The level is also exposed as the
+ * accessible name and hover tooltip, so it is not conveyed by color alone.
  */
 export const FamiliarityBar: React.FC<FamiliarityBarProps> = ({
   familiarity,
@@ -33,5 +37,15 @@ export const FamiliarityBar: React.FC<FamiliarityBarProps> = ({
     className,
   ].filter(Boolean);
 
-  return <div data-testid='familiarity-bar' className={classNames.join(' ')} />;
+  const label = `Familiarity: ${getFamiliarityLabel(familiarity)}`;
+
+  return (
+    <div
+      data-testid='familiarity-bar'
+      role='img'
+      aria-label={label}
+      title={label}
+      className={classNames.join(' ')}
+    />
+  );
 };

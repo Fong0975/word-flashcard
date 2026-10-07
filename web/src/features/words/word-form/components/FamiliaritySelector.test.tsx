@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { FamiliarityLevel } from '../../../../types/base';
+import { FAMILIARITY_LABELS } from '../../../shared/constants/familiarity';
 
 import { FamiliaritySelector } from './FamiliaritySelector';
 
@@ -29,7 +30,7 @@ describe('FamiliaritySelector', () => {
     );
     expect(
       screen.getByRole('button', { name: 'Select familiarity level' }),
-    ).toHaveTextContent('Yellow');
+    ).toHaveTextContent(FAMILIARITY_LABELS[FamiliarityLevel.YELLOW]);
   });
 
   it('calls onChange with the selected level', async () => {
@@ -47,7 +48,11 @@ describe('FamiliaritySelector', () => {
     await user.click(
       screen.getByRole('button', { name: 'Select familiarity level' }),
     );
-    await user.click(screen.getByRole('menuitem', { name: 'Red' }));
+    await user.click(
+      screen.getByRole('menuitem', {
+        name: FAMILIARITY_LABELS[FamiliarityLevel.RED],
+      }),
+    );
     expect(onChange).toHaveBeenCalledWith(FamiliarityLevel.RED);
   });
 

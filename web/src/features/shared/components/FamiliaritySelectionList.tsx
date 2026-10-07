@@ -36,7 +36,7 @@ export const FamiliaritySelectionList: React.FC<
           <span
             className={`font-medium ${selectedFamiliarity.includes(option.value) ? option.color : 'text-gray-700 dark:text-gray-300'}`}
           >
-            {option.label} Level
+            {option.label}
           </span>
           {selectedFamiliarity.includes(option.value) && (
             <svg

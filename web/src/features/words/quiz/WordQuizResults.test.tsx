@@ -2,8 +2,13 @@ import { render, screen } from '@testing-library/react';
 
 import { Word, WordQuizResult } from '../../../types/api';
 import { FamiliarityLevel } from '../../../types/base';
+import { FAMILIARITY_LABELS } from '../../shared/constants/familiarity';
 
 import { WordQuizResults } from './WordQuizResults';
+
+const RED_LABEL = FAMILIARITY_LABELS[FamiliarityLevel.RED];
+const YELLOW_LABEL = FAMILIARITY_LABELS[FamiliarityLevel.YELLOW];
+const GREEN_LABEL = FAMILIARITY_LABELS[FamiliarityLevel.GREEN];
 
 const buildWord = (overrides: Partial<Word> = {}): Word => ({
   id: 1,
@@ -65,9 +70,13 @@ describe('WordQuizResults', () => {
 
     // Each count carries its own aria-label, so they can be targeted
     // directly regardless of whether two categories share the same value.
-    expect(screen.getByLabelText('red count')).toHaveTextContent('1');
-    expect(screen.getByLabelText('yellow count')).toHaveTextContent('1');
-    expect(screen.getByLabelText('green count')).toHaveTextContent('1');
+    expect(screen.getByLabelText(`${RED_LABEL} count`)).toHaveTextContent('1');
+    expect(screen.getByLabelText(`${YELLOW_LABEL} count`)).toHaveTextContent(
+      '1',
+    );
+    expect(screen.getByLabelText(`${GREEN_LABEL} count`)).toHaveTextContent(
+      '1',
+    );
     expect(screen.getByLabelText('improvement count')).toHaveTextContent('2');
     expect(screen.getByLabelText('stay count')).toHaveTextContent('0');
     expect(screen.getByLabelText('worsened count')).toHaveTextContent('1');
@@ -75,9 +84,9 @@ describe('WordQuizResults', () => {
 
   // A single red -> yellow result: one improvement that lands in "yellow".
   it.each([
-    ['Unfamiliar: 0 words', 'red count'],
-    ['Somewhat Familiar: 1 word', 'yellow count'],
-    ['Familiar: 0 words', 'green count'],
+    [`${RED_LABEL}: 0 words`, `${RED_LABEL} count`],
+    [`${YELLOW_LABEL}: 1 word`, `${YELLOW_LABEL} count`],
+    [`${GREEN_LABEL}: 0 words`, `${GREEN_LABEL} count`],
     ['Improved: 1 word', 'improvement count'],
     ['Unchanged: 0 words', 'stay count'],
     ['Worsened: 0 words', 'worsened count'],
@@ -88,6 +97,28 @@ describe('WordQuizResults', () => {
       screen.getByLabelText(countLabel),
     );
   });
+
+  it.each([
+    [FamiliarityLevel.RED, FamiliarityLevel.YELLOW],
+    [FamiliarityLevel.YELLOW, FamiliarityLevel.GREEN],
+    [FamiliarityLevel.GREEN, FamiliarityLevel.RED],
+  ])(
+    'labels a %s -> %s change with the familiarity labels',
+    (oldFamiliarity, newFamiliarity) => {
+      render(
+        <WordQuizResults
+          results={[buildResult({ oldFamiliarity, newFamiliarity })]}
+        />,
+      );
+
+      expect(
+        screen.getByText(FAMILIARITY_LABELS[oldFamiliarity]),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(FAMILIARITY_LABELS[newFamiliarity]),
+      ).toBeInTheDocument();
+    },
+  );
 
   it("renders each result's word name and first definition", () => {
     const results: WordQuizResult[] = [

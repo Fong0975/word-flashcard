@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 
 import { FamiliarityLevel } from '../../../types/base';
+import { FAMILIARITY_LABELS } from '../constants';
 
 import { FamiliarityBar } from './FamiliarityBar';
 
@@ -70,4 +71,16 @@ describe('FamiliarityBar', () => {
       );
     },
   );
+
+  it.each([
+    ...Object.values(FamiliarityLevel).map(
+      level => [level, `Familiarity: ${FAMILIARITY_LABELS[level]}`] as const,
+    ),
+    ['invalid', 'Familiarity: invalid'] as const,
+  ])('names the %s bar "%s" for assistive tech and hover', (level, label) => {
+    render(<FamiliarityBar familiarity={level} />);
+
+    const bar = screen.getByRole('img', { name: label });
+    expect(bar).toHaveAttribute('title', label);
+  });
 });

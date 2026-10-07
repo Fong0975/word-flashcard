@@ -7,7 +7,7 @@ A personal language learning app for building vocabulary and practising with qui
 **Words**
 - Add words with multiple definitions, part-of-speech tags, and pronunciation (UK/US audio)
 - Look up a word via the Gemini API and import its definitions in one click (pronunciation audio is not available; the app falls back to your browser's built-in speech synthesis)
-- Mark familiarity level (Unfamiliar / Somewhat Familiar / Familiar) to reflect your current confidence
+- Mark familiarity level (Unfamiliar / Learning / Familiar) to reflect your current confidence
 - Set reminders on words you want to revisit; clear them once you feel ready
 
 **Questions**

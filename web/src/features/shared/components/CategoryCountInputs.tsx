@@ -1,18 +1,12 @@
 import React from 'react';
 
-import { FamiliarityLevel } from '../constants';
+import { FAMILIARITY_LABELS, FamiliarityLevel } from '../constants';
 
 const CATEGORY_ORDER = [
   FamiliarityLevel.RED,
   FamiliarityLevel.YELLOW,
   FamiliarityLevel.GREEN,
 ] as const;
-
-const FAMILIARITY_LABELS: Record<FamiliarityLevel, string> = {
-  [FamiliarityLevel.RED]: 'Unfamiliar',
-  [FamiliarityLevel.YELLOW]: 'Somewhat Familiar',
-  [FamiliarityLevel.GREEN]: 'Familiar',
-};
 
 const FAMILIARITY_DOT_COLORS: Record<FamiliarityLevel, string> = {
   [FamiliarityLevel.RED]: 'bg-red-500',

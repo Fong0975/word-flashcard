@@ -5,8 +5,13 @@ import type { MockInstance } from 'vitest';
 import { Word } from '../../../types/api';
 import { FamiliarityLevel } from '../../../types/base';
 import { apiService } from '../../../lib/api';
+import { FAMILIARITY_LABELS } from '../../shared/constants/familiarity';
 
 import { WordQuiz } from './WordQuiz';
+
+const RED_LABEL = FAMILIARITY_LABELS[FamiliarityLevel.RED];
+const YELLOW_LABEL = FAMILIARITY_LABELS[FamiliarityLevel.YELLOW];
+const GREEN_LABEL = FAMILIARITY_LABELS[FamiliarityLevel.GREEN];
 
 const buildWord = (overrides: Partial<Word> = {}): Word => ({
   id: 1,
@@ -88,19 +93,17 @@ describe('WordQuiz', () => {
       await screen.findByRole('heading', { name: 'apple' }),
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: 'Unfamiliar' }),
+      screen.queryByRole('button', { name: RED_LABEL }),
     ).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Show Answer' }));
 
+    expect(screen.getByRole('button', { name: RED_LABEL })).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: 'Unfamiliar' }),
+      screen.getByRole('button', { name: YELLOW_LABEL }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: 'Somewhat Familiar' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: 'Familiar' }),
+      screen.getByRole('button', { name: GREEN_LABEL }),
     ).toBeInTheDocument();
   });
 
@@ -134,7 +137,7 @@ describe('WordQuiz', () => {
       'Remember this one',
     );
 
-    await user.click(screen.getByRole('button', { name: 'Familiar' }));
+    await user.click(screen.getByRole('button', { name: GREEN_LABEL }));
 
     await waitFor(() =>
       expect(updateSpy).toHaveBeenCalledWith(1, {
@@ -169,7 +172,7 @@ describe('WordQuiz', () => {
 
     await screen.findByRole('heading', { name: 'apple' });
     await user.click(screen.getByRole('button', { name: 'Show Answer' }));
-    await user.click(screen.getByRole('button', { name: 'Unfamiliar' }));
+    await user.click(screen.getByRole('button', { name: RED_LABEL }));
 
     await waitFor(() =>
       expect(updateSpy).toHaveBeenCalledWith(1, {
@@ -201,7 +204,7 @@ describe('WordQuiz', () => {
 
     await screen.findByRole('heading', { name: 'apple' });
     await user.click(screen.getByRole('button', { name: 'Show Answer' }));
-    await user.click(screen.getByRole('button', { name: 'Familiar' }));
+    await user.click(screen.getByRole('button', { name: GREEN_LABEL }));
 
     expect(await screen.findByText('update failed')).toBeInTheDocument();
     expect(onError).toHaveBeenCalledWith(
@@ -228,7 +231,7 @@ describe('WordQuiz', () => {
 
     await screen.findByRole('heading', { name: 'apple' });
     await user.click(screen.getByRole('button', { name: 'Show Answer' }));
-    await user.click(screen.getByRole('button', { name: 'Familiar' }));
+    await user.click(screen.getByRole('button', { name: GREEN_LABEL }));
 
     await waitFor(() =>
       expect(onQuizComplete).toHaveBeenCalledWith([
@@ -298,14 +301,12 @@ describe('WordQuiz', () => {
 
     await screen.findByRole('heading', { name: 'apple' });
     await user.click(screen.getByRole('button', { name: 'Show Answer' }));
-    const familiarButton = screen.getByRole('button', { name: 'Familiar' });
+    const familiarButton = screen.getByRole('button', { name: GREEN_LABEL });
     await user.click(familiarButton);
     await user.click(familiarButton);
 
-    expect(screen.getByRole('button', { name: 'Unfamiliar' })).toBeDisabled();
-    expect(
-      screen.getByRole('button', { name: 'Somewhat Familiar' }),
-    ).toBeDisabled();
+    expect(screen.getByRole('button', { name: RED_LABEL })).toBeDisabled();
+    expect(screen.getByRole('button', { name: YELLOW_LABEL })).toBeDisabled();
     expect(familiarButton).toBeDisabled();
     expect(updateSpy).toHaveBeenCalledTimes(1);
 
@@ -336,12 +337,14 @@ describe('WordQuiz', () => {
 
     await screen.findByRole('heading', { name: 'apple' });
     await user.click(screen.getByRole('button', { name: 'Show Answer' }));
-    await user.click(screen.getByRole('button', { name: 'Familiar' }));
+    await user.click(screen.getByRole('button', { name: GREEN_LABEL }));
 
     await screen.findByText('update failed');
     await user.click(screen.getByRole('button', { name: 'Try Again' }));
 
-    expect(screen.getByRole('button', { name: 'Familiar' })).not.toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: GREEN_LABEL }),
+    ).not.toBeDisabled();
   });
 
   it('returns to the question stage when Previous is pressed from the answer stage, without an API call', async () => {
@@ -361,7 +364,7 @@ describe('WordQuiz', () => {
     await screen.findByRole('heading', { name: 'apple' });
     await user.click(screen.getByRole('button', { name: 'Show Answer' }));
     expect(
-      screen.getByRole('button', { name: 'Familiar' }),
+      screen.getByRole('button', { name: GREEN_LABEL }),
     ).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Previous' }));

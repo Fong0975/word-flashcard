@@ -5,6 +5,8 @@ import type { MockInstance } from 'vitest';
 import { Word, WordPracticeLogEntry } from '../../../../types/api';
 import { FamiliarityLevel } from '../../../../types/base';
 import { apiService } from '../../../../lib/api';
+import { FAMILIARITY_LABELS } from '../../../shared/constants/familiarity';
+import { formatDateTimeParts } from '../../../../utils/dateFormat';
 
 import { WordHistorySection, familiarityLevel } from './WordHistorySection';
 
@@ -68,9 +70,30 @@ describe('WordHistorySection', () => {
     );
 
     expect(apiService.getWordLogs).toHaveBeenCalledWith(42, 10);
-    expect(await screen.findAllByText('green')).not.toHaveLength(0);
-    expect(screen.getAllByText('yellow').length).toBeGreaterThan(0);
-    expect(screen.getByText('red')).toBeInTheDocument();
+    expect(
+      await screen.findAllByText(FAMILIARITY_LABELS[FamiliarityLevel.GREEN]),
+    ).not.toHaveLength(0);
+    expect(
+      screen.getAllByText(FAMILIARITY_LABELS[FamiliarityLevel.YELLOW]),
+    ).not.toHaveLength(0);
+    expect(
+      screen.getAllByText(FAMILIARITY_LABELS[FamiliarityLevel.RED]),
+    ).not.toHaveLength(0);
+  });
+
+  it('shows the date and the time of an entry as separate lines', async () => {
+    const user = userEvent.setup();
+    const entry = buildEntry();
+    vi.spyOn(apiService, 'getWordLogs').mockResolvedValue([entry]);
+
+    render(<WordHistorySection word={buildWord()} />);
+    await user.click(
+      screen.getByRole('button', { name: 'Recent Practice History' }),
+    );
+
+    const { date, time } = formatDateTimeParts(entry.created_at);
+    expect(await screen.findByText(time)).toBeInTheDocument();
+    expect(screen.getAllByText(date)).not.toHaveLength(0);
   });
 
   it('shows a loading state while fetching', async () => {

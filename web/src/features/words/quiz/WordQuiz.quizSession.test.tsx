@@ -4,8 +4,12 @@ import userEvent from '@testing-library/user-event';
 import { Word } from '../../../types/api';
 import { FamiliarityLevel } from '../../../types/base';
 import { apiService } from '../../../lib/api';
+import { FAMILIARITY_LABELS } from '../../shared/constants/familiarity';
 
 import { WordQuiz } from './WordQuiz';
+
+const RED_LABEL = FAMILIARITY_LABELS[FamiliarityLevel.RED];
+const GREEN_LABEL = FAMILIARITY_LABELS[FamiliarityLevel.GREEN];
 
 // Companion to WordQuiz.test.tsx, split out to stay under the project's
 // max-lines limit. Covers the quiz_session_id sent with each familiarity
@@ -50,12 +54,12 @@ describe('WordQuiz quiz_session_id', () => {
 
     await screen.findByRole('heading', { name: 'apple' });
     await user.click(screen.getByRole('button', { name: 'Show Answer' }));
-    await user.click(screen.getByRole('button', { name: 'Familiar' }));
+    await user.click(screen.getByRole('button', { name: GREEN_LABEL }));
 
     await screen.findByRole('heading', { name: 'banana' });
     await user.click(screen.getByRole('button', { name: 'Previous' }));
     await screen.findByRole('heading', { name: 'apple' });
-    await user.click(screen.getByRole('button', { name: 'Unfamiliar' }));
+    await user.click(screen.getByRole('button', { name: RED_LABEL }));
 
     await waitFor(() => expect(updateSpy).toHaveBeenCalledTimes(2));
 

@@ -18,7 +18,12 @@ import {
   QuizSetupConfig,
 } from '../shared/components/QuizSetupModal';
 import { Word, BaseComponentProps } from '../../types';
-import { SearchCondition, SearchOperation } from '../../types/base';
+import {
+  FamiliarityLevel,
+  SearchCondition,
+  SearchOperation,
+} from '../../types/base';
+import { FAMILIARITY_LABELS } from '../shared/constants/familiarity';
 
 import { WordFormModal } from './word-form';
 import { WordCard } from './WordCard';
@@ -51,13 +56,21 @@ const WORD_QUICK_FILTERS: readonly {
   label: string;
   dotClassName?: string;
 }[] = [
-  { key: 'familiarity:red', label: 'Unfamiliar', dotClassName: 'bg-red-500' },
+  {
+    key: 'familiarity:red',
+    label: FAMILIARITY_LABELS[FamiliarityLevel.RED],
+    dotClassName: 'bg-red-500',
+  },
   {
     key: 'familiarity:yellow',
-    label: 'Somewhat Familiar',
+    label: FAMILIARITY_LABELS[FamiliarityLevel.YELLOW],
     dotClassName: 'bg-yellow-500',
   },
-  { key: 'familiarity:green', label: 'Familiar', dotClassName: 'bg-green-500' },
+  {
+    key: 'familiarity:green',
+    label: FAMILIARITY_LABELS[FamiliarityLevel.GREEN],
+    dotClassName: 'bg-green-500',
+  },
   {
     key: 'withReminder',
     label: 'With Reminder',

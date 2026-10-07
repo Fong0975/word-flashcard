@@ -4,8 +4,11 @@ import userEvent from '@testing-library/user-event';
 import { Word } from '../../../types/api';
 import { FamiliarityLevel } from '../../../types/base';
 import { apiService } from '../../../lib/api';
+import { FAMILIARITY_LABELS } from '../../shared/constants/familiarity';
 
 import { WordQuiz } from './WordQuiz';
+
+const GREEN_LABEL = FAMILIARITY_LABELS[FamiliarityLevel.GREEN];
 
 // Companion to WordQuiz.test.tsx, split out to stay under the project's
 // max-lines limit. Covers the familiarity reported for the card glow and
@@ -65,7 +68,7 @@ describe('WordQuiz familiarity glow', () => {
     expect(screen.getByText('Familiarity: red')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Show Answer' }));
-    await user.click(screen.getByRole('button', { name: 'Familiar' }));
+    await user.click(screen.getByRole('button', { name: GREEN_LABEL }));
     expect(onFamiliarityGlowChange).toHaveBeenLastCalledWith(
       FamiliarityLevel.GREEN,
     );

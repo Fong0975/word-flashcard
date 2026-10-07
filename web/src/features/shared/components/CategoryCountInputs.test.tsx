@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 
 import { FamiliarityLevel } from '../../../types/base';
+import { FAMILIARITY_LABELS } from '../constants';
 
 import { CategoryCountInputs } from './CategoryCountInputs';
 
@@ -24,9 +25,9 @@ describe('CategoryCountInputs', () => {
   it('renders a labeled input for each familiarity category', () => {
     render(<CategoryCountInputs {...buildProps()} />);
 
-    expect(screen.getByText('Unfamiliar')).toBeInTheDocument();
-    expect(screen.getByText('Somewhat Familiar')).toBeInTheDocument();
-    expect(screen.getByText('Familiar')).toBeInTheDocument();
+    Object.values(FAMILIARITY_LABELS).forEach(label => {
+      expect(screen.getByText(label)).toBeInTheDocument();
+    });
     expect(screen.getAllByRole('spinbutton')).toHaveLength(3);
   });
 

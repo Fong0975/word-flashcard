@@ -4,6 +4,7 @@ import type { MockInstance } from 'vitest';
 
 import { WordStatsResponse, WordTrendPoint } from '../../types/api';
 import { apiService } from '../../lib/api';
+import { FAMILIARITY_LABELS } from '../shared/constants/familiarity';
 
 import { WordStatsModal } from './WordStatsModal';
 
@@ -69,6 +70,9 @@ describe('WordStatsModal', () => {
     expect(screen.getByText('1')).toBeInTheDocument();
     expect(screen.getByText('2')).toBeInTheDocument();
     expect(screen.getByText('3')).toBeInTheDocument();
+    Object.values(FAMILIARITY_LABELS).forEach(label => {
+      expect(screen.getAllByText(label)).not.toHaveLength(0);
+    });
   });
 
   it('switches to the practice count tab when selected', async () => {
