@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 
 import { Question } from '../../types/api';
 import { EntityCard } from '../shared/components/EntityCard';
-import { getAccuracyRateColor } from '../shared/constants/quiz';
+import { getAccuracyTextColor } from '../shared/constants/quiz';
 
+import { AccuracyBar } from './AccuracyBar';
 import { calculateAccuracyRate } from './question-detail/utils/accuracyCalculation';
 import { getAvailableOptions } from './question-detail/utils/optionHelpers';
 
@@ -30,6 +31,10 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
     question.count_practise,
     question.count_failure_practise,
   );
+  const isPracticed = question.count_practise > 0;
+  const statsTextColor = isPracticed
+    ? getAccuracyTextColor(accuracyRate)
+    : 'text-supporting';
 
   return (
     <EntityCard
@@ -45,7 +50,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
         onClick: handleCardClick,
       }}
       renderContent={question => (
-        <div className='w-full'>
+        <div className='w-full pb-1'>
           {/* Header Row: Index on left, arrow on right */}
           <div className='mb-4 flex items-center justify-between border-b border-gray-100 pb-2 dark:border-gray-700'>
             {/* Index Number. The label and the number differ in font family and
@@ -88,7 +93,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
           </div>
 
           {/* Options - Responsive Layout */}
-          <div className='mb-4'>
+          <div className='mb-8'>
             <div className='grid grid-cols-1 gap-2 md:grid-cols-2'>
               {availableOptions.map(option => (
                 <div
@@ -107,39 +112,34 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
           </div>
 
           {/* Statistics */}
-          <div className='flex items-center justify-between border-t border-gray-100 pt-3 dark:border-gray-700'>
+          <div
+            data-testid='question-stats'
+            className={`flex items-center justify-between text-sm ${statsTextColor}`}
+          >
             {/* Practice count */}
-            <div className='text-sm text-gray-500 dark:text-gray-400'>
+            <div>
               Practices:{' '}
-              <span className='font-medium text-gray-700 dark:text-gray-300'>
-                {question.count_practise}
-              </span>
+              <span className='font-medium'>{question.count_practise}</span>
               {question.count_failure_practise > 0 && (
-                <span className='ms-2 text-xs'>
-                  / Errors: {question.count_failure_practise}
-                </span>
+                <span> / Errors: {question.count_failure_practise}</span>
               )}
             </div>
 
-            {/* Accuracy rate */}
-            {question.count_practise > 0 && (
-              <div
-                className={`rounded-full px-2 py-1 text-xs font-medium ${getAccuracyRateColor(accuracyRate)}`}
-              >
-                Accuracy {accuracyRate}%
-              </div>
-            )}
-
-            {/* No practice indicator */}
-            {question.count_practise === 0 && (
-              <div className='rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-500 dark:bg-gray-700 dark:text-gray-400'>
-                No Practice
-              </div>
-            )}
+            <div className='font-medium'>
+              {isPracticed ? `Accuracy ${accuracyRate}%` : 'No Practice'}
+            </div>
           </div>
+
+          {/* Laid over the card's bottom border (hence the -1px insets), with
+              the card's own corner radius so the bar follows both bottom
+              corners. */}
+          <AccuracyBar
+            accuracyRate={isPracticed ? accuracyRate : null}
+            className='absolute -inset-x-px -bottom-px h-1.5 rounded-b-lg rounded-t-none'
+          />
         </div>
       )}
-      className={className}
+      className={`relative ${className}`}
     />
   );
 };
