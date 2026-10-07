@@ -125,28 +125,16 @@ export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
     {
       heading: 'After',
       stats: [
-        {
-          label: FAMILIARITY_LABELS[FamiliarityLevel.RED],
-          count: redCount,
-          countLabel: `${FAMILIARITY_LABELS[FamiliarityLevel.RED]} count`,
-          colorClassName: STAT_COLORS.red,
-          dotClassName: 'bg-red-500',
-        },
-        {
-          label: FAMILIARITY_LABELS[FamiliarityLevel.YELLOW],
-          count: yellowCount,
-          countLabel: `${FAMILIARITY_LABELS[FamiliarityLevel.YELLOW]} count`,
-          colorClassName: STAT_COLORS.yellow,
-          dotClassName: 'bg-yellow-500',
-        },
-        {
-          label: FAMILIARITY_LABELS[FamiliarityLevel.GREEN],
-          count: greenCount,
-          countLabel: `${FAMILIARITY_LABELS[FamiliarityLevel.GREEN]} count`,
-          colorClassName: STAT_COLORS.green,
-          dotClassName: 'bg-green-500',
-        },
-      ],
+        { level: FamiliarityLevel.RED, count: redCount },
+        { level: FamiliarityLevel.YELLOW, count: yellowCount },
+        { level: FamiliarityLevel.GREEN, count: greenCount },
+      ].map(({ level, count }) => ({
+        label: FAMILIARITY_LABELS[level],
+        count,
+        countLabel: `${FAMILIARITY_LABELS[level]} count`,
+        colorClassName: STAT_COLORS[level],
+        dotClassName: getFamiliarityDisplayColors(level).dot,
+      })),
     },
     {
       heading: 'Change',

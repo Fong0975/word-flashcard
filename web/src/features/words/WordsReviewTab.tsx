@@ -23,7 +23,10 @@ import {
   SearchCondition,
   SearchOperation,
 } from '../../types/base';
-import { FAMILIARITY_LABELS } from '../shared/constants/familiarity';
+import {
+  FAMILIARITY_LABELS,
+  getFamiliarityDisplayColors,
+} from '../shared/constants/familiarity';
 
 import { WordFormModal } from './word-form';
 import { WordCard } from './WordCard';
@@ -59,17 +62,17 @@ const WORD_QUICK_FILTERS: readonly {
   {
     key: 'familiarity:red',
     label: FAMILIARITY_LABELS[FamiliarityLevel.RED],
-    dotClassName: 'bg-red-500',
+    dotClassName: getFamiliarityDisplayColors(FamiliarityLevel.RED).dot,
   },
   {
     key: 'familiarity:yellow',
     label: FAMILIARITY_LABELS[FamiliarityLevel.YELLOW],
-    dotClassName: 'bg-yellow-500',
+    dotClassName: getFamiliarityDisplayColors(FamiliarityLevel.YELLOW).dot,
   },
   {
     key: 'familiarity:green',
     label: FAMILIARITY_LABELS[FamiliarityLevel.GREEN],
-    dotClassName: 'bg-green-500',
+    dotClassName: getFamiliarityDisplayColors(FamiliarityLevel.GREEN).dot,
   },
   {
     key: 'withReminder',

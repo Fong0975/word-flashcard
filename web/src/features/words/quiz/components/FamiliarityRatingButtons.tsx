@@ -1,7 +1,10 @@
 import React from 'react';
 
 import { FamiliarityLevel } from '../../../../types/base';
-import { FAMILIARITY_LABELS } from '../../../shared/constants/familiarity';
+import {
+  FAMILIARITY_LABELS,
+  getFamiliarityDisplayColors,
+} from '../../../shared/constants/familiarity';
 
 interface FamiliarityRatingButtonsProps {
   onSelect: (level: FamiliarityLevel) => void;
@@ -28,7 +31,9 @@ export const FamiliarityRatingButtons: React.FC<
         </div>
       ) : (
         <>
-          <div className='mb-2 h-6 w-6 rounded-full bg-red-500'></div>
+          <div
+            className={`mb-2 h-6 w-6 rounded-full ${getFamiliarityDisplayColors(FamiliarityLevel.RED).dot}`}
+          ></div>
           <div className='text-center'>
             <div className='text-xs text-red-600 dark:text-red-400'>
               {FAMILIARITY_LABELS[FamiliarityLevel.RED]}
@@ -53,7 +58,9 @@ export const FamiliarityRatingButtons: React.FC<
         </div>
       ) : (
         <>
-          <div className='mb-2 h-6 w-6 rounded-full bg-yellow-500'></div>
+          <div
+            className={`mb-2 h-6 w-6 rounded-full ${getFamiliarityDisplayColors(FamiliarityLevel.YELLOW).dot}`}
+          ></div>
           <div className='text-center'>
             <div className='text-xs text-yellow-600 dark:text-yellow-400'>
               {FAMILIARITY_LABELS[FamiliarityLevel.YELLOW]}
@@ -78,7 +85,9 @@ export const FamiliarityRatingButtons: React.FC<
         </div>
       ) : (
         <>
-          <div className='mb-2 h-6 w-6 rounded-full bg-green-500'></div>
+          <div
+            className={`mb-2 h-6 w-6 rounded-full ${getFamiliarityDisplayColors(FamiliarityLevel.GREEN).dot}`}
+          ></div>
           <div className='text-center'>
             <div className='text-xs text-green-600 dark:text-green-400'>
               {FAMILIARITY_LABELS[FamiliarityLevel.GREEN]}

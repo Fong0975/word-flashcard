@@ -1,6 +1,10 @@
 import React from 'react';
 
-import { FAMILIARITY_OPTIONS, FamiliarityLevel } from '../constants';
+import {
+  FAMILIARITY_OPTIONS,
+  FamiliarityLevel,
+  getFamiliarityDisplayColors,
+} from '../constants';
 
 interface FamiliaritySelectionListProps {
   selectedFamiliarity: FamiliarityLevel[];
@@ -31,7 +35,7 @@ export const FamiliaritySelectionList: React.FC<
             className='sr-only'
           />
           <div
-            className={`mr-3 h-4 w-4 rounded-full ${option.value === FamiliarityLevel.GREEN ? 'bg-green-500' : option.value === FamiliarityLevel.YELLOW ? 'bg-yellow-500' : 'bg-red-500'}`}
+            className={`mr-3 h-4 w-4 rounded-full ${getFamiliarityDisplayColors(option.value).dot}`}
           />
           <span
             className={`font-medium ${selectedFamiliarity.includes(option.value) ? option.color : 'text-gray-700 dark:text-gray-300'}`}

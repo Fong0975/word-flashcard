@@ -1,18 +1,16 @@
 import React from 'react';
 
-import { FAMILIARITY_LABELS, FamiliarityLevel } from '../constants';
+import {
+  FAMILIARITY_LABELS,
+  FamiliarityLevel,
+  getFamiliarityDisplayColors,
+} from '../constants';
 
 const CATEGORY_ORDER = [
   FamiliarityLevel.RED,
   FamiliarityLevel.YELLOW,
   FamiliarityLevel.GREEN,
 ] as const;
-
-const FAMILIARITY_DOT_COLORS: Record<FamiliarityLevel, string> = {
-  [FamiliarityLevel.RED]: 'bg-red-500',
-  [FamiliarityLevel.YELLOW]: 'bg-yellow-500',
-  [FamiliarityLevel.GREEN]: 'bg-green-500',
-};
 
 interface CategoryCountInputsProps {
   categoryInputs: Record<FamiliarityLevel, string>;
@@ -37,7 +35,7 @@ export const CategoryCountInputs: React.FC<CategoryCountInputsProps> = ({
       {CATEGORY_ORDER.map(level => (
         <div key={level} className='flex items-center gap-3'>
           <div
-            className={`h-4 w-4 flex-shrink-0 rounded-full ${FAMILIARITY_DOT_COLORS[level]}`}
+            className={`h-4 w-4 flex-shrink-0 rounded-full ${getFamiliarityDisplayColors(level).dot}`}
           />
           <span className='flex-1 text-sm text-gray-700 dark:text-gray-300'>
             {FAMILIARITY_LABELS[level]}
