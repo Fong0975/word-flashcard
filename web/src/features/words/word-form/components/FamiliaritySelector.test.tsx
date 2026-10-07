@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { FamiliarityLevel } from '../../../../types/base';
@@ -32,6 +32,41 @@ describe('FamiliaritySelector', () => {
       screen.getByRole('button', { name: 'Select familiarity level' }),
     ).toHaveTextContent(FAMILIARITY_LABELS[FamiliarityLevel.YELLOW]);
   });
+
+  it.each([
+    { level: FamiliarityLevel.GREEN, dotClass: 'bg-green-500' },
+    { level: FamiliarityLevel.YELLOW, dotClass: 'bg-yellow-500' },
+    { level: FamiliarityLevel.RED, dotClass: 'bg-red-500' },
+  ])(
+    'shows a decorative $dotClass dot before the $level label on the trigger and its menu item',
+    async ({ level, dotClass }) => {
+      const user = userEvent.setup();
+      render(
+        <FamiliaritySelector
+          value={level}
+          onChange={vi.fn()}
+          disabled={false}
+          mode='edit'
+        />,
+      );
+
+      const trigger = screen.getByRole('button', {
+        name: 'Select familiarity level',
+      });
+      const triggerDot = within(trigger).getByTestId('familiarity-dot');
+      expect(triggerDot).toHaveClass(dotClass);
+      expect(triggerDot).toHaveAttribute('aria-hidden', 'true');
+
+      await user.click(trigger);
+
+      const menuItem = screen.getByRole('menuitem', {
+        name: FAMILIARITY_LABELS[level],
+      });
+      const menuItemDot = within(menuItem).getByTestId('familiarity-dot');
+      expect(menuItemDot).toHaveClass(dotClass);
+      expect(menuItemDot).toHaveAttribute('aria-hidden', 'true');
+    },
+  );
 
   it('calls onChange with the selected level', async () => {
     const user = userEvent.setup();
