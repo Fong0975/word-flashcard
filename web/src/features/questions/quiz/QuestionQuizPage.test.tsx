@@ -30,8 +30,18 @@ vi.mock('./QuestionQuiz', () => ({
         loading?: boolean;
       } | null,
     ) => void;
+    onAnswerGlowChange?: (isCorrect: boolean | undefined) => void;
   }) => (
     <div>
+      <button onClick={() => props.onAnswerGlowChange?.(true)}>
+        Glow correct
+      </button>
+      <button onClick={() => props.onAnswerGlowChange?.(false)}>
+        Glow incorrect
+      </button>
+      <button onClick={() => props.onAnswerGlowChange?.(undefined)}>
+        Glow none
+      </button>
       <button
         onClick={() =>
           props.onNextAction?.({
@@ -140,6 +150,42 @@ describe('QuestionQuizPage', () => {
       expect(
         screen.getByRole('button', { name: 'Report Submit Action' }),
       ).toBeInTheDocument();
+    });
+  });
+
+  describe('answer glow on the content card', () => {
+    it.each([
+      { button: 'Glow correct', expected: 'glass-glow-green' },
+      { button: 'Glow incorrect', expected: 'glass-glow-red' },
+    ])(
+      'applies $expected when the quiz reports it',
+      async ({ button, expected }) => {
+        const user = userEvent.setup();
+        renderPage('/question/quiz?count=5');
+
+        const card = screen.getByTestId('detail-page-card');
+        expect(card).not.toHaveClass('glass-glow');
+
+        await user.click(screen.getByRole('button', { name: button }));
+
+        expect(card).toHaveClass('glass-glow', expected);
+      },
+    );
+
+    it('removes the glow when the quiz reports no outcome, and on the results view', async () => {
+      const user = userEvent.setup();
+      renderPage('/question/quiz?count=5');
+      const card = screen.getByTestId('detail-page-card');
+
+      await user.click(screen.getByRole('button', { name: 'Glow incorrect' }));
+      await user.click(screen.getByRole('button', { name: 'Glow none' }));
+      expect(card).not.toHaveClass('glass-glow');
+
+      await user.click(screen.getByRole('button', { name: 'Glow incorrect' }));
+      await user.click(screen.getByRole('button', { name: 'Complete Quiz' }));
+      expect(screen.getByTestId('detail-page-card')).not.toHaveClass(
+        'glass-glow',
+      );
     });
   });
 
