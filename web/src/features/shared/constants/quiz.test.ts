@@ -3,6 +3,7 @@ import {
   getAccuracyTextColor,
   getAccuracyTone,
   getAccuracyToneClass,
+  getAnswerGlowClass,
   getScoreColor,
 } from './quiz';
 
@@ -68,4 +69,16 @@ describe('getAccuracyToneClass', () => {
   ])('returns the glow tone class for $rate%', ({ rate, expected }) => {
     expect(getAccuracyToneClass(rate)).toBe(expected);
   });
+});
+
+describe('getAnswerGlowClass', () => {
+  it.each([
+    { isCorrect: true, expected: 'glass-glow glass-glow-green' },
+    { isCorrect: false, expected: 'glass-glow glass-glow-red' },
+  ])(
+    'returns the glow classes when isCorrect is $isCorrect',
+    ({ isCorrect, expected }) => {
+      expect(getAnswerGlowClass(isCorrect)).toBe(expected);
+    },
+  );
 });

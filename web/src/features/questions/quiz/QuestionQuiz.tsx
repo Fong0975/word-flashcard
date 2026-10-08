@@ -47,6 +47,12 @@ interface QuestionQuizProps {
   onBackToHome: () => void;
   onError?: (message: string) => void;
   onNextAction?: (action: NextActionProps | null) => void;
+  /**
+   * Reports the outcome the surrounding card should glow with: whether the
+   * answer under review was correct. `undefined` whenever no reviewed answer
+   * is on screen (loading, error, answering, completed, unmounted).
+   */
+  onAnswerGlowChange?: (isCorrect: boolean | undefined) => void;
 }
 
 export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
@@ -55,6 +61,7 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
   onBackToHome,
   onError,
   onNextAction,
+  onAnswerGlowChange,
 }) => {
   const { state, setState, questions, error, setError } = useQuestionQuizData({
     questionCount,
@@ -72,6 +79,17 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
   const completedCount = currentQuestionIndex + (showAnswer ? 1 : 0);
   const progress =
     questions.length > 0 ? (completedCount / questions.length) * 100 : 0;
+
+  const isAnswerOnScreen =
+    state === 'quiz' && !error && !!currentQuestion && showAnswer;
+  const isCorrect = results[results.length - 1]?.isCorrect ?? false;
+  const answerGlow = isAnswerOnScreen ? isCorrect : undefined;
+
+  useEffect(() => {
+    onAnswerGlowChange?.(answerGlow);
+  }, [answerGlow, onAnswerGlowChange]);
+
+  useEffect(() => () => onAnswerGlowChange?.(undefined), [onAnswerGlowChange]);
 
   const handleAnswerSelect = (answer: string) => {
     setSelectedAnswer(answer);
@@ -233,8 +251,6 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
   }
 
   if (state === 'quiz' && currentQuestion && shuffledOptions.length > 0) {
-    const isCorrect = results[results.length - 1]?.isCorrect ?? false;
-
     return (
       <div className='flex h-full flex-col'>
         {/* Progress Bar */}
@@ -280,19 +296,20 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
             </div>
           </>
         ) : (
-          // Stage 2: Answer and explanation
-          <div className='flex-1 overflow-y-auto'>
-            <div
-              className={`mx-auto max-w-2xl border-l-4 pl-4 ${
-                isCorrect ? 'border-green-400' : 'border-red-400'
-              } lg:my-6`}
-            >
+          // Stage 2: Answer and explanation. The negative margin pushes the
+          // scrollbar into the card's horizontal padding, and the matching
+          // padding keeps the content clear of it.
+          <div className='-mr-2 flex-1 overflow-y-auto pr-2 lg:-mr-3 lg:pr-3'>
+            <div>
+              <span className='sr-only'>
+                Result: {isCorrect ? 'correct' : 'incorrect'}
+              </span>
               {/* Question Display */}
               <div className='mb-6'>
                 <p className='text-supporting mb-1 text-xs'>
                   #{currentQuestion.id}
                 </p>
-                <h1 className='mb-1 text-xl font-bold leading-relaxed text-gray-900 dark:text-white'>
+                <h1 className='mb-1 text-xl font-bold leading-relaxed text-gray-900 dark:text-white lg:text-2xl'>
                   {currentQuestion.question}
                 </h1>
                 <p className='text-supporting mb-4 text-xs'>

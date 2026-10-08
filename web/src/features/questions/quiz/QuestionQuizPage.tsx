@@ -7,6 +7,7 @@ import { useQuizExitGuard } from '../../shared/hooks/useQuizExitGuard';
 import { QuizExitConfirmDialog } from '../../shared/components/QuizExitConfirmDialog';
 import { QuizResultsFooter } from '../../shared/components/QuizResultsFooter';
 import { InvalidQuizConfigScreen } from '../../shared/components/InvalidQuizConfigScreen';
+import { getAnswerGlowClass } from '../../shared/constants/quiz';
 
 import { QuestionQuiz, NextActionProps } from './QuestionQuiz';
 import { QuestionQuizResults } from './QuestionQuizResults';
@@ -23,6 +24,7 @@ export const QuestionQuizPage: React.FC = () => {
   const [pageState, setPageState] = useState<PageState>('quiz');
   const [results, setResults] = useState<QuestionQuizResult[]>([]);
   const [nextAction, setNextAction] = useState<NextActionProps | null>(null);
+  const [answerGlow, setAnswerGlow] = useState<boolean | undefined>();
 
   const handleBackToHome = () => navigate('/?tab=questions');
 
@@ -66,6 +68,11 @@ export const QuestionQuizPage: React.FC = () => {
     <>
       <DetailPageLayout
         onBack={handleBackButton}
+        cardClassName={
+          pageState === 'quiz' && answerGlow !== undefined
+            ? getAnswerGlowClass(answerGlow)
+            : undefined
+        }
         body={
           <>
             {pageState === 'quiz' && (
@@ -75,6 +82,7 @@ export const QuestionQuizPage: React.FC = () => {
                   onQuizComplete={handleQuizComplete}
                   onBackToHome={handleBackButton}
                   onNextAction={handleNextAction}
+                  onAnswerGlowChange={setAnswerGlow}
                 />
               </div>
             )}

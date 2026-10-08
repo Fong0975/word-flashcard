@@ -94,3 +94,13 @@ export const getAccuracyTextColor = (rate: number): string =>
  */
 export const getAccuracyToneClass = (rate: number): string =>
   ACCURACY_TONE_CLASSES[getAccuracyTone(rate)];
+
+/**
+ * Get the glass rim-light classes that tint a `.glass-panel` edge with the
+ * outcome of a submitted answer.
+ *
+ * @param isCorrect - Whether the submitted answer was correct
+ * @returns The `.glass-glow` class pair: green when correct, red otherwise
+ */
+export const getAnswerGlowClass = (isCorrect: boolean): string =>
+  `glass-glow ${ACCURACY_TONE_CLASSES[isCorrect ? 'green' : 'red']}`;
