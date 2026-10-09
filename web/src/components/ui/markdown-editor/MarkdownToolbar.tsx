@@ -84,24 +84,34 @@ const LinkIcon: React.FC = () => (
     fill='none'
     stroke='currentColor'
     strokeWidth={2}
+    strokeLinecap='round'
+    strokeLinejoin='round'
     className='h-4 w-4'
   >
-    <rect
-      x='2'
-      y='9'
-      width='10'
-      height='6'
-      rx='3'
-      transform='rotate(-45 7 12)'
-    />
-    <rect
-      x='12'
-      y='9'
-      width='10'
-      height='6'
-      rx='3'
-      transform='rotate(-45 17 12)'
-    />
+    <path d='M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71' />
+    <path d='M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71' />
+  </svg>
+);
+
+const QuoteIcon: React.FC = () => (
+  <svg viewBox='0 0 24 24' fill='currentColor' className='h-4 w-4'>
+    <path d='M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z' />
+  </svg>
+);
+
+const CodeIcon: React.FC = () => (
+  <svg
+    viewBox='0 0 24 24'
+    fill='none'
+    stroke='currentColor'
+    strokeWidth={2}
+    strokeLinecap='round'
+    strokeLinejoin='round'
+    className='h-4 w-4'
+  >
+    <path d='m18 16 4-4-4-4' />
+    <path d='m6 8-4 4 4 4' />
+    <path d='m14.5 4-5 16' />
   </svg>
 );
 
@@ -163,16 +173,8 @@ const FORMAT_BUTTONS: {
     label: 'Underline',
     icon: <span className='underline'>U</span>,
   },
-  {
-    action: 'quote',
-    label: 'Quote',
-    icon: <span className='text-base leading-none'>&rdquo;</span>,
-  },
-  {
-    action: 'code',
-    label: 'Code',
-    icon: <span className='font-mono text-[11px]'>{'</>'}</span>,
-  },
+  { action: 'quote', label: 'Quote', icon: <QuoteIcon /> },
+  { action: 'code', label: 'Code', icon: <CodeIcon /> },
   { action: 'link', label: 'Link', icon: <LinkIcon /> },
   { action: 'bulletList', label: 'Bullet List', icon: <BulletListIcon /> },
   {
