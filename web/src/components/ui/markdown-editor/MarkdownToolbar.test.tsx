@@ -14,6 +14,8 @@ describe('MarkdownToolbar', () => {
     );
 
     [
+      'Undo',
+      'Redo',
       'Bold',
       'Italic',
       'Underline',
@@ -68,6 +70,105 @@ describe('MarkdownToolbar', () => {
       />,
     );
     expect(screen.getByRole('button', { name: 'Bold' })).toBeDisabled();
+  });
+
+  it.each([
+    {
+      name: 'both disabled by default',
+      props: {},
+      undoDisabled: true,
+      redoDisabled: true,
+    },
+    {
+      name: 'only Undo enabled when there is nothing to redo',
+      props: { canUndo: true },
+      undoDisabled: false,
+      redoDisabled: true,
+    },
+    {
+      name: 'only Redo enabled when there is nothing to undo',
+      props: { canRedo: true },
+      undoDisabled: true,
+      redoDisabled: false,
+    },
+    {
+      name: 'both enabled when both directions are available',
+      props: { canUndo: true, canRedo: true },
+      undoDisabled: false,
+      redoDisabled: false,
+    },
+    {
+      name: 'both disabled while the editor is disabled',
+      props: { canUndo: true, canRedo: true, disabled: true },
+      undoDisabled: true,
+      redoDisabled: true,
+    },
+    {
+      name: 'both disabled in preview mode',
+      props: { canUndo: true, canRedo: true, isPreview: true },
+      undoDisabled: true,
+      redoDisabled: true,
+    },
+  ])(
+    'renders Undo/Redo with $name',
+    ({ props, undoDisabled, redoDisabled }) => {
+      render(
+        <MarkdownToolbar
+          onFormat={vi.fn()}
+          isPreview={false}
+          onTogglePreview={vi.fn()}
+          {...props}
+        />,
+      );
+
+      const undo = screen.getByRole('button', { name: 'Undo' });
+      const redo = screen.getByRole('button', { name: 'Redo' });
+      expect(undo.hasAttribute('disabled')).toBe(undoDisabled);
+      expect(redo.hasAttribute('disabled')).toBe(redoDisabled);
+    },
+  );
+
+  it('calls onUndo and onRedo when their buttons are clicked', async () => {
+    const user = userEvent.setup();
+    const onUndo = vi.fn();
+    const onRedo = vi.fn();
+    render(
+      <MarkdownToolbar
+        onFormat={vi.fn()}
+        isPreview={false}
+        onTogglePreview={vi.fn()}
+        canUndo
+        canRedo
+        onUndo={onUndo}
+        onRedo={onRedo}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Undo' }));
+    expect(onUndo).toHaveBeenCalledTimes(1);
+    expect(onRedo).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: 'Redo' }));
+    expect(onRedo).toHaveBeenCalledTimes(1);
+  });
+
+  it('places Undo and Redo before Bold, separated from it by a divider', () => {
+    render(
+      <MarkdownToolbar
+        onFormat={vi.fn()}
+        isPreview={false}
+        onTogglePreview={vi.fn()}
+      />,
+    );
+
+    const undo = screen.getByRole('button', { name: 'Undo' });
+    const redo = screen.getByRole('button', { name: 'Redo' });
+    const bold = screen.getByRole('button', { name: 'Bold' });
+    const divider = screen.getByTestId('toolbar-divider');
+
+    expect(undo.nextElementSibling).toBe(redo);
+    expect(redo.nextElementSibling).toBe(divider);
+    expect(divider.nextElementSibling).toBe(bold);
   });
 
   it('does not render the Symbols button when symbolButtons is empty', () => {

@@ -17,8 +17,10 @@ import {
   applyNumberedList,
   MarkdownFormatResult,
 } from './markdownFormatting';
+import { getHistoryShortcut } from './markdownHistory';
 import { MarkdownToolbar, MarkdownFormatAction } from './MarkdownToolbar';
 import { insertSymbol } from './symbolFormatting';
+import { useMarkdownHistory } from './useMarkdownHistory';
 import { insertWordLink } from './wordLinkFormatting';
 import { WordLinkSuggestionPopup } from './WordLinkSuggestionPopup';
 
@@ -84,6 +86,41 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
     configFileName: 'markdownEditorSymbolsConfig.json',
   });
   const symbolInsertPositionRef = useRef({ start: 0, end: 0 });
+  const history = useMarkdownHistory(value);
+  const isComposingRef = useRef(false);
+
+  /** Pushes `result` to the owner of `value` and restores its selection once rendered. */
+  const applyResult = (result: MarkdownFormatResult) => {
+    const textarea = textareaRef.current;
+
+    onChange(result.value);
+
+    if (!textarea) {
+      return;
+    }
+    requestAnimationFrame(() => {
+      textarea.focus();
+      textarea.setSelectionRange(result.selectionStart, result.selectionEnd);
+    });
+  };
+
+  /** Applies a self-contained edit (toolbar action, insertion) as its own undo step. */
+  const applyStep = (result: MarkdownFormatResult) => {
+    history.recordStep(result);
+    applyResult(result);
+  };
+
+  const restoreHistoryEntry = (entry: MarkdownFormatResult | null) => {
+    if (!entry) {
+      return;
+    }
+    applyResult(entry);
+    notifyChange(entry.value, entry.selectionEnd);
+  };
+
+  const handleUndo = () => restoreHistoryEntry(history.undo());
+
+  const handleRedo = () => restoreHistoryEntry(history.redo());
 
   const handleFormat = (action: MarkdownFormatAction) => {
     const textarea = textareaRef.current;
@@ -92,14 +129,7 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
     }
 
     const { selectionStart, selectionEnd } = textarea;
-    const result = FORMAT_HANDLERS[action](value, selectionStart, selectionEnd);
-
-    onChange(result.value);
-
-    requestAnimationFrame(() => {
-      textarea.focus();
-      textarea.setSelectionRange(result.selectionStart, result.selectionEnd);
-    });
+    applyStep(FORMAT_HANDLERS[action](value, selectionStart, selectionEnd));
   };
 
   const handleOpenSymbolMenu = () => {
@@ -114,25 +144,47 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
   };
 
   const handleInsertSymbol = (symbolValue: string) => {
-    const textarea = textareaRef.current;
     const { start, end } = symbolInsertPositionRef.current;
-    const result = insertSymbol(value, start, end, symbolValue);
+    applyStep(insertSymbol(value, start, end, symbolValue));
+  };
 
-    onChange(result.value);
-
-    if (!textarea) {
-      return;
-    }
-    requestAnimationFrame(() => {
-      textarea.focus();
-      textarea.setSelectionRange(result.selectionStart, result.selectionEnd);
-    });
+  const handleAppendTemplate = (textToAppend: string) => {
+    history.expectExternalStep();
+    onAppendTemplate?.(textToAppend);
   };
 
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    onChange(e.target.value);
+    const { value: newValue, selectionStart, selectionEnd } = e.target;
+
+    history.recordTyping(
+      { value: newValue, selectionStart, selectionEnd },
+      isComposingRef.current,
+    );
+    onChange(newValue);
     if (!disabled) {
-      notifyChange(e.target.value, e.target.selectionStart);
+      notifyChange(newValue, selectionStart);
+    }
+  };
+
+  const handleTextareaKeyDown = (
+    e: React.KeyboardEvent<HTMLTextAreaElement>,
+  ) => {
+    if (e.nativeEvent.isComposing) {
+      return;
+    }
+
+    const shortcut = getHistoryShortcut(e);
+    if (!shortcut) {
+      return;
+    }
+
+    // The browser's native undo stack is unaware of programmatic edits
+    // (toolbar actions, insertions), so it must not run alongside ours.
+    e.preventDefault();
+    if (shortcut === 'undo') {
+      handleUndo();
+    } else {
+      handleRedo();
     }
   };
 
@@ -143,7 +195,6 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
   };
 
   const handleInsertWordLink = () => {
-    const textarea = textareaRef.current;
     if (!suggestion) {
       return;
     }
@@ -153,16 +204,8 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
       suggestion.insertPosition,
       suggestion.word,
     );
-    onChange(result.value);
+    applyStep(result);
     dismissSuggestion(result.value);
-
-    if (!textarea) {
-      return;
-    }
-    requestAnimationFrame(() => {
-      textarea.focus();
-      textarea.setSelectionRange(result.selectionStart, result.selectionEnd);
-    });
   };
 
   const isFlex = heightMode === 'flex';
@@ -195,6 +238,13 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
       value={value}
       onChange={handleTextareaChange}
       onBlur={handleTextareaBlur}
+      onKeyDown={handleTextareaKeyDown}
+      onCompositionStart={() => {
+        isComposingRef.current = true;
+      }}
+      onCompositionEnd={() => {
+        isComposingRef.current = false;
+      }}
       rows={rows}
       className={textareaClassName}
       placeholder={placeholder}
@@ -216,7 +266,7 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
       {onAppendTemplate && (
         <TemplateButtonRow
           buttons={templateButtons}
-          onSelect={onAppendTemplate}
+          onSelect={handleAppendTemplate}
           disabled={disabled || isPreview}
           tooltip={
             isPreview ? 'Switch to Edit mode to use templates' : undefined
@@ -237,6 +287,10 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
           symbolButtons={symbolButtons}
           onOpenSymbolMenu={handleOpenSymbolMenu}
           onInsertSymbol={handleInsertSymbol}
+          canUndo={history.canUndo}
+          canRedo={history.canRedo}
+          onUndo={handleUndo}
+          onRedo={handleRedo}
         />
         {editorContent}
         <div className='text-supporting flex flex-shrink-0 items-center gap-1.5 border-t border-white/40 px-2 py-1 text-xs italic dark:border-white/10'>

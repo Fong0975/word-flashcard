@@ -229,6 +229,24 @@ describe('MarkdownEditorField', () => {
       ).not.toBeInTheDocument();
     });
 
+    it('undoes an accepted word link as a single step', async () => {
+      vi.spyOn(apiService, 'searchWords').mockResolvedValue([
+        buildWord({ word: 'apple' }),
+      ]);
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      render(<ControlledMarkdownEditorField />);
+
+      await user.type(screen.getByRole('textbox'), '`apple`');
+      await user.click(await screen.findByRole('button', { name: 'Add link' }));
+      expect(screen.getByRole('textbox')).toHaveValue(
+        '`apple`([link](/word/apple))',
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Undo' }));
+
+      expect(screen.getByRole('textbox')).toHaveValue('`apple`');
+    });
+
     it('surfaces a suggestion on blur for a word pasted into an existing empty backtick pair', async () => {
       vi.spyOn(apiService, 'searchWords').mockResolvedValue([
         buildWord({ word: 'apple' }),

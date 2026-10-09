@@ -21,7 +21,58 @@ interface MarkdownToolbarProps {
   symbolButtons?: TemplateButton[];
   onOpenSymbolMenu?: () => void;
   onInsertSymbol?: (value: string) => void;
+  canUndo?: boolean;
+  canRedo?: boolean;
+  onUndo?: () => void;
+  onRedo?: () => void;
 }
+
+const toolbarButtonClassName = (isDisabled: boolean): string =>
+  `flex h-7 w-7 flex-shrink-0 items-center justify-center rounded transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
+    isDisabled
+      ? 'cursor-not-allowed text-gray-300 dark:text-gray-600'
+      : 'text-gray-600 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-600'
+  }`;
+
+const ToolbarDivider: React.FC<{ className?: string }> = ({
+  className = '',
+}) => (
+  <div
+    aria-hidden='true'
+    data-testid='toolbar-divider'
+    className={`h-5 w-px flex-shrink-0 bg-gray-300 dark:bg-gray-600 ${className}`}
+  />
+);
+
+const UndoIcon: React.FC = () => (
+  <svg
+    viewBox='0 0 24 24'
+    fill='none'
+    stroke='currentColor'
+    strokeWidth={2}
+    strokeLinecap='round'
+    strokeLinejoin='round'
+    className='h-4 w-4'
+  >
+    <path d='M9 14 4 9l5-5' />
+    <path d='M4 9h10.5a5.5 5.5 0 0 1 0 11H11' />
+  </svg>
+);
+
+const RedoIcon: React.FC = () => (
+  <svg
+    viewBox='0 0 24 24'
+    fill='none'
+    stroke='currentColor'
+    strokeWidth={2}
+    strokeLinecap='round'
+    strokeLinejoin='round'
+    className='h-4 w-4'
+  >
+    <path d='m15 14 5-5-5-5' />
+    <path d='M20 9H9.5a5.5 5.5 0 0 0 0 11H13' />
+  </svg>
+);
 
 const SymbolsIcon: React.FC = () => (
   <span className='text-sm leading-none'>&Omega;</span>
@@ -139,13 +190,46 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
   symbolButtons = [],
   onOpenSymbolMenu,
   onInsertSymbol,
+  canUndo = false,
+  canRedo = false,
+  onUndo,
+  onRedo,
 }) => {
   const formatButtonsDisabled = disabled || isPreview;
+
+  const historyButtons = [
+    {
+      label: 'Undo',
+      icon: <UndoIcon />,
+      isDisabled: formatButtonsDisabled || !canUndo,
+      onClick: onUndo,
+    },
+    {
+      label: 'Redo',
+      icon: <RedoIcon />,
+      isDisabled: formatButtonsDisabled || !canRedo,
+      onClick: onRedo,
+    },
+  ];
 
   return (
     <div className='flex items-center justify-between gap-2 border-b border-white/40 px-2 py-1 dark:border-white/10'>
       <div className='flex min-w-0 items-center gap-0.5'>
         <div className='flex min-w-0 gap-0.5 overflow-x-auto'>
+          {historyButtons.map(({ label, icon, isDisabled, onClick }) => (
+            <button
+              key={label}
+              type='button'
+              disabled={isDisabled}
+              onClick={onClick}
+              title={label}
+              aria-label={label}
+              className={toolbarButtonClassName(isDisabled)}
+            >
+              {icon}
+            </button>
+          ))}
+          <ToolbarDivider className='self-center' />
           {FORMAT_BUTTONS.map(({ action, label, icon }) => (
             <button
               key={action}
@@ -154,11 +238,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
               onClick={() => onFormat(action)}
               title={label}
               aria-label={label}
-              className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
-                formatButtonsDisabled
-                  ? 'cursor-not-allowed text-gray-300 dark:text-gray-600'
-                  : 'text-gray-600 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-600'
-              }`}
+              className={toolbarButtonClassName(formatButtonsDisabled)}
             >
               {icon}
             </button>
@@ -167,10 +247,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
 
         {symbolButtons.length > 0 && (
           <>
-            <div
-              aria-hidden='true'
-              className='h-5 w-px flex-shrink-0 bg-gray-300 dark:bg-gray-600'
-            />
+            <ToolbarDivider />
             <DropdownMenu
               className='flex-shrink-0'
               disabled={formatButtonsDisabled}
@@ -182,11 +259,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
                   onClick={onOpenSymbolMenu}
                   title='Symbols'
                   aria-label='Symbols'
-                  className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
-                    formatButtonsDisabled
-                      ? 'cursor-not-allowed text-gray-300 dark:text-gray-600'
-                      : 'text-gray-600 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-600'
-                  }`}
+                  className={toolbarButtonClassName(formatButtonsDisabled)}
                 >
                   <SymbolsIcon />
                 </button>
