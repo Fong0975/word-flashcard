@@ -14,7 +14,7 @@ export const DictionaryLookupHeader: React.FC<DictionaryLookupHeaderProps> = ({
   onToggleCollapsed,
 }) => (
   <div className='flex items-center justify-between p-4 transition-colors hover:bg-green-200/50 dark:hover:bg-green-800/30'>
-    <h3 className='text-lg font-medium text-green-800 dark:text-green-200'>
+    <h3 className='text-base font-medium text-green-800 dark:text-green-200'>
       Dictionary Lookup
     </h3>
     <div className='flex items-center space-x-2'>
@@ -48,7 +48,7 @@ export const DictionaryLookupHeader: React.FC<DictionaryLookupHeaderProps> = ({
             Loading...
           </>
         ) : (
-          'Fetch Definition'
+          'Fetch'
         )}
       </button>
       <button
