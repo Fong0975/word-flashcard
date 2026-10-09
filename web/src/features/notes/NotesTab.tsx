@@ -267,7 +267,7 @@ export const NotesTab: React.FC = () => {
             />
           )
         ) : (
-          <div className='space-y-2'>
+          <div className='space-y-3'>
             {orderedNotes.map((note, index) => (
               <NoteCard
                 key={note.id}

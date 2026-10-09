@@ -42,7 +42,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({
       onDragOver={showReorderControls ? onDragOver : undefined}
       onDrop={showReorderControls ? onDrop : undefined}
       onDragEnd={showReorderControls ? onDragEnd : undefined}
-      className={`group flex items-center gap-3 rounded-lg border p-3 transition-[opacity,background-color,border-color,box-shadow] ${
+      className={`group flex items-center gap-3 rounded-lg border p-4 transition-[opacity,background-color,border-color,box-shadow] duration-200 ease-in-out ${
         showReorderControls && isDragging
           ? 'opacity-50'
           : showReorderControls && isDragOver
@@ -82,11 +82,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({
             className='focus-ring text-subtle rounded p-0.5 transition-colors hover:bg-gray-100 hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-30 dark:hover:bg-gray-700 dark:hover:text-gray-300'
             aria-label='Move up'
           >
-            <svg
-              className='h-3.5 w-3.5'
-              viewBox='0 0 24 24'
-              fill='currentColor'
-            >
+            <svg className='h-5 w-5' viewBox='0 0 24 24' fill='currentColor'>
               <path d='M12 5l-7 7h4v7h6v-7h4z' />
             </svg>
           </button>
@@ -100,11 +96,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({
             className='focus-ring text-subtle rounded p-0.5 transition-colors hover:bg-gray-100 hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-30 dark:hover:bg-gray-700 dark:hover:text-gray-300'
             aria-label='Move down'
           >
-            <svg
-              className='h-3.5 w-3.5'
-              viewBox='0 0 24 24'
-              fill='currentColor'
-            >
+            <svg className='h-5 w-5' viewBox='0 0 24 24' fill='currentColor'>
               <path d='M12 19l7-7h-4V5H9v7H5z' />
             </svg>
           </button>
@@ -117,10 +109,10 @@ export const NoteCard: React.FC<NoteCardProps> = ({
         onClick={onClick}
         className='focus-ring min-w-0 flex-1 rounded-md text-left'
       >
-        <p className='truncate text-sm font-medium text-gray-900 dark:text-white'>
+        <p className='mb-1 truncate text-lg font-semibold text-gray-900 dark:text-white'>
           {note.title}
         </p>
-        <p className='text-supporting text-xs'>
+        <p className='text-supporting mt-1 text-xs'>
           {formatNoteDate(note.updated_at)}
         </p>
       </button>
