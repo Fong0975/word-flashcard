@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { Word } from '../../../types/api';
@@ -61,9 +61,13 @@ describe('WordQuiz familiarity glow', () => {
 
     expect(onFamiliarityGlowChange).toHaveBeenLastCalledWith(undefined);
 
+    // The glow is reported from a passive effect, which React may flush after
+    // the commit that makes the heading findable, so these wait for it.
     await screen.findByRole('heading', { name: 'apple' });
-    expect(onFamiliarityGlowChange).toHaveBeenLastCalledWith(
-      FamiliarityLevel.RED,
+    await waitFor(() =>
+      expect(onFamiliarityGlowChange).toHaveBeenLastCalledWith(
+        FamiliarityLevel.RED,
+      ),
     );
     expect(screen.getByText('Familiarity: red')).toBeInTheDocument();
 
@@ -75,8 +79,10 @@ describe('WordQuiz familiarity glow', () => {
 
     resolveUpdate(buildWord());
     await screen.findByRole('heading', { name: 'banana' });
-    expect(onFamiliarityGlowChange).toHaveBeenLastCalledWith(
-      FamiliarityLevel.YELLOW,
+    await waitFor(() =>
+      expect(onFamiliarityGlowChange).toHaveBeenLastCalledWith(
+        FamiliarityLevel.YELLOW,
+      ),
     );
 
     await user.click(screen.getByRole('button', { name: 'Previous' }));
