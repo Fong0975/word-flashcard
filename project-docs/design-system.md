@@ -241,7 +241,7 @@ The `glass` tokens (`tailwind.config.js`) bundle the glass lighting into one `bo
 
 ## 7. Spacing and layout
 
-- Page shell: `max-w-7xl` (Header) / `max-w-4xl` (detail pages); gutters `px-4 sm:px-6 lg:px-8` (Header), `px-4 sm:px-3 lg:px-10` (detail content).
+- Page shell: `max-w-7xl` (Header) / `w-full max-w-4xl` (home content, detail pages); gutters `px-4 sm:px-6 lg:px-8` (Header), `px-4 sm:px-3 lg:px-10` (detail content).
 - Header height `h-16`; panel padding `px-3`, growing to `lg:px-6` on large screens.
 - Safe areas: root shell uses `pt-[env(safe-area-inset-top)]` and `pb-[max(1rem,env(safe-area-inset-bottom))]` (iOS standalone / `viewport-fit=cover`).
 - Button padding: `px-4 py-2` (standard), `p-2` (icon-only, ≈36–40px), tab `py-4`.
