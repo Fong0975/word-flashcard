@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { DropdownMenu, DropdownMenuItem } from './DropdownMenu';
@@ -159,5 +159,99 @@ describe('DropdownMenu', () => {
     await user.keyboard('{Escape}');
 
     expect(screen.queryByRole('menuitem')).not.toBeInTheDocument();
+  });
+
+  describe('detached', () => {
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it.each([
+      {
+        name: 'anchors the panel to the trigger wrapper by default',
+        detached: false,
+      },
+      { name: 'leaves the wrapper unpositioned when detached', detached: true },
+    ])('$name', async ({ detached }) => {
+      const user = userEvent.setup();
+      const { container } = render(
+        <DropdownMenu
+          trigger={<button>Menu</button>}
+          items={buildItems()}
+          detached={detached}
+        />,
+      );
+
+      await user.click(screen.getByText('Menu'));
+      const wrapper = container.firstElementChild as HTMLElement;
+      const panel = screen.getByRole('menu').parentElement as HTMLElement;
+
+      expect(wrapper.classList.contains('relative')).toBe(!detached);
+      expect(panel.classList.contains('right-0')).toBe(!detached);
+      expect(panel.classList.contains('top-full')).toBe(!detached);
+    });
+
+    it('positions the panel with inline offsets against its offset parent', async () => {
+      vi.spyOn(HTMLElement.prototype, 'offsetParent', 'get').mockReturnValue(
+        document.body,
+      );
+      const user = userEvent.setup();
+      render(
+        <DropdownMenu
+          trigger={<button>Menu</button>}
+          items={buildItems()}
+          detached
+        />,
+      );
+
+      await user.click(screen.getByText('Menu'));
+      const panel = screen.getByRole('menu').parentElement as HTMLElement;
+
+      expect(panel.style.left).toBe('0px');
+      expect(panel.style.top).toBe('0px');
+    });
+
+    it.each([
+      {
+        name: 'closes when something outside the panel scrolls',
+        scrollTarget: () => screen.getByTestId('scroller'),
+        staysOpen: false,
+      },
+      {
+        name: 'stays open while its own item list scrolls',
+        scrollTarget: () => screen.getByRole('menu'),
+        staysOpen: true,
+      },
+    ])('$name', async ({ scrollTarget, staysOpen }) => {
+      const user = userEvent.setup();
+      render(
+        <div data-testid='scroller'>
+          <DropdownMenu
+            trigger={<button>Menu</button>}
+            items={buildItems()}
+            detached
+          />
+        </div>,
+      );
+
+      await user.click(screen.getByText('Menu'));
+      fireEvent.scroll(scrollTarget());
+
+      expect(screen.queryAllByRole('menuitem')).toHaveLength(staysOpen ? 1 : 0);
+    });
+
+    it('does not close on scroll when not detached', async () => {
+      const user = userEvent.setup();
+      render(
+        <div data-testid='scroller'>
+          <DropdownMenu trigger={<button>Menu</button>} items={buildItems()} />
+        </div>,
+      );
+
+      await user.click(screen.getByText('Menu'));
+      fireEvent.scroll(screen.getByTestId('scroller'));
+
+      expect(screen.getByRole('menuitem')).toBeInTheDocument();
+    });
   });
 });

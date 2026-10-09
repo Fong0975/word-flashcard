@@ -1,4 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
+
+import {
+  DetachedPanelPosition,
+  computeDetachedPanelPosition,
+} from './dropdownMenuPosition';
 
 export interface DropdownMenuItem {
   id: string;
@@ -17,6 +22,13 @@ interface DropdownMenuProps {
   disabled?: boolean;
   /** Tailwind width class for the menu panel, e.g. `w-24` for short labels. */
   menuWidthClassName?: string;
+  /**
+   * Positions the panel against the nearest positioned ancestor instead of
+   * the trigger wrapper. Use when the trigger lives inside a scroll container,
+   * which would otherwise clip the panel; the positioned ancestor must sit
+   * outside that container. The menu closes when anything outside it scrolls.
+   */
+  detached?: boolean;
 }
 
 export const DropdownMenu: React.FC<DropdownMenuProps> = ({
@@ -25,8 +37,12 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
   className = '',
   disabled = false,
   menuWidthClassName = 'w-56',
+  detached = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [detachedPosition, setDetachedPosition] =
+    useState<DetachedPanelPosition | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   // Native <select> popups flip above the trigger when there isn't enough
   // room below; this custom panel has to replicate that manually since it's
   // just an absolutely-positioned div.
@@ -70,6 +86,50 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
     };
   }, [isOpen]);
 
+  // A detached panel no longer follows its trigger, so it has to be placed
+  // from measurements once it has rendered.
+  useLayoutEffect(() => {
+    const wrapper = dropdownRef.current;
+    const panel = panelRef.current;
+    const container = panel?.offsetParent;
+    if (!isOpen || !detached || !wrapper || !panel || !container) {
+      setDetachedPosition(null);
+      return;
+    }
+
+    const containerRect = container.getBoundingClientRect();
+    setDetachedPosition(
+      computeDetachedPanelPosition({
+        trigger: wrapper.getBoundingClientRect(),
+        panelWidth: panel.getBoundingClientRect().width,
+        container: {
+          left: containerRect.left + container.clientLeft,
+          top: containerRect.top + container.clientTop,
+          width: container.clientWidth,
+          height: container.clientHeight,
+        },
+        openUpward,
+      }),
+    );
+  }, [isOpen, detached, openUpward]);
+
+  // Scrolling moves the trigger away from a detached panel
+  useEffect(() => {
+    const handleScroll = (event: Event) => {
+      if (!panelRef.current?.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen && detached) {
+      document.addEventListener('scroll', handleScroll, true);
+    }
+
+    return () => {
+      document.removeEventListener('scroll', handleScroll, true);
+    };
+  }, [isOpen, detached]);
+
   const toggleDropdown = () => {
     if (disabled) {
       return;
@@ -94,9 +154,11 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
     }
   };
 
+  const attachedPlacementClassName = `right-0 ${openUpward ? 'bottom-full' : 'top-full'}`;
+
   return (
     <div
-      className={`relative inline-block text-left ${className}`}
+      className={`${detached ? '' : 'relative'} inline-block text-left ${className}`}
       ref={dropdownRef}
     >
       {/* Trigger button */}
@@ -105,7 +167,9 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
       {/* Dropdown menu */}
       {isOpen && (
         <div
-          className={`glass-panel-dropdown absolute right-0 z-10 ${openUpward ? 'bottom-full mb-2' : 'top-full mt-2'} ${menuWidthClassName} focus:outline-none`}
+          ref={panelRef}
+          style={detached ? (detachedPosition ?? undefined) : undefined}
+          className={`glass-panel-dropdown absolute z-10 ${detached ? '' : attachedPlacementClassName} ${openUpward ? 'mb-2' : 'mt-2'} ${menuWidthClassName} focus:outline-none`}
         >
           <div className='max-h-64 overflow-y-auto py-1' role='menu'>
             {items.map(item => (

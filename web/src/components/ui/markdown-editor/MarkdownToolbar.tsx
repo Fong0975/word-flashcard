@@ -34,13 +34,11 @@ const toolbarButtonClassName = (isDisabled: boolean): string =>
       : 'text-gray-600 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-600'
   }`;
 
-const ToolbarDivider: React.FC<{ className?: string }> = ({
-  className = '',
-}) => (
+const ToolbarDivider: React.FC = () => (
   <div
     aria-hidden='true'
     data-testid='toolbar-divider'
-    className={`h-5 w-px flex-shrink-0 bg-gray-300 dark:bg-gray-600 ${className}`}
+    className='h-5 w-px flex-shrink-0 bg-gray-300 dark:bg-gray-600'
   />
 );
 
@@ -215,37 +213,37 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
   ];
 
   return (
-    <div className='flex items-center justify-between gap-2 border-b border-white/40 px-2 py-1 dark:border-white/10'>
-      <div className='flex min-w-0 items-center gap-0.5'>
-        <div className='flex min-w-0 gap-0.5 overflow-x-auto'>
-          {historyButtons.map(({ label, icon, isDisabled, onClick }) => (
-            <button
-              key={label}
-              type='button'
-              disabled={isDisabled}
-              onClick={onClick}
-              title={label}
-              aria-label={label}
-              className={toolbarButtonClassName(isDisabled)}
-            >
-              {icon}
-            </button>
-          ))}
-          <ToolbarDivider className='self-center' />
-          {FORMAT_BUTTONS.map(({ action, label, icon }) => (
-            <button
-              key={action}
-              type='button'
-              disabled={formatButtonsDisabled}
-              onClick={() => onFormat(action)}
-              title={label}
-              aria-label={label}
-              className={toolbarButtonClassName(formatButtonsDisabled)}
-            >
-              {icon}
-            </button>
-          ))}
-        </div>
+    // `relative` anchors the detached Symbols menu here, outside the scroll
+    // area below, so that area's overflow does not clip the open menu.
+    <div className='relative flex items-center justify-between gap-2 border-b border-white/40 px-2 py-1 dark:border-white/10'>
+      <div className='flex min-w-0 items-center gap-0.5 overflow-x-auto'>
+        {historyButtons.map(({ label, icon, isDisabled, onClick }) => (
+          <button
+            key={label}
+            type='button'
+            disabled={isDisabled}
+            onClick={onClick}
+            title={label}
+            aria-label={label}
+            className={toolbarButtonClassName(isDisabled)}
+          >
+            {icon}
+          </button>
+        ))}
+        <ToolbarDivider />
+        {FORMAT_BUTTONS.map(({ action, label, icon }) => (
+          <button
+            key={action}
+            type='button'
+            disabled={formatButtonsDisabled}
+            onClick={() => onFormat(action)}
+            title={label}
+            aria-label={label}
+            className={toolbarButtonClassName(formatButtonsDisabled)}
+          >
+            {icon}
+          </button>
+        ))}
 
         {symbolButtons.length > 0 && (
           <>
@@ -254,6 +252,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
               className='flex-shrink-0'
               disabled={formatButtonsDisabled}
               menuWidthClassName='w-24'
+              detached
               trigger={
                 <button
                   type='button'

@@ -211,6 +211,31 @@ describe('MarkdownToolbar', () => {
     expect(onInsertSymbol).toHaveBeenCalledWith('•');
   });
 
+  it('keeps the Symbols button and its divider in the same scroll area as the format buttons', () => {
+    render(
+      <MarkdownToolbar
+        onFormat={vi.fn()}
+        isPreview={false}
+        onTogglePreview={vi.fn()}
+        symbolButtons={[{ label: '→', value: '→' }]}
+      />,
+    );
+
+    const scrollArea = screen.getByRole('button', { name: 'Bold' })
+      .parentElement as HTMLElement;
+    const dividers = screen.getAllByTestId('toolbar-divider');
+
+    expect(scrollArea).toHaveClass('overflow-x-auto');
+    expect(scrollArea).toContainElement(
+      screen.getByRole('button', { name: 'Symbols' }),
+    );
+    expect(dividers).toHaveLength(2);
+    dividers.forEach(divider => expect(divider.parentElement).toBe(scrollArea));
+    expect(scrollArea).not.toContainElement(
+      screen.getByRole('button', { name: 'Preview' }),
+    );
+  });
+
   it('does not disable the Edit/Preview toggle itself', () => {
     render(
       <MarkdownToolbar
