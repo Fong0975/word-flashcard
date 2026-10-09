@@ -75,17 +75,24 @@ describe('QuestionQuiz answer glow', () => {
       await user.click(screen.getAllByRole('radio')[radioIndex]);
       expect(onAnswerGlowChange).toHaveBeenLastCalledWith(undefined);
 
+      // The glow is reported from a passive effect, which React may flush
+      // after the commit that makes the new stage findable, so the assertions
+      // following a find wait for it.
       lastNextAction(onNextAction)!.onClick();
       expect(
         await screen.findByText(
           `Result: ${isCorrect ? 'correct' : 'incorrect'}`,
         ),
       ).toBeInTheDocument();
-      expect(onAnswerGlowChange).toHaveBeenLastCalledWith(isCorrect);
+      await waitFor(() =>
+        expect(onAnswerGlowChange).toHaveBeenLastCalledWith(isCorrect),
+      );
 
       lastNextAction(onNextAction)!.onClick();
       await screen.findByRole('heading', { name: 'Second?' });
-      expect(onAnswerGlowChange).toHaveBeenLastCalledWith(undefined);
+      await waitFor(() =>
+        expect(onAnswerGlowChange).toHaveBeenLastCalledWith(undefined),
+      );
 
       await user.click(screen.getAllByRole('radio')[radioIndex]);
       lastNextAction(onNextAction)!.onClick();

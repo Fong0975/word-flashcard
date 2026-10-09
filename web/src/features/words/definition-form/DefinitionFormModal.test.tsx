@@ -175,7 +175,7 @@ describe('DefinitionFormModal', () => {
       />,
     );
 
-    await user.click(screen.getByRole('button', { name: 'Fetch Definition' }));
+    await user.click(screen.getByRole('button', { name: 'Fetch' }));
     await screen.findByText('a round fruit');
 
     await user.click(screen.getByRole('button', { name: 'Apply' }));
@@ -214,7 +214,7 @@ describe('DefinitionFormModal', () => {
       />,
     );
 
-    await user.click(screen.getByRole('button', { name: 'Fetch Definition' }));
+    await user.click(screen.getByRole('button', { name: 'Fetch' }));
     await screen.findByText('Pronunciation');
 
     await user.click(screen.getByRole('button', { name: 'Apply' }));

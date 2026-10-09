@@ -141,7 +141,7 @@ describe('DictionaryLookup', () => {
       />,
     );
 
-    await user.click(screen.getByRole('button', { name: 'Fetch Definition' }));
+    await user.click(screen.getByRole('button', { name: 'Fetch' }));
     expect(onFetchDictionary).toHaveBeenCalledTimes(1);
   });
 });
