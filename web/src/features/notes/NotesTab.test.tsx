@@ -93,6 +93,37 @@ describe('NotesTab', () => {
     expect(screen.queryByText('Note Review')).not.toBeInTheDocument();
   });
 
+  it('keeps the search input mounted and focused when a later refetch looks like the first load', async () => {
+    const user = userEvent.setup();
+    // A fresh element per render: reusing one reference makes React bail out
+    // of re-rendering, so the updated mock return value would never be read.
+    const buildTab = () => (
+      <MemoryRouter>
+        <NotesTab />
+      </MemoryRouter>
+    );
+
+    (useNotes as Mock).mockReturnValue(buildNotesHook({ loading: true }));
+    const { rerender } = render(buildTab());
+
+    (useNotes as Mock).mockReturnValue(buildNotesHook({ searchTerm: 'xyz' }));
+    rerender(buildTab());
+
+    const input = screen.getByPlaceholderText('Search notes...');
+    await user.click(input);
+    expect(input).toHaveFocus();
+
+    // Clearing a search that had no results: loading, empty list, empty term.
+    (useNotes as Mock).mockReturnValue(
+      buildNotesHook({ loading: true, searchTerm: '' }),
+    );
+    rerender(buildTab());
+
+    expect(screen.getByText('Note Review')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Search notes...')).toBe(input);
+    expect(input).toHaveFocus();
+  });
+
   it('shows the error state, retries via refresh, and clears on dismiss', async () => {
     const user = userEvent.setup();
     const { refresh, clearError } = renderTab({

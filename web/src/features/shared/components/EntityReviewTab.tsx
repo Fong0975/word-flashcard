@@ -13,6 +13,7 @@ import {
 } from '../../../types';
 import { useDebouncedSearchInput } from '../hooks/useDebouncedSearchInput';
 import { useRefreshAction } from '../hooks/useRefreshAction';
+import { useHasLoadedOnce } from '../hooks/useHasLoadedOnce';
 
 import { ReviewTabActionButtons } from './ReviewTabActionButtons';
 import { EntityReviewSearchBar } from './EntityReviewSearchBar';
@@ -141,8 +142,11 @@ export const EntityReviewTab = <T extends BaseEntity>({
     addFromSearch.canAdd(committedTerm),
   );
 
-  // Show loading state
-  if (loading && entities.length === 0 && !searchTerm) {
+  const hasLoadedOnce = useHasLoadedOnce(loading);
+
+  // Only the first load replaces the whole tree: doing so on a later refetch
+  // would unmount the search input and drop its focus.
+  if (loading && entities.length === 0 && !searchTerm && !hasLoadedOnce) {
     return (
       <div className={`space-y-6 ${className}`}>
         <div>
