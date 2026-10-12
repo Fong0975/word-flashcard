@@ -36,17 +36,23 @@ interface MarkdownContentProps {
   unescapeLiteralNewlines?: boolean;
 }
 
+/**
+ * Inline code chip styling shared by every variant. `prose-code:` also matches
+ * the `<code>` inside a fenced block's `<pre>`, so the horizontal margin that
+ * separates a chip from its surrounding text is reset there.
+ */
+const CODE_CLASSNAMES =
+  'prose-code:mx-1 prose-code:rounded-md prose-code:bg-gray-200 prose-code:px-1.5 prose-code:py-0.5 prose-code:font-medium prose-code:text-pink-600 prose-code:before:content-none prose-code:after:content-none dark:prose-code:bg-gray-600 dark:prose-code:text-pink-400 [&_pre_code]:mx-0';
+
 const OUTER_CLASSNAMES: Record<MarkdownContentVariant, string> = {
-  plain:
-    'prose prose-sm prose-slate max-w-none dark:prose-invert prose-headings:text-gray-800 prose-p:text-gray-600 prose-code:rounded-md prose-code:bg-gray-200 prose-code:px-1.5 prose-code:py-0.5 prose-code:font-medium prose-code:text-pink-600 prose-code:before:content-none prose-code:after:content-none prose-ul:text-gray-600 prose-hr:border-gray-400 dark:prose-headings:text-gray-200 dark:prose-p:text-gray-400 dark:prose-code:bg-gray-600 dark:prose-code:text-pink-400 dark:prose-ul:text-gray-400 dark:prose-hr:border-gray-500',
+  plain: `prose prose-sm prose-slate max-w-none dark:prose-invert prose-headings:text-gray-800 prose-p:text-gray-600 prose-ul:text-gray-600 prose-hr:border-gray-400 dark:prose-headings:text-gray-200 dark:prose-p:text-gray-400 dark:prose-ul:text-gray-400 dark:prose-hr:border-gray-500 ${CODE_CLASSNAMES}`,
   /*
    * Same as `plain`, but also dims `<strong>`/headings (which the Typography
    * plugin otherwise renders at full black/white regardless of `prose-p`)
    * so they stay visually a step below a solid-black/white section heading
    * placed above it (e.g. the "Notes"/"Explanation" heading above it).
    */
-  notes:
-    'prose prose-sm prose-slate max-w-none dark:prose-invert prose-headings:text-gray-700 prose-p:text-gray-600 prose-strong:text-gray-700 prose-code:rounded-md prose-code:bg-gray-200 prose-code:px-1.5 prose-code:py-0.5 prose-code:font-medium prose-code:text-pink-600 prose-code:before:content-none prose-code:after:content-none prose-ul:text-gray-600 prose-hr:border-gray-400 dark:prose-headings:text-gray-300 dark:prose-p:text-gray-400 dark:prose-strong:text-gray-300 dark:prose-code:bg-gray-600 dark:prose-code:text-pink-400 dark:prose-ul:text-gray-400 dark:prose-hr:border-gray-500',
+  notes: `prose prose-sm prose-slate max-w-none dark:prose-invert prose-headings:text-gray-700 prose-p:text-gray-600 prose-strong:text-gray-700 prose-ul:text-gray-600 prose-hr:border-gray-400 dark:prose-headings:text-gray-300 dark:prose-p:text-gray-400 dark:prose-strong:text-gray-300 dark:prose-ul:text-gray-400 dark:prose-hr:border-gray-500 ${CODE_CLASSNAMES}`,
 };
 
 export const MarkdownContent: React.FC<MarkdownContentProps> = ({
