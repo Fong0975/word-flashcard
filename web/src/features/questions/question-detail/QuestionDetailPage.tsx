@@ -9,6 +9,11 @@ import { QuestionFormModal } from '../question-form/QuestionFormModal';
 import { ConfirmationDialog } from '../../../components/ui/ConfirmationDialog';
 import { ToastContainer } from '../../../components/ui';
 import { useToast } from '../../../hooks/ui/useToast';
+import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
+import {
+  MAX_SHORT_DETAIL_WIDTH,
+  NOT_FOUND_DETAIL,
+} from '../../../utils/pageTitle';
 
 import { useQuestionActions } from './hooks/useQuestionActions';
 import { useQuestionStats } from './hooks/useQuestionStats';
@@ -50,6 +55,16 @@ export const QuestionDetailPage: React.FC = () => {
   useEffect(() => {
     fetchQuestion();
   }, [fetchQuestion]);
+
+  const titleDetail = isLoading
+    ? undefined
+    : fetchError || !question
+      ? NOT_FOUND_DETAIL
+      : question.question;
+  useDocumentTitle('Question', titleDetail, {
+    detailPrefix: id ? `#${id}` : undefined,
+    maxDetailWidth: MAX_SHORT_DETAIL_WIDTH,
+  });
 
   const stats = useQuestionStats({ question });
 

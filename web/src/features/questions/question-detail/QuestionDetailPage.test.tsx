@@ -71,6 +71,35 @@ describe('QuestionDetailPage', () => {
     expect(getQuestionSpy).not.toHaveBeenCalled();
   });
 
+  it.each<[string, () => Promise<Question>, string]>([
+    [
+      'while loading',
+      () => new Promise<Question>(() => {}),
+      'Question - #1 | Flashcard',
+    ],
+    [
+      'once the question is loaded',
+      () => Promise.resolve(buildQuestion()),
+      'Question - #1 What is 2 + 2? | Flashcard',
+    ],
+    [
+      'with question text over the width limit',
+      () => Promise.resolve(buildQuestion({ question: 'q'.repeat(26) })),
+      `Question - #1 ${'q'.repeat(24)}… | Flashcard`,
+    ],
+    [
+      'when the question fails to load',
+      () => Promise.reject(new Error('question gone')),
+      'Question - #1 Not found | Flashcard',
+    ],
+  ])('sets the document title %s', async (_, getQuestion, expectedTitle) => {
+    vi.spyOn(apiService, 'getQuestion').mockImplementation(getQuestion);
+
+    renderPage();
+
+    await waitFor(() => expect(document.title).toBe(expectedTitle));
+  });
+
   it('shows a loading spinner while fetching, and navigates to the questions tab when Go back is clicked', async () => {
     const user = userEvent.setup();
     vi.spyOn(apiService, 'getQuestion').mockReturnValue(

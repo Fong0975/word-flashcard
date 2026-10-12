@@ -7,8 +7,10 @@ import { EmptyState } from '../../components/ui/EmptyState';
 import { ErrorMessage } from '../../components/ui/ErrorMessage';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { Pagination } from '../../components/ui/Pagination';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { useLogs } from '../../hooks/useLogs';
 import { LogLevel } from '../../types/logs';
+import { withPageNumber } from '../../utils/pageTitle';
 import { useDebouncedSearchInput } from '../shared/hooks/useDebouncedSearchInput';
 import { useQuickFilters } from '../shared/hooks/useQuickFilters';
 import { useUrlSyncedEntityList } from '../shared/hooks/useUrlSyncedEntityList';
@@ -107,6 +109,8 @@ export const LogsPage: React.FC = () => {
     refresh,
     clearError,
   } = patchedHook;
+
+  useDocumentTitle(withPageNumber('Logs', currentPage));
 
   const header = (
     <div className='space-y-3 pb-3'>

@@ -94,6 +94,17 @@ describe('LogsPage', () => {
     );
   });
 
+  it.each([
+    ['the first page', '/logs', 'Logs | Flashcard'],
+    ['a later page', '/logs?page=3', 'Logs (Page 3) | Flashcard'],
+  ])('sets the document title on %s', async (_, path, expectedTitle) => {
+    getLogsCount.mockResolvedValue({ count: 500 });
+    renderPage(path);
+
+    await screen.findByText('Disk almost full');
+    expect(document.title).toBe(expectedTitle);
+  });
+
   it('filters by level when a pill is toggled', async () => {
     const user = userEvent.setup();
     renderPage();

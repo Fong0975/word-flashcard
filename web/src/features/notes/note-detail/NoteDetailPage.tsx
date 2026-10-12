@@ -13,6 +13,11 @@ import { useToast } from '../../../hooks/ui/useToast';
 import { useDeleteConfirmation } from '../../../hooks/ui/useDeleteConfirmation';
 import { useUnsavedChangesGuard } from '../../../hooks/ui/useUnsavedChangesGuard';
 import { useTemplateButtons } from '../../../hooks/shared';
+import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
+import {
+  MAX_SHORT_DETAIL_WIDTH,
+  NOT_FOUND_DETAIL,
+} from '../../../utils/pageTitle';
 import { appendTemplateText } from '../../../utils/textTemplates';
 import { formatNoteDateTime } from '../../../utils/dateFormat';
 
@@ -59,6 +64,15 @@ export const NoteDetailPage: React.FC = () => {
   useEffect(() => {
     fetchNote();
   }, [fetchNote]);
+
+  const titleDetail = isLoading
+    ? undefined
+    : fetchError || !note
+      ? NOT_FOUND_DETAIL
+      : note.title;
+  useDocumentTitle(isEditing ? 'Edit Note' : 'Note', titleDetail, {
+    maxDetailWidth: MAX_SHORT_DETAIL_WIDTH,
+  });
 
   const handleEdit = () => {
     /* istanbul ignore next -- unreachable: UI already disables the trigger before this guard can run */

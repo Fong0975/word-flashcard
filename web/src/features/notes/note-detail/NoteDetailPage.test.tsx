@@ -94,6 +94,53 @@ describe('NoteDetailPage', () => {
     expect(getNoteSpy).not.toHaveBeenCalled();
   });
 
+  it.each<[string, () => Promise<Note>, boolean, string]>([
+    [
+      'while loading',
+      () => new Promise<Note>(() => {}),
+      false,
+      'Note | Flashcard',
+    ],
+    [
+      'once the note is loaded',
+      () => Promise.resolve(buildNote()),
+      false,
+      'Note - My note | Flashcard',
+    ],
+    [
+      'with a title over the width limit',
+      () => Promise.resolve(buildNote({ title: 'n'.repeat(26) })),
+      false,
+      `Note - ${'n'.repeat(24)}… | Flashcard`,
+    ],
+    [
+      'while editing',
+      () => Promise.resolve(buildNote()),
+      true,
+      'Edit Note - My note | Flashcard',
+    ],
+    [
+      'when the note fails to load',
+      () => Promise.reject(new Error('note gone')),
+      false,
+      'Note - Not found | Flashcard',
+    ],
+  ])(
+    'sets the document title %s',
+    async (_, getNote, startEditing, expectedTitle) => {
+      const user = userEvent.setup();
+      vi.spyOn(apiService, 'getNote').mockImplementation(getNote);
+
+      renderPage();
+
+      if (startEditing) {
+        await user.click(await screen.findByRole('button', { name: 'Edit' }));
+      }
+
+      await waitFor(() => expect(document.title).toBe(expectedTitle));
+    },
+  );
+
   it('shows a not-found screen and navigates back on failure', async () => {
     const user = userEvent.setup();
     vi.spyOn(apiService, 'getNote').mockRejectedValue(new Error('note gone'));
