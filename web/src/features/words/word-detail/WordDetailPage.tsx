@@ -8,6 +8,8 @@ import { DetailPageLayout } from '../../../components/layout';
 import { ConfirmationDialog } from '../../../components/ui/ConfirmationDialog';
 import { ToastContainer } from '../../../components/ui';
 import { useToast } from '../../../hooks/ui/useToast';
+import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
+import { NOT_FOUND_DETAIL } from '../../../utils/pageTitle';
 import { WordFormModal } from '../word-form';
 import { DefinitionFormModal } from '../definition-form';
 import { createExactWordSearchFilter } from '../word-form/utils';
@@ -87,6 +89,15 @@ export const WordDetailPage: React.FC = () => {
   useEffect(() => {
     fetchWord();
   }, [fetchWord]);
+
+  // While loading, the URL param stands in for the word so the tab is
+  // identifiable straight away.
+  const titleDetail = isLoading
+    ? wordText
+    : fetchError || !word
+      ? NOT_FOUND_DETAIL
+      : word.word;
+  useDocumentTitle('Word', titleDetail);
 
   const [showClearReminderConfirm, setShowClearReminderConfirm] =
     useState(false);

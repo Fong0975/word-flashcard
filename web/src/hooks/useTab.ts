@@ -3,14 +3,23 @@ import { useSearchParams } from 'react-router-dom';
 
 export type TabName = 'words' | 'questions' | 'notes';
 
+export const TAB_LABELS: Record<TabName, string> = {
+  words: 'Words',
+  questions: 'Questions',
+  notes: 'Notes',
+};
+
+const isTabName = (value: string | null): value is TabName =>
+  value !== null && Object.keys(TAB_LABELS).includes(value);
+
 export const useTab = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const tabFromURL = searchParams.get('tab') as TabName;
-  const currentTab: TabName =
-    tabFromURL && ['words', 'questions', 'notes'].includes(tabFromURL)
-      ? tabFromURL
-      : 'words';
+  const tabFromURL = searchParams.get('tab');
+  // Null when the URL carries no valid ?tab param, i.e. the words tab is only
+  // shown by default rather than by request.
+  const explicitTab: TabName | null = isTabName(tabFromURL) ? tabFromURL : null;
+  const currentTab: TabName = explicitTab ?? 'words';
 
   const switchTab = useCallback(
     (tabName: TabName) => {
@@ -66,5 +75,5 @@ export const useTab = () => {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [switchTab]);
 
-  return { currentTab, switchTab };
+  return { currentTab, explicitTab, switchTab };
 };

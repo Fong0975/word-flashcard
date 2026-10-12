@@ -98,6 +98,15 @@ describe('WordQuizPage', () => {
     document.documentElement.classList.remove('dark');
   });
 
+  it.each([
+    ['an invalid config', '/word/quiz'],
+    ['a valid config', '/word/quiz?count=10&familiarity=green,yellow'],
+  ])('sets the document title with %s', (_, path) => {
+    renderPage(path);
+
+    expect(document.title).toBe('Word Quiz | Flashcard');
+  });
+
   describe('config validation', () => {
     it('shows the invalid config screen when no params are provided, and navigates home from it', async () => {
       const user = userEvent.setup();

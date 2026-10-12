@@ -57,6 +57,23 @@ describe('App routing', () => {
   });
 
   it.each([
+    ['/', 'Flashcard'],
+    ['/?page=1', 'Flashcard'],
+    ['/?tab=foo', 'Flashcard'],
+    ['/?tab=words', 'Words | Flashcard'],
+    ['/?tab=questions', 'Questions | Flashcard'],
+    ['/?tab=notes', 'Notes | Flashcard'],
+    ['/?tab=questions&page=3', 'Questions (Page 3) | Flashcard'],
+    ['/?page=2', 'Words (Page 2) | Flashcard'],
+    ['/?tab=foo&page=2', 'Words (Page 2) | Flashcard'],
+    ['/?page=abc', 'Flashcard'],
+  ])('titles the home page at %s as "%s"', (path, expectedTitle) => {
+    renderAt(path);
+
+    expect(document.title).toBe(expectedTitle);
+  });
+
+  it.each([
     ['/word/quiz', 'WordQuizPage Stub'],
     ['/word/apple', 'WordDetailPage Stub'],
     ['/question/quiz', 'QuestionQuizPage Stub'],

@@ -122,6 +122,15 @@ describe('QuestionQuizPage', () => {
     document.documentElement.classList.remove('dark');
   });
 
+  it.each([
+    ['an invalid config', '/question/quiz'],
+    ['a valid config', '/question/quiz?count=5'],
+  ])('sets the document title with %s', (_, path) => {
+    renderPage(path);
+
+    expect(document.title).toBe('Question Quiz | Flashcard');
+  });
+
   describe('config validation', () => {
     it('shows the invalid config screen when count is missing, and navigates home from it', async () => {
       const user = userEvent.setup();

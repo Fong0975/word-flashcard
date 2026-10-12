@@ -57,6 +57,18 @@ describe('useTab', () => {
     expect(result.current.currentTab).toBe('words');
   });
 
+  it.each([
+    ['no ?tab param is present', '/', null],
+    ['the default tab is requested explicitly', '/?tab=words', 'words'],
+    ['another tab is requested', '/?tab=notes', 'notes'],
+    ['the tab value is invalid', '/?tab=bogus', null],
+  ])('reports the explicit tab when %s', (_, initialEntry, expected) => {
+    const { result } = renderHook(() => useTab(), {
+      wrapper: buildWrapper([initialEntry]),
+    });
+    expect(result.current.explicitTab).toBe(expected);
+  });
+
   it('switchTab updates the current tab', () => {
     const { result } = renderHook(() => useTab(), {
       wrapper: buildWrapper(['/']),
@@ -99,6 +111,7 @@ describe('useTab', () => {
     });
 
     expect(result.current.currentTab).toBe('words');
+    expect(result.current.explicitTab).toBeNull();
     expect(locationRef.current?.search).toBe('');
   });
 

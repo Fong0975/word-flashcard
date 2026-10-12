@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { WordQuizResult } from '../../../types/api';
 import { FamiliarityLevel } from '../../../types/base';
 import { DetailPageLayout } from '../../../components/layout';
+import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
 import { useQuizExitGuard } from '../../shared/hooks/useQuizExitGuard';
 import { QuizExitConfirmDialog } from '../../shared/components/QuizExitConfirmDialog';
 import { QuizResultsFooter } from '../../shared/components/QuizResultsFooter';
@@ -18,6 +19,7 @@ type PageState = 'quiz' | 'results';
 export const WordQuizPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  useDocumentTitle('Word Quiz');
 
   const count = parseInt(searchParams.get('count') || '', 10);
   const familiarityParam = searchParams.get('familiarity') || '';

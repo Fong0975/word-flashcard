@@ -8,10 +8,12 @@ import { MarkdownEditorField } from '../../../components/ui/markdown-editor/Mark
 import { UnsavedChangesDialog } from '../../../components/ui/UnsavedChangesDialog';
 import { useTemplateButtons } from '../../../hooks/shared';
 import { useUnsavedChangesGuard } from '../../../hooks/ui/useUnsavedChangesGuard';
+import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
 import { appendTemplateText } from '../../../utils/textTemplates';
 
 export const NoteCreatePage: React.FC = () => {
   const navigate = useNavigate();
+  useDocumentTitle('New Note');
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');

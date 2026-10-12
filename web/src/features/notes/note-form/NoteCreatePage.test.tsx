@@ -44,6 +44,12 @@ describe('NoteCreatePage', () => {
     document.documentElement.classList.remove('dark');
   });
 
+  it('sets the document title', () => {
+    renderPage();
+
+    expect(document.title).toBe('New Note | Flashcard');
+  });
+
   it('disables Save until a title is entered', async () => {
     const user = userEvent.setup();
     renderPage();

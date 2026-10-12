@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { QuestionQuizResult } from '../../../types/api';
 import { DetailPageLayout } from '../../../components/layout';
+import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
 import { useQuizExitGuard } from '../../shared/hooks/useQuizExitGuard';
 import { QuizExitConfirmDialog } from '../../shared/components/QuizExitConfirmDialog';
 import { QuizResultsFooter } from '../../shared/components/QuizResultsFooter';
@@ -17,6 +18,7 @@ type PageState = 'quiz' | 'results';
 export const QuestionQuizPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  useDocumentTitle('Question Quiz');
 
   const count = parseInt(searchParams.get('count') || '', 10);
   const isValidConfig = !isNaN(count) && count > 0;

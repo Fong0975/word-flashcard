@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useSearchParams } from 'react-router-dom';
 
 import {
   Header,
@@ -8,7 +8,9 @@ import {
   TabContent,
 } from './components';
 import { LoadingSpinner } from './components/ui/LoadingSpinner';
-import { useTab } from './hooks/useTab';
+import { TAB_LABELS, useTab } from './hooks/useTab';
+import { useDocumentTitle } from './hooks/useDocumentTitle';
+import { withPageNumber } from './utils/pageTitle';
 
 // Code-split every routed page other than the home page itself, so the
 // initial bundle only ships what the home page needs.
@@ -49,7 +51,17 @@ const LogsPage = lazy(() =>
 );
 
 function HomePage() {
-  const { currentTab, switchTab } = useTab();
+  const { currentTab, explicitTab, switchTab } = useTab();
+  const [searchParams] = useSearchParams();
+
+  // The bare home URL keeps the plain app name; a tab is only named once the
+  // URL asks for one or the list has moved past its first page.
+  const page = parseInt(searchParams.get('page') || '1', 10) || 1;
+  useDocumentTitle(
+    explicitTab || page > 1
+      ? withPageNumber(TAB_LABELS[currentTab], page)
+      : undefined,
+  );
 
   return (
     <div className='flex min-h-screen flex-col pb-[max(1rem,env(safe-area-inset-bottom))] pt-[env(safe-area-inset-top)] transition-colors duration-300 sm:pb-0'>
