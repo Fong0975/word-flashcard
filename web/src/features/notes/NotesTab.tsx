@@ -12,6 +12,7 @@ import { useToast } from '../../hooks/ui/useToast';
 import { ReviewTabActionButtons } from '../shared/components/ReviewTabActionButtons';
 import { TotalCountLabel } from '../shared/components/TotalCountLabel';
 import { useRefreshAction } from '../shared/hooks/useRefreshAction';
+import { useHasLoadedOnce } from '../shared/hooks/useHasLoadedOnce';
 
 import { NoteCard } from './NoteCard';
 
@@ -38,6 +39,7 @@ export const NotesTab: React.FC = () => {
   }, [notesHook.notes]);
 
   const isSearching = !!notesHook.searchTerm;
+  const hasLoadedOnce = useHasLoadedOnce(notesHook.loading);
 
   const applyNewOrder = useCallback(
     async (newOrder: Note[]) => {
@@ -137,7 +139,14 @@ export const NotesTab: React.FC = () => {
     setDragOverIndex(null);
   }, []);
 
-  if (notesHook.loading && orderedNotes.length === 0 && !isSearching) {
+  // Only the first load replaces the whole tree: doing so on a later refetch
+  // would unmount the search input and drop its focus.
+  if (
+    notesHook.loading &&
+    orderedNotes.length === 0 &&
+    !isSearching &&
+    !hasLoadedOnce
+  ) {
     return (
       <div className='flex justify-center py-12'>
         <div

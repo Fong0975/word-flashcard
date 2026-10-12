@@ -70,6 +70,32 @@ describe('EntityReviewTab', () => {
     expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
 
+  it('keeps the search input mounted and focused when a later refetch looks like the initial load', async () => {
+    const user = userEvent.setup();
+    const renderWith = (overrides: Partial<EntityListHook<TestEntity>>) => (
+      <EntityReviewTab
+        config={buildConfig()}
+        actions={buildActions()}
+        entityListHook={buildEntityListHook(overrides)}
+        renderCard={entity => <span>{entity.name}</span>}
+      />
+    );
+
+    const { rerender } = render(renderWith({ loading: true }));
+    rerender(renderWith({ loading: false, searchTerm: 'xyz' }));
+
+    const input = screen.getByPlaceholderText('Search words...');
+    await user.click(input);
+    expect(input).toHaveFocus();
+
+    // Clearing a search that had no results: loading, empty list, empty term.
+    rerender(renderWith({ loading: true, searchTerm: '' }));
+
+    expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Search words...')).toBe(input);
+    expect(input).toHaveFocus();
+  });
+
   it('renders the title and description', () => {
     render(
       <EntityReviewTab
