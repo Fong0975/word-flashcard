@@ -27,10 +27,18 @@ const stripJsonExtension = (name: string): string =>
 const errorMessage = (error: unknown): string =>
   error instanceof Error ? error.message : 'Unknown error';
 
-/** Formats a byte count as a human-readable size (e.g. "482 KB"). */
-const formatFileSize = (bytes: number): string => {
+interface FileSizeParts {
+  value: string;
+  unit: string;
+}
+
+/**
+ * Formats a byte count as a human-readable size, split into its number and
+ * unit (e.g. `{ value: "482.0", unit: "KB" }`) so the two can be styled apart.
+ */
+const formatFileSize = (bytes: number): FileSizeParts => {
   if (bytes < 1024) {
-    return `${bytes} B`;
+    return { value: `${bytes}`, unit: SIZE_UNITS[0] };
   }
 
   let value = bytes;
@@ -40,7 +48,7 @@ const formatFileSize = (bytes: number): string => {
     unitIndex += 1;
   }
 
-  return `${value.toFixed(1)} ${SIZE_UNITS[unitIndex]}`;
+  return { value: value.toFixed(1), unit: SIZE_UNITS[unitIndex] };
 };
 
 /**
@@ -133,20 +141,21 @@ export const BackupsModal: React.FC<BackupsModalProps> = ({
           <table className='w-full text-sm'>
             <thead>
               <tr className='border-b border-gray-200 text-left text-xs uppercase text-gray-500 dark:border-gray-700 dark:text-gray-400'>
-                <th className='py-2 pl-2 pr-4 font-medium'>Name</th>
-                <th className='py-2 pr-4 font-medium'>Size</th>
+                <th className='py-2 pl-2 pr-3 font-medium'>Name</th>
+                <th className='py-2 pr-3 font-medium'>Size</th>
                 <th className='py-2 pr-2 font-medium'>Modified</th>
               </tr>
             </thead>
             <tbody>
               {backups.map(backup => {
                 const { date, time } = formatDateTimeParts(backup.modified_at);
+                const size = formatFileSize(backup.size_bytes);
                 return (
                   <tr
                     key={backup.name}
                     className='border-b border-gray-100 last:border-0 dark:border-gray-700'
                   >
-                    <td className='break-all py-2 pl-2 pr-4 text-gray-900 dark:text-white'>
+                    <td className='break-all py-2 pl-2 pr-3 tabular-nums text-gray-900 dark:text-white'>
                       <a
                         href={`${API_CONFIG.baseURL}${API_ENDPOINTS.downloadBackup(backup.name)}`}
                         download={backup.name}
@@ -155,8 +164,8 @@ export const BackupsModal: React.FC<BackupsModalProps> = ({
                         {stripJsonExtension(backup.name)}
                       </a>
                     </td>
-                    <td className='whitespace-nowrap py-2 pr-4 text-gray-500 dark:text-gray-400'>
-                      {formatFileSize(backup.size_bytes)}
+                    <td className='whitespace-nowrap py-2 pr-3 text-gray-500 dark:text-gray-400'>
+                      {size.value} <span className='text-xs'>{size.unit}</span>
                     </td>
                     <td className='whitespace-nowrap py-2 pr-2 text-gray-500 dark:text-gray-400'>
                       <div className='flex flex-col'>

@@ -74,13 +74,15 @@ describe('BackupsModal', () => {
     expect(
       screen.getByText('word-flashcard-backup-20260101-000000'),
     ).toBeInTheDocument();
-    expect(screen.getByText('1.5 KB')).toBeInTheDocument();
-    expect(screen.getByText('2.0 MB')).toBeInTheDocument();
 
     const rows = screen.getAllByRole('row');
     // rows[0] is the header row.
     expect(rows[1]).toHaveTextContent('word-flashcard-backup-20260115-000000');
     expect(rows[2]).toHaveTextContent('word-flashcard-backup-20260101-000000');
+    // The size number and its unit are separate elements, so match on the
+    // row's combined text rather than a single text node.
+    expect(rows[1]).toHaveTextContent('1.5 KB');
+    expect(rows[2]).toHaveTextContent('2.0 MB');
   });
 
   it('does not show the .json extension in the Name column', async () => {
