@@ -4,6 +4,7 @@ import type { MockInstance } from 'vitest';
 
 import { Question, QuestionAnswerLogEntry } from '../../../../types/api';
 import { apiService } from '../../../../lib/api';
+import { formatDateTimeParts } from '../../../../utils/dateFormat';
 
 import { QuestionHistorySection } from './QuestionHistorySection';
 
@@ -48,7 +49,7 @@ describe('QuestionHistorySection', () => {
 
     render(<QuestionHistorySection question={buildQuestion()} />);
 
-    expect(screen.getByText('Recent Answer History')).toBeInTheDocument();
+    expect(screen.getByText('Recent Practice History')).toBeInTheDocument();
     expect(getQuestionLogsSpy).not.toHaveBeenCalled();
   });
 
@@ -73,7 +74,7 @@ describe('QuestionHistorySection', () => {
     render(<QuestionHistorySection question={buildQuestion({ id: 42 })} />);
 
     await user.click(
-      screen.getByRole('button', { name: 'Recent Answer History' }),
+      screen.getByRole('button', { name: 'Recent Practice History' }),
     );
 
     expect(apiService.getQuestionLogs).toHaveBeenCalledWith(42, 15);
@@ -85,6 +86,39 @@ describe('QuestionHistorySection', () => {
     expect(screen.getAllByText('Incorrect').length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText('(B) 4').length).toBeGreaterThan(0);
     expect(screen.getByText('(A) 3')).toBeInTheDocument();
+  });
+
+  it('shows the options chart by default and keeps the entry list when switching charts', async () => {
+    const user = userEvent.setup();
+    vi.spyOn(apiService, 'getQuestionLogs').mockResolvedValue([
+      buildEntry({ id: 1, selected_option: 'B', is_correct: true }),
+    ]);
+
+    render(<QuestionHistorySection question={buildQuestion()} />);
+    await user.click(
+      screen.getByRole('button', { name: 'Recent Practice History' }),
+    );
+
+    const optionsTab = await screen.findByRole('button', { name: 'Options' });
+    const trendTab = screen.getByRole('button', { name: 'Trend' });
+    expect(optionsTab).toHaveAttribute('aria-pressed', 'true');
+    expect(trendTab).toHaveAttribute('aria-pressed', 'false');
+    expect(
+      optionsTab.compareDocumentPosition(trendTab) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+
+    const tests = [
+      { name: 'switch to trend', tab: trendTab },
+      { name: 'switch back to options', tab: optionsTab },
+    ];
+
+    for (const tt of tests) {
+      await user.click(tt.tab);
+
+      expect(tt.tab, tt.name).toHaveAttribute('aria-pressed', 'true');
+      expect(screen.getByText('(B) 4'), tt.name).toBeInTheDocument();
+    }
   });
 
   it('formats the selected option with its text, falling back to the letter alone', async () => {
@@ -103,12 +137,28 @@ describe('QuestionHistorySection', () => {
         <QuestionHistorySection question={buildQuestion()} />,
       );
       await user.click(
-        screen.getByRole('button', { name: 'Recent Answer History' }),
+        screen.getByRole('button', { name: 'Recent Practice History' }),
       );
 
       expect(await screen.findByText(tt.expected), tt.name).toBeInTheDocument();
       unmount();
     }
+  });
+
+  it('shows the date and the 24-hour time of an entry as separate elements', async () => {
+    const user = userEvent.setup();
+    const entry = buildEntry({ created_at: '2026-10-11T23:55:54Z' });
+    vi.spyOn(apiService, 'getQuestionLogs').mockResolvedValue([entry]);
+
+    render(<QuestionHistorySection question={buildQuestion()} />);
+    await user.click(
+      screen.getByRole('button', { name: 'Recent Practice History' }),
+    );
+
+    const { date, time } = formatDateTimeParts(entry.created_at);
+    expect(time).toBe('07:55');
+    expect(await screen.findByText(time)).toBeInTheDocument();
+    expect(screen.getAllByText(date)).not.toHaveLength(0);
   });
 
   it('shows a loading state while fetching', async () => {
@@ -122,14 +172,14 @@ describe('QuestionHistorySection', () => {
 
     render(<QuestionHistorySection question={buildQuestion()} />);
     await user.click(
-      screen.getByRole('button', { name: 'Recent Answer History' }),
+      screen.getByRole('button', { name: 'Recent Practice History' }),
     );
 
     expect(screen.getByText('Loading history...')).toBeInTheDocument();
 
     resolveFetch([]);
     expect(
-      await screen.findByText('No answer history yet.'),
+      await screen.findByText('No practice history yet.'),
     ).toBeInTheDocument();
   });
 
@@ -141,7 +191,7 @@ describe('QuestionHistorySection', () => {
 
     render(<QuestionHistorySection question={buildQuestion()} />);
     await user.click(
-      screen.getByRole('button', { name: 'Recent Answer History' }),
+      screen.getByRole('button', { name: 'Recent Practice History' }),
     );
 
     expect(await screen.findByText('network down')).toBeInTheDocument();
@@ -153,11 +203,14 @@ describe('QuestionHistorySection', () => {
 
     render(<QuestionHistorySection question={buildQuestion()} />);
     await user.click(
-      screen.getByRole('button', { name: 'Recent Answer History' }),
+      screen.getByRole('button', { name: 'Recent Practice History' }),
     );
 
     expect(
-      await screen.findByText('No answer history yet.'),
+      await screen.findByText('No practice history yet.'),
     ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Trend' }),
+    ).not.toBeInTheDocument();
   });
 });

@@ -34,6 +34,21 @@ export const GLASS_BAR_STROKE = 'rgba(255, 255, 255, 0.25)';
 export const GLASS_BAR_STROKE_WIDTH = 0.5;
 export const GLASS_FILL_OPACITY = 0.85;
 
+/**
+ * Spacing for line charts drawn without axis lines (history charts whose
+ * lowest value sits on the x-axis): the tick labels are pushed away from the
+ * plot so they stay clear of the line and its dots.
+ */
+export const CHART_AXIS_TICK_MARGIN = 10;
+/** recharts' default 30px x-axis height plus the extra tick margin, so the
+ * labels aren't clipped. */
+export const CHART_X_AXIS_HEIGHT = 38;
+
+/** Radius of an always-visible line chart data point, and of the same point
+ * while hovered. */
+export const CHART_DOT_RADIUS = 4;
+export const CHART_ACTIVE_DOT_RADIUS = 6;
+
 export const glassLegendFormatter = (value: string) => (
   <span className={CHART_TEXT_CLASSNAME}>{value}</span>
 );

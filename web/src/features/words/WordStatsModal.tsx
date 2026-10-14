@@ -6,7 +6,6 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  BarChart,
   Bar,
   Line,
   ComposedChart,
@@ -17,6 +16,7 @@ import {
 
 import { Modal } from '../../components/ui/Modal';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
+import { SegmentedToggle } from '../../components/ui/SegmentedToggle';
 import {
   CHART_TEXT_CLASSNAME,
   GLASS_BAR_STROKE,
@@ -25,10 +25,14 @@ import {
   GLASS_TOOLTIP_STYLE,
   glassLegendFormatter,
 } from '../../components/ui/charts/chartGlassStyles';
+import { PracticeCountBarChart } from '../../components/ui/charts/PracticeCountBarChart';
 import { apiService } from '../../lib/api';
 import { WordStatsResponse, WordTrendPoint } from '../../types/api';
 import { FamiliarityLevel } from '../../types/base';
-import { FAMILIARITY_LABELS } from '../shared/constants/familiarity';
+import {
+  FAMILIARITY_CHART_COLORS,
+  FAMILIARITY_LABELS,
+} from '../shared/constants/familiarity';
 import { useAsyncOnOpen } from '../shared/hooks/useAsyncOnOpen';
 import { formatShortDate } from '../../utils/dateFormat';
 
@@ -39,11 +43,11 @@ interface WordStatsModalProps {
 
 type ActiveTab = 'familiarity' | 'practice' | 'trend';
 
-const FAMILIARITY_COLORS: Record<FamiliarityLevel, string> = {
-  [FamiliarityLevel.RED]: '#ef4444',
-  [FamiliarityLevel.YELLOW]: '#eab308',
-  [FamiliarityLevel.GREEN]: '#22c55e',
-};
+const TABS: readonly { value: ActiveTab; label: string }[] = [
+  { value: 'familiarity', label: 'Familiarity' },
+  { value: 'practice', label: 'Practice Count' },
+  { value: 'trend', label: 'Trend' },
+];
 
 export const WordStatsModal: React.FC<WordStatsModalProps> = ({
   isOpen,
@@ -94,8 +98,6 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
 
   const total = familiarityChartData.reduce((sum, d) => sum + d.value, 0);
 
-  const practiceChartData = stats ? [...stats.practice_count_distribution] : [];
-
   return (
     <Modal
       isOpen={isOpen}
@@ -114,43 +116,12 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
       {!loading && !error && stats && (
         <>
           {/* Tab toggle */}
-          <div className='mb-5 flex justify-center'>
-            <div className='glass-panel flex overflow-hidden rounded-md text-sm'>
-              <button
-                type='button'
-                onClick={() => setActiveTab('familiarity')}
-                className={`rounded-l-md px-4 py-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
-                  activeTab === 'familiarity'
-                    ? 'glass-button-primary'
-                    : 'glass-interactive text-gray-600 dark:text-gray-300'
-                }`}
-              >
-                Familiarity
-              </button>
-              <button
-                type='button'
-                onClick={() => setActiveTab('practice')}
-                className={`segmented-divider px-4 py-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
-                  activeTab === 'practice'
-                    ? 'glass-button-primary'
-                    : 'glass-interactive text-gray-600 dark:text-gray-300'
-                }`}
-              >
-                Practice Count
-              </button>
-              <button
-                type='button'
-                onClick={() => setActiveTab('trend')}
-                className={`segmented-divider rounded-r-md px-4 py-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
-                  activeTab === 'trend'
-                    ? 'glass-button-primary'
-                    : 'glass-interactive text-gray-600 dark:text-gray-300'
-                }`}
-              >
-                Trend
-              </button>
-            </div>
-          </div>
+          <SegmentedToggle
+            options={TABS}
+            value={activeTab}
+            onChange={setActiveTab}
+            className='mb-5'
+          />
 
           {/* Familiarity tab */}
           {activeTab === 'familiarity' && (
@@ -182,7 +153,7 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
                     {familiarityChartData.map(entry => (
                       <Cell
                         key={entry.level}
-                        fill={FAMILIARITY_COLORS[entry.level]}
+                        fill={FAMILIARITY_CHART_COLORS[entry.level]}
                         fillOpacity={GLASS_FILL_OPACITY}
                         stroke={GLASS_BAR_STROKE}
                         strokeWidth={GLASS_BAR_STROKE_WIDTH}
@@ -231,51 +202,11 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
 
           {/* Practice Count tab */}
           {activeTab === 'practice' && (
-            <>
-              <p className='mb-4 text-sm text-gray-500 dark:text-gray-400'>
-                Practice count distribution — {total} words total
-              </p>
-              <ResponsiveContainer
-                width='100%'
-                height={280}
-                className={CHART_TEXT_CLASSNAME}
-              >
-                <BarChart
-                  data={practiceChartData}
-                  margin={{ top: 4, right: 8, left: -16, bottom: 0 }}
-                >
-                  <CartesianGrid
-                    strokeDasharray='3 3'
-                    stroke='currentColor'
-                    className='opacity-10'
-                  />
-                  <XAxis
-                    dataKey='range'
-                    tick={{ fontSize: 11, fill: 'currentColor' }}
-                    interval={0}
-                  />
-                  <YAxis
-                    tick={{ fontSize: 11, fill: 'currentColor' }}
-                    allowDecimals={false}
-                  />
-                  <Tooltip
-                    formatter={(value, _name) => [`${value} words`, 'Count']}
-                    contentStyle={GLASS_TOOLTIP_STYLE}
-                  />
-                  <Bar
-                    dataKey='count'
-                    radius={[3, 3, 0, 0]}
-                    fill='#6366f1'
-                    fillOpacity={GLASS_FILL_OPACITY}
-                    stroke={GLASS_BAR_STROKE}
-                    strokeWidth={GLASS_BAR_STROKE_WIDTH}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-              <p className='text-supporting mt-2 text-center text-xs'>
-                Times practiced (per word)
-              </p>
-            </>
+            <PracticeCountBarChart
+              data={stats.practice_count_distribution}
+              total={total}
+              entity='word'
+            />
           )}
 
           {/* Trend tab */}

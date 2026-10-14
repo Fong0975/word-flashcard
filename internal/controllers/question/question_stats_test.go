@@ -75,6 +75,14 @@ func (suite *ControllerTestSuite) TestStatsQuestions() {
 			{Range: "0%", Count: 0, PracticeCountBreakdown: emptyBreakdown},
 			{Range: "N/A", Count: 0, PracticeCountBreakdown: emptyBreakdown},
 		},
+		// count_practise across all questions: 10, 8, 2, 15, 3
+		PracticeCountDistribution: []models.PracticeCountBucket{
+			{Range: "0", Count: 0},
+			{Range: "1", Count: 0},
+			{Range: "2 ~ 4", Count: 2},
+			{Range: "5 ~ 9", Count: 1},
+			{Range: "10+", Count: 2},
+		},
 	}
 	expectedJSON, err := json.Marshal(expected)
 	assert.NoError(suite.T(), err)

@@ -28,6 +28,17 @@ export const FAMILIARITY_LABELS: Record<FamiliarityLevel, string> = {
 };
 
 /**
+ * Solid color of each familiarity level for chart marks (pie slices, line
+ * dots). recharts takes fills as inline values, so Tailwind classes can't be
+ * used there.
+ */
+export const FAMILIARITY_CHART_COLORS: Record<FamiliarityLevel, string> = {
+  [FamiliarityLevel.RED]: '#ef4444',
+  [FamiliarityLevel.YELLOW]: '#eab308',
+  [FamiliarityLevel.GREEN]: '#22c55e',
+};
+
+/**
  * Get the display label of a familiarity level.
  *
  * @param familiarity - Familiarity level, or a raw value from the API

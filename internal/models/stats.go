@@ -29,5 +29,6 @@ type AccuracyBucket struct {
 
 // QuestionStats is the response for the question statistics endpoint
 type QuestionStats struct {
-	AccuracyDistribution []AccuracyBucket `json:"accuracy_distribution"`
+	AccuracyDistribution      []AccuracyBucket      `json:"accuracy_distribution"`
+	PracticeCountDistribution []PracticeCountBucket `json:"practice_count_distribution"`
 }

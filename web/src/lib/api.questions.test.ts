@@ -100,7 +100,10 @@ describe('ApiService - questions', () => {
 
   it('sends a GET request for getQuestionStats', async () => {
     fetchMock.mockResolvedValueOnce(
-      buildMockResponse({ accuracy_distribution: [] }),
+      buildMockResponse({
+        accuracy_distribution: [],
+        practice_count_distribution: [],
+      }),
     );
 
     await apiService.getQuestionStats();

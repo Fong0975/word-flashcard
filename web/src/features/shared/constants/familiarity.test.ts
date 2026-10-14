@@ -3,6 +3,7 @@
 import { FamiliarityLevel } from '../../../types/base';
 
 import {
+  FAMILIARITY_CHART_COLORS,
   FAMILIARITY_LABELS,
   FAMILIARITY_OPTIONS,
   getFamiliarityDisplayColors,
@@ -18,6 +19,16 @@ describe('FAMILIARITY_LABELS', () => {
     [FamiliarityLevel.GREEN, 'Familiar'],
   ] as const)('labels %s as %s', (familiarity, expected) => {
     expect(FAMILIARITY_LABELS[familiarity]).toBe(expected);
+  });
+});
+
+describe('FAMILIARITY_CHART_COLORS', () => {
+  it.each([
+    [FamiliarityLevel.RED, '#ef4444'],
+    [FamiliarityLevel.YELLOW, '#eab308'],
+    [FamiliarityLevel.GREEN, '#22c55e'],
+  ] as const)('colors %s as %s', (familiarity, expected) => {
+    expect(FAMILIARITY_CHART_COLORS[familiarity]).toBe(expected);
   });
 });
 

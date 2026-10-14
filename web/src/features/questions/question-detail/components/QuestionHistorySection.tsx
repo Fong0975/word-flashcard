@@ -20,16 +20,29 @@ import {
   glassLegendFormatter,
 } from '../../../../components/ui/charts/chartGlassStyles';
 import { LoadingSpinner } from '../../../../components/ui/LoadingSpinner';
+import { SegmentedToggle } from '../../../../components/ui/SegmentedToggle';
 import { apiService } from '../../../../lib/api';
 import { Question, QuestionAnswerLogEntry } from '../../../../types/api';
 import { useAsyncOnOpen } from '../../../shared/hooks/useAsyncOnOpen';
-import { formatDateTime } from '../../../../utils/dateFormat';
+import { formatDateTimeParts } from '../../../../utils/dateFormat';
+
+import {
+  ANSWER_RESULT_COLORS,
+  QuestionResultTrendChart,
+} from './QuestionResultTrendChart';
 
 interface QuestionHistorySectionProps {
   question: Question;
 }
 
 const CLOCK_ICON_PATH = 'M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z';
+
+type ActiveChart = 'options' | 'trend';
+
+const CHARTS: readonly { value: ActiveChart; label: string }[] = [
+  { value: 'options', label: 'Options' },
+  { value: 'trend', label: 'Trend' },
+];
 
 const OPTION_LETTERS = ['A', 'B', 'C', 'D'] as const;
 type OptionLetter = (typeof OPTION_LETTERS)[number];
@@ -133,6 +146,7 @@ export const QuestionHistorySection: React.FC<QuestionHistorySectionProps> = ({
   question,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [activeChart, setActiveChart] = useState<ActiveChart>('options');
 
   const {
     data: entries,
@@ -141,7 +155,7 @@ export const QuestionHistorySection: React.FC<QuestionHistorySectionProps> = ({
   } = useAsyncOnOpen<QuestionAnswerLogEntry[]>({
     isOpen,
     fetcher: () => apiService.getQuestionLogs(question.id, 15),
-    errorMessage: 'Failed to load answer history.',
+    errorMessage: 'Failed to load practice history.',
   });
 
   const options = getAvailableOptions(question);
@@ -152,7 +166,7 @@ export const QuestionHistorySection: React.FC<QuestionHistorySectionProps> = ({
 
   return (
     <CollapsibleSection
-      title='Recent Answer History'
+      title='Recent Practice History'
       isOpen={isOpen}
       onToggle={() => setIsOpen(open => !open)}
       iconPath={CLOCK_ICON_PATH}
@@ -165,92 +179,111 @@ export const QuestionHistorySection: React.FC<QuestionHistorySectionProps> = ({
 
       {!loading && !error && entries && entries.length === 0 && (
         <p className='py-4 text-center text-sm text-gray-500 dark:text-gray-400'>
-          No answer history yet.
+          No practice history yet.
         </p>
       )}
 
       {!loading && !error && entries && entries.length > 0 && (
         <>
-          <ResponsiveContainer
-            width='100%'
-            height={230}
-            className={CHART_TEXT_CLASSNAME}
-          >
-            <BarChart
-              data={optionCounts}
-              margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
-            >
-              <CartesianGrid
-                strokeDasharray='3 3'
-                stroke='currentColor'
-                className='opacity-10'
-              />
-              <XAxis
-                dataKey='option'
-                height={50}
-                interval={0}
-                tick={<OptionTick optionTexts={optionTexts} />}
-              />
-              <YAxis
-                width={30}
-                tick={{ fontSize: 11, fill: 'currentColor' }}
-                allowDecimals={false}
-              />
-              <Tooltip
-                contentStyle={GLASS_TOOLTIP_STYLE}
-                labelFormatter={label =>
-                  formatOptionLabel(question, String(label))
-                }
-              />
-              <Legend
-                wrapperStyle={{ fontSize: '12px' }}
-                formatter={glassLegendFormatter}
-              />
-              <Bar
-                dataKey='correct'
-                stackId='a'
-                fill='#22c55e'
-                fillOpacity={GLASS_FILL_OPACITY}
-                stroke={GLASS_BAR_STROKE}
-                strokeWidth={GLASS_BAR_STROKE_WIDTH}
-                name='Correct'
-              />
-              <Bar
-                dataKey='incorrect'
-                stackId='a'
-                fill='#ef4444'
-                fillOpacity={GLASS_FILL_OPACITY}
-                stroke={GLASS_BAR_STROKE}
-                strokeWidth={GLASS_BAR_STROKE_WIDTH}
-                name='Incorrect'
-                radius={[3, 3, 0, 0]}
-              />
-            </BarChart>
-          </ResponsiveContainer>
+          <SegmentedToggle
+            options={CHARTS}
+            value={activeChart}
+            onChange={setActiveChart}
+            className='mb-4'
+          />
 
-          <ul className='mt-4 space-y-2'>
-            {entries.map(entry => (
-              <li
-                key={entry.id}
-                className='flex items-center justify-between gap-2 text-sm'
+          {activeChart === 'trend' && (
+            <QuestionResultTrendChart entries={entries} />
+          )}
+
+          {activeChart === 'options' && (
+            <ResponsiveContainer
+              width='100%'
+              height={230}
+              className={CHART_TEXT_CLASSNAME}
+            >
+              <BarChart
+                data={optionCounts}
+                margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
               >
-                <span className='min-w-0 flex-1 break-words text-gray-500 dark:text-gray-400'>
-                  {formatDateTime(entry.created_at)}
-                </span>
-                <span className='min-w-0 flex-1 break-words font-medium text-gray-700 dark:text-gray-300'>
-                  {formatOptionLabel(question, entry.selected_option)}
-                </span>
-                <span
-                  className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-bold ${
-                    entry.is_correct
-                      ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
-                      : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
-                  }`}
+                <CartesianGrid
+                  strokeDasharray='3 3'
+                  stroke='currentColor'
+                  className='opacity-10'
+                />
+                <XAxis
+                  dataKey='option'
+                  height={50}
+                  interval={0}
+                  tick={<OptionTick optionTexts={optionTexts} />}
+                />
+                <YAxis
+                  width={30}
+                  tick={{ fontSize: 11, fill: 'currentColor' }}
+                  allowDecimals={false}
+                />
+                <Tooltip
+                  contentStyle={GLASS_TOOLTIP_STYLE}
+                  labelFormatter={label =>
+                    formatOptionLabel(question, String(label))
+                  }
+                />
+                <Legend
+                  wrapperStyle={{ fontSize: '12px' }}
+                  formatter={glassLegendFormatter}
+                />
+                <Bar
+                  dataKey='correct'
+                  stackId='a'
+                  fill={ANSWER_RESULT_COLORS.correct}
+                  fillOpacity={GLASS_FILL_OPACITY}
+                  stroke={GLASS_BAR_STROKE}
+                  strokeWidth={GLASS_BAR_STROKE_WIDTH}
+                  name='Correct'
+                />
+                <Bar
+                  dataKey='incorrect'
+                  stackId='a'
+                  fill={ANSWER_RESULT_COLORS.incorrect}
+                  fillOpacity={GLASS_FILL_OPACITY}
+                  stroke={GLASS_BAR_STROKE}
+                  strokeWidth={GLASS_BAR_STROKE_WIDTH}
+                  name='Incorrect'
+                  radius={[3, 3, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+
+          {/* Rows share the list's columns (subgrid) so the option column
+              lines up across rows regardless of each row's badge width. */}
+          <ul className='mt-4 grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] gap-2'>
+            {entries.map(entry => {
+              const { date, time } = formatDateTimeParts(entry.created_at);
+              return (
+                <li
+                  key={entry.id}
+                  className='col-span-full grid grid-cols-subgrid items-center text-sm'
                 >
-                  {entry.is_correct ? 'Correct' : 'Incorrect'}
-                </span>
-              </li>
-            ))}
+                  <span className='flex flex-col text-gray-500 dark:text-gray-400'>
+                    <span>{date}</span>
+                    <span className='text-xs'>{time}</span>
+                  </span>
+                  <span className='break-words font-medium text-gray-700 dark:text-gray-300'>
+                    {formatOptionLabel(question, entry.selected_option)}
+                  </span>
+                  <span
+                    className={`justify-self-end rounded-full px-2 py-0.5 text-xs font-bold ${
+                      entry.is_correct
+                        ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+                        : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
+                    }`}
+                  >
+                    {entry.is_correct ? 'Correct' : 'Incorrect'}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         </>
       )}
