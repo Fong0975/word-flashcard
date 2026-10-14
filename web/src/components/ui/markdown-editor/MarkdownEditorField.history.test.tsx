@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { MarkdownEditorField } from './MarkdownEditorField';
@@ -14,7 +14,6 @@ const HistoryHarness = () => {
         value={value}
         onChange={setValue}
         templateButtons={[{ label: 'Divider', value: '---' }]}
-        onAppendTemplate={text => setValue(prev => prev + text)}
       />
       <button type='button' onClick={() => setValue('loaded')}>
         Load
@@ -73,7 +72,7 @@ describe('MarkdownEditorField undo / redo', () => {
       edited: '→',
     },
     {
-      name: 'an appended template',
+      name: 'an inserted template',
       edit: (user: User) => clickButton(user, 'Divider'),
       edited: '---',
     },
@@ -104,8 +103,10 @@ describe('MarkdownEditorField undo / redo', () => {
     const textarea = screen.getByRole('textbox');
 
     await clickButton(user, 'Bold');
+    // The caret lands between the markers once the editor refocuses.
+    await waitFor(() => expect(textarea).toHaveFocus());
     await clickButton(user, 'Divider');
-    expect(textarea).toHaveValue('****---');
+    expect(textarea).toHaveValue('**---**');
 
     await user.click(undoButton());
     expect(textarea).toHaveValue('****');
@@ -115,7 +116,7 @@ describe('MarkdownEditorField undo / redo', () => {
     await user.click(redoButton());
     expect(textarea).toHaveValue('****');
     await user.click(redoButton());
-    expect(textarea).toHaveValue('****---');
+    expect(textarea).toHaveValue('**---**');
   });
 
   it('discards the redo steps once a new edit is made', async () => {

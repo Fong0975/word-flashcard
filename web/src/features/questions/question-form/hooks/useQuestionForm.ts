@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 
 import { Question } from '../../../../types/api';
-import { appendTemplateText } from '../../../../utils/textTemplates';
 import { QuestionFormData, AnswerOption } from '../types';
 import { validateQuestionForm } from '../utils';
 
@@ -113,14 +112,6 @@ export const useQuestionForm = ({
     setFormData(prev => ({ ...prev, reference: value }));
   }, []);
 
-  // Append template text to fields
-  const appendToNotes = useCallback((textToAppend: string) => {
-    setFormData(prev => ({
-      ...prev,
-      notes: appendTemplateText(prev.notes, textToAppend),
-    }));
-  }, []);
-
   const setReferenceFromTemplate = useCallback((templateText: string) => {
     setFormData(prev => ({
       ...prev,
@@ -150,7 +141,6 @@ export const useQuestionForm = ({
       handleOptionChange,
       handleNotesChange,
       handleReferenceChange,
-      appendToNotes,
       setReferenceFromTemplate,
     },
     resetForm,

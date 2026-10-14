@@ -80,36 +80,6 @@ describe('MarkdownEditorField', () => {
     expect(onChange).toHaveBeenCalledWith('****');
   });
 
-  it('renders template buttons and forwards selections when onAppendTemplate is provided', async () => {
-    const user = userEvent.setup();
-    const onAppendTemplate = vi.fn();
-    render(
-      <MarkdownEditorField
-        value=''
-        onChange={vi.fn()}
-        templateButtons={[{ label: 'Divider', value: '---' }]}
-        onAppendTemplate={onAppendTemplate}
-      />,
-    );
-
-    await user.click(screen.getByRole('button', { name: 'Divider' }));
-    expect(onAppendTemplate).toHaveBeenCalledWith('---');
-  });
-
-  it('does not render template buttons without onAppendTemplate', () => {
-    render(
-      <MarkdownEditorField
-        value=''
-        onChange={vi.fn()}
-        templateButtons={[{ label: 'Divider', value: '---' }]}
-      />,
-    );
-
-    expect(
-      screen.queryByRole('button', { name: 'Divider' }),
-    ).not.toBeInTheDocument();
-  });
-
   describe('symbols menu', () => {
     afterEach(() => {
       vi.restoreAllMocks();

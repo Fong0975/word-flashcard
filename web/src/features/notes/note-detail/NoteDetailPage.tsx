@@ -18,7 +18,6 @@ import {
   MAX_SHORT_DETAIL_WIDTH,
   NOT_FOUND_DETAIL,
 } from '../../../utils/pageTitle';
-import { appendTemplateText } from '../../../utils/textTemplates';
 import { formatNoteDateTime } from '../../../utils/dateFormat';
 
 export const NoteDetailPage: React.FC = () => {
@@ -39,10 +38,6 @@ export const NoteDetailPage: React.FC = () => {
   const { templateButtonsConfig } = useTemplateButtons({
     configFileName: 'noteContentButtonsConfig.json',
   });
-
-  const appendToEditContent = (textToAppend: string) => {
-    setEditContent(prev => appendTemplateText(prev, textToAppend));
-  };
 
   const fetchNote = useCallback(async () => {
     if (!id) {
@@ -268,7 +263,6 @@ export const NoteDetailPage: React.FC = () => {
         fontMono
         rows={20}
         templateButtons={templateButtonsConfig}
-        onAppendTemplate={appendToEditContent}
       />
       <div className='flex items-center gap-2'>
         <button

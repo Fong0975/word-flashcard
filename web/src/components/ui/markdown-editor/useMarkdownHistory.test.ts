@@ -52,7 +52,6 @@ const setup = (initialValue = '') => {
       return restored as MarkdownFormatResult | null;
     },
     external: (value: string) => setValue(value),
-    expectExternalStep: () => hook.result.current.expectExternalStep(),
   };
 };
 
@@ -155,25 +154,6 @@ describe('useMarkdownHistory', () => {
         h.step('a');
         h.step('ab');
         h.undo();
-        h.external('loaded');
-      },
-      expected: { canUndo: false, canRedo: false },
-    },
-    {
-      name: 'records an expected external change as an undoable step',
-      initialValue: 'a',
-      run: h => {
-        h.expectExternalStep();
-        h.external('a\n---');
-        return h.undo();
-      },
-      expected: { canUndo: false, canRedo: true, returned: 'a' },
-    },
-    {
-      name: 'only treats the next external change as expected',
-      run: h => {
-        h.expectExternalStep();
-        h.external('---');
         h.external('loaded');
       },
       expected: { canUndo: false, canRedo: false },

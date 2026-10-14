@@ -23,19 +23,18 @@ describe('NotesInput', () => {
     expect(screen.getByRole('textbox')).toBeDisabled();
   });
 
-  it('renders template buttons and forwards selections', async () => {
+  it('renders template buttons and inserts the selected template', async () => {
     const user = userEvent.setup();
-    const onAppendTemplate = vi.fn();
+    const onChange = vi.fn();
     render(
       <NotesInput
         value=''
-        onChange={vi.fn()}
+        onChange={onChange}
         templateButtons={[{ label: 'Divider', value: '---' }]}
-        onAppendTemplate={onAppendTemplate}
       />,
     );
 
     await user.click(screen.getByRole('button', { name: 'Divider' }));
-    expect(onAppendTemplate).toHaveBeenCalledWith('---');
+    expect(onChange).toHaveBeenCalledWith('---');
   });
 });

@@ -15,7 +15,6 @@ interface FormFieldsProps {
     handlePartOfSpeechChange: (pos: string, checked: boolean) => void;
     handleDefinitionChange: (definition: string) => void;
     handleNotesChange: (notes: string) => void;
-    appendToNotes: (textToAppend: string) => void;
     handleExamplesChange: (index: number, value: string) => void;
     addExampleInput: () => void;
     removeExampleInput: (index: number) => void;
@@ -160,7 +159,6 @@ export const FormFields: React.FC<FormFieldsProps> = ({
           placeholder='Enter additional notes...'
           unescapeLiteralNewlines
           templateButtons={noteButtonsConfig}
-          onAppendTemplate={handlers.appendToNotes}
           excludeWord={wordText}
         />
       </div>
