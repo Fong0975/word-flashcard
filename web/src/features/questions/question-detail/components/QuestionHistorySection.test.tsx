@@ -4,6 +4,7 @@ import type { MockInstance } from 'vitest';
 
 import { Question, QuestionAnswerLogEntry } from '../../../../types/api';
 import { apiService } from '../../../../lib/api';
+import { formatDateTimeParts } from '../../../../utils/dateFormat';
 
 import { QuestionHistorySection } from './QuestionHistorySection';
 
@@ -142,6 +143,22 @@ describe('QuestionHistorySection', () => {
       expect(await screen.findByText(tt.expected), tt.name).toBeInTheDocument();
       unmount();
     }
+  });
+
+  it('shows the date and the 24-hour time of an entry as separate elements', async () => {
+    const user = userEvent.setup();
+    const entry = buildEntry({ created_at: '2026-10-11T23:55:54Z' });
+    vi.spyOn(apiService, 'getQuestionLogs').mockResolvedValue([entry]);
+
+    render(<QuestionHistorySection question={buildQuestion()} />);
+    await user.click(
+      screen.getByRole('button', { name: 'Recent Practice History' }),
+    );
+
+    const { date, time } = formatDateTimeParts(entry.created_at);
+    expect(time).toBe('07:55');
+    expect(await screen.findByText(time)).toBeInTheDocument();
+    expect(screen.getAllByText(date)).not.toHaveLength(0);
   });
 
   it('shows a loading state while fetching', async () => {

@@ -8,13 +8,6 @@ export const formatShortDate = (iso: string): string =>
   new Date(iso).toLocaleDateString(undefined, { timeZone: TAIPEI_TIME_ZONE });
 
 /**
- * Formats an ISO timestamp as a date and time, always rendered in the
- * Asia/Taipei timezone regardless of the viewer's local timezone.
- */
-export const formatDateTime = (iso: string): string =>
-  new Date(iso).toLocaleString(undefined, { timeZone: TAIPEI_TIME_ZONE });
-
-/**
  * Formats an ISO timestamp as separate date and time strings, with the
  * time rendered in 24-hour format (no AM/PM), always in the Asia/Taipei
  * timezone. Intended for compact table columns that stack date and time
@@ -30,9 +23,21 @@ export const formatDateTimeParts = (
       timeZone: TAIPEI_TIME_ZONE,
       hour: '2-digit',
       minute: '2-digit',
-      hour12: false,
+      // `hourCycle` instead of `hour12: false`, which some engines render
+      // as "24:30" for half past midnight.
+      hourCycle: 'h23',
     }),
   };
+};
+
+/**
+ * Formats an ISO timestamp as a single-line date and 24-hour time (no
+ * seconds, no AM/PM), always rendered in the Asia/Taipei timezone
+ * regardless of the viewer's local timezone.
+ */
+export const formatDateTime = (iso: string): string => {
+  const { date, time } = formatDateTimeParts(iso);
+  return `${date} ${time}`;
 };
 
 /**

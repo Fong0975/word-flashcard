@@ -2,8 +2,8 @@
 
 import {
   formatShortDate,
-  formatDateTime,
   formatDateTimeParts,
+  formatDateTime,
   formatNoteDate,
   formatNoteDateTime,
 } from './dateFormat';
@@ -28,21 +28,46 @@ describe('formatShortDate', () => {
   });
 });
 
-describe('formatDateTime', () => {
-  it('renders the date and time in Asia/Taipei', () => {
-    expect(numbersIn(formatDateTime(CROSS_DAY_ISO))).toEqual(
-      numbersIn('7/20/2026 1:30:00'),
-    );
+describe('formatDateTimeParts', () => {
+  it.each([
+    {
+      name: 'splits a time after midnight in Asia/Taipei',
+      iso: CROSS_DAY_ISO,
+      date: '7/20/2026',
+      time: '01:30',
+    },
+    {
+      name: 'renders half past midnight as 00, not 24',
+      iso: '2026-07-19T16:30:00Z',
+      date: '7/20/2026',
+      time: '00:30',
+    },
+    {
+      name: 'renders an afternoon time in 24-hour format',
+      iso: '2026-07-20T07:05:00Z',
+      date: '7/20/2026',
+      time: '15:05',
+    },
+  ])('$name', ({ iso, date, time }) => {
+    const parts = formatDateTimeParts(iso);
+    expect(numbersIn(parts.date)).toEqual(numbersIn(date));
+    expect(parts.time).toBe(time);
   });
 });
 
-describe('formatDateTimeParts', () => {
-  it('splits the date and time in Asia/Taipei into separate strings, with the time in 24-hour format', () => {
-    const { date, time } = formatDateTimeParts(CROSS_DAY_ISO);
-    expect(numbersIn(date)).toEqual(numbersIn('7/20/2026'));
-    expect(time).toBe('01:30');
-    expect(time).not.toMatch(/AM|PM/i);
-  });
+describe('formatDateTime', () => {
+  it.each([
+    { iso: CROSS_DAY_ISO, time: '01:30' },
+    { iso: '2026-07-20T07:05:00Z', time: '15:05' },
+  ])(
+    'renders $iso as one line ending in the 24-hour time $time',
+    ({ iso, time }) => {
+      const value = formatDateTime(iso);
+      expect(value.endsWith(` ${time}`)).toBe(true);
+      expect(numbersIn(value)).toEqual(numbersIn(`7/20/2026 ${time}`));
+      expect(value).not.toMatch(/AM|PM|上午|下午/i);
+    },
+  );
 });
 
 describe('formatNoteDate', () => {

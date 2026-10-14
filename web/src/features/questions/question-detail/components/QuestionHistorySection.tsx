@@ -24,7 +24,7 @@ import { SegmentedToggle } from '../../../../components/ui/SegmentedToggle';
 import { apiService } from '../../../../lib/api';
 import { Question, QuestionAnswerLogEntry } from '../../../../types/api';
 import { useAsyncOnOpen } from '../../../shared/hooks/useAsyncOnOpen';
-import { formatDateTime } from '../../../../utils/dateFormat';
+import { formatDateTimeParts } from '../../../../utils/dateFormat';
 
 import {
   ANSWER_RESULT_COLORS,
@@ -255,29 +255,35 @@ export const QuestionHistorySection: React.FC<QuestionHistorySectionProps> = ({
             </ResponsiveContainer>
           )}
 
-          <ul className='mt-4 space-y-2'>
-            {entries.map(entry => (
-              <li
-                key={entry.id}
-                className='flex items-center justify-between gap-2 text-sm'
-              >
-                <span className='min-w-0 flex-1 break-words text-gray-500 dark:text-gray-400'>
-                  {formatDateTime(entry.created_at)}
-                </span>
-                <span className='min-w-0 flex-1 break-words font-medium text-gray-700 dark:text-gray-300'>
-                  {formatOptionLabel(question, entry.selected_option)}
-                </span>
-                <span
-                  className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-bold ${
-                    entry.is_correct
-                      ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
-                      : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
-                  }`}
+          {/* Rows share the list's columns (subgrid) so the option column
+              lines up across rows regardless of each row's badge width. */}
+          <ul className='mt-4 grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] gap-2'>
+            {entries.map(entry => {
+              const { date, time } = formatDateTimeParts(entry.created_at);
+              return (
+                <li
+                  key={entry.id}
+                  className='col-span-full grid grid-cols-subgrid items-center text-sm'
                 >
-                  {entry.is_correct ? 'Correct' : 'Incorrect'}
-                </span>
-              </li>
-            ))}
+                  <span className='flex flex-col text-gray-500 dark:text-gray-400'>
+                    <span>{date}</span>
+                    <span className='text-xs'>{time}</span>
+                  </span>
+                  <span className='break-words font-medium text-gray-700 dark:text-gray-300'>
+                    {formatOptionLabel(question, entry.selected_option)}
+                  </span>
+                  <span
+                    className={`justify-self-end rounded-full px-2 py-0.5 text-xs font-bold ${
+                      entry.is_correct
+                        ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+                        : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
+                    }`}
+                  >
+                    {entry.is_correct ? 'Correct' : 'Incorrect'}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         </>
       )}
