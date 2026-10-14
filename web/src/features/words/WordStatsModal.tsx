@@ -16,6 +16,7 @@ import {
 
 import { Modal } from '../../components/ui/Modal';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
+import { SegmentedToggle } from '../../components/ui/SegmentedToggle';
 import {
   CHART_TEXT_CLASSNAME,
   GLASS_BAR_STROKE,
@@ -41,6 +42,12 @@ interface WordStatsModalProps {
 }
 
 type ActiveTab = 'familiarity' | 'practice' | 'trend';
+
+const TABS: readonly { value: ActiveTab; label: string }[] = [
+  { value: 'familiarity', label: 'Familiarity' },
+  { value: 'practice', label: 'Practice Count' },
+  { value: 'trend', label: 'Trend' },
+];
 
 export const WordStatsModal: React.FC<WordStatsModalProps> = ({
   isOpen,
@@ -109,43 +116,12 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
       {!loading && !error && stats && (
         <>
           {/* Tab toggle */}
-          <div className='mb-5 flex justify-center'>
-            <div className='glass-panel flex overflow-hidden rounded-md text-sm'>
-              <button
-                type='button'
-                onClick={() => setActiveTab('familiarity')}
-                className={`rounded-l-md px-4 py-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
-                  activeTab === 'familiarity'
-                    ? 'glass-button-primary'
-                    : 'glass-interactive text-gray-600 dark:text-gray-300'
-                }`}
-              >
-                Familiarity
-              </button>
-              <button
-                type='button'
-                onClick={() => setActiveTab('practice')}
-                className={`segmented-divider px-4 py-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
-                  activeTab === 'practice'
-                    ? 'glass-button-primary'
-                    : 'glass-interactive text-gray-600 dark:text-gray-300'
-                }`}
-              >
-                Practice Count
-              </button>
-              <button
-                type='button'
-                onClick={() => setActiveTab('trend')}
-                className={`segmented-divider rounded-r-md px-4 py-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
-                  activeTab === 'trend'
-                    ? 'glass-button-primary'
-                    : 'glass-interactive text-gray-600 dark:text-gray-300'
-                }`}
-              >
-                Trend
-              </button>
-            </div>
-          </div>
+          <SegmentedToggle
+            options={TABS}
+            value={activeTab}
+            onChange={setActiveTab}
+            className='mb-5'
+          />
 
           {/* Familiarity tab */}
           {activeTab === 'familiarity' && (

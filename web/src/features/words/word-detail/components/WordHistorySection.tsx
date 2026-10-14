@@ -11,11 +11,13 @@ import {
 
 import { CollapsibleSection } from '../../../../components/ui/CollapsibleSection';
 import {
+  CHART_ACTIVE_DOT_RADIUS,
+  CHART_AXIS_TICK_MARGIN,
   CHART_TEXT_CLASSNAME,
-  GLASS_BAR_STROKE,
-  GLASS_BAR_STROKE_WIDTH,
+  CHART_X_AXIS_HEIGHT,
   GLASS_TOOLTIP_STYLE,
 } from '../../../../components/ui/charts/chartGlassStyles';
+import { GlassDot } from '../../../../components/ui/charts/GlassDot';
 import { LoadingSpinner } from '../../../../components/ui/LoadingSpinner';
 import { apiService } from '../../../../lib/api';
 import { Word, WordPracticeLogEntry } from '../../../../types/api';
@@ -49,19 +51,6 @@ const FAMILIARITY_LEVEL_LABELS = FAMILIARITY_LEVELS.map(
   level => FAMILIARITY_LABELS[level],
 );
 
-/**
- * The lowest level sits on the x-axis, so the axis line is hidden and the date
- * labels are pushed down to keep them clear of the line and its dots.
- */
-const X_AXIS_TICK_MARGIN = 10;
-/** recharts' default 30px plus the extra tick margin, so labels aren't clipped. */
-const X_AXIS_HEIGHT = 38;
-
-const DOT_RADIUS = 4;
-const ACTIVE_DOT_RADIUS = 6;
-
-/** Gap between the familiarity labels and the first point on the line. */
-const Y_AXIS_TICK_MARGIN = 10;
 /**
  * Wide enough for the longest familiarity label at the 11px tick font size,
  * plus the extra tick margin.
@@ -136,19 +125,17 @@ export const FamiliarityDot: React.FC<FamiliarityDotProps> = ({
   cx,
   cy,
   payload,
-  radius = DOT_RADIUS,
+  radius,
 }) => {
-  if (cx === undefined || cy === undefined || !payload) {
+  if (!payload) {
     return null;
   }
   return (
-    <circle
+    <GlassDot
       cx={cx}
       cy={cy}
-      r={radius}
+      radius={radius}
       fill={FAMILIARITY_CHART_COLORS[FAMILIARITY_LEVELS[payload.level]]}
-      stroke={GLASS_BAR_STROKE}
-      strokeWidth={GLASS_BAR_STROKE_WIDTH}
     />
   );
 };
@@ -223,8 +210,8 @@ export const WordHistorySection: React.FC<WordHistorySectionProps> = ({
                 dataKey='index'
                 axisLine={false}
                 tickLine={false}
-                tickMargin={X_AXIS_TICK_MARGIN}
-                height={X_AXIS_HEIGHT}
+                tickMargin={CHART_AXIS_TICK_MARGIN}
+                height={CHART_X_AXIS_HEIGHT}
                 tick={{ fontSize: 11, fill: 'currentColor' }}
                 tickFormatter={i => {
                   const createdAt = chartData[i]?.created_at;
@@ -235,7 +222,7 @@ export const WordHistorySection: React.FC<WordHistorySectionProps> = ({
                 width={Y_AXIS_WIDTH}
                 axisLine={false}
                 tickLine={false}
-                tickMargin={Y_AXIS_TICK_MARGIN}
+                tickMargin={CHART_AXIS_TICK_MARGIN}
                 domain={[0, 2]}
                 ticks={[0, 1, 2]}
                 tick={{ fontSize: 11, fill: 'currentColor' }}
@@ -262,7 +249,7 @@ export const WordHistorySection: React.FC<WordHistorySectionProps> = ({
                 dataKey='level'
                 stroke='currentColor'
                 dot={<FamiliarityDot />}
-                activeDot={<FamiliarityDot radius={ACTIVE_DOT_RADIUS} />}
+                activeDot={<FamiliarityDot radius={CHART_ACTIVE_DOT_RADIUS} />}
               />
             </LineChart>
           </ResponsiveContainer>
