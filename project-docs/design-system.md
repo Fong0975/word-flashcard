@@ -299,7 +299,7 @@ Reuse these before building new UI (`web/src/components/ui`, `web/src/components
 | Form field | `.glass-input` (add width, padding, rounding per use), `.glass-checkbox` |
 | Feedback | `Toast`/`ToastContainer`, `ErrorMessage`, `EmptyState`, `LoadingSpinner` |
 | Pagination | `Pagination` (segmented on desktop with `border-gray-300`/`gray-600`, standalone `.glass-interactive` on mobile) |
-| Charts | `chartGlassStyles` constants (`GLASS_TOOLTIP_*`, `CHART_TEXT_CLASSNAME`, `GLASS_BAR_*`) |
+| Charts | `chartGlassStyles` constants (`GLASS_TOOLTIP_*`, `CHART_TEXT_CLASSNAME`, `GLASS_BAR_*`); `PracticeCountBarChart` (practice count distribution bars with heading and caption, shared by the word and question Stats modals) |
 
 ### Icons
 

@@ -1037,7 +1037,7 @@ const docTemplate = `{
         },
         "/api/questions/stats": {
             "get": {
-                "description": "Get question count distribution by accuracy rate in 10% intervals, each bucket further broken down by practice count",
+                "description": "Get question count distribution by accuracy rate in 10% intervals (each bucket further broken down by practice count) and by practice count",
                 "produces": [
                     "application/json"
                 ],
@@ -1046,7 +1046,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Question accuracy distribution",
+                        "description": "Question accuracy and practice count distribution",
                         "schema": {
                             "$ref": "#/definitions/models.QuestionStats"
                         }
@@ -2290,6 +2290,12 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.AccuracyBucket"
+                    }
+                },
+                "practice_count_distribution": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.PracticeCountBucket"
                     }
                 }
             }

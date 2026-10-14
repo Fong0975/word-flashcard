@@ -232,6 +232,10 @@ definitions:
         items:
           $ref: '#/definitions/models.AccuracyBucket'
         type: array
+      practice_count_distribution:
+        items:
+          $ref: '#/definitions/models.PracticeCountBucket'
+        type: array
     type: object
   models.QuestionTrendPoint:
     properties:
@@ -1336,13 +1340,13 @@ paths:
       - questions
   /api/questions/stats:
     get:
-      description: Get question count distribution by accuracy rate in 10% intervals,
-        each bucket further broken down by practice count
+      description: Get question count distribution by accuracy rate in 10% intervals
+        (each bucket further broken down by practice count) and by practice count
       produces:
       - application/json
       responses:
         "200":
-          description: Question accuracy distribution
+          description: Question accuracy and practice count distribution
           schema:
             $ref: '#/definitions/models.QuestionStats'
         "500":

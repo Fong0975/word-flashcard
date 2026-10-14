@@ -10,10 +10,10 @@ import (
 )
 
 // StatsQuestions @Summary Get question statistics
-// @Description Get question count distribution by accuracy rate in 10% intervals, each bucket further broken down by practice count
+// @Description Get question count distribution by accuracy rate in 10% intervals (each bucket further broken down by practice count) and by practice count
 // @Tags questions
 // @Produce json
-// @Success 200 {object} models.QuestionStats "Question accuracy distribution"
+// @Success 200 {object} models.QuestionStats "Question accuracy and practice count distribution"
 // @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to fetch questions"
 // @Router /api/questions/stats [get]
 func (qc *Controller) StatsQuestions(c *gin.Context) {
@@ -46,11 +46,13 @@ func (qc *Controller) StatsQuestions(c *gin.Context) {
 	// practiceCounts[i] collects the practice count of every question that
 	// fell into buckets[i], so it can be broken down further below.
 	practiceCounts := make([][]int, len(buckets))
+	allPracticeCounts := make([]int, 0, len(questions))
 
 	for _, q := range questions {
 		if q.CountPractise == nil || *q.CountPractise == 0 {
 			buckets[12].Count++
 			practiceCounts[12] = append(practiceCounts[12], 0)
+			allPracticeCounts = append(allPracticeCounts, 0)
 			continue
 		}
 		successCount := *q.CountPractise
@@ -89,6 +91,7 @@ func (qc *Controller) StatsQuestions(c *gin.Context) {
 		}
 		buckets[idx].Count++
 		practiceCounts[idx] = append(practiceCounts[idx], *q.CountPractise)
+		allPracticeCounts = append(allPracticeCounts, *q.CountPractise)
 	}
 
 	// ================ 3. Break each accuracy bucket down by practice count ================
@@ -96,8 +99,12 @@ func (qc *Controller) StatsQuestions(c *gin.Context) {
 		buckets[i].PracticeCountBreakdown = common.BuildPracticeCountBuckets(practiceCounts[i])
 	}
 
-	// ================ 4. Send response ================
+	// ================ 4. Bucket all questions by practice count ================
+	practiceBuckets := common.BuildPracticeCountBuckets(allPracticeCounts)
+
+	// ================ 5. Send response ================
 	common.ResponseSuccess(http.StatusOK, models.QuestionStats{
-		AccuracyDistribution: buckets,
+		AccuracyDistribution:      buckets,
+		PracticeCountDistribution: practiceBuckets,
 	}, c)
 }

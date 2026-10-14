@@ -53,6 +53,7 @@ describe('QuestionStatsModal', () => {
         { range: '0-49%', count: 1, practice_count_breakdown: [] },
         { range: 'N/A', count: 2, practice_count_breakdown: [] },
       ],
+      practice_count_distribution: [],
     };
     vi.spyOn(apiService, 'getQuestionStats').mockResolvedValue(stats);
 
@@ -73,6 +74,7 @@ describe('QuestionStatsModal', () => {
         { range: '0%', count: 2, practice_count_breakdown: [] },
         { range: '80-100%', count: 5, practice_count_breakdown: [] },
       ],
+      practice_count_distribution: [],
     };
     vi.spyOn(apiService, 'getQuestionStats').mockResolvedValue(stats);
 
@@ -88,6 +90,7 @@ describe('QuestionStatsModal', () => {
       accuracy_distribution: [
         { range: 'unknown', count: 1, practice_count_breakdown: [] },
       ],
+      practice_count_distribution: [],
     };
     vi.spyOn(apiService, 'getQuestionStats').mockResolvedValue(stats);
 
@@ -102,6 +105,7 @@ describe('QuestionStatsModal', () => {
     const user = userEvent.setup();
     vi.spyOn(apiService, 'getQuestionStats').mockResolvedValue({
       accuracy_distribution: [],
+      practice_count_distribution: [],
     });
     vi.spyOn(apiService, 'getQuestionsTrend').mockResolvedValue([
       buildTrendPoint({
@@ -137,6 +141,7 @@ describe('QuestionStatsModal', () => {
       accuracy_distribution: [
         { range: '80-100%', count: 5, practice_count_breakdown: [] },
       ],
+      practice_count_distribution: [],
     });
     vi.spyOn(apiService, 'getQuestionsTrend').mockResolvedValue([
       buildTrendPoint(),
@@ -156,10 +161,66 @@ describe('QuestionStatsModal', () => {
     ).toBeInTheDocument();
   });
 
+  it('orders the tabs as Accuracy, Practice Count, Trend', async () => {
+    vi.spyOn(apiService, 'getQuestionStats').mockResolvedValue({
+      accuracy_distribution: [],
+      practice_count_distribution: [],
+    });
+    vi.spyOn(apiService, 'getQuestionsTrend').mockResolvedValue([]);
+
+    render(<QuestionStatsModal isOpen onClose={vi.fn()} />);
+    await screen.findByText('Accuracy distribution — 0 questions total');
+
+    const tabLabels = ['Accuracy', 'Practice Count', 'Trend'];
+    const renderedLabels = screen
+      .getAllByRole('button')
+      .map(button => button.textContent?.trim() ?? '')
+      .filter(label => tabLabels.includes(label));
+
+    expect(renderedLabels).toEqual(tabLabels);
+  });
+
+  it('switches to the practice count tab and back to the accuracy tab', async () => {
+    const user = userEvent.setup();
+    vi.spyOn(apiService, 'getQuestionStats').mockResolvedValue({
+      accuracy_distribution: [
+        { range: '80-100%', count: 5, practice_count_breakdown: [] },
+        { range: 'N/A', count: 2, practice_count_breakdown: [] },
+      ],
+      practice_count_distribution: [
+        { range: '0', count: 2 },
+        { range: '1+', count: 5 },
+      ],
+    });
+    vi.spyOn(apiService, 'getQuestionsTrend').mockResolvedValue([]);
+
+    render(<QuestionStatsModal isOpen onClose={vi.fn()} />);
+    await screen.findByText('Accuracy distribution — 7 questions total');
+
+    await user.click(screen.getByRole('button', { name: 'Practice Count' }));
+
+    expect(
+      screen.getByText('Practice count distribution — 7 questions total'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Times practiced (per question)'),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText('Accuracy distribution — 7 questions total'),
+    ).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Accuracy' }));
+
+    expect(
+      screen.getByText('Accuracy distribution — 7 questions total'),
+    ).toBeInTheDocument();
+  });
+
   it('shows the empty state on the trend tab when there is no answer activity', async () => {
     const user = userEvent.setup();
     vi.spyOn(apiService, 'getQuestionStats').mockResolvedValue({
       accuracy_distribution: [],
+      practice_count_distribution: [],
     });
     vi.spyOn(apiService, 'getQuestionsTrend').mockResolvedValue([
       buildTrendPoint(),
@@ -180,6 +241,7 @@ describe('QuestionStatsModal', () => {
     const user = userEvent.setup();
     vi.spyOn(apiService, 'getQuestionStats').mockResolvedValue({
       accuracy_distribution: [],
+      practice_count_distribution: [],
     });
     vi.spyOn(apiService, 'getQuestionsTrend').mockRejectedValue(
       new Error('trend network down'),

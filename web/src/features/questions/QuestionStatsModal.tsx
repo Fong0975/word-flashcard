@@ -24,6 +24,7 @@ import {
   GLASS_TOOLTIP_STYLE,
   glassLegendFormatter,
 } from '../../components/ui/charts/chartGlassStyles';
+import { PracticeCountBarChart } from '../../components/ui/charts/PracticeCountBarChart';
 import { apiService } from '../../lib/api';
 import {
   PracticeCountBucket,
@@ -79,7 +80,7 @@ interface QuestionStatsModalProps {
   onClose: () => void;
 }
 
-type ActiveTab = 'accuracy' | 'trend';
+type ActiveTab = 'accuracy' | 'practice' | 'trend';
 
 const getBarColor = (range: string): string => {
   if (range === 'N/A') {
@@ -168,6 +169,17 @@ export const QuestionStatsModal: React.FC<QuestionStatsModalProps> = ({
               </button>
               <button
                 type='button'
+                onClick={() => setActiveTab('practice')}
+                className={`segmented-divider px-4 py-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
+                  activeTab === 'practice'
+                    ? 'glass-button-primary'
+                    : 'glass-interactive text-gray-600 dark:text-gray-300'
+                }`}
+              >
+                Practice Count
+              </button>
+              <button
+                type='button'
                 onClick={() => setActiveTab('trend')}
                 className={`segmented-divider rounded-r-md px-4 py-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
                   activeTab === 'trend'
@@ -241,6 +253,15 @@ export const QuestionStatsModal: React.FC<QuestionStatsModalProps> = ({
                 </span>
               </div>
             </>
+          )}
+
+          {/* Practice Count tab */}
+          {activeTab === 'practice' && (
+            <PracticeCountBarChart
+              data={stats.practice_count_distribution}
+              total={total}
+              entity='question'
+            />
           )}
 
           {/* Trend tab */}

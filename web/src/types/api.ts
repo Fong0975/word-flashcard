@@ -238,6 +238,7 @@ export interface AccuracyBucket {
 
 export interface QuestionStatsResponse {
   readonly accuracy_distribution: readonly AccuracyBucket[];
+  readonly practice_count_distribution: readonly PracticeCountBucket[];
 }
 
 export interface WordPracticeLogEntry {
