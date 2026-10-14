@@ -3,6 +3,7 @@ import React, { useRef, useState } from 'react';
 import { useTemplateButtons } from '../../../hooks/shared';
 import { useWordLinkSuggestion } from '../../../hooks/useWordLinkSuggestion';
 import { TemplateButton } from '../../../types/components';
+import { appendTemplateText } from '../../../utils/textTemplates';
 import { MarkdownContent } from '../MarkdownContent';
 import { TemplateButtonRow } from '../TemplateButtonRow';
 
@@ -20,6 +21,7 @@ import {
 import { getHistoryShortcut } from './markdownHistory';
 import { MarkdownToolbar, MarkdownFormatAction } from './MarkdownToolbar';
 import { insertSymbol } from './symbolFormatting';
+import { getScrollTopToReveal, measureCaretBounds } from './textareaCaret';
 import { useMarkdownHistory } from './useMarkdownHistory';
 import { insertWordLink } from './wordLinkFormatting';
 import { WordLinkSuggestionPopup } from './WordLinkSuggestionPopup';
@@ -52,8 +54,8 @@ interface MarkdownEditorFieldProps {
   fontMono?: boolean;
   /** Word/question `notes` fields persist literal `\n` sequences that need unescaping to render. */
   unescapeLiteralNewlines?: boolean;
+  /** Snippets offered above the editor; the selected one is inserted at the caret. */
   templateButtons?: TemplateButton[];
-  onAppendTemplate?: (textToAppend: string) => void;
   /** Never offered as a word-link suggestion, e.g. the word whose own definition is being edited. */
   excludeWord?: string | null;
 }
@@ -70,7 +72,6 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
   fontMono = false,
   unescapeLiteralNewlines = false,
   templateButtons = [],
-  onAppendTemplate,
   excludeWord,
 }) => {
   const [isPreview, setIsPreview] = useState(false);
@@ -88,19 +89,33 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
   const symbolInsertPositionRef = useRef({ start: 0, end: 0 });
   const history = useMarkdownHistory(value);
   const isComposingRef = useRef(false);
+  /** Whether the textarea's selection reflects a caret the user has placed. */
+  const hasCaretRef = useRef(false);
 
-  /** Pushes `result` to the owner of `value` and restores its selection once rendered. */
+  /**
+   * Pushes `result` to the owner of `value` and restores its selection once
+   * rendered, keeping the scroll position unless the caret would end up out
+   * of view.
+   */
   const applyResult = (result: MarkdownFormatResult) => {
     const textarea = textareaRef.current;
+    const scrollTop = textarea?.scrollTop ?? 0;
 
     onChange(result.value);
 
     if (!textarea) {
       return;
     }
+    // Rewriting the value moves the caret to the end, and focusing scrolls
+    // that caret into view; neither reflects where the edit happened.
     requestAnimationFrame(() => {
-      textarea.focus();
+      textarea.focus({ preventScroll: true });
       textarea.setSelectionRange(result.selectionStart, result.selectionEnd);
+      textarea.scrollTop = getScrollTopToReveal(
+        scrollTop,
+        textarea.clientHeight,
+        measureCaretBounds(textarea, result.selectionEnd),
+      );
     });
   };
 
@@ -148,9 +163,38 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
     applyStep(insertSymbol(value, start, end, symbolValue));
   };
 
-  const handleAppendTemplate = (textToAppend: string) => {
-    history.expectExternalStep();
-    onAppendTemplate?.(textToAppend);
+  /**
+   * Inserts a template at the caret, replacing any selection. Until the user
+   * has placed a caret in the textarea, it is appended to the end instead so
+   * it never lands at the top of existing content by accident.
+   */
+  const handleInsertTemplate = (template: string) => {
+    const textarea = textareaRef.current;
+    if (!textarea) {
+      return;
+    }
+
+    if (!hasCaretRef.current) {
+      const appended = appendTemplateText(value, template);
+      applyStep({
+        value: appended,
+        selectionStart: appended.length,
+        selectionEnd: appended.length,
+      });
+      return;
+    }
+
+    const { selectionStart, selectionEnd } = textarea;
+    applyStep(insertSymbol(value, selectionStart, selectionEnd, template));
+  };
+
+  const handleTogglePreview = (nextIsPreview: boolean) => {
+    // Preview unmounts the textarea, and the one shown on returning to Edit
+    // starts without the user's caret.
+    if (nextIsPreview) {
+      hasCaretRef.current = false;
+    }
+    setIsPreview(nextIsPreview);
   };
 
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -237,6 +281,9 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
       ref={textareaRef}
       value={value}
       onChange={handleTextareaChange}
+      onFocus={() => {
+        hasCaretRef.current = true;
+      }}
       onBlur={handleTextareaBlur}
       onKeyDown={handleTextareaKeyDown}
       onCompositionStart={() => {
@@ -263,16 +310,12 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
         </label>
       )}
 
-      {onAppendTemplate && (
-        <TemplateButtonRow
-          buttons={templateButtons}
-          onSelect={handleAppendTemplate}
-          disabled={disabled || isPreview}
-          tooltip={
-            isPreview ? 'Switch to Edit mode to use templates' : undefined
-          }
-        />
-      )}
+      <TemplateButtonRow
+        buttons={templateButtons}
+        onSelect={handleInsertTemplate}
+        disabled={disabled || isPreview}
+        tooltip={isPreview ? 'Switch to Edit mode to use templates' : undefined}
+      />
 
       <div
         className={`glass-input overflow-hidden focus-within:border-primary-400/70 focus-within:ring-2 focus-within:ring-primary-400/30 dark:focus-within:border-primary-400/50 dark:focus-within:ring-primary-400/20 ${
@@ -283,7 +326,7 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
           onFormat={handleFormat}
           disabled={disabled}
           isPreview={isPreview}
-          onTogglePreview={setIsPreview}
+          onTogglePreview={handleTogglePreview}
           symbolButtons={symbolButtons}
           onOpenSymbolMenu={handleOpenSymbolMenu}
           onInsertSymbol={handleInsertSymbol}

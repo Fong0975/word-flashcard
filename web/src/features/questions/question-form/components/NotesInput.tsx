@@ -8,7 +8,6 @@ interface NotesInputProps {
   onChange: (value: string) => void;
   disabled?: boolean;
   templateButtons?: TemplateButton[];
-  onAppendTemplate?: (textToAppend: string) => void;
 }
 
 export const NotesInput: React.FC<NotesInputProps> = ({
@@ -16,7 +15,6 @@ export const NotesInput: React.FC<NotesInputProps> = ({
   onChange,
   disabled = false,
   templateButtons = [],
-  onAppendTemplate,
 }) => (
   <MarkdownEditorField
     value={value}
@@ -26,6 +24,5 @@ export const NotesInput: React.FC<NotesInputProps> = ({
     placeholder='Enter explanation or additional notes...'
     disabled={disabled}
     templateButtons={templateButtons}
-    onAppendTemplate={onAppendTemplate}
   />
 );

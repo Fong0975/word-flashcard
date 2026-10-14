@@ -152,24 +152,6 @@ describe('useDefinitionForm', () => {
     expect(result.current.formData.examples).toEqual(['first example']);
   });
 
-  it('appends template text to notes with a newline separator', () => {
-    const { result } = renderHook(() =>
-      useDefinitionForm({
-        isOpen: true,
-        mode: 'add',
-        wordId: 1,
-        onClose: vi.fn(),
-      }),
-    );
-
-    act(() => {
-      result.current.handlers.handleNotesChange('Line 1');
-      result.current.handlers.appendToNotes('Line 2');
-    });
-
-    expect(result.current.formData.notes).toBe('Line 1\nLine 2');
-  });
-
   it('does not submit without a definition or a part of speech', async () => {
     const createSpy = vi.spyOn(apiService, 'addDefinition');
     const { result } = renderHook(() =>

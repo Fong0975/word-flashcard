@@ -26,10 +26,9 @@ export type MarkdownHistoryAction =
   | { type: 'undo' }
   | { type: 'redo' }
   | {
+      /** A value change the editor did not make itself; starts a new baseline. */
       type: 'sync';
       value: string;
-      /** Whether a value that differs from `present` is an undoable step rather than a new baseline. */
-      asStep: boolean;
     };
 
 export type MarkdownHistoryShortcut = 'undo' | 'redo';
@@ -130,9 +129,7 @@ export const markdownHistoryReducer = (
       if (action.value === state.present.value) {
         return state;
       }
-      return action.asStep
-        ? pushStep(state, entryAtEnd(action.value), null)
-        : createInitialHistory(action.value);
+      return createInitialHistory(action.value);
     }
   }
 };

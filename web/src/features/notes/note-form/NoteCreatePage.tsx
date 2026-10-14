@@ -9,7 +9,6 @@ import { UnsavedChangesDialog } from '../../../components/ui/UnsavedChangesDialo
 import { useTemplateButtons } from '../../../hooks/shared';
 import { useUnsavedChangesGuard } from '../../../hooks/ui/useUnsavedChangesGuard';
 import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
-import { appendTemplateText } from '../../../utils/textTemplates';
 
 export const NoteCreatePage: React.FC = () => {
   const navigate = useNavigate();
@@ -23,10 +22,6 @@ export const NoteCreatePage: React.FC = () => {
   const { templateButtonsConfig } = useTemplateButtons({
     configFileName: 'noteContentButtonsConfig.json',
   });
-
-  const appendToContent = (textToAppend: string) => {
-    setContent(prev => appendTemplateText(prev, textToAppend));
-  };
 
   const unsavedChangesGuard = useUnsavedChangesGuard({
     isEditing: true,
@@ -77,7 +72,6 @@ export const NoteCreatePage: React.FC = () => {
         fontMono
         rows={20}
         templateButtons={templateButtonsConfig}
-        onAppendTemplate={appendToContent}
       />
       <div className='flex items-center gap-2'>
         <button

@@ -92,19 +92,6 @@ describe('useQuestionForm', () => {
     });
   });
 
-  it('appends template text to notes with a newline separator', () => {
-    const { result } = renderHook(() =>
-      useQuestionForm({ mode: 'create', isOpen: true }),
-    );
-
-    act(() => {
-      result.current.handlers.handleNotesChange('Line 1');
-      result.current.handlers.appendToNotes('Line 2');
-    });
-
-    expect(result.current.formData.notes).toBe('Line 1\nLine 2');
-  });
-
   it('replaces the reference field from a template', () => {
     const { result } = renderHook(() =>
       useQuestionForm({ mode: 'create', isOpen: true }),

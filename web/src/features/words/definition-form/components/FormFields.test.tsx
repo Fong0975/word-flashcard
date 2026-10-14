@@ -33,7 +33,6 @@ const buildHandlers = () => ({
   handlePartOfSpeechChange: vi.fn(),
   handleDefinitionChange: vi.fn(),
   handleNotesChange: vi.fn(),
-  appendToNotes: vi.fn(),
   handleExamplesChange: vi.fn(),
   addExampleInput: vi.fn(),
   removeExampleInput: vi.fn(),

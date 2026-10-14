@@ -167,22 +167,13 @@ describe('markdownHistoryReducer', () => {
         discrete('a'),
         discrete('ab'),
         { type: 'undo' },
-        { type: 'sync', value: 'loaded', asStep: false },
+        { type: 'sync', value: 'loaded' },
       ],
       expected: { past: [], present: 'loaded', future: [] },
     },
     {
-      name: 'records an expected external value as a step',
-      actions: [discrete('a'), { type: 'sync', value: 'a\n---', asStep: true }],
-      expected: { past: ['', 'a'], present: 'a\n---', future: [] },
-    },
-    {
       name: 'ignores a sync that matches the present value',
-      actions: [
-        discrete('a'),
-        { type: 'sync', value: 'a', asStep: false },
-        { type: 'sync', value: 'a', asStep: true },
-      ],
+      actions: [discrete('a'), { type: 'sync', value: 'a' }],
       expected: { past: [''], present: 'a', future: [] },
     },
   ];

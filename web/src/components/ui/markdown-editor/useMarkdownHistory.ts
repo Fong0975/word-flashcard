@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer, useRef } from 'react';
+import { useCallback, useEffect, useReducer } from 'react';
 
 import { MarkdownFormatResult } from './markdownFormatting';
 import {
@@ -13,12 +13,6 @@ interface UseMarkdownHistoryResult {
   recordTyping: (entry: MarkdownFormatResult, composing: boolean) => void;
   /** Records a change that is always its own undo step (toolbar actions, insertions). */
   recordStep: (entry: MarkdownFormatResult) => void;
-  /**
-   * Marks the next externally-applied value change as an undoable step.
-   * Call right before asking the owner of `value` to change it on the
-   * editor's behalf (e.g. appending a template).
-   */
-  expectExternalStep: () => void;
   /** Steps back and returns the entry to restore, or null when there is nothing to undo. */
   undo: () => MarkdownFormatResult | null;
   /** Steps forward and returns the entry to restore, or null when there is nothing to redo. */
@@ -42,15 +36,8 @@ export const useMarkdownHistory = (value: string): UseMarkdownHistoryResult => {
     value,
     createInitialHistory,
   );
-  const expectsExternalStepRef = useRef(false);
-
   useEffect(() => {
-    dispatch({
-      type: 'sync',
-      value,
-      asStep: expectsExternalStepRef.current,
-    });
-    expectsExternalStepRef.current = false;
+    dispatch({ type: 'sync', value });
   }, [value]);
 
   const recordTyping = useCallback(
@@ -68,10 +55,6 @@ export const useMarkdownHistory = (value: string): UseMarkdownHistoryResult => {
 
   const recordStep = useCallback((entry: MarkdownFormatResult) => {
     dispatch({ type: 'record', entry, kind: 'discrete', now: Date.now() });
-  }, []);
-
-  const expectExternalStep = useCallback(() => {
-    expectsExternalStepRef.current = true;
   }, []);
 
   const undo = (): MarkdownFormatResult | null => {
@@ -97,7 +80,6 @@ export const useMarkdownHistory = (value: string): UseMarkdownHistoryResult => {
     canRedo: state.future.length > 0,
     recordTyping,
     recordStep,
-    expectExternalStep,
     undo,
     redo,
   };

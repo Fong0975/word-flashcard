@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { apiService } from '../../../../lib/api';
 import { getApiErrorMessage } from '../../../../lib/apiErrorMessage';
 import { WordDefinition } from '../../../../types/api';
-import { appendTemplateText } from '../../../../utils/textTemplates';
 import { DefinitionForm } from '../types';
 import {
   PART_OF_SPEECH_OPTIONS,
@@ -123,13 +122,6 @@ export const useDefinitionForm = ({
 
   const handleNotesChange = (notes: string) => {
     setFormData(prev => ({ ...prev, notes }));
-  };
-
-  const appendToNotes = (textToAppend: string) => {
-    setFormData(prev => ({
-      ...prev,
-      notes: appendTemplateText(prev.notes, textToAppend),
-    }));
   };
 
   const handleExamplesChange = (index: number, value: string) => {
@@ -259,7 +251,6 @@ export const useDefinitionForm = ({
       handlePartOfSpeechChange,
       handleDefinitionChange,
       handleNotesChange,
-      appendToNotes,
       handleExamplesChange,
       addExampleInput,
       removeExampleInput,

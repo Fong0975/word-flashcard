@@ -51,7 +51,6 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
       handleOptionChange,
       handleNotesChange,
       handleReferenceChange,
-      appendToNotes,
       setReferenceFromTemplate,
     },
     resetForm,
@@ -151,7 +150,6 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
                 onChange={handleNotesChange}
                 disabled={isSubmitting}
                 templateButtons={notesTemplateButtons}
-                onAppendTemplate={appendToNotes}
               />
 
               <FormErrorMessage error={error} />
