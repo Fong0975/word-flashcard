@@ -28,7 +28,10 @@ import { PracticeCountBarChart } from '../../components/ui/charts/PracticeCountB
 import { apiService } from '../../lib/api';
 import { WordStatsResponse, WordTrendPoint } from '../../types/api';
 import { FamiliarityLevel } from '../../types/base';
-import { FAMILIARITY_LABELS } from '../shared/constants/familiarity';
+import {
+  FAMILIARITY_CHART_COLORS,
+  FAMILIARITY_LABELS,
+} from '../shared/constants/familiarity';
 import { useAsyncOnOpen } from '../shared/hooks/useAsyncOnOpen';
 import { formatShortDate } from '../../utils/dateFormat';
 
@@ -38,12 +41,6 @@ interface WordStatsModalProps {
 }
 
 type ActiveTab = 'familiarity' | 'practice' | 'trend';
-
-const FAMILIARITY_COLORS: Record<FamiliarityLevel, string> = {
-  [FamiliarityLevel.RED]: '#ef4444',
-  [FamiliarityLevel.YELLOW]: '#eab308',
-  [FamiliarityLevel.GREEN]: '#22c55e',
-};
 
 export const WordStatsModal: React.FC<WordStatsModalProps> = ({
   isOpen,
@@ -180,7 +177,7 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
                     {familiarityChartData.map(entry => (
                       <Cell
                         key={entry.level}
-                        fill={FAMILIARITY_COLORS[entry.level]}
+                        fill={FAMILIARITY_CHART_COLORS[entry.level]}
                         fillOpacity={GLASS_FILL_OPACITY}
                         stroke={GLASS_BAR_STROKE}
                         strokeWidth={GLASS_BAR_STROKE_WIDTH}
