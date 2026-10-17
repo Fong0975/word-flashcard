@@ -18,7 +18,7 @@ export const QuestionHeader: React.FC<QuestionHeaderProps> = ({
   const practiceText = formatPracticeText(question.count_practise);
 
   return (
-    <div className='mb-2 border-b border-gray-200 pb-4 dark:border-gray-700 lg:pt-2'>
+    <div className='mb-2 border-b border-gray-200 pb-4 lg:pt-2 dark:border-gray-700'>
       {/* Question id and practice */}
       <div className='mb-3 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400'>
         <span>Question ID: {question.id}</span>
@@ -27,14 +27,14 @@ export const QuestionHeader: React.FC<QuestionHeaderProps> = ({
 
       <div>
         {/* Question */}
-        <h1 className='font-bold leading-relaxed text-gray-900 dark:text-white lg:text-xl'>
+        <h1 className='leading-relaxed font-bold text-gray-900 lg:text-xl dark:text-white'>
           {question.question}
         </h1>
 
         {/* Reference */}
         {question.reference && (
           <div className='my-3'>
-            <p className='text-sm italic text-gray-500 dark:text-gray-400'>
+            <p className='text-sm text-gray-500 italic dark:text-gray-400'>
               Reference: {question.reference}
             </p>
           </div>

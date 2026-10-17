@@ -45,12 +45,12 @@ export const AnswerSection: React.FC<AnswerSectionProps> = ({
         </h3>
         <div className='flex items-start space-x-3'>
           {/* Answer Letter Badge */}
-          <span className='inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-green-100 text-sm font-bold text-green-700 dark:bg-green-900 dark:text-green-300'>
+          <span className='inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-100 text-sm font-bold text-green-700 dark:bg-green-900 dark:text-green-300'>
             {answer.toUpperCase()}
           </span>
           {/* Answer Content */}
           <div className='flex-1'>
-            <div className='text-base font-medium leading-relaxed text-gray-900 dark:text-white'>
+            <div className='text-base leading-relaxed font-medium text-gray-900 dark:text-white'>
               {correctAnswerContent || 'Answer content not found'}
             </div>
           </div>

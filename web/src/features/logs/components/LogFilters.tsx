@@ -70,7 +70,7 @@ export const LogFilters: React.FC<LogFiltersProps> = ({
           onCompositionEnd={onKeywordCompositionEnd}
           placeholder='Search message or source...'
           aria-label='Search logs'
-          className={`w-full py-1.5 pl-3 pr-8 ${inputBaseClassName}`}
+          className={`w-full py-1.5 pr-8 pl-3 ${inputBaseClassName}`}
         />
         {keyword && (
           <button

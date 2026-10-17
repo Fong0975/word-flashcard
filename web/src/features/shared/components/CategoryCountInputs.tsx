@@ -35,7 +35,7 @@ export const CategoryCountInputs: React.FC<CategoryCountInputsProps> = ({
       {CATEGORY_ORDER.map(level => (
         <div key={level} className='flex items-center gap-3'>
           <div
-            className={`h-4 w-4 flex-shrink-0 rounded-full ${getFamiliarityDisplayColors(level).dot}`}
+            className={`h-4 w-4 shrink-0 rounded-full ${getFamiliarityDisplayColors(level).dot}`}
           />
           <span className='flex-1 text-sm text-gray-700 dark:text-gray-300'>
             {FAMILIARITY_LABELS[level]}
@@ -52,7 +52,7 @@ export const CategoryCountInputs: React.FC<CategoryCountInputsProps> = ({
       ))}
     </div>
     <div className='mt-3 flex items-center gap-3 border-t border-gray-200 pt-3 dark:border-gray-700'>
-      <div className='h-4 w-4 flex-shrink-0' />
+      <div className='h-4 w-4 shrink-0' />
       <span className='flex-1 text-sm font-medium text-gray-700 dark:text-gray-300'>
         Total
       </span>

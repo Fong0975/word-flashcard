@@ -17,7 +17,7 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
 }) => (
   <div className={`glass-alert-error mb-6 rounded-lg p-4 ${className}`}>
     <div className='flex items-start'>
-      <div className='flex-shrink-0'>
+      <div className='shrink-0'>
         <svg
           className='text-error h-5 w-5'
           fill='none'

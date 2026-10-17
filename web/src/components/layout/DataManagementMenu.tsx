@@ -26,7 +26,7 @@ const formatImportSummary = (summary: ImportSummary): string =>
 // A tinted (not gray) hover/focus highlight so the menu items stay legible
 // against the translucent glass panel they sit on.
 const MENU_ITEM_CLASS =
-  'flex w-full items-center gap-1.5 py-1.5 pl-8 pr-4 text-left text-xs text-gray-700 transition-colors hover:bg-primary-500/[15%] hover:text-primary-700 focus-visible:bg-primary-500/[15%] focus-visible:text-primary-700 focus:outline-none dark:text-gray-200 dark:hover:bg-primary-400/20 dark:hover:text-primary-100 dark:focus-visible:bg-primary-400/20 dark:focus-visible:text-primary-100';
+  'flex w-full items-center gap-1.5 py-1.5 pl-8 pr-4 text-left text-xs text-gray-700 transition-colors hover:bg-primary-500/[15%] hover:text-primary-700 focus-visible:bg-primary-500/[15%] focus-visible:text-primary-700 focus:outline-hidden dark:text-gray-200 dark:hover:bg-primary-400/20 dark:hover:text-primary-100 dark:focus-visible:bg-primary-400/20 dark:focus-visible:text-primary-100';
 
 /**
  * Settings dropdown in the header, offering a full-database JSON export
@@ -126,7 +126,7 @@ export const DataManagementMenu: React.FC = () => {
         >
           {unreadCount > 0 && (
             <span
-              className='absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500'
+              className='absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-red-500'
               aria-hidden='true'
             />
           )}
@@ -151,10 +151,10 @@ export const DataManagementMenu: React.FC = () => {
           </svg>
         </button>
 
-        <div className='absolute right-0 top-full z-10 hidden w-40 pt-2 group-focus-within:block group-hover:block'>
+        <div className='absolute top-full right-0 z-10 hidden w-40 pt-2 group-focus-within:block group-hover:block'>
           <div className='glass-panel-dropdown' role='menu'>
             <div className='py-1'>
-              <span className='text-supporting block px-4 py-1 text-xs font-semibold uppercase tracking-wide'>
+              <span className='text-supporting block px-4 py-1 text-xs font-semibold tracking-wide uppercase'>
                 Data
               </span>
               <button
@@ -226,7 +226,7 @@ export const DataManagementMenu: React.FC = () => {
               </button>
             </div>
             <div className='border-t border-gray-100 py-1 dark:border-gray-700'>
-              <span className='text-supporting block px-4 py-1 text-xs font-semibold uppercase tracking-wide'>
+              <span className='text-supporting block px-4 py-1 text-xs font-semibold tracking-wide uppercase'>
                 System
               </span>
               <button

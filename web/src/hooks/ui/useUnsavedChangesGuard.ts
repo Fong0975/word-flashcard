@@ -1,9 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
 
-const GUARD_STATE = { unsavedChangesGuard: true };
+// Each guard entry carries the id of the hook instance that pushed it, so a
+// deferred pop never removes an entry that belongs to another guard.
+let nextGuardId = 0;
 
-const isOnGuardEntry = (): boolean =>
-  window.history.state?.unsavedChangesGuard === true;
+const createGuardState = (guardId: number) => ({
+  unsavedChangesGuard: true,
+  guardId,
+});
+
+const isOnGuardEntry = (guardId?: number): boolean =>
+  window.history.state?.unsavedChangesGuard === true &&
+  (guardId === undefined || window.history.state?.guardId === guardId);
 
 interface UseUnsavedChangesGuardOptions {
   /**
@@ -48,6 +56,13 @@ export const useUnsavedChangesGuard = ({
   // Set once a clean browser-back has been let through; the follow-up
   // popstate of that same navigation must not be handled again.
   const isPassingThroughRef = useRef(false);
+  // Timer of a guard-entry pop scheduled by the guard effect's cleanup.
+  const pendingGuardPopRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const guardIdRef = useRef<number>(0);
+  if (guardIdRef.current === 0) {
+    nextGuardId += 1;
+    guardIdRef.current = nextGuardId;
+  }
 
   // Declared before the guard-entry effect so this listener is already
   // detached when that effect's cleanup pops the guard entry.
@@ -64,7 +79,7 @@ export const useUnsavedChangesGuard = ({
       }
 
       if (isDirty) {
-        window.history.pushState(GUARD_STATE, '');
+        window.history.pushState(createGuardState(guardIdRef.current), '');
         setShowConfirm(true);
       } else {
         isPassingThroughRef.current = true;
@@ -85,17 +100,35 @@ export const useUnsavedChangesGuard = ({
       return;
     }
 
-    isPassingThroughRef.current = false;
-    window.history.pushState(GUARD_STATE, '');
+    const guardId = guardIdRef.current;
+
+    if (pendingGuardPopRef.current !== null) {
+      // Re-run straight after this effect's own cleanup (React StrictMode
+      // remounts on mount in development): the guard entry pushed by the
+      // first run is still current, so keep it instead of popping it. An
+      // immediate pop would land on the page's own entry and be mistaken
+      // for a clean browser-back, leaving the page.
+      clearTimeout(pendingGuardPopRef.current);
+      pendingGuardPopRef.current = null;
+    } else {
+      isPassingThroughRef.current = false;
+      window.history.pushState(createGuardState(guardId), '');
+    }
 
     return () => {
       // Still on the guard entry means editing ended without navigating
       // away (e.g. a modal closed, or edit mode was cancelled), so drop the
       // entry instead of leaving a dead back press behind. An onLeave that
       // navigates should replace the current entry to the same effect.
-      if (isOnGuardEntry()) {
-        window.history.back();
-      }
+      // Deferred so that an immediate re-run of the effect can cancel it;
+      // checked against this guard's own entry since, by then, another
+      // guard may have pushed one.
+      pendingGuardPopRef.current = setTimeout(() => {
+        pendingGuardPopRef.current = null;
+        if (isOnGuardEntry(guardId)) {
+          window.history.back();
+        }
+      }, 0);
     };
   }, [isEditing]);
 

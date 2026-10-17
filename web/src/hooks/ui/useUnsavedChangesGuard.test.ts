@@ -1,3 +1,4 @@
+import { StrictMode } from 'react';
 import { renderHook, act } from '@testing-library/react';
 import type { MockInstance } from 'vitest';
 
@@ -20,11 +21,13 @@ describe('useUnsavedChangesGuard', () => {
   let backSpy: MockInstance;
 
   beforeEach(() => {
+    vi.useFakeTimers();
     window.history.replaceState(null, '');
     backSpy = vi.spyOn(window.history, 'back');
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.restoreAllMocks();
   });
 
@@ -170,6 +173,7 @@ describe('useUnsavedChangesGuard', () => {
     name: string;
     initialIsEditing: boolean;
     nextIsEditing: boolean;
+    strictMode: boolean;
     expectedOnGuardEntryAfterMount: boolean;
     expectedBackCalls: number;
   }>([
@@ -177,6 +181,7 @@ describe('useUnsavedChangesGuard', () => {
       name: 'is not pushed while not editing',
       initialIsEditing: false,
       nextIsEditing: false,
+      strictMode: false,
       expectedOnGuardEntryAfterMount: false,
       expectedBackCalls: 0,
     },
@@ -184,6 +189,7 @@ describe('useUnsavedChangesGuard', () => {
       name: 'is pushed once and survives re-renders while editing',
       initialIsEditing: true,
       nextIsEditing: true,
+      strictMode: false,
       expectedOnGuardEntryAfterMount: true,
       expectedBackCalls: 0,
     },
@@ -191,14 +197,24 @@ describe('useUnsavedChangesGuard', () => {
       name: 'is popped when editing ends without leaving the page',
       initialIsEditing: true,
       nextIsEditing: false,
+      strictMode: false,
       expectedOnGuardEntryAfterMount: true,
       expectedBackCalls: 1,
+    },
+    {
+      name: 'is kept, not popped, across a StrictMode remount on mount',
+      initialIsEditing: true,
+      nextIsEditing: true,
+      strictMode: true,
+      expectedOnGuardEntryAfterMount: true,
+      expectedBackCalls: 0,
     },
   ])(
     'guard history entry: $name',
     ({
       initialIsEditing,
       nextIsEditing,
+      strictMode,
       expectedOnGuardEntryAfterMount,
       expectedBackCalls,
     }) => {
@@ -206,13 +222,19 @@ describe('useUnsavedChangesGuard', () => {
       const { rerender } = renderHook(
         ({ isEditing, isDirty }) =>
           useUnsavedChangesGuard({ isEditing, isDirty, onLeave: vi.fn() }),
-        { initialProps: { isEditing: initialIsEditing, isDirty: false } },
+        {
+          initialProps: { isEditing: initialIsEditing, isDirty: false },
+          wrapper: strictMode ? StrictMode : undefined,
+        },
       );
 
       expect(isOnGuardEntry()).toBe(expectedOnGuardEntryAfterMount);
 
       // Flipping isDirty alongside must not push a second guard entry.
       rerender({ isEditing: nextIsEditing, isDirty: true });
+      act(() => {
+        vi.runAllTimers();
+      });
 
       expect(pushStateSpy).toHaveBeenCalledTimes(initialIsEditing ? 1 : 0);
       expect(backSpy).toHaveBeenCalledTimes(expectedBackCalls);
@@ -231,8 +253,32 @@ describe('useUnsavedChangesGuard', () => {
     window.history.pushState({ key: 'next-page' }, '');
 
     unmount();
+    act(() => {
+      vi.runAllTimers();
+    });
 
     expect(backSpy).not.toHaveBeenCalled();
+  });
+
+  it("guard history entry: is left alone on unmount once another guard's entry is current", () => {
+    const renderGuard = () =>
+      renderHook(() =>
+        useUnsavedChangesGuard({
+          isEditing: true,
+          isDirty: false,
+          onLeave: vi.fn(),
+        }),
+      );
+    const { unmount } = renderGuard();
+
+    unmount();
+    renderGuard();
+    act(() => {
+      vi.runAllTimers();
+    });
+
+    expect(backSpy).not.toHaveBeenCalled();
+    expect(isOnGuardEntry()).toBe(true);
   });
 
   it.each([

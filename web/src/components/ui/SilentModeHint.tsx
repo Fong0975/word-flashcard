@@ -18,7 +18,7 @@ export const SilentModeHint: React.FC = () => {
 
   return (
     <div className='flex w-0 min-w-full justify-center'>
-      <p className='whitespace-nowrap text-[8px] text-gray-500 dark:text-gray-400'>
+      <p className='text-[8px] whitespace-nowrap text-gray-500 dark:text-gray-400'>
         {SILENT_MODE_HINT}
       </p>
     </div>

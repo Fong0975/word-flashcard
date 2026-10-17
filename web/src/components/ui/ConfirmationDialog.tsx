@@ -139,7 +139,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
       <div className='glass-panel-strong mx-4 w-full max-w-sm rounded-lg p-6 shadow-glass-raised'>
         <div className='mb-4 flex items-center'>
           <div
-            className={`h-10 w-10 flex-shrink-0 rounded-full ${styles.iconBg} flex items-center justify-center`}
+            className={`h-10 w-10 shrink-0 rounded-full ${styles.iconBg} flex items-center justify-center`}
           >
             {styles.icon}
           </div>
@@ -167,11 +167,11 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
             type='button'
             onClick={onConfirm}
             disabled={isConfirming}
-            className={`flex items-center rounded-md px-4 py-2 text-sm font-medium shadow-sm transition-colors focus:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 ${styles.confirmButton}`}
+            className={`flex items-center rounded-md px-4 py-2 text-sm font-medium shadow-xs transition-colors focus:outline-hidden focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 ${styles.confirmButton}`}
           >
             {isConfirming && (
               <svg
-                className='-ml-1 mr-2 h-4 w-4 animate-spin text-white'
+                className='mr-2 -ml-1 h-4 w-4 animate-spin text-white'
                 fill='none'
                 viewBox='0 0 24 24'
               >

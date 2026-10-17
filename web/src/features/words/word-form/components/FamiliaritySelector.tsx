@@ -70,14 +70,14 @@ export const FamiliaritySelector: React.FC<FamiliaritySelectorProps> = ({
             >
               <span className='flex min-w-0 items-center'>
                 {selectedOption && (
-                  <span className='mr-3 flex-shrink-0'>
+                  <span className='mr-3 shrink-0'>
                     <FamiliarityDot familiarity={selectedOption.value} />
                   </span>
                 )}
                 {selectedOption?.label ?? 'Select familiarity level...'}
               </span>
               <svg
-                className='h-4 w-4 flex-shrink-0 text-gray-500 dark:text-gray-400'
+                className='h-4 w-4 shrink-0 text-gray-500 dark:text-gray-400'
                 fill='none'
                 viewBox='0 0 24 24'
                 strokeWidth='2'

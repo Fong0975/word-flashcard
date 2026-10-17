@@ -111,12 +111,12 @@ export const EntityCard = <T extends BaseEntity>({
     if (config.sequenceStyle === 'detailed') {
       // Question card style - with "No." label
       return (
-        <div className='mr-2 w-12 flex-shrink-0 border-r border-gray-100 pt-1 dark:border-gray-700'>
+        <div className='mr-2 w-12 shrink-0 border-r border-gray-100 pt-1 dark:border-gray-700'>
           <div className='flex flex-col items-center justify-center'>
-            <span className='text-xs font-bold uppercase tracking-tighter text-primary-700 dark:text-primary-400'>
+            <span className='text-xs font-bold tracking-tighter text-primary-700 uppercase dark:text-primary-400'>
               No.
             </span>
-            <span className='font-mono text-base font-bold tabular-nums text-gray-800 transition-colors group-hover:text-primary-600 dark:text-gray-400 dark:group-hover:text-primary-400'>
+            <span className='font-mono text-base font-bold text-gray-800 tabular-nums transition-colors group-hover:text-primary-600 dark:text-gray-400 dark:group-hover:text-primary-400'>
               {index}
             </span>
           </div>
@@ -126,7 +126,7 @@ export const EntityCard = <T extends BaseEntity>({
 
     // Simple style - just number
     return (
-      <div className='mr-3 flex w-10 flex-shrink-0 items-center justify-center'>
+      <div className='mr-3 flex w-10 shrink-0 items-center justify-center'>
         <span className='text-supporting text-sm font-medium tabular-nums transition-colors group-hover:text-primary-500'>
           {index}
         </span>
@@ -142,7 +142,7 @@ export const EntityCard = <T extends BaseEntity>({
     if (config.leftIndicatorType === 'color-band' && getLeftIndicatorColor) {
       return (
         <div
-          className={`mr-4 h-12 w-1 flex-shrink-0 rounded-full ${getLeftIndicatorColor(entity)} `}
+          className={`mr-4 h-12 w-1 shrink-0 rounded-full ${getLeftIndicatorColor(entity)} `}
         />
       );
     }
@@ -171,7 +171,7 @@ export const EntityCard = <T extends BaseEntity>({
 
         {/* Right chevron icon */}
         {config.showRightArrow !== false && (
-          <div className='ml-4 flex-shrink-0'>
+          <div className='ml-4 shrink-0'>
             <svg
               className='text-subtle h-5 w-5 transition-colors group-hover:text-primary-500 dark:group-hover:text-primary-400'
               fill='none'

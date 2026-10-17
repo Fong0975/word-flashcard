@@ -44,7 +44,7 @@ export const DefinitionsSection: React.FC<DefinitionsSectionProps> = ({
                   {def.example.map(example => (
                     <p
                       key={example.id}
-                      className='text-xs italic text-gray-600 dark:text-gray-400'
+                      className='text-xs text-gray-600 italic dark:text-gray-400'
                     >
                       • {example.text} {example.translation}
                     </p>
@@ -55,7 +55,7 @@ export const DefinitionsSection: React.FC<DefinitionsSectionProps> = ({
             <button
               type='button'
               onClick={() => onApplyDefinition(def)}
-              className='focus-ring-success ml-4 flex-shrink-0 rounded bg-green-100 px-3 py-1 text-xs font-medium text-green-700 transition-colors hover:bg-green-200 dark:bg-green-800 dark:text-green-300 dark:hover:bg-green-700'
+              className='focus-ring-success ml-4 shrink-0 rounded-sm bg-green-100 px-3 py-1 text-xs font-medium text-green-700 transition-colors hover:bg-green-200 dark:bg-green-800 dark:text-green-300 dark:hover:bg-green-700'
             >
               Apply
             </button>

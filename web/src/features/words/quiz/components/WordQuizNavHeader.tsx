@@ -27,7 +27,7 @@ export const WordQuizNavHeader: React.FC<WordQuizNavHeaderProps> = ({
   onPrev,
   onNext,
 }) => (
-  <div className='mb-6 flex-shrink-0'>
+  <div className='mb-6 shrink-0'>
     {/* Navigation + Progress Bar */}
     <div className='flex items-center gap-3'>
       {/* Prev button */}
@@ -35,7 +35,7 @@ export const WordQuizNavHeader: React.FC<WordQuizNavHeaderProps> = ({
         onClick={onPrev}
         disabled={isFirstStep}
         aria-label='Previous'
-        className='glass-panel glass-hover-fill focus-ring flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-gray-600 transition-colors disabled:cursor-not-allowed disabled:opacity-30 dark:text-gray-300'
+        className='glass-panel glass-hover-fill focus-ring flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-600 transition-colors disabled:cursor-not-allowed disabled:opacity-30 dark:text-gray-300'
       >
         <svg
           className='h-4 w-4'
@@ -72,7 +72,7 @@ export const WordQuizNavHeader: React.FC<WordQuizNavHeaderProps> = ({
       <button
         onClick={onNext}
         aria-label='Next'
-        className='glass-panel glass-hover-fill focus-ring flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-gray-600 transition-colors dark:text-gray-300'
+        className='glass-panel glass-hover-fill focus-ring flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-600 transition-colors dark:text-gray-300'
       >
         <svg
           className='h-4 w-4'
@@ -91,9 +91,9 @@ export const WordQuizNavHeader: React.FC<WordQuizNavHeaderProps> = ({
     </div>
 
     {showAnswer && (
-      <div className='mb-2 mt-4 text-center md:mb-4 md:mt-8'>
+      <div className='mt-4 mb-2 text-center md:mt-8 md:mb-4'>
         {/* Centered Word Display */}
-        <h1 className='mb-4 text-4xl font-bold text-gray-900 dark:text-white md:text-4xl lg:text-6xl'>
+        <h1 className='mb-4 text-4xl font-bold text-gray-900 md:text-4xl lg:text-6xl dark:text-white'>
           {currentWord.word}
         </h1>
 

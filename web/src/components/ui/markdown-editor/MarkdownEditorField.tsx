@@ -262,7 +262,7 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
     isFlex ? 'min-h-0 w-full flex-1' : 'block h-52 w-full'
   } resize-none border-0 bg-transparent px-3 py-2 ${
     fontMono ? 'font-mono text-sm' : ''
-  } text-gray-900 placeholder-gray-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:text-white dark:placeholder-gray-400`;
+  } text-gray-900 placeholder-gray-500 focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 dark:text-white dark:placeholder-gray-400`;
 
   const editorContent = isPreview ? (
     <div className={previewClassName}>
@@ -336,8 +336,8 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
           onRedo={handleRedo}
         />
         {editorContent}
-        <div className='text-supporting flex flex-shrink-0 items-center gap-1.5 border-t border-white/40 px-2 py-1 text-xs italic dark:border-white/10'>
-          <span className='flex h-4 w-6 flex-shrink-0 items-center justify-center rounded border border-current text-[10px] font-bold not-italic leading-none'>
+        <div className='text-supporting flex shrink-0 items-center gap-1.5 border-t border-white/40 px-2 py-1 text-xs italic dark:border-white/10'>
+          <span className='flex h-4 w-6 shrink-0 items-center justify-center rounded-sm border border-current text-[10px] leading-none font-bold not-italic'>
             M↓
           </span>
           <span>Markdown is supported</span>

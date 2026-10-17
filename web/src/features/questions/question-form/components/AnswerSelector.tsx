@@ -38,7 +38,7 @@ export const AnswerSelector: React.FC<AnswerSelectorProps> = ({
           >
             <span>{value || 'Select the correct answer...'}</span>
             <svg
-              className='h-4 w-4 flex-shrink-0 text-gray-500 dark:text-gray-400'
+              className='h-4 w-4 shrink-0 text-gray-500 dark:text-gray-400'
               fill='none'
               viewBox='0 0 24 24'
               strokeWidth='2'

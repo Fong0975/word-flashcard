@@ -28,7 +28,7 @@ interface MarkdownToolbarProps {
 }
 
 const toolbarButtonClassName = (isDisabled: boolean): string =>
-  `flex h-7 w-7 flex-shrink-0 items-center justify-center rounded transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
+  `flex h-7 w-7 shrink-0 items-center justify-center rounded-sm transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary-500 ${
     isDisabled
       ? 'cursor-not-allowed text-gray-300 dark:text-gray-600'
       : 'text-gray-600 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-600'
@@ -38,7 +38,7 @@ const ToolbarDivider: React.FC = () => (
   <div
     aria-hidden='true'
     data-testid='toolbar-divider'
-    className='h-5 w-px flex-shrink-0 bg-gray-300 dark:bg-gray-600'
+    className='h-5 w-px shrink-0 bg-gray-300 dark:bg-gray-600'
   />
 );
 
@@ -249,7 +249,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
           <>
             <ToolbarDivider />
             <DropdownMenu
-              className='flex-shrink-0'
+              className='shrink-0'
               disabled={formatButtonsDisabled}
               menuWidthClassName='w-24'
               detached
@@ -275,11 +275,11 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
         )}
       </div>
 
-      <div className='glass-panel flex flex-shrink-0 overflow-hidden rounded text-xs'>
+      <div className='glass-panel flex shrink-0 overflow-hidden rounded-sm text-xs'>
         <button
           type='button'
           onClick={() => onTogglePreview(false)}
-          className={`px-3 py-1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
+          className={`px-3 py-1 transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary-500 ${
             !isPreview
               ? 'glass-button-primary'
               : 'glass-interactive text-gray-600 dark:text-gray-300'
@@ -290,7 +290,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
         <button
           type='button'
           onClick={() => onTogglePreview(true)}
-          className={`segmented-divider px-3 py-1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
+          className={`segmented-divider px-3 py-1 transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary-500 ${
             isPreview
               ? 'glass-button-primary'
               : 'glass-interactive text-gray-600 dark:text-gray-300'

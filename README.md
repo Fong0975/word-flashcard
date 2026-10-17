@@ -52,8 +52,6 @@ word-flashcard/
 │   ├── index.html                # Vite entry HTML
 │   ├── package.json              # React dependencies
 │   ├── package-lock.json         # React dependency lock file
-│   ├── postcss.config.js         # PostCSS configuration
-│   ├── tailwind.config.js        # Tailwind CSS configuration
 │   ├── tsconfig.json             # TypeScript configuration
 │   ├── vite.config.mts           # Vite build/dev-server configuration
 │   └── vitest.config.mts         # Vitest test configuration

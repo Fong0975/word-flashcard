@@ -22,7 +22,7 @@ export const DetailPageLayout: React.FC<DetailPageLayoutProps> = ({
   footer,
   cardClassName,
 }) => (
-  <div className='flex h-screen flex-col overflow-hidden pb-[max(1rem,env(safe-area-inset-bottom))] pt-[env(safe-area-inset-top)] transition-colors duration-300 sm:pb-0'>
+  <div className='flex h-screen flex-col overflow-hidden pt-[env(safe-area-inset-top)] pb-[max(1rem,env(safe-area-inset-bottom))] transition-colors duration-300 sm:pb-0'>
     <PageBackground />
     <Header />
     <main className='flex flex-1 flex-col overflow-hidden'>
@@ -30,7 +30,7 @@ export const DetailPageLayout: React.FC<DetailPageLayoutProps> = ({
         <button
           type='button'
           onClick={onBack}
-          className='glass-interactive mb-3 flex flex-shrink-0 items-center space-x-2 self-start rounded-md p-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
+          className='glass-interactive mb-3 flex shrink-0 items-center space-x-2 self-start rounded-md p-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
           aria-label='Go back'
         >
           <svg
@@ -57,9 +57,7 @@ export const DetailPageLayout: React.FC<DetailPageLayoutProps> = ({
           }`}
         >
           {hasContent(header) && (
-            <div className='flex-shrink-0 px-3 pt-3 lg:px-6 lg:pt-6'>
-              {header}
-            </div>
+            <div className='shrink-0 px-3 pt-3 lg:px-6 lg:pt-6'>{header}</div>
           )}
           <div
             className={`flex min-h-0 flex-1 flex-col overflow-y-auto px-3 ${
@@ -71,9 +69,7 @@ export const DetailPageLayout: React.FC<DetailPageLayoutProps> = ({
             {body}
           </div>
           {hasContent(footer) && (
-            <div className='flex-shrink-0 px-3 py-3 lg:px-6 lg:py-6'>
-              {footer}
-            </div>
+            <div className='shrink-0 px-3 py-3 lg:px-6 lg:py-6'>{footer}</div>
           )}
         </div>
       </div>

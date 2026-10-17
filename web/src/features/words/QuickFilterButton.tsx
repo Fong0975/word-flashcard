@@ -18,7 +18,7 @@ export const QuickFilterButton: React.FC<QuickFilterButtonProps> = ({
     <button
       type='button'
       onClick={onClick}
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors focus:outline-none ${
+      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors focus:outline-hidden ${
         isActive
           ? 'glass-button-primary'
           : 'glass-interactive text-gray-600 dark:text-gray-300'

@@ -64,12 +64,12 @@ function HomePage() {
   );
 
   return (
-    <div className='flex min-h-screen flex-col pb-[max(1rem,env(safe-area-inset-bottom))] pt-[env(safe-area-inset-top)] transition-colors duration-300 sm:pb-0'>
+    <div className='flex min-h-screen flex-col pt-[env(safe-area-inset-top)] pb-[max(1rem,env(safe-area-inset-bottom))] transition-colors duration-300 sm:pb-0'>
       <PageBackground />
       <Header />
 
       {/* Main Content Area */}
-      <main className='mx-auto w-full max-w-4xl flex-grow px-4 py-8 sm:px-6 lg:px-8'>
+      <main className='mx-auto w-full max-w-4xl grow px-4 py-8 sm:px-6 lg:px-8'>
         {/* Welcome Section */}
         <div className='mb-8'>
           <h2 className='mb-4 text-3xl font-bold text-gray-900 dark:text-white'>

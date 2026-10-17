@@ -46,7 +46,7 @@ export const SegmentedToggle = <T extends string>({
           type='button'
           aria-pressed={option.value === value}
           onClick={() => onChange(option.value)}
-          className={`${getSegmentShapeClass(index, options.length)} px-4 py-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
+          className={`${getSegmentShapeClass(index, options.length)} px-4 py-1.5 transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary-500 ${
             option.value === value
               ? 'glass-button-primary'
               : 'glass-interactive text-gray-600 dark:text-gray-300'

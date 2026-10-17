@@ -15,8 +15,6 @@ on:
       - 'web/eslint.config.mjs'
       - 'web/.prettierrc.json'
       - 'web/.prettierignore'
-      - 'web/tailwind.config.js'
-      - 'web/postcss.config.js'
       - 'web/tsconfig.json'
       - '!web/package.json'
       - '!web/package-lock.json'
@@ -36,8 +34,6 @@ on:
       - 'web/eslint.config.mjs'
       - 'web/.prettierrc.json'
       - 'web/.prettierignore'
-      - 'web/tailwind.config.js'
-      - 'web/postcss.config.js'
       - 'web/tsconfig.json'
   workflow_dispatch: # Allow manual trigger
 
