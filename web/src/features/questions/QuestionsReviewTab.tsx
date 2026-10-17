@@ -99,7 +99,7 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({
     if (urlPage !== currentPageRef.current) {
       fetchEntitiesRef.current(urlPage);
     }
-  }, [urlPage]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [urlPage]);
 
   // Sync URL → hook: when the sort param changes, reset to page 1 and refetch.
   const prevSortRef = useRef(urlSort);
@@ -108,7 +108,7 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({
       prevSortRef.current = urlSort;
       fetchEntitiesRef.current(1);
     }
-  }, [urlSort]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [urlSort]);
 
   // Wrapped pagination actions: update URL only; the effect above handles the actual fetch.
   const wrappedGoToPage = useCallback(
