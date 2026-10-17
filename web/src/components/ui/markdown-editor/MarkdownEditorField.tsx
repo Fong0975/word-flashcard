@@ -20,6 +20,7 @@ import {
 } from './markdownFormatting';
 import { getHistoryShortcut } from './markdownHistory';
 import { MarkdownToolbar, MarkdownFormatAction } from './MarkdownToolbar';
+import { ResizableEditorBox } from './ResizableEditorBox';
 import { insertSymbol } from './symbolFormatting';
 import { getScrollTopToReveal, measureCaretBounds } from './textareaCaret';
 import { useMarkdownHistory } from './useMarkdownHistory';
@@ -48,7 +49,10 @@ interface MarkdownEditorFieldProps {
   label?: string;
   placeholder?: string;
   disabled?: boolean;
-  /** 'fixed' = h-52 box (Definition/Question notes); 'flex' = fills its container (Note content). */
+  /**
+   * 'fixed' = h-78 box the user can drag taller, see `ResizableEditorBox`
+   * (Definition/Question notes); 'flex' = fills its container (Note content).
+   */
   heightMode?: 'fixed' | 'flex';
   rows?: number;
   fontMono?: boolean;
@@ -256,10 +260,10 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
 
   const previewClassName = isFlex
     ? 'min-h-0 flex-1 overflow-y-auto px-3 py-2'
-    : 'h-52 overflow-y-auto px-3 py-2';
+    : 'h-full overflow-y-auto px-3 py-2';
 
   const textareaClassName = `${
-    isFlex ? 'min-h-0 w-full flex-1' : 'block h-52 w-full'
+    isFlex ? 'min-h-0 w-full flex-1' : 'block h-full w-full'
   } resize-none border-0 bg-transparent px-3 py-2 ${
     fontMono ? 'font-mono text-sm' : ''
   } text-gray-900 placeholder-gray-500 focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 dark:text-white dark:placeholder-gray-400`;
@@ -335,7 +339,12 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
           onUndo={handleUndo}
           onRedo={handleRedo}
         />
-        {editorContent}
+        {isFlex ? (
+          editorContent
+        ) : (
+          // Edit and Preview share this box so a resize survives toggling.
+          <ResizableEditorBox>{editorContent}</ResizableEditorBox>
+        )}
         <div className='text-supporting flex shrink-0 items-center gap-1.5 border-t border-white/40 px-2 py-1 text-xs italic dark:border-white/10'>
           <span className='flex h-4 w-6 shrink-0 items-center justify-center rounded-sm border border-current text-[10px] leading-none font-bold not-italic'>
             M↓
