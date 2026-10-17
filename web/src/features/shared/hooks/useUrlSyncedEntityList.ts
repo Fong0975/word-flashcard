@@ -89,7 +89,7 @@ export const useUrlSyncedEntityList = <T extends BaseEntity>({
     if (urlPage !== currentPageRef.current) {
       fetchEntitiesRef.current(urlPage);
     }
-  }, [urlPage]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [urlPage]);
 
   // Sync URL → hook: when the sort param changes, reset to page 1 and refetch.
   const prevSortRef = useRef(urlSort);
@@ -98,7 +98,7 @@ export const useUrlSyncedEntityList = <T extends BaseEntity>({
       prevSortRef.current = urlSort;
       fetchEntitiesRef.current(1);
     }
-  }, [urlSort]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [urlSort]);
 
   // Re-fetch from page 1 when quick filter conditions change.
   // Using a previousFiltersKeyRef instead of isFirstRenderRef to safely skip the
