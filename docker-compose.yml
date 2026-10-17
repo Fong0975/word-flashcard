@@ -11,12 +11,13 @@ services:
         APP_PORT: ${APP_PORT:-8080}
     container_name: word-flashcard-backend
     image: fong/word-flashcard-backend
+    user: "${APP_UID:-1000}:${APP_GID:-1000}"
     network_mode: host
     environment:
       APP_PORT: ${APP_PORT:-8080}
       FRONTEND_PORT: ${FRONTEND_PORT:-3000}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
-      LOG_FILE_PATH: ${LOG_FILE_PATH:-word-flashcard.log}
+      LOG_FILE_PATH: ${LOG_FILE_PATH:-logs/word-flashcard.log}
       LOG_FILE_MAX_SIZE_MB: ${LOG_FILE_MAX_SIZE_MB:-10}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
       LOG_NOTIFY_LEVEL: ${LOG_NOTIFY_LEVEL:-WARN}
@@ -42,8 +43,8 @@ services:
       timeout: 10s
       retries: 3
     volumes:
-      - ${LOG_HOST_DIR:-.}:/root/logs
-      - ${BACKUP_HOST_DIR:-./backups}:/root/backups
+      - ${LOG_HOST_DIR:-.}:/app/logs
+      - ${BACKUP_HOST_DIR:-./backups}:/app/backups
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -59,6 +60,7 @@ services:
         VITE_API_PORT: ${VITE_API_PORT:-8080}
     container_name: word-flashcard-frontend
     image: fong/word-flashcard-frontend
+    user: "${APP_UID:-1000}:${APP_GID:-1000}"
     network_mode: host
     environment:
       FRONTEND_PORT: ${FRONTEND_PORT:-3000}

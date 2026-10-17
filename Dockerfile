@@ -29,7 +29,9 @@ FROM alpine:latest
 # Install ca-certificates
 RUN apk --no-cache add ca-certificates tzdata
 
-WORKDIR /root/
+# Not /root: it is mode 700, so the non-root user docker-compose runs this
+# image as (APP_UID/APP_GID) could not even execute the binary there.
+WORKDIR /app
 
 # Copy the binary from builder stage
 COPY --from=builder /app/main .
