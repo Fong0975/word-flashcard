@@ -52,7 +52,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({
     >
       {/* Drag handle — hidden during search */}
       {showReorderControls && (
-        <div className='text-subtle flex-shrink-0'>
+        <div className='text-subtle shrink-0'>
           <svg
             className='h-5 w-5'
             fill='none'
@@ -71,7 +71,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({
 
       {/* Move up/down buttons — hidden during search */}
       {showReorderControls && (
-        <div className='flex flex-shrink-0 flex-col gap-0.5'>
+        <div className='flex shrink-0 flex-col gap-0.5'>
           <button
             type='button'
             onClick={e => {
@@ -79,7 +79,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({
               onMoveUp();
             }}
             disabled={isFirst}
-            className='focus-ring text-subtle rounded p-0.5 transition-colors hover:bg-gray-100 hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-30 dark:hover:bg-gray-700 dark:hover:text-gray-300'
+            className='focus-ring text-subtle rounded-sm p-0.5 transition-colors hover:bg-gray-100 hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-30 dark:hover:bg-gray-700 dark:hover:text-gray-300'
             aria-label='Move up'
           >
             <svg className='h-5 w-5' viewBox='0 0 24 24' fill='currentColor'>
@@ -93,7 +93,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({
               onMoveDown();
             }}
             disabled={isLast}
-            className='focus-ring text-subtle rounded p-0.5 transition-colors hover:bg-gray-100 hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-30 dark:hover:bg-gray-700 dark:hover:text-gray-300'
+            className='focus-ring text-subtle rounded-sm p-0.5 transition-colors hover:bg-gray-100 hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-30 dark:hover:bg-gray-700 dark:hover:text-gray-300'
             aria-label='Move down'
           >
             <svg className='h-5 w-5' viewBox='0 0 24 24' fill='currentColor'>
@@ -118,7 +118,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({
       </button>
 
       {/* Right chevron */}
-      <div className='flex-shrink-0'>
+      <div className='shrink-0'>
         <svg
           className='text-subtle h-5 w-5 transition-colors group-hover:text-primary-500 dark:group-hover:text-primary-400'
           fill='none'

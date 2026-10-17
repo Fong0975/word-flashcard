@@ -31,7 +31,7 @@ export const LogEntryItem: React.FC<LogEntryItemProps> = ({ entry }) => {
           {formatLogTimestamp(entry.timestamp)}
         </span>
         <span
-          className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${LOG_LEVEL_BADGE_CLASSES[entry.level]}`}
+          className={`rounded-sm px-1.5 py-0.5 text-[10px] font-semibold ${LOG_LEVEL_BADGE_CLASSES[entry.level]}`}
         >
           {entry.level}
         </span>
@@ -40,7 +40,7 @@ export const LogEntryItem: React.FC<LogEntryItemProps> = ({ entry }) => {
         </span>
       </div>
 
-      <pre className='mt-1 whitespace-pre-wrap break-words font-mono text-xs text-gray-800 dark:text-gray-200'>
+      <pre className='mt-1 font-mono text-xs break-words whitespace-pre-wrap text-gray-800 dark:text-gray-200'>
         {expanded ? entry.message : firstLine}
       </pre>
 
@@ -48,7 +48,7 @@ export const LogEntryItem: React.FC<LogEntryItemProps> = ({ entry }) => {
         <button
           type='button'
           onClick={() => setExpanded(previous => !previous)}
-          className='focus-ring mt-1 rounded-sm text-xs font-medium text-primary-600 hover:underline focus-visible:underline dark:text-primary-400'
+          className='focus-ring mt-1 rounded-xs text-xs font-medium text-primary-600 hover:underline focus-visible:underline dark:text-primary-400'
         >
           {expanded ? 'Show less' : 'Show more'}
         </button>

@@ -30,7 +30,7 @@ export const AnswerReviewList: React.FC<AnswerReviewListProps> = ({
           }`}
         >
           <span
-            className={`inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-sm font-medium ${
+            className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-sm font-medium ${
               option.key === correctAnswer
                 ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                 : isUserWrongAnswer

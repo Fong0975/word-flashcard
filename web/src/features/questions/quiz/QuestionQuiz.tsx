@@ -254,7 +254,7 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
     return (
       <div className='flex h-full flex-col'>
         {/* Progress Bar */}
-        <div className='mb-6 flex-shrink-0'>
+        <div className='mb-6 shrink-0'>
           <div className='mb-2 flex justify-between text-sm text-gray-600 dark:text-gray-400'>
             <span>
               Question {currentQuestionIndex + 1} of {questions.length}
@@ -275,7 +275,7 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
             {/* Question Display */}
             <div className='flex flex-1 flex-col'>
               <div className='mb-8'>
-                <h1 className='mb-1 text-xl font-bold leading-relaxed text-gray-900 dark:text-white lg:text-2xl'>
+                <h1 className='mb-1 text-xl leading-relaxed font-bold text-gray-900 lg:text-2xl dark:text-white'>
                   {currentQuestion.question}
                 </h1>
                 <p className='text-supporting mb-6 text-xs'>
@@ -309,7 +309,7 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
                 <p className='text-supporting mb-1 text-xs'>
                   #{currentQuestion.id}
                 </p>
-                <h1 className='mb-1 text-xl font-bold leading-relaxed text-gray-900 dark:text-white lg:text-2xl'>
+                <h1 className='mb-1 text-xl leading-relaxed font-bold text-gray-900 lg:text-2xl dark:text-white'>
                   {currentQuestion.question}
                 </h1>
                 <p className='text-supporting mb-4 text-xs'>

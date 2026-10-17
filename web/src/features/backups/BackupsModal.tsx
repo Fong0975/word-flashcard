@@ -140,8 +140,8 @@ export const BackupsModal: React.FC<BackupsModalProps> = ({
         <div className='max-h-72 overflow-x-auto overflow-y-auto'>
           <table className='w-full text-sm'>
             <thead>
-              <tr className='border-b border-gray-200 text-left text-xs uppercase text-gray-500 dark:border-gray-700 dark:text-gray-400'>
-                <th className='py-2 pl-2 pr-3 font-medium'>Name</th>
+              <tr className='border-b border-gray-200 text-left text-xs text-gray-500 uppercase dark:border-gray-700 dark:text-gray-400'>
+                <th className='py-2 pr-3 pl-2 font-medium'>Name</th>
                 <th className='py-2 pr-3 font-medium'>Size</th>
                 <th className='py-2 pr-2 font-medium'>Modified</th>
               </tr>
@@ -155,19 +155,19 @@ export const BackupsModal: React.FC<BackupsModalProps> = ({
                     key={backup.name}
                     className='border-b border-gray-100 last:border-0 dark:border-gray-700'
                   >
-                    <td className='break-all py-2 pl-2 pr-3 tabular-nums text-gray-900 dark:text-white'>
+                    <td className='py-2 pr-3 pl-2 break-all text-gray-900 tabular-nums dark:text-white'>
                       <a
                         href={`${API_CONFIG.baseURL}${API_ENDPOINTS.downloadBackup(backup.name)}`}
                         download={backup.name}
-                        className='focus-ring rounded-sm text-primary-600 hover:underline focus-visible:underline dark:text-primary-400'
+                        className='focus-ring rounded-xs text-primary-600 hover:underline focus-visible:underline dark:text-primary-400'
                       >
                         {stripJsonExtension(backup.name)}
                       </a>
                     </td>
-                    <td className='whitespace-nowrap py-2 pr-3 text-gray-500 dark:text-gray-400'>
+                    <td className='py-2 pr-3 whitespace-nowrap text-gray-500 dark:text-gray-400'>
                       {size.value} <span className='text-xs'>{size.unit}</span>
                     </td>
-                    <td className='whitespace-nowrap py-2 pr-2 text-gray-500 dark:text-gray-400'>
+                    <td className='py-2 pr-2 whitespace-nowrap text-gray-500 dark:text-gray-400'>
                       <div className='flex flex-col'>
                         <span>{date}</span>
                         <span className='text-supporting text-xs'>{time}</span>

@@ -33,7 +33,7 @@ const ICON_SIZE_CLASSES = {
 export const COPY_FEEDBACK_DURATION_MS = 1000;
 
 const BASE_CLASSES =
-  'rounded-md transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500';
+  'rounded-md transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary-500';
 const IDLE_CLASSES =
   'text-gray-600 dark:text-gray-400 enabled:hover:text-primary-600 dark:enabled:hover:text-primary-400 enabled:hover:bg-primary-50 dark:enabled:hover:bg-primary-900/20';
 const SUCCESS_CLASSES =

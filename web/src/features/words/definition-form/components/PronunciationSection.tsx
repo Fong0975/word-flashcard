@@ -54,7 +54,7 @@ export const PronunciationSection: React.FC<PronunciationSectionProps> = ({
                   );
                 }}
                 disabled={!group.uk?.url && !group.us?.url}
-                className='focus-ring rounded bg-primary-100 px-3 py-1 text-xs font-medium text-primary-700 transition-colors hover:bg-primary-200 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-primary-800 dark:text-primary-300 dark:hover:bg-primary-700'
+                className='focus-ring rounded-sm bg-primary-100 px-3 py-1 text-xs font-medium text-primary-700 transition-colors hover:bg-primary-200 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-primary-800 dark:text-primary-300 dark:hover:bg-primary-700'
               >
                 Apply
               </button>
@@ -63,7 +63,7 @@ export const PronunciationSection: React.FC<PronunciationSectionProps> = ({
               {group.uk && (
                 <div className='flex items-center justify-between text-sm'>
                   <div className='flex items-center space-x-2'>
-                    <span className='font-medium uppercase text-primary-800 dark:text-primary-300'>
+                    <span className='font-medium text-primary-800 uppercase dark:text-primary-300'>
                       UK:
                     </span>
                     <span className='text-gray-700 dark:text-gray-300'>
@@ -80,7 +80,7 @@ export const PronunciationSection: React.FC<PronunciationSectionProps> = ({
               {group.us && (
                 <div className='flex items-center justify-between text-sm'>
                   <div className='flex items-center space-x-2'>
-                    <span className='font-medium uppercase text-primary-800 dark:text-primary-300'>
+                    <span className='font-medium text-primary-800 uppercase dark:text-primary-300'>
                       US:
                     </span>
                     <span className='text-gray-700 dark:text-gray-300'>
@@ -95,12 +95,12 @@ export const PronunciationSection: React.FC<PronunciationSectionProps> = ({
                 </div>
               )}
               {!group.uk && group.us && (
-                <div className='text-xs italic text-gray-500 dark:text-gray-400'>
+                <div className='text-xs text-gray-500 italic dark:text-gray-400'>
                   UK pronunciation not available
                 </div>
               )}
               {group.uk && !group.us && (
-                <div className='text-xs italic text-gray-500 dark:text-gray-400'>
+                <div className='text-xs text-gray-500 italic dark:text-gray-400'>
                   US pronunciation not available
                 </div>
               )}

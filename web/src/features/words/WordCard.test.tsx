@@ -60,7 +60,7 @@ describe('WordCard', () => {
 
       expect(screen.getByTestId('familiarity-bar')).toHaveClass(
         'glass-glow-bar',
-        'flex-shrink-0',
+        'shrink-0',
         expected,
       );
     },

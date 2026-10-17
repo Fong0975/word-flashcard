@@ -53,7 +53,7 @@ export const FormFields: React.FC<FormFieldsProps> = ({
                 }
                 className='glass-checkbox'
               />
-              <span className='text-sm capitalize text-gray-700 dark:text-gray-300'>
+              <span className='text-sm text-gray-700 capitalize dark:text-gray-300'>
                 {pos}
               </span>
             </label>

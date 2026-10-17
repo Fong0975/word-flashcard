@@ -17,7 +17,7 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
   speechFallback,
 }) => {
   return (
-    <div className='glass-panel-card space-y-3 rounded-lg px-4 pb-2 pt-4'>
+    <div className='glass-panel-card space-y-3 rounded-lg px-4 pt-4 pb-2'>
       <div className='flex items-start justify-between'>
         <PartOfSpeechTags partOfSpeech={definition.part_of_speech} />
         <PronunciationGroup

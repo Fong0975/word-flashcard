@@ -36,7 +36,7 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({
 
   const getTabClasses = (tabId: TabName) => {
     const baseClasses =
-      'focus:outline-none focus-visible:bg-primary-500/10 dark:focus-visible:bg-primary-400/20 flex-1 py-4 px-2 sm:px-6 text-sm font-medium text-center border-b-2 transition-colors duration-200';
+      'focus:outline-hidden focus-visible:bg-primary-500/10 dark:focus-visible:bg-primary-400/20 flex-1 py-4 px-2 sm:px-6 text-sm font-medium text-center border-b-2 transition-colors duration-200';
 
     if (currentTab === tabId) {
       return `${baseClasses} border-primary-500 text-primary-600 dark:text-primary-400`;
@@ -58,7 +58,7 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({
           >
             <span className='flex items-center justify-center space-x-2'>
               <svg
-                className='hidden h-4 w-4 flex-shrink-0 sm:block'
+                className='hidden h-4 w-4 shrink-0 sm:block'
                 fill='none'
                 viewBox='0 0 24 24'
                 strokeWidth='1.5'

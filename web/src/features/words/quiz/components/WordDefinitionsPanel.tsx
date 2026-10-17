@@ -23,7 +23,7 @@ export const WordDefinitionsPanel: React.FC<WordDefinitionsPanelProps> = ({
         {definitions.map(definition => (
           <div key={definition.id} className='space-y-2'>
             {definition.part_of_speech && (
-              <div className='flex-shrink-0'>
+              <div className='shrink-0'>
                 {definition.part_of_speech
                   .split(',')
                   .filter(pos => pos.trim())
@@ -56,7 +56,7 @@ export const WordDefinitionsPanel: React.FC<WordDefinitionsPanelProps> = ({
                     {definition.examples.map((example, exampleIndex) => (
                       <li
                         key={exampleIndex}
-                        className='border-l-2 border-gray-300 pl-4 text-sm italic text-gray-600 dark:border-gray-600 dark:text-gray-400'
+                        className='border-l-2 border-gray-300 pl-4 text-sm text-gray-600 italic dark:border-gray-600 dark:text-gray-400'
                       >
                         {example}
                       </li>

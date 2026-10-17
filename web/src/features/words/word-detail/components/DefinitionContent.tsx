@@ -25,7 +25,7 @@ export const DefinitionContent: React.FC<DefinitionContentProps> = ({
             {definition.examples.map((example, exampleIndex) => (
               <li
                 key={exampleIndex}
-                className='border-l-2 border-gray-300 pl-4 text-sm italic text-gray-600 dark:border-gray-600 dark:text-gray-400'
+                className='border-l-2 border-gray-300 pl-4 text-sm text-gray-600 italic dark:border-gray-600 dark:text-gray-400'
               >
                 {example}
               </li>

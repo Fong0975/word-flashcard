@@ -11,7 +11,7 @@ export const WordHeader: React.FC<WordHeaderProps> = ({
   onDelete,
 }) => {
   return (
-    <div className='mb-2 border-b border-gray-200 pb-2 dark:border-gray-700 lg:pt-2'>
+    <div className='mb-2 border-b border-gray-200 pb-2 lg:pt-2 dark:border-gray-700'>
       {/* Word id and count of definitions */}
       <div className='mb-6 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400'>
         <span>Word ID: {word.id}</span>

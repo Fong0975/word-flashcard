@@ -33,7 +33,7 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
         <span className='flex min-w-0 items-center gap-2'>
           {iconPath && (
             <svg
-              className='h-5 w-5 flex-shrink-0 text-gray-500 dark:text-gray-400'
+              className='h-5 w-5 shrink-0 text-gray-500 dark:text-gray-400'
               fill='none'
               viewBox='0 0 24 24'
               strokeWidth='2'
@@ -49,7 +49,7 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
           </h2>
         </span>
         <svg
-          className={`h-5 w-5 flex-shrink-0 text-gray-500 transition-transform duration-200 dark:text-gray-400 ${
+          className={`h-5 w-5 shrink-0 text-gray-500 transition-transform duration-200 dark:text-gray-400 ${
             isOpen ? 'rotate-180 transform' : ''
           }`}
           fill='none'

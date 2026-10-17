@@ -76,10 +76,10 @@ export const QuestionQuizResults: React.FC<QuestionQuizResultsProps> = ({
               ? '👍'
               : '📚'}
         </div>
-        <h1 className='mb-2 text-xl font-bold text-gray-900 dark:text-white lg:text-3xl'>
+        <h1 className='mb-2 text-xl font-bold text-gray-900 lg:text-3xl dark:text-white'>
           Quiz Complete!
         </h1>
-        <p className='text-gray-600 dark:text-gray-300 lg:text-lg'>
+        <p className='text-gray-600 lg:text-lg dark:text-gray-300'>
           {getPerformanceMessage(accuracyPercentage)}
         </p>
       </div>
@@ -170,7 +170,7 @@ export const QuestionQuizResults: React.FC<QuestionQuizResultsProps> = ({
                         Your Answer:
                       </span>
                       <div
-                        className={`inline-flex items-center rounded px-2 py-1 text-sm font-medium ${
+                        className={`inline-flex items-center rounded-sm px-2 py-1 text-sm font-medium ${
                           result.isCorrect
                             ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                             : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
@@ -187,7 +187,7 @@ export const QuestionQuizResults: React.FC<QuestionQuizResultsProps> = ({
                         <span className='text-sm text-gray-600 dark:text-gray-400'>
                           Correct Answer:
                         </span>
-                        <div className='inline-flex items-center rounded bg-green-100 px-2 py-1 text-sm font-medium text-green-800 dark:bg-green-900 dark:text-green-200'>
+                        <div className='inline-flex items-center rounded-sm bg-green-100 px-2 py-1 text-sm font-medium text-green-800 dark:bg-green-900 dark:text-green-200'>
                           {`(${result.question.answer}) ${getOptionText(result, result.question.answer) ?? ''}`}
                         </div>
                       </div>

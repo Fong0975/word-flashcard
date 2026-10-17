@@ -61,7 +61,7 @@ const SummaryStat: React.FC<SummaryStatProps> = ({
       <span className='text-base font-bold'>{arrow}</span>
     ) : (
       <span
-        className={`h-2.5 w-2.5 flex-shrink-0 rounded-full ${dotClassName}`}
+        className={`h-2.5 w-2.5 shrink-0 rounded-full ${dotClassName}`}
       ></span>
     )}
     <span aria-label={countLabel} className='text-lg font-bold'>
@@ -169,16 +169,16 @@ export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
       {/* Header */}
       <div className='mb-8 text-center'>
         <div className='mb-4 text-6xl'>🎉</div>
-        <h1 className='mb-2 text-xl font-bold text-gray-900 dark:text-white lg:text-3xl'>
+        <h1 className='mb-2 text-xl font-bold text-gray-900 lg:text-3xl dark:text-white'>
           Quiz Complete!
         </h1>
-        <p className='text-gray-600 dark:text-gray-300 lg:text-lg'>
+        <p className='text-gray-600 lg:text-lg dark:text-gray-300'>
           Great job! Here&apos;s a summary of your quiz results.
         </p>
       </div>
 
       {/* Summary */}
-      <div className='glass-panel mb-8 mt-4 grid grid-cols-1 gap-4 rounded-xl p-8'>
+      <div className='glass-panel mt-4 mb-8 grid grid-cols-1 gap-4 rounded-xl p-8'>
         {/* Total Number */}
         <div className='text-center text-6xl font-bold text-gray-700 dark:text-gray-200'>
           {totalQuestions}
@@ -189,7 +189,7 @@ export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
             key={row.heading}
             className='flex items-center gap-4 border-t border-gray-200 pt-4 dark:border-gray-700'
           >
-            <span className='text-supporting w-16 flex-shrink-0 text-right text-xs font-medium uppercase tracking-wide'>
+            <span className='text-supporting w-16 shrink-0 text-right text-xs font-medium tracking-wide uppercase'>
               {row.heading}
             </span>
             <div className='flex flex-1 gap-2'>
@@ -215,8 +215,8 @@ export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
             <div key={result.word.id} className='px-2 py-4 md:px-3 lg:px-6'>
               <div className='flex items-center justify-between gap-4'>
                 <div className='flex min-w-0 items-center space-x-4'>
-                  <div className='flex-shrink-0'>
-                    <span className='inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-sm font-medium text-gray-600 dark:bg-gray-700 dark:text-gray-400 md:h-10 md:w-10'>
+                  <div className='shrink-0'>
+                    <span className='inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-sm font-medium text-gray-600 md:h-10 md:w-10 dark:bg-gray-700 dark:text-gray-400'>
                       {index + 1}
                     </span>
                   </div>
@@ -233,7 +233,7 @@ export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
                   </div>
                 </div>
 
-                <div className='flex flex-shrink-0 flex-col items-center space-y-2'>
+                <div className='flex shrink-0 flex-col items-center space-y-2'>
                   <FamiliarityBadge familiarity={result.oldFamiliarity} />
 
                   <div className='text-supporting'>to</div>

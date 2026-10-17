@@ -169,7 +169,7 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
         <div
           ref={panelRef}
           style={detached ? (detachedPosition ?? undefined) : undefined}
-          className={`glass-panel-dropdown absolute z-10 ${detached ? '' : attachedPlacementClassName} ${openUpward ? 'mb-2' : 'mt-2'} ${menuWidthClassName} focus:outline-none`}
+          className={`glass-panel-dropdown absolute z-10 ${detached ? '' : attachedPlacementClassName} ${openUpward ? 'mb-2' : 'mt-2'} ${menuWidthClassName} focus:outline-hidden`}
         >
           <div className='max-h-64 overflow-y-auto py-1' role='menu'>
             {items.map(item => (
@@ -182,19 +182,19 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
                     ? 'cursor-not-allowed text-gray-400 dark:text-gray-500'
                     : item.isSelected
                       ? 'bg-primary-500/10 text-primary-700 dark:bg-primary-400/20 dark:text-primary-200'
-                      : 'text-gray-700 hover:bg-primary-500/[15%] hover:text-primary-700 focus-visible:bg-primary-500/[15%] focus-visible:text-primary-700 focus-visible:outline-none dark:text-gray-200 dark:hover:bg-primary-400/20 dark:hover:text-primary-100 dark:focus-visible:bg-primary-400/20 dark:focus-visible:text-primary-100'
+                      : 'text-gray-700 hover:bg-primary-500/[15%] hover:text-primary-700 focus-visible:bg-primary-500/[15%] focus-visible:text-primary-700 focus-visible:outline-hidden dark:text-gray-200 dark:hover:bg-primary-400/20 dark:hover:text-primary-100 dark:focus-visible:bg-primary-400/20 dark:focus-visible:text-primary-100'
                 } `}
                 role='menuitem'
               >
                 <span className='flex items-center'>
                   {item.icon && (
-                    <span className='mr-3 flex-shrink-0'>{item.icon}</span>
+                    <span className='mr-3 shrink-0'>{item.icon}</span>
                   )}
                   {item.label}
                 </span>
                 {item.isSelected && (
                   <svg
-                    className='ml-2 h-4 w-4 flex-shrink-0'
+                    className='ml-2 h-4 w-4 shrink-0'
                     fill='currentColor'
                     viewBox='0 0 20 20'
                     aria-hidden='true'

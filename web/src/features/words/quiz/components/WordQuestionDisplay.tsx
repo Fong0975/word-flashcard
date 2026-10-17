@@ -22,7 +22,7 @@ export const WordQuestionDisplay: React.FC<WordQuestionDisplayProps> = ({
   hasUsUrl,
 }) => (
   <div className='flex flex-1 flex-col items-center justify-center'>
-    <h1 className='mb-6 break-all text-center text-4xl font-bold text-gray-900 dark:text-white md:text-4xl lg:text-8xl'>
+    <h1 className='mb-6 text-center text-4xl font-bold break-all text-gray-900 md:text-4xl lg:text-8xl dark:text-white'>
       {word.word}
     </h1>
 

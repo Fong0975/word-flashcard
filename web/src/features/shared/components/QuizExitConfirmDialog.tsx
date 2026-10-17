@@ -28,7 +28,7 @@ export const QuizExitConfirmDialog: React.FC<QuizExitConfirmDialogProps> = ({
     <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/30'>
       <div className='glass-panel-strong mx-4 w-full max-w-sm rounded-lg p-6 shadow-glass-raised'>
         <div className='mb-4 flex items-center'>
-          <div className='flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-red-100 dark:bg-red-900'>
+          <div className='flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100 dark:bg-red-900'>
             <svg
               className='h-6 w-6 text-red-600 dark:text-red-400'
               fill='none'
@@ -65,7 +65,7 @@ export const QuizExitConfirmDialog: React.FC<QuizExitConfirmDialogProps> = ({
           <button
             type='button'
             onClick={onConfirm}
-            className='rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500'
+            className='rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-xs transition-colors hover:bg-red-700 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-red-500'
           >
             Exit Quiz
           </button>

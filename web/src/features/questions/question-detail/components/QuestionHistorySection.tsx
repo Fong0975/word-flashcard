@@ -269,7 +269,7 @@ export const QuestionHistorySection: React.FC<QuestionHistorySectionProps> = ({
                     <span>{date}</span>
                     <span className='text-xs'>{time}</span>
                   </span>
-                  <span className='break-words font-medium text-gray-700 dark:text-gray-300'>
+                  <span className='font-medium break-words text-gray-700 dark:text-gray-300'>
                     {formatOptionLabel(question, entry.selected_option)}
                   </span>
                   <span

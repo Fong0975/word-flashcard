@@ -4,7 +4,7 @@ import React from 'react';
  * Decorative backdrop shared by every page shell, so the glass panels layered
  * on top of it (backdrop-blur surfaces) have color and shape to show through
  * in both light and dark theme. The gradients are defined as the
- * `glass-backdrop` background images in `tailwind.config.js`.
+ * `bg-glass-backdrop` utilities in `index.css`.
  */
 export const PageBackground: React.FC = () => (
   <div

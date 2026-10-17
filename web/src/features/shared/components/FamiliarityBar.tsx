@@ -32,7 +32,7 @@ export const FamiliarityBar: React.FC<FamiliarityBarProps> = ({
 
   const classNames = [
     'glass-glow-bar',
-    orientation === 'vertical' ? 'flex-shrink-0' : 'mx-auto',
+    orientation === 'vertical' ? 'shrink-0' : 'mx-auto',
     getFamiliarityToneClass(familiarity),
     className,
   ].filter(Boolean);

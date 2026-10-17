@@ -30,7 +30,7 @@ const DESKTOP_ROUNDED_CLASS: Partial<Record<NavButtonType, string>> = {
 
 const mobileBaseClass = `
   px-3 py-2 text-sm font-medium rounded-md
-  focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:border-transparent
+  focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:border-transparent
   w-full mx-1 relative inline-flex items-center justify-center
 `;
 

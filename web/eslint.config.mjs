@@ -43,7 +43,7 @@ export default [
         version: 'detect',
       },
       tailwindcss: {
-        config: './tailwind.config.js',
+        cssConfigPath: './src/index.css',
       },
     },
     rules: {
@@ -91,7 +91,20 @@ export default [
 
       // Tailwind CSS rules
       'tailwindcss/classnames-order': 'warn',
-      'tailwindcss/no-custom-classname': 'warn',
+      // The v4 plugin only knows Tailwind's own utilities, not the plain CSS
+      // classes in index.css, so those are listed here.
+      'tailwindcss/no-custom-classname': [
+        'warn',
+        {
+          whitelist: [
+            'glass-[a-z-]+',
+            'focus-ring(-[a-z]+)?',
+            'text-(supporting|subtle|error)',
+            'segmented-divider',
+            'animate-(slide-in-right|slide-out-right|toast-progress)',
+          ],
+        },
+      ],
       'tailwindcss/no-contradicting-classname': 'error',
     },
   },

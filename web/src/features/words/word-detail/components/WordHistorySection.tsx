@@ -148,7 +148,7 @@ const FamiliarityBadge: React.FC<FamiliarityBadgeProps> = ({ familiarity }) => {
   const colors = getFamiliarityDisplayColors(familiarity);
   return (
     <span
-      className={`rounded px-1.5 py-0.5 text-xs font-medium ${colors.bg} ${colors.text}`}
+      className={`rounded-sm px-1.5 py-0.5 text-xs font-medium ${colors.bg} ${colors.text}`}
     >
       {getFamiliarityLabel(familiarity)}
     </span>
@@ -266,7 +266,7 @@ export const WordHistorySection: React.FC<WordHistorySectionProps> = ({
                     <span>{date}</span>
                     <span className='text-xs'>{time}</span>
                   </span>
-                  <span className='flex flex-shrink-0 items-center gap-1.5'>
+                  <span className='flex shrink-0 items-center gap-1.5'>
                     <FamiliarityBadge
                       familiarity={entry.previous_familiarity}
                     />

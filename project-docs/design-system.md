@@ -10,14 +10,15 @@ Authoritative sources:
 | Concern | File |
 | --- | --- |
 | Shared glass classes, scrollbar, keyframes | `web/src/index.css` |
-| Primary palette, dark-mode strategy | `web/tailwind.config.js` |
+| Primary palette, glass shadows, backdrop, dark-mode variant (`@theme`, `@utility`, `@custom-variant`) | `web/src/index.css` |
 | Page backdrop | `web/src/components/layout/PageBackground.tsx` |
 | Theme switching | `web/src/hooks/useDarkMode.ts` |
 | Chart glass tokens | `web/src/components/ui/charts/chartGlassStyles.tsx` |
 
 ## 1. Theming model
 
-- Tailwind `darkMode: 'class'`. `useDarkMode` toggles the `dark` class on `<html>`, persists the choice in `localStorage['theme']`, and falls back to `prefers-color-scheme`.
+- Tailwind v4 class-based dark mode (`@custom-variant dark (&:where(.dark, .dark *))` in `index.css`). `useDarkMode` toggles the `dark` class on `<html>`, persists the choice in `localStorage['theme']`, and falls back to `prefers-color-scheme`.
+- `hover:` is redefined as plain `&:hover` (`@custom-variant hover` in `index.css`), so it also fires on tap on touch devices as in Tailwind v3. An `@layer base` block keeps the other v3 defaults: bare `border` / `divide-*` are `gray-200`, unstyled placeholders are `gray-400`, and enabled buttons use `cursor: pointer`.
 - **Light is the absence of `dark`.** Every glass class therefore defines the light values as the default and the dark values behind `dark:`.
 - `index.html` sets `theme-color` per scheme: `#ffffff` (light), `#1f2937` (dark).
 - Known discrepancy: `index.css` declares `[data-theme='light'] { --app-bg: #ffffff }`, but no code sets `data-theme`. The `:root` value `--app-bg: #1f2937` is the one that always applies. It is never visible in practice because `PageBackground` (fixed, `-z-10`) paints over `body`. Do not rely on `--app-bg` for new work.
@@ -26,7 +27,7 @@ Authoritative sources:
 
 ### 2.1 Brand / primary
 
-Tailwind `primary` scale (blue, equal to Tailwind `blue`), defined in `tailwind.config.js`. `index.css` mirrors 50/100/500–900 as `--primary-*` CSS variables.
+Tailwind `primary` scale (blue, equal to Tailwind `blue`), defined as `--color-primary-*` in the `@theme` block of `index.css`, which also mirrors 50/100/500–900 as `--primary-*` CSS variables.
 
 Use `primary-*` for brand and interaction colors (active tab, focus rings, selected toggles, spinners, links, hover tints). Use `blue-*` only for the **info** status (Toast, `.markdown-alert-note`, log level INFO, informational banners).
 
@@ -77,7 +78,7 @@ Markdown alerts (`.markdown-alert-*`) use a 4px left border: note = blue, tip = 
 
 ### 2.4 Backdrop (what the glass blurs)
 
-`PageBackground` is one fixed element painting the page base plus a stack of static `radial-gradient`s (`bg-glass-backdrop` / `dark:bg-glass-backdrop-dark`, defined in `tailwind.config.js`). No `filter` and no animation. Glass has nothing to show without it, so every page shell must include it.
+`PageBackground` is one fixed element painting the page base plus a stack of static `radial-gradient`s (`bg-glass-backdrop` / `dark:bg-glass-backdrop-dark`, defined as `@utility` rules in `index.css`). No `filter` and no animation. Glass has nothing to show without it, so every page shell must include it.
 
 Two kinds of shape, sized in `vmax` so the composition scales with the viewport:
 
@@ -107,7 +108,7 @@ Thin (8px), transparent track, pill thumb.
 
 ## 3. Typography
 
-- **Font family: Tailwind defaults.** No custom `fontFamily` in `tailwind.config.js`, no `@font-face`, no web-font links. Body text is the system sans stack (`font-sans`); `font-mono` (system mono) is used only for rank numbers, logs and the markdown editor. Do not introduce a web font unless explicitly asked.
+- **Font family: Tailwind defaults.** No custom `--font-*` theme variable in `index.css`, no `@font-face`, no web-font links. Body text is the system sans stack (`font-sans`); `font-mono` (system mono) is used only for rank numbers, logs and the markdown editor. Do not introduce a web font unless explicitly asked.
 - Plugin: `@tailwindcss/typography` (`prose`) for rendered markdown.
 - Base size 16px (Tailwind default), numerals in rank badges use `tabular-nums`.
 
@@ -153,17 +154,17 @@ Blur budget: `backdrop-filter` is the most expensive property in the system, so 
 | `.glass-panel` | gradient `white/[22%]` → `white/[8%]` (to bottom-right) | `white/50` | gradient `white/[5%]` → `white/[2%]` | `white/10` | `lg` + saturate 150 | `glass` | Page content card, tab wrapper, large containers |
 | `.glass-panel-card` | `white/[22%]` | `white/60` | `white/[5%]` | `white/[12%]` | none | `glass` | Per-record rows nested **inside** a `.glass-panel` (EntityCard, NoteCard, CollapsibleSection) |
 | `.glass-panel-strong` | gradient `white/[66%]` → `white/[55%]` | `white/70` | gradient `gray-800/[68%]` → `gray-800/[60%]` | `white/10` | `xl` + saturate 150 | `glass` (Modal/Dialog add `shadow-glass-raised`) | Header, Modal, ConfirmationDialog |
-| `.glass-input` | `gray-100/70` | `white/70` | `gray-900/50` | `white/10` | none | `sm` | Text inputs / textareas / date pickers |
-| `.glass-checkbox` | `white/30` (checked `primary-500/80`) | `white/70` (checked `primary-500`) | `white/10` (checked `primary-500/80`) | `white/20` (checked `primary-400`) | none | `sm` | Native checkbox |
-| `.glass-radio` | `white/60` (checked `primary-500/80`) | `gray-500` (checked `primary-500`) | `white/10` (checked `primary-500/80`) | `gray-400` (checked `primary-400`) | none | `sm` | Native radio (round, white dot when checked), same keyboard focus ring as `.glass-checkbox`. Unchecked edge is a solid gray (≥3:1) rather than `white/*`, which vanishes on white cards |
-| `.glass-alert-error` | `red-50/70` | `red-200` | `red-900/40` | `red-700` | none | `sm` | Inline `ErrorMessage` banner (text / icon colors set per usage) |
+| `.glass-input` | `gray-100/70` | `white/70` | `gray-900/50` | `white/10` | none | `xs` | Text inputs / textareas / date pickers |
+| `.glass-checkbox` | `white/30` (checked `primary-500/80`) | `white/70` (checked `primary-500`) | `white/10` (checked `primary-500/80`) | `white/20` (checked `primary-400`) | none | `xs` | Native checkbox |
+| `.glass-radio` | `white/60` (checked `primary-500/80`) | `gray-500` (checked `primary-500`) | `white/10` (checked `primary-500/80`) | `gray-400` (checked `primary-400`) | none | `xs` | Native radio (round, white dot when checked), same keyboard focus ring as `.glass-checkbox`. Unchecked edge is a solid gray (≥3:1) rather than `white/*`, which vanishes on white cards |
+| `.glass-alert-error` | `red-50/70` | `red-200` | `red-900/40` | `red-700` | none | `xs` | Inline `ErrorMessage` banner (text / icon colors set per usage) |
 | `.glass-progress-track` | `white/20` | `white/30` | `gray-800/30` | `white/10` | none | `inner` | Quiz progress track (fill stays solid primary) |
 | `.glass-card-hover` | hover: `gray-100/80`, border `primary-300`, `shadow-glass-raised` | unchanged | hover: `gray-800/70`, border `primary-600` | unchanged | none | `glass-raised` on hover | Add next to `.glass-panel-card` on clickable record rows (EntityCard, NoteCard) |
 | `.glass-panel-dropdown` | `white/90` | `white/70` | `gray-800/90` | `white/10` | `xl` + saturate 150 (radius `md`) | `glass-raised` | Every small floating panel: Info and Settings dropdown panels, `DropdownMenu` (sort, page, answer and familiarity selects, action menus) and `Toast` (which adds `rounded-lg`). Near-opaque so its text stays readable over the list rows and form fields behind it; do not use `.glass-panel-strong` for a menu or toast |
 | `.glass-glow` + `.glass-glow-green` / `-yellow` / `-red` | unchanged | tone / .70 (`green-500`, `yellow-500`, `red-500`) | unchanged | tone / .60 (`green-400`, `yellow-400`, `red-400`) | none | `glass-glow` | Modifier stacked on a `.glass-panel*` surface: a tinted rim light (inner edge glow + short outer halo) in a status hue. Used on the quiz content card (`DetailPageLayout` `cardClassName`): the word quiz shows the current word's familiarity (`getFamiliarityGlowClass`), and the question quiz shows the outcome of the submitted answer while it is under review (`getAnswerGlowClass`: green when correct, red when incorrect, no glow while answering). A tone class is required (it sets `--glass-glow`). Static: no keyframes, no extra layer, no blur. Pair it with a text equivalent (`sr-only`) so the status is not carried by color alone |
 | `.glass-glow-bar` (+ a `.glass-glow-*` tone) | tone / .80 (`gray-400` without a tone) | `white/50` | tone / .80 | `white/20` | none | inset highlight + edge, `0 0 10px` halo in the tone | Familiarity bar (shared `FamiliarityBar`: word detail header, word quiz question and answer stages, and as a vertical `h-12 w-1.5` band on the left of each `WordCard` row) and accuracy bar (`AccuracyBar`: a full-width `h-1.5` band laid over the bottom border of each `QuestionCard` row, `rounded-b-lg rounded-t-none` so it follows the card's bottom corners; tone from `getAccuracyToneClass`, neutral when never practiced). `h-2`, `rounded-full`; add size and margin per use. Do not put it inside an `overflow-hidden` parent, which would clip the halo. Static; only a tone change transitions (300ms) |
 | `.glass-tint-green` | `green-100/50` | `green-300/60` | `green-900/30` | `green-700/40` | none | none | Collapsible dictionary lookup section; add `overflow-hidden` and rounding per use. Other collapsible sections use the neutral `CollapsibleSection` (`.glass-panel-card`) |
-| `.glass-interactive` | transparent → `primary-500/[15%]` hover/focus, `/25` active | transparent | transparent → `primary-400/20` hover/focus, `/30` active | transparent | none | `sm` on hover/focus | Secondary buttons, icon buttons, back button |
+| `.glass-interactive` | transparent → `primary-500/[15%]` hover/focus, `/25` active | transparent | transparent → `primary-400/20` hover/focus, `/30` active | transparent | none | `xs` on hover/focus | Secondary buttons, icon buttons, back button |
 | `.glass-border-subtle` | n/a (border only) | `gray-500/25` | n/a | `white/15` | none | none | Modifier stacked on `.glass-interactive` for standalone buttons (Cancel, Quick select, ActionButton, mobile pagination) so they read as buttons at rest. Do not use inside an already-bordered group (segmented toggles, toolbars). Defined after `.glass-interactive` so it overrides its transparent border |
 | `.glass-nav-button` / `.glass-nav-button-group` | transparent → `gray-100/60` hover/focus (`-group`: parent `group` hover or focus-within) | transparent | transparent → `gray-800/50` hover/focus | transparent | none | none | Header icon buttons (theme toggle; `-group` variant for the Info and Settings dropdown triggers). Icon `gray-500` / `gray-400` → `gray-900` / `white` |
 | `.glass-hover-fill` | transparent → `gray-100/60` hover | transparent | transparent → `gray-800/50` hover | transparent | none | none | Hover fill for bordered buttons (Pagination nav buttons); border and text color stay with the usage |
@@ -210,7 +211,7 @@ Both live at the end of the `@layer components` block in `index.css`, after the 
 
 | Token | px | Used by |
 | --- | --- | --- |
-| `rounded` | 4 | `.glass-checkbox`, scrollbar-picker icon |
+| `rounded-sm` | 4 | `.glass-checkbox`, scrollbar-picker icon |
 | `rounded-md` | 6 | Buttons, inputs (`.glass-input`), dropdown panel, tabs' hover chips, header icon buttons, toast progress edge |
 | `rounded-lg` | 8 | Panels, cards, modals, dialogs, toasts, error banners, logo |
 | `rounded-r-md` | 6 (right only) | `.markdown-alert` |
@@ -222,14 +223,14 @@ Rule: controls = `md`, containers = `lg`, pills/circles = `full`. Nothing larger
 
 Shadows are deliberately low-key so glass edges, not drop shadows, carry the depth.
 
-The `glass` tokens (`tailwind.config.js`) bundle the glass lighting into one `box-shadow`: an inset 1px top highlight, an inset 1px bottom edge, and a soft ambient shadow. Their colors are the `--glass-highlight`, `--glass-edge` and `--glass-shadow` variables in `index.css` (`:root` for light, `.dark` for dark), so one class serves both themes. A stock `shadow-*` utility on the same element replaces the whole value, highlight included — use `shadow-glass-raised` to lift a glass panel instead.
+The `glass` tokens (`--shadow-glass*` in the `@theme` block of `index.css`) bundle the glass lighting into one `box-shadow`: an inset 1px top highlight, an inset 1px bottom edge, and a soft ambient shadow. Their colors are the `--glass-highlight`, `--glass-edge` and `--glass-shadow` variables in `index.css` (`:root` for light, `.dark` for dark), so one class serves both themes. A stock `shadow-*` utility on the same element replaces the whole value, highlight included — use `shadow-glass-raised` to lift a glass panel instead.
 
 | Token | Use |
 | --- | --- |
 | `shadow-glass` | `.glass-panel`, `.glass-panel-card`, `.glass-panel-strong` at rest |
 | `shadow-glass-raised` | Modal and dialog panels, `.glass-panel-dropdown` (menus, Toast), `.glass-card-hover` on hover |
 | `shadow-glass-glow` | `.glass-glow`: `shadow-glass` plus `inset 0 0 28px -8px` and `0 0 14px 0` in the `--glass-glow` hue. The outer halo is kept within the 12px page gutter so the `overflow-hidden` page shell does not cut it off at phone width |
-| `shadow-sm` | Inputs, checkbox, radio, error banner, pagination group |
+| `shadow-xs` | Inputs, checkbox, radio, error banner, pagination group |
 | `shadow-inner` | Progress track |
 | `shadow-md` (dark: `shadow-lg`) | CTA buttons |
 
@@ -277,7 +278,7 @@ Light vs dark: motion is identical in both themes.
   - Pagination mobile buttons: `focus-visible:ring-2 focus-visible:ring-primary-500`.
 - Use `focus-visible:ring-*`, not `focus:ring-*`, on buttons and other click targets: `focus:` also fires on mouse click and leaves a conspicuous ring on the clicked element. `focus:ring-*` is for text fields only (`.glass-input`, search bars, the markdown editor wrapper), where the ring should show on any focus. Do not add `ring-offset-*`.
 - Buttons and links that have no glass class (`.glass-interactive`, `.glass-button-*`) take `.focus-ring` (or the `-danger` / `-success` / `-warning` / `-indigo` variant matching their hue) instead of repeating the ring utilities. Where the ring would be clipped by an `overflow-hidden` parent (e.g. the `CollapsibleSection` header), add `focus-visible:ring-inset`.
-- Do not add `outline-none` without a replacement style. When creating a bare `<button>` check that it actually has one; several legacy controls (Modal close icon, Tab buttons: `focus:ring-0`) rely only on the color change of the active/hover state.
+- Do not add `outline-hidden` without a replacement style. When creating a bare `<button>` check that it actually has one; several legacy controls (Modal close icon, Tab buttons: `focus:ring-0`) rely only on the color change of the active/hover state.
 - Icon-only buttons need `aria-label` (Header, Modal close, Pagination use `sr-only` text).
 - Toast: `role='alert'`, container `aria-live='polite'`, keyboard-dismissable (Enter/Space).
 - Do not rely on color alone for status: toasts pair a color with a status-specific icon shape (check, x, triangle, i) and message; keep this when adding statuses.

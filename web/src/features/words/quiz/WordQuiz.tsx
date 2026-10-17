@@ -225,7 +225,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
             />
 
             {/* Bottom Action */}
-            <div className='flex-shrink-0 text-center'>
+            <div className='shrink-0 text-center'>
               <button
                 onClick={handleNext}
                 disabled={isProcessing}
@@ -266,7 +266,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
               />
 
               <div className='mb-6 text-center'>
-                <p className='text-gray-600 dark:text-gray-400 lg:text-lg'>
+                <p className='text-gray-600 lg:text-lg dark:text-gray-400'>
                   How familiar are you with this word?
                 </p>
               </div>

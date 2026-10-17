@@ -27,7 +27,7 @@ export const DictionaryLookupHeader: React.FC<DictionaryLookupHeaderProps> = ({
         {isLoadingDictionary ? (
           <>
             <svg
-              className='-ml-1 mr-2 inline h-4 w-4 animate-spin text-white'
+              className='mr-2 -ml-1 inline h-4 w-4 animate-spin text-white'
               fill='none'
               viewBox='0 0 24 24'
             >
@@ -54,7 +54,7 @@ export const DictionaryLookupHeader: React.FC<DictionaryLookupHeaderProps> = ({
       <button
         type='button'
         onClick={onToggleCollapsed}
-        className='p-2 text-green-600 transition-colors hover:text-green-900 focus:outline-none dark:text-green-300 dark:hover:text-green-100'
+        className='p-2 text-green-600 transition-colors hover:text-green-900 focus:outline-hidden dark:text-green-300 dark:hover:text-green-100'
       >
         <svg
           className={`h-5 w-5 transform transition-transform ${isCollapsed ? 'rotate-0' : 'rotate-180'}`}

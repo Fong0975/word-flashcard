@@ -97,7 +97,7 @@ export const Toast: React.FC<ToastProps> = ({
     >
       <div className='flex items-center'>
         <div
-          className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full ${styles.chip} ${styles.icon}`}
+          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${styles.chip} ${styles.icon}`}
           data-testid='toast-icon-chip'
         >
           <svg
@@ -156,7 +156,7 @@ export const ToastContainer: React.FC<ToastContainerProps> = ({
 
   return createPortal(
     <div
-      className='fixed bottom-4 left-8 right-8 z-50 space-y-4 sm:left-auto'
+      className='fixed right-8 bottom-4 left-8 z-50 space-y-4 sm:left-auto'
       aria-live='polite'
       aria-label='Notifications'
     >

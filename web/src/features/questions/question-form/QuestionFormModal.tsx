@@ -98,8 +98,8 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
     >
       <div className='-m-6 -mt-4 flex h-[90vh] flex-col'>
         {/* Fixed Header */}
-        <div className='mb-2 flex-shrink-0 px-6 pb-0 pt-4'>
-          <div className='border-b border-gray-200 px-2 pb-4 pt-2 dark:border-gray-700'>
+        <div className='mb-2 shrink-0 px-6 pt-4 pb-0'>
+          <div className='border-b border-gray-200 px-2 pt-2 pb-4 dark:border-gray-700'>
             <div className='flex items-center'>
               <h2 className='text-2xl font-bold text-gray-900 dark:text-white'>
                 {modalTitle}
@@ -158,7 +158,7 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
         </div>
 
         {/* Fixed Footer */}
-        <div className='flex-shrink-0 px-6 pb-4 pt-0'>
+        <div className='shrink-0 px-6 pt-0 pb-4'>
           <FormActions
             mode={mode}
             entityLabel='Question'
@@ -166,7 +166,7 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
             isFormValid={isValid}
             onCancel={handleClose}
             onSubmit={() => handleSubmit(formData)}
-            className='flex justify-end space-x-3 pb-2 pt-4'
+            className='flex justify-end space-x-3 pt-4 pb-2'
           />
         </div>
       </div>

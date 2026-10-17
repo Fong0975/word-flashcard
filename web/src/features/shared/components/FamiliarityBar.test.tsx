@@ -52,7 +52,7 @@ describe('FamiliarityBar', () => {
       familiarity: FamiliarityLevel.RED,
       orientation: 'vertical' as const,
       className: 'mr-4 h-12 w-1.5',
-      expected: 'glass-glow-bar flex-shrink-0 glass-glow-red mr-4 h-12 w-1.5',
+      expected: 'glass-glow-bar shrink-0 glass-glow-red mr-4 h-12 w-1.5',
     },
   ])(
     'renders a glass bar for $name',

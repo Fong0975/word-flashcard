@@ -212,19 +212,19 @@ export const QuestionStatsModal: React.FC<QuestionStatsModalProps> = ({
 
               <div className='mt-2 flex justify-center gap-6 text-xs text-gray-500 dark:text-gray-400'>
                 <span className='flex items-center gap-1'>
-                  <span className='inline-block h-2.5 w-2.5 rounded-sm border border-white/50 bg-green-500/80 shadow-sm'></span>
+                  <span className='inline-block h-2.5 w-2.5 rounded-xs border border-white/50 bg-green-500/80 shadow-xs'></span>
                   80–100%
                 </span>
                 <span className='flex items-center gap-1'>
-                  <span className='inline-block h-2.5 w-2.5 rounded-sm border border-white/50 bg-yellow-400/80 shadow-sm'></span>
+                  <span className='inline-block h-2.5 w-2.5 rounded-xs border border-white/50 bg-yellow-400/80 shadow-xs'></span>
                   50–79%
                 </span>
                 <span className='flex items-center gap-1'>
-                  <span className='inline-block h-2.5 w-2.5 rounded-sm border border-white/50 bg-red-500/80 shadow-sm'></span>
+                  <span className='inline-block h-2.5 w-2.5 rounded-xs border border-white/50 bg-red-500/80 shadow-xs'></span>
                   0–49%
                 </span>
                 <span className='flex items-center gap-1'>
-                  <span className='inline-block h-2.5 w-2.5 rounded-sm border border-white/50 bg-gray-400/80 shadow-sm'></span>
+                  <span className='inline-block h-2.5 w-2.5 rounded-xs border border-white/50 bg-gray-400/80 shadow-xs'></span>
                   N/A
                 </span>
               </div>

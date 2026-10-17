@@ -112,7 +112,7 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
     >
       <div className='-m-6 -mt-4 flex h-[90vh] flex-col'>
         {/* Fixed Header */}
-        <div className='mb-2 flex-shrink-0 px-6 pb-0 pt-4'>
+        <div className='mb-2 shrink-0 px-6 pt-4 pb-0'>
           <div className='border-b border-gray-200 pb-2 dark:border-gray-700'>
             <h2 className='text-2xl font-bold text-gray-900 dark:text-white'>
               {mode === 'edit' ? 'Edit Definition' : 'Add New Definition'}
@@ -122,7 +122,7 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
                 <p className='text-lg text-gray-600 dark:text-gray-400'>
                   for &quot;
                   <a
-                    className='focus-ring rounded-sm font-semibold text-gray-800 dark:text-primary-500 hover:dark:text-primary-300'
+                    className='focus-ring rounded-xs font-semibold text-gray-800 dark:text-primary-500 hover:dark:text-primary-300'
                     href={`https://dictionary.cambridge.org/zht/%E8%A9%9E%E5%85%B8/%E8%8B%B1%E8%AA%9E-%E6%BC%A2%E8%AA%9E-%E7%B9%81%E9%AB%94/${wordText}`}
                     target='_blank'
                     rel='noopener noreferrer'
@@ -169,7 +169,7 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
         </div>
 
         {/* Fixed Footer */}
-        <div className='flex-shrink-0 px-6 pb-4 pt-0'>
+        <div className='shrink-0 px-6 pt-0 pb-4'>
           <div className='mb-2 flex justify-end space-x-3 border-t border-gray-200 pt-3 dark:border-gray-700'>
             <button
               type='button'
@@ -188,7 +188,7 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
               {formLogic.isSubmitting ? (
                 <>
                   <svg
-                    className='-ml-1 mr-2 inline h-4 w-4 animate-spin text-white'
+                    className='mr-2 -ml-1 inline h-4 w-4 animate-spin text-white'
                     fill='none'
                     viewBox='0 0 24 24'
                   >

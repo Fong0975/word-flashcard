@@ -178,10 +178,10 @@ export const NoteDetailPage: React.FC = () => {
   const viewHeader = (
     <div className='mb-2 pb-2'>
       <div className='flex items-start justify-between gap-4'>
-        <h1 className='break-words text-xl font-bold text-gray-900 dark:text-white'>
+        <h1 className='text-xl font-bold break-words text-gray-900 dark:text-white'>
           {note.title}
         </h1>
-        <div className='flex flex-shrink-0 gap-2'>
+        <div className='flex shrink-0 gap-2'>
           <button
             type='button'
             onClick={handleEdit}
@@ -192,7 +192,7 @@ export const NoteDetailPage: React.FC = () => {
           <button
             type='button'
             onClick={deleteConfirmation.showDeleteConfirm}
-            className='rounded-md border border-transparent px-3 py-1.5 text-sm font-medium text-red-600 transition-colors duration-200 hover:bg-red-500/[15%] hover:shadow-sm focus-visible:bg-red-500/[15%] focus-visible:shadow-sm active:bg-red-500/25 dark:text-red-400 dark:hover:bg-red-400/20 dark:focus-visible:bg-red-400/20 dark:active:bg-red-400/30'
+            className='rounded-md border border-transparent px-3 py-1.5 text-sm font-medium text-red-600 transition-colors duration-200 hover:bg-red-500/[15%] hover:shadow-xs focus-visible:bg-red-500/[15%] focus-visible:shadow-xs active:bg-red-500/25 dark:text-red-400 dark:hover:bg-red-400/20 dark:focus-visible:bg-red-400/20 dark:active:bg-red-400/30'
           >
             Delete
           </button>

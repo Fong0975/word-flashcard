@@ -42,7 +42,7 @@ export const InfoMenu: React.FC = () => {
         </svg>
       </button>
 
-      <div className='absolute right-0 top-full z-10 hidden w-80 max-w-[calc(100vw-2rem)] pt-2 group-focus-within:block group-hover:block'>
+      <div className='absolute top-full right-0 z-10 hidden w-80 max-w-[calc(100vw-2rem)] pt-2 group-focus-within:block group-hover:block'>
         <div className='glass-panel-dropdown p-4'>
           <p className='text-sm text-gray-700 dark:text-gray-200'>
             <span className='font-extrabold'>Flashcard v{pkg.version}</span>{' '}
@@ -50,7 +50,7 @@ export const InfoMenu: React.FC = () => {
               (API v{apiVersion ?? '—'})
             </span>
           </p>
-          <p className='mt-1 whitespace-nowrap text-xs text-gray-500 dark:text-gray-400'>
+          <p className='mt-1 text-xs whitespace-nowrap text-gray-500 dark:text-gray-400'>
             Copyright © {year} SWind All rights reserved.
           </p>
           <a

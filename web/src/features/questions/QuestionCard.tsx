@@ -59,7 +59,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
                 `items-center` center the glyphs themselves, in line with the
                 arrow. Browsers without `text-box` keep the line-box centering. */}
             <div className='flex items-center'>
-              <span className='mr-1 text-xs font-bold uppercase tracking-tighter text-primary-700 [text-box:trim-both_cap_alphabetic] dark:text-primary-400'>
+              <span className='mr-1 text-xs font-bold tracking-tighter text-primary-700 uppercase [text-box:trim-both_cap_alphabetic] dark:text-primary-400'>
                 No.
               </span>
               <span className='text-supporting font-mono text-base font-bold tabular-nums transition-colors [text-box:trim-both_cap_alphabetic] group-hover:text-primary-600 dark:group-hover:text-primary-400'>
@@ -68,7 +68,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
             </div>
 
             {/* Enter Detail Arrow */}
-            <div className='flex-shrink-0'>
+            <div className='shrink-0'>
               <svg
                 className='text-subtle h-5 w-5 transition-colors group-hover:text-primary-500 dark:group-hover:text-primary-400'
                 fill='none'
@@ -87,7 +87,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
 
           {/* Question Content - Full Width */}
           <div className='mb-4'>
-            <h3 className='text-lg font-semibold leading-relaxed text-gray-900 dark:text-white'>
+            <h3 className='text-lg leading-relaxed font-semibold text-gray-900 dark:text-white'>
               {question.question}
             </h3>
           </div>
@@ -100,7 +100,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
                   key={option.key}
                   className='flex items-center space-x-2 rounded-md bg-gray-50 p-2 text-sm dark:bg-gray-700/50'
                 >
-                  <span className='inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-300'>
+                  <span className='inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-300'>
                     {option.key}
                   </span>
                   <span className='leading-relaxed text-gray-600 dark:text-gray-300'>
@@ -135,7 +135,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
               corners. */}
           <AccuracyBar
             accuracyRate={isPracticed ? accuracyRate : null}
-            className='absolute -inset-x-px -bottom-px h-1.5 rounded-b-lg rounded-t-none'
+            className='absolute -inset-x-px -bottom-px h-1.5 rounded-t-none rounded-b-lg'
           />
         </div>
       )}

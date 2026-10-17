@@ -101,7 +101,7 @@ export const Pagination: React.FC<PaginationProps> = ({
 
       {/* Desktop pagination */}
       <div className='hidden sm:flex sm:flex-1 sm:items-center sm:justify-between'>
-        <div className='flex-shrink-0'>
+        <div className='shrink-0'>
           <PageSelect
             currentPage={currentPage}
             totalPages={totalPages}
@@ -110,9 +110,9 @@ export const Pagination: React.FC<PaginationProps> = ({
           />
         </div>
 
-        <div className='ml-auto flex-shrink-0'>
+        <div className='ml-auto shrink-0'>
           <nav
-            className='isolate inline-flex -space-x-px rounded-md shadow-sm'
+            className='isolate inline-flex -space-x-px rounded-md shadow-xs'
             aria-label='Pagination'
           >
             <PaginationNavButton
