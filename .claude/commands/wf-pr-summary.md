@@ -33,9 +33,15 @@ Generate a pull request summary for the given git commit SHAs: $ARGUMENTS
 
 ## Output format
 
+**IMPORTANT — wrap the final output in a code block**: The CLI renders Markdown, which strips formatting symbols (`#`, `**`, `-`, `---`, etc.) from the result. To keep the content copy-pasteable as raw Markdown, output the **entire** final result — from `# Title` through the Squash merge commit title / Suggested branch name block — inside a single fenced code block tagged `markdown`.
+
+- Use a fence of **four backticks** (` ```` `) so that any triple-backtick code blocks inside the PR body do not close it early. If the content itself contains four backticks, use a fence one backtick longer than the longest run inside.
+- Output nothing outside the code block — no preamble, no explanation, no trailing notes.
+
 **IMPORTANT — empty section removal**: If a section has no bullet points, remove its heading, its bullets, AND all surrounding blank lines. The final output must contain no consecutive blank lines and no headings without content beneath them.
 
-```
+`````
+````markdown
 # Title
 feat/fix: <Title Case summary of what changed>
 
@@ -62,11 +68,13 @@ Do NOT describe implementation details or list files. Write in English.>
 feat/fix: <Sentence case summary of what changed>
 **Suggested branch name**
 feat/fix/<kebab-case-summary>
-```
+````
+`````
 
 For example, if only `web/` files were changed, the output must look like:
 
-```
+`````
+````markdown
 # Title
 feat: <Title Case summary>
 
@@ -83,7 +91,8 @@ feat: <Title Case summary>
 feat: <Sentence case summary>
 **Suggested branch name**
 feat/<kebab-case-summary>
-```
+````
+`````
 
 ## Capitalization rules
 
