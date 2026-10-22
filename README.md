@@ -1,6 +1,6 @@
 # Word Flashcard
 
-[![Go](https://img.shields.io/badge/Go-1.26.8%2B-00ADD8?logo=go&logoColor=white)](https://go.dev/dl/)
+[![Go](https://img.shields.io/badge/Go-1.26.10%2B-00ADD8?logo=go&logoColor=white)](https://go.dev/dl/)
 [![Node.js](https://img.shields.io/badge/Node.js-24%2B-5FA04E?logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![npm](https://img.shields.io/badge/npm-required-CB3837?logo=npm&logoColor=white)](https://www.npmjs.com/)
 [![MySQL](https://img.shields.io/badge/MySQL-supported-4479A1?logo=mysql&logoColor=white)](https://www.mysql.com/)
