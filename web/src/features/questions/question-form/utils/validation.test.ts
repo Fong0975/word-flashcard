@@ -52,6 +52,21 @@ describe('validateQuestionForm', () => {
     expect(validateQuestionForm(formData)).toBeNull();
   });
 
+  it.each([
+    { name: 'empty', value: '' },
+    { name: 'whitespace-only', value: '   ' },
+  ])('rejects an answer pointing to an $name option', ({ value }) => {
+    const formData = buildFormData({ answer: 'C' });
+    formData.options.C = value;
+    expect(validateQuestionForm(formData)).toBe(
+      'The correct answer option must have text',
+    );
+  });
+
+  it('accepts an answer pointing to a filled optional option', () => {
+    expect(validateQuestionForm(buildFormData({ answer: 'D' }))).toBeNull();
+  });
+
   it('checks question before answer before option A', () => {
     expect(
       validateQuestionForm(buildFormData({ question: '', answer: '' })),

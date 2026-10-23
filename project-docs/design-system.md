@@ -157,6 +157,7 @@ Blur budget: `backdrop-filter` is the most expensive property in the system, so 
 | `.glass-input` | `gray-100/70` | `white/70` | `gray-900/50` | `white/10` | none | `xs` | Text inputs / textareas / date pickers |
 | `.glass-checkbox` | `white/30` (checked `primary-500/80`) | `white/70` (checked `primary-500`) | `white/10` (checked `primary-500/80`) | `white/20` (checked `primary-400`) | none | `xs` | Native checkbox |
 | `.glass-radio` | `white/60` (checked `primary-500/80`) | `gray-500` (checked `primary-500`) | `white/10` (checked `primary-500/80`) | `gray-400` (checked `primary-400`) | none | `xs` | Native radio (round, white dot when checked), same keyboard focus ring as `.glass-checkbox`. Unchecked edge is a solid gray (≥3:1) rather than `white/*`, which vanishes on white cards |
+| `.glass-switch` | `red-500/80` (checked `green-600/85`) | `white/50` | `red-400/35` (checked `green-400/40`) | `white/15` | none | light: none; dark: inset `glass` highlight + edge only (no ambient shadow) | Native radio drawn as a 44×24px pill switch: white knob slides left → right (150ms, off under reduced motion), faint `white/70` "X" beside the knob when off and "O" when on. Light fills are saturated so the white knob keeps ≥3:1; dark fills are softer and translucent. Same keyboard focus ring as `.glass-radio`. Used for the correct-answer switch beside each Question form option |
 | `.glass-alert-error` | `red-50/70` | `red-200` | `red-900/40` | `red-700` | none | `xs` | Inline `ErrorMessage` banner (text / icon colors set per usage) |
 | `.glass-progress-track` | `white/20` | `white/30` | `gray-800/30` | `white/10` | none | `inner` | Quiz progress track (fill stays solid primary) |
 | `.glass-card-hover` | hover: `gray-100/80`, border `primary-300`, `shadow-glass-raised` | unchanged | hover: `gray-800/70`, border `primary-600` | unchanged | none | `glass-raised` on hover | Add next to `.glass-panel-card` on clickable record rows (EntityCard, NoteCard) |
@@ -217,7 +218,7 @@ Both live at the end of the `@layer components` block in `index.css`, after the 
 | `rounded-md` | 6 | Buttons, inputs (`.glass-input`), dropdown panel, tabs' hover chips, header icon buttons, toast progress edge |
 | `rounded-lg` | 8 | Panels, cards, modals, dialogs, toasts, error banners, logo |
 | `rounded-r-md` | 6 (right only) | `.markdown-alert` |
-| `rounded-full` | 9999 | Spinners, progress track, scrollbar thumb, icon bubbles |
+| `rounded-full` | 9999 | Spinners, progress track, scrollbar thumb, icon bubbles, `.glass-radio`, `.glass-switch` |
 
 Rule: controls = `md`, containers = `lg`, pills/circles = `full`. Nothing larger than `lg` is used on rectangular surfaces.
 
@@ -301,7 +302,7 @@ Reuse these before building new UI (`web/src/components/ui`, `web/src/components
 | Section | `CollapsibleSection` (`glass-panel-card`, hover `gray-100/80` / `gray-800/70`); optional `iconPath` draws a decorative `gray-500` / `gray-400` icon before the title |
 | Primary action | `.glass-button-primary` + `rounded-md px-4 py-2 text-sm font-medium` |
 | Secondary action | `.glass-interactive .glass-border-subtle` + `rounded-md px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300` |
-| Form field | `.glass-input` (add width, padding, rounding per use), `.glass-checkbox` |
+| Form field | `.glass-input` (add width, padding, rounding per use), `.glass-checkbox`, `.glass-radio`, `.glass-switch` |
 | Feedback | `Toast`/`ToastContainer`, `ErrorMessage`, `EmptyState`, `LoadingSpinner` |
 | Pagination | `Pagination` (segmented on desktop with `border-gray-300`/`gray-600`, standalone `.glass-interactive` on mobile) |
 | Segmented control | `SegmentedToggle` (`.glass-panel` group; selected segment `.glass-button-primary`, others `.glass-interactive`, `.segmented-divider` between segments). Used for the Stats modal tabs and the question history chart switch |

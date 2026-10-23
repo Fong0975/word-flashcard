@@ -1,19 +1,13 @@
 import React from 'react';
 
-import { AnswerOption } from '../types/question-form';
-
-interface OptionInputProps {
-  option: AnswerOption;
-  value: string;
-  onChange: (option: AnswerOption, value: string) => void;
-  disabled?: boolean;
-  required?: boolean;
-}
+import { OptionInputProps } from '../types/question-form';
 
 export const OptionInput: React.FC<OptionInputProps> = ({
   option,
   value,
   onChange,
+  isCorrect,
+  onSelectCorrect,
   disabled = false,
   required = false,
 }) => {
@@ -28,15 +22,29 @@ export const OptionInput: React.FC<OptionInputProps> = ({
       >
         Option {option} {isRequired && <span className='text-error'>*</span>}
       </label>
-      <input
-        type='text'
-        id={optionId}
-        value={value}
-        onChange={e => onChange(option, e.target.value)}
-        className='glass-input w-full px-3 py-2'
-        placeholder={`Enter option ${option}${!isRequired ? ' (optional)' : ''}...`}
-        disabled={disabled}
-      />
+      <div className='flex items-center gap-2'>
+        {/* An empty option can't be the correct answer, so its switch stays
+            disabled until the option has text. */}
+        <input
+          type='radio'
+          name='correctAnswer'
+          value={option}
+          checked={isCorrect}
+          onChange={() => onSelectCorrect(option)}
+          className='glass-switch'
+          aria-label={`Mark option ${option} as the correct answer`}
+          disabled={disabled || !value.trim()}
+        />
+        <input
+          type='text'
+          id={optionId}
+          value={value}
+          onChange={e => onChange(option, e.target.value)}
+          className='glass-input min-w-0 flex-1 px-3 py-2'
+          placeholder={`Enter option ${option}${!isRequired ? ' (optional)' : ''}...`}
+          disabled={disabled}
+        />
+      </div>
     </div>
   );
 };

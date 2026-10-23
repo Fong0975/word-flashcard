@@ -15,7 +15,6 @@ import { useQuestionSubmit } from './hooks/useQuestionSubmit';
 import {
   QuestionInput,
   OptionsGroup,
-  AnswerSelector,
   ReferenceInput,
   NotesInput,
 } from './components';
@@ -128,12 +127,8 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
               <OptionsGroup
                 options={formData.options}
                 onChange={handleOptionChange}
-                disabled={isSubmitting}
-              />
-
-              <AnswerSelector
-                value={formData.answer}
-                onChange={handleAnswerChange}
+                answer={formData.answer}
+                onAnswerChange={handleAnswerChange}
                 disabled={isSubmitting}
               />
 
