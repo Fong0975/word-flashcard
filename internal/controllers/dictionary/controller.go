@@ -35,14 +35,18 @@ type CacheEntry struct {
 	Timestamp time.Time
 }
 
-// New creates a new Controller instance. GEMINI_API_KEY is read from the
-// environment; if it is empty, a warning is logged at startup and lookups
-// will fail at request time with a clear log message (the rest of the
-// application does not depend on the dictionary feature, so this does not
+// New creates a new Controller instance. GEMINI_API_KEY is read from the file
+// named by GEMINI_API_KEY_FILE (a Docker secret) or, failing that, from the
+// environment; if it is empty or unreadable, the problem is logged at startup
+// and lookups will fail at request time with a clear log message (the rest of
+// the application does not depend on the dictionary feature, so this does not
 // prevent the server from starting).
 func New() *Controller {
-	geminiAPIKey := config.GetOrDefault("GEMINI_API_KEY", "")
-	if geminiAPIKey == "" {
+	geminiAPIKey, err := config.GetSecretOrDefault("GEMINI_API_KEY", "")
+	switch {
+	case err != nil:
+		slog.Error("Failed to load GEMINI_API_KEY; dictionary lookups will fail until it is configured", "error", err)
+	case geminiAPIKey == "":
 		slog.Warn("GEMINI_API_KEY is not set; dictionary lookups will fail until it is configured")
 	}
 

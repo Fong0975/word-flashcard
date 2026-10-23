@@ -363,6 +363,8 @@ Pick one of the following:
 - **Directly from the repository root** — copy `.env.example` to `.env`, fill in the values, then run `docker compose build && docker compose up -d` from the repo root.
 - **Via the `scripts\export_docker.bat` snapshot** — copy `.env.example` to `.env.production` in the repo root and fill in the values, run `scripts\export_docker.bat` to copy everything the Docker host needs (including renaming `.env.production` to `.env`) into the `docker/` directory, then run `docker compose build && docker compose up -d` from inside `docker/`.
 
+Under Docker Compose, `GEMINI_API_KEY` and `DB_PASSWORD` are handed to the backend as Docker secrets (files under `/run/secrets/`, read via `GEMINI_API_KEY_FILE`/`DB_PASSWORD_FILE`) rather than environment variables, so they don't appear in `docker inspect` or the container's environment. They are still sourced from `.env` (or the Portainer stack variables), so both keys must be defined there, even if empty. Outside Docker, the backend falls back to reading the plain `GEMINI_API_KEY`/`DB_PASSWORD` variables.
+
 `web/.env` is not used by either path — the frontend's API host/port are baked into the build as Docker build args instead (see `VITE_API_HOSTNAME`/`VITE_API_PORT` below).
 
 | Variable                 | Description                                                                                                              | Sample Value                     |

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -123,4 +124,55 @@ func (suite *ControllerTestSuite) setupMockGeminiServer() {
 
 	suite.controller.geminiBaseURL = suite.mockGeminiServer.URL
 	suite.controller.retryPolicy = fastRetryPolicy()
+}
+
+// TestNew tests that New sources the Gemini API key from the Docker secret
+// file when GEMINI_API_KEY_FILE is set, and from the environment otherwise.
+func (suite *ControllerTestSuite) TestNew() {
+	tests := []struct {
+		name        string
+		envKey      string
+		fileContent string
+		useFile     bool
+		missingFile bool
+		wantKey     string
+	}{
+		{
+			name:    "Key read from environment",
+			envKey:  "env-key",
+			wantKey: "env-key",
+		},
+		{
+			name:        "Key read from secret file over environment",
+			envKey:      "env-key",
+			fileContent: "file-key\n",
+			useFile:     true,
+			wantKey:     "file-key",
+		},
+		{
+			name:        "Unreadable secret file leaves key empty",
+			envKey:      "env-key",
+			useFile:     true,
+			missingFile: true,
+			wantKey:     "",
+		},
+	}
+
+	for _, tt := range tests {
+		suite.Run(tt.name, func() {
+			suite.T().Setenv("GEMINI_API_KEY", tt.envKey)
+			suite.T().Setenv("GEMINI_API_KEY_FILE", "")
+			if tt.useFile {
+				path := filepath.Join(suite.T().TempDir(), "gemini_api_key")
+				if !tt.missingFile {
+					suite.Require().NoError(os.WriteFile(path, []byte(tt.fileContent), 0o600))
+				}
+				suite.T().Setenv("GEMINI_API_KEY_FILE", path)
+			}
+
+			controller := New()
+
+			suite.Equal(tt.wantKey, controller.geminiAPIKey)
+		})
+	}
 }

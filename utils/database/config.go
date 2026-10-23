@@ -32,7 +32,6 @@ func LoadConfig() (*DBConfig, error) {
 	dbConfig.Type = config.GetOrDefault("DB_TYPE", "mysql")
 	dbConfig.Host = config.GetOrDefault("DB_HOST", "localhost")
 	dbConfig.User = config.GetOrDefault("DB_USER", "root")
-	dbConfig.Password = config.GetOrDefault("DB_PASSWORD", "")
 	dbConfig.DatabaseName = config.GetOrDefault("DB_NAME", "word_flashcard")
 
 	// Parse port
@@ -42,6 +41,12 @@ func LoadConfig() (*DBConfig, error) {
 		return nil, fmt.Errorf("invalid DB_PORT: %v", err)
 	}
 	dbConfig.Port = port
+
+	password, err := config.GetSecretOrDefault("DB_PASSWORD", "")
+	if err != nil {
+		return nil, err
+	}
+	dbConfig.Password = password
 
 	// Validate required fields
 	if dbConfig.Type == "" {
