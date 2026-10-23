@@ -57,6 +57,54 @@ func (suite *StatsTestSuite) TestDailyDateKeys() {
 	suite.Equal(expected, result)
 }
 
+// TestTrendWindowStart tests that TrendWindowStart lands on 00:00 in
+// ReportTimeZone of the oldest trend day, regardless of now's time of day or
+// the timezone now is expressed in, so logs earlier in that day are included.
+func (suite *StatsTestSuite) TestTrendWindowStart() {
+	loc, err := time.LoadLocation(ReportTimeZone)
+	suite.Require().NoError(err)
+
+	tests := []struct {
+		name     string
+		days     int
+		now      time.Time
+		expected time.Time
+	}{
+		{
+			name:     "mid-morning now is truncated to the oldest day's midnight",
+			days:     30,
+			now:      time.Date(2026, 10, 23, 10, 51, 31, 0, loc),
+			expected: time.Date(2026, 9, 24, 0, 0, 0, 0, loc),
+		},
+		{
+			name:     "single day window starts at today's midnight",
+			days:     1,
+			now:      time.Date(2026, 10, 23, 23, 59, 59, 0, loc),
+			expected: time.Date(2026, 10, 23, 0, 0, 0, 0, loc),
+		},
+		{
+			name:     "window crossing a month boundary",
+			days:     3,
+			now:      time.Date(2026, 3, 1, 8, 0, 0, 0, loc),
+			expected: time.Date(2026, 2, 27, 0, 0, 0, 0, loc),
+		},
+		{
+			name:     "UTC now is bucketed by its report-timezone calendar day",
+			days:     2,
+			now:      time.Date(2026, 10, 22, 18, 30, 0, 0, time.UTC),
+			expected: time.Date(2026, 10, 22, 0, 0, 0, 0, loc),
+		},
+	}
+
+	for _, tt := range tests {
+		suite.Run(tt.name, func() {
+			got := TrendWindowStart(tt.days, tt.now)
+			suite.True(tt.expected.Equal(got), "expected %v, got %v", tt.expected, got)
+			suite.Equal(DailyDateKeys(tt.days, tt.now.In(loc))[0], ReportDateKey(got))
+		})
+	}
+}
+
 // TestRound1 tests Round1 across a fractional value, an already-round value,
 // and a negative value.
 func (suite *StatsTestSuite) TestRound1() {

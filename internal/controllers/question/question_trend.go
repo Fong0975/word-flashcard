@@ -29,7 +29,7 @@ func (qc *Controller) GetQuestionsTrend(c *gin.Context) {
 
 	// ================ 2. Fetch data from database ================
 	now := common.NowInReportTimeZone()
-	since := now.AddDate(0, 0, -(days - 1))
+	since := common.TrendWindowStart(days, now)
 	where := squirrel.GtOrEq{schema.COMMON_CREATED_AT: since}
 	logs, err := qc.questionAnswerLogPeer.Select([]*string{}, where, nil, nil, nil)
 	if err != nil {

@@ -27,7 +27,7 @@ func (wc *Controller) GetWordsTrend(c *gin.Context) {
 	}
 
 	now := common.NowInReportTimeZone()
-	since := now.AddDate(0, 0, -(days - 1))
+	since := common.TrendWindowStart(days, now)
 	where := squirrel.GtOrEq{schema.COMMON_CREATED_AT: since}
 	logs, err := wc.wordPracticeLogPeer.Select([]*string{}, where, nil, nil, nil)
 	if err != nil {
