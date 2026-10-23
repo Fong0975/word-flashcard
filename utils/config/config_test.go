@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -144,4 +145,101 @@ func TestGetOrDefaultBool(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestGetSecretOrDefault(t *testing.T) {
+	const key = "TEST_SECRET"
+
+	tests := []struct {
+		name         string
+		envValue     string
+		fileContent  *string
+		missingFile  bool
+		defaultValue string
+		want         string
+		wantErr      bool
+	}{
+		{
+			name:         "Neither file nor env variable set",
+			defaultValue: "default_val",
+			want:         "default_val",
+		},
+		{
+			name:         "Env variable set without file",
+			envValue:     "from-env",
+			defaultValue: "default_val",
+			want:         "from-env",
+		},
+		{
+			name:         "File takes precedence over env variable",
+			envValue:     "from-env",
+			fileContent:  ptr("from-file"),
+			defaultValue: "default_val",
+			want:         "from-file",
+		},
+		{
+			name:        "Trailing LF is trimmed",
+			fileContent: ptr("s3cret\n"),
+			want:        "s3cret",
+		},
+		{
+			name:        "Trailing CRLF is trimmed",
+			fileContent: ptr("s3cret\r\n"),
+			want:        "s3cret",
+		},
+		{
+			name:        "Surrounding spaces are kept",
+			fileContent: ptr(" s3 cret \n"),
+			want:        " s3 cret ",
+		},
+		{
+			name:         "Empty file falls back to default",
+			envValue:     "from-env",
+			fileContent:  ptr(""),
+			defaultValue: "default_val",
+			want:         "default_val",
+		},
+		{
+			name:        "Missing file returns error",
+			envValue:    "from-env",
+			missingFile: true,
+			wantErr:     true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Setenv(key, tt.envValue)
+			t.Setenv(key+"_FILE", "")
+
+			path := filepath.Join(t.TempDir(), "secret")
+			if tt.fileContent != nil {
+				if err := os.WriteFile(path, []byte(*tt.fileContent), 0o600); err != nil {
+					t.Fatalf("failed to write secret file: %v", err)
+				}
+			}
+			if tt.fileContent != nil || tt.missingFile {
+				t.Setenv(key+"_FILE", path)
+			}
+
+			got, err := GetSecretOrDefault(key, tt.defaultValue)
+
+			if tt.wantErr {
+				if err == nil {
+					t.Errorf("GetSecretOrDefault() error = nil, want error")
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("GetSecretOrDefault() unexpected error: %v", err)
+			}
+			if got != tt.want {
+				t.Errorf("GetSecretOrDefault() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func ptr(s string) *string {
+	return &s
 }

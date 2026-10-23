@@ -2,6 +2,7 @@ package database
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
 	"word-flashcard/utils/config"
 
@@ -23,7 +24,7 @@ func TestConfigSuite(t *testing.T) {
 func (suite *ConfigTestSuite) SetupTest() {
 	// Store original environment variables
 	suite.originalEnvVars = make(map[string]string)
-	envVars := []string{"DB_TYPE", "DB_HOST", "DB_PORT", "DB_USER", "DB_PASSWORD", "DB_NAME", "TEST_VAR"}
+	envVars := []string{"DB_TYPE", "DB_HOST", "DB_PORT", "DB_USER", "DB_PASSWORD", "DB_PASSWORD_FILE", "DB_NAME", "TEST_VAR"}
 
 	for _, env := range envVars {
 		if value, exists := os.LookupEnv(env); exists {
@@ -36,7 +37,7 @@ func (suite *ConfigTestSuite) SetupTest() {
 // TearDownTest runs after each test to restore environment
 func (suite *ConfigTestSuite) TearDownTest() {
 	// Clear all test environment variables
-	envVars := []string{"DB_TYPE", "DB_HOST", "DB_PORT", "DB_USER", "DB_PASSWORD", "DB_NAME", "TEST_VAR"}
+	envVars := []string{"DB_TYPE", "DB_HOST", "DB_PORT", "DB_USER", "DB_PASSWORD", "DB_PASSWORD_FILE", "DB_NAME", "TEST_VAR"}
 	for _, env := range envVars {
 		os.Unsetenv(env)
 	}
@@ -82,6 +83,52 @@ func (suite *ConfigTestSuite) TestLoadConfigWithCustomEnvironmentVariables() {
 	suite.Equal("testuser", config.User, "Expected User=testuser")
 	suite.Equal("testpass", config.Password, "Expected Password=testpass")
 	suite.Equal("testdb", config.DatabaseName, "Expected DatabaseName=testdb")
+}
+
+// TestLoadConfigWithPasswordFile tests that DB_PASSWORD is read from the
+// Docker secret file named by DB_PASSWORD_FILE when it is set
+func (suite *ConfigTestSuite) TestLoadConfigWithPasswordFile() {
+	tests := []struct {
+		name         string
+		envPassword  string
+		fileContent  string
+		missingFile  bool
+		wantPassword string
+		wantErr      bool
+	}{
+		{
+			name:         "Password read from secret file over env variable",
+			envPassword:  "envpass",
+			fileContent:  "filepass\n",
+			wantPassword: "filepass",
+		},
+		{
+			name:        "Unreadable secret file returns error",
+			envPassword: "envpass",
+			missingFile: true,
+			wantErr:     true,
+		},
+	}
+
+	for _, tt := range tests {
+		suite.Run(tt.name, func() {
+			path := filepath.Join(suite.T().TempDir(), "db_password")
+			if !tt.missingFile {
+				suite.Require().NoError(os.WriteFile(path, []byte(tt.fileContent), 0o600))
+			}
+			os.Setenv("DB_PASSWORD", tt.envPassword)
+			os.Setenv("DB_PASSWORD_FILE", path)
+
+			config, err := LoadConfig()
+
+			if tt.wantErr {
+				suite.Error(err, "Expected error for unreadable DB_PASSWORD_FILE")
+				return
+			}
+			suite.Require().NoError(err, "LoadConfig() should not return error")
+			suite.Equal(tt.wantPassword, config.Password)
+		})
+	}
 }
 
 // TestLoadConfigWithInvalidPort tests error handling for invalid port number

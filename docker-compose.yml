@@ -22,7 +22,7 @@ services:
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
       LOG_NOTIFY_LEVEL: ${LOG_NOTIFY_LEVEL:-WARN}
       LOG_STATE_FILE_PATH: ${LOG_STATE_FILE_PATH:-}
-      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      GEMINI_API_KEY_FILE: /run/secrets/gemini_api_key
       GEMINI_MODEL: ${GEMINI_MODEL:-}
       BACKUP_ENABLED: ${BACKUP_ENABLED:-true}
       BACKUP_DIR: ${BACKUP_DIR:-backups}
@@ -33,9 +33,12 @@ services:
       DB_HOST: ${DB_HOST:-localhost}
       DB_PORT: ${DB_PORT:-3306}
       DB_USER: ${DB_USER:-root}
-      DB_PASSWORD: ${DB_PASSWORD}
+      DB_PASSWORD_FILE: /run/secrets/db_password
       DB_NAME: ${DB_NAME:-word_flashcard}
       DEV_MODE: ${DEV_MODE:-false}
+    secrets:
+      - gemini_api_key
+      - db_password
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:${APP_PORT:-8080}/api/health"]
@@ -75,3 +78,14 @@ services:
       retries: 3
     volumes:
       - ${TEMPLATE_CONFIG_HOST_DIR:-./web/public/config}:/app/build/config
+
+# Sensitive values are handed to the backend as files under /run/secrets/
+# instead of environment variables, so they don't show up in `docker inspect`
+# or the container's process environment. Each one is still sourced from the
+# variable of the same name in `.env` (or the Portainer stack variables), so
+# that variable must be defined there -- an empty value is fine.
+secrets:
+  gemini_api_key:
+    environment: GEMINI_API_KEY
+  db_password:
+    environment: DB_PASSWORD
