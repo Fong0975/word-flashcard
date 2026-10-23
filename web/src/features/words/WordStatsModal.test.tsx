@@ -24,8 +24,8 @@ const buildTrendPoint = (
 ): WordTrendPoint => ({
   date: '2026-07-10',
   practice_count: 0,
-  improvement_rate: 0,
-  avg_familiarity_score: 0,
+  improvement_rate: null,
+  avg_familiarity_score: null,
   ...overrides,
 });
 
@@ -113,7 +113,13 @@ describe('WordStatsModal', () => {
     const user = userEvent.setup();
     vi.spyOn(apiService, 'getWordStats').mockResolvedValue(buildStats());
     vi.spyOn(apiService, 'getWordsTrend').mockResolvedValue([
-      buildTrendPoint({ date: '2026-07-09', practice_count: 2 }),
+      buildTrendPoint({ date: '2026-07-08' }),
+      buildTrendPoint({
+        date: '2026-07-09',
+        practice_count: 2,
+        improvement_rate: 0,
+        avg_familiarity_score: 50,
+      }),
       buildTrendPoint({
         date: '2026-07-10',
         practice_count: 3,

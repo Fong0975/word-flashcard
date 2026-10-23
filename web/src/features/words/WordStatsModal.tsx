@@ -25,6 +25,7 @@ import {
   GLASS_TOOLTIP_STYLE,
   glassLegendFormatter,
 } from '../../components/ui/charts/chartGlassStyles';
+import { GlassTooltipContent } from '../../components/ui/charts/GlassTooltipContent';
 import { PracticeCountBarChart } from '../../components/ui/charts/PracticeCountBarChart';
 import { apiService } from '../../lib/api';
 import { WordStatsResponse, WordTrendPoint } from '../../types/api';
@@ -259,8 +260,9 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
                       tickFormatter={v => `${v}%`}
                     />
                     <Tooltip
-                      labelFormatter={value => formatShortDate(value as string)}
-                      contentStyle={GLASS_TOOLTIP_STYLE}
+                      content={
+                        <GlassTooltipContent labelFormatter={formatShortDate} />
+                      }
                     />
                     <Legend
                       wrapperStyle={{ fontSize: '12px' }}
@@ -279,6 +281,7 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
                     <Line
                       yAxisId='right'
                       dataKey='improvement_rate'
+                      connectNulls
                       stroke='#c084fc'
                       strokeWidth={2.5}
                       dot={false}
@@ -288,6 +291,7 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
                     <Line
                       yAxisId='right'
                       dataKey='avg_familiarity_score'
+                      connectNulls
                       stroke='#38bdf8'
                       strokeWidth={2.5}
                       dot={false}

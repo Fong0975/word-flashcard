@@ -9,6 +9,7 @@ import (
 	dbModels "word-flashcard/data/models"
 	"word-flashcard/internal/controllers/common"
 	"word-flashcard/internal/models"
+	"word-flashcard/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -19,7 +20,7 @@ import (
 // (?days=3) so the zero-filled and populated days are easy to hand-compute:
 // today has two red->green log entries (fully improved, avg score 100), the
 // previous day has one yellow->yellow entry (no improvement, avg score 50),
-// and the day before that has no entries at all (zero-filled).
+// and the day before that has no entries at all (null rates).
 func (suite *ControllerTestSuite) TestGetWordsTrend() {
 	testWordID := 1
 	now := common.NowInReportTimeZone()
@@ -50,9 +51,9 @@ func (suite *ControllerTestSuite) TestGetWordsTrend() {
 
 	assert.Equal(suite.T(), http.StatusOK, w.Code)
 	expected := []models.WordTrendPoint{
-		{Date: twoDaysAgoKey, PracticeCount: 0, ImprovementRate: 0, AvgFamiliarityScore: 0},
-		{Date: yesterdayKey, PracticeCount: 1, ImprovementRate: 0, AvgFamiliarityScore: 50},
-		{Date: todayKey, PracticeCount: 2, ImprovementRate: 100, AvgFamiliarityScore: 100},
+		{Date: twoDaysAgoKey, PracticeCount: 0},
+		{Date: yesterdayKey, PracticeCount: 1, ImprovementRate: utils.Float64Ptr(0), AvgFamiliarityScore: utils.Float64Ptr(50)},
+		{Date: todayKey, PracticeCount: 2, ImprovementRate: utils.Float64Ptr(100), AvgFamiliarityScore: utils.Float64Ptr(100)},
 	}
 	expectedJSON, err := json.Marshal(expected)
 	assert.NoError(suite.T(), err)
@@ -91,9 +92,9 @@ func (suite *ControllerTestSuite) TestGetWordsTrendBucketsByReportTimeZone() {
 
 	assert.Equal(suite.T(), http.StatusOK, w.Code)
 	expected := []models.WordTrendPoint{
-		{Date: dateKeys[0], PracticeCount: 0, ImprovementRate: 0, AvgFamiliarityScore: 0},
-		{Date: dateKeys[1], PracticeCount: 0, ImprovementRate: 0, AvgFamiliarityScore: 0},
-		{Date: dateKeys[2], PracticeCount: 1, ImprovementRate: 100, AvgFamiliarityScore: 100},
+		{Date: dateKeys[0], PracticeCount: 0},
+		{Date: dateKeys[1], PracticeCount: 0},
+		{Date: dateKeys[2], PracticeCount: 1, ImprovementRate: utils.Float64Ptr(100), AvgFamiliarityScore: utils.Float64Ptr(100)},
 	}
 	expectedJSON, err := json.Marshal(expected)
 	assert.NoError(suite.T(), err)

@@ -241,6 +241,7 @@ definitions:
     properties:
       accuracy_rate:
         type: number
+        x-nullable: true
       date:
         type: string
       practice_count:
@@ -339,10 +340,12 @@ definitions:
     properties:
       avg_familiarity_score:
         type: number
+        x-nullable: true
       date:
         type: string
       improvement_rate:
         type: number
+        x-nullable: true
       practice_count:
         type: integer
     type: object
@@ -1358,7 +1361,8 @@ paths:
   /api/questions/trend:
     get:
       description: Get daily practice count / accuracy rate across all questions over
-        the last N days, zero-filled for days with no activity
+        the last N days; days with no activity are included with practice_count 0
+        and null rates
       parameters:
       - description: 'Number of days to include (default: 30, max: 90)'
         in: query
@@ -1784,8 +1788,8 @@ paths:
   /api/words/trend:
     get:
       description: Get daily practice count / improvement rate / average familiarity
-        score across all words over the last N days, zero-filled for days with no
-        activity
+        score across all words over the last N days; days with no activity are included
+        with practice_count 0 and null rates
       parameters:
       - description: 'Number of days to include (default: 30, max: 90)'
         in: query

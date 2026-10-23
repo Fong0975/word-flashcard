@@ -251,8 +251,8 @@ export interface WordPracticeLogEntry {
 export interface WordTrendPoint {
   readonly date: string;
   readonly practice_count: number;
-  readonly improvement_rate: number;
-  readonly avg_familiarity_score: number;
+  readonly improvement_rate: number | null;
+  readonly avg_familiarity_score: number | null;
 }
 
 export interface QuestionAnswerLogEntry {
@@ -265,5 +265,5 @@ export interface QuestionAnswerLogEntry {
 export interface QuestionTrendPoint {
   readonly date: string;
   readonly practice_count: number;
-  readonly accuracy_rate: number;
+  readonly accuracy_rate: number | null;
 }

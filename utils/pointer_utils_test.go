@@ -90,3 +90,36 @@ func (ps *PointerUtilsTestSuite) TestStrPtr() {
 		})
 	}
 }
+
+// TestFloat64Ptr tests the Float64Ptr utility function
+func (ps *PointerUtilsTestSuite) TestFloat64Ptr() {
+	testCases := []struct {
+		name     string
+		input    float64
+		expected float64
+	}{
+		{
+			name:     "positive fraction",
+			input:    66.7,
+			expected: 66.7,
+		},
+		{
+			name:     "negative number",
+			input:    -1.5,
+			expected: -1.5,
+		},
+		{
+			name:     "zero",
+			input:    0,
+			expected: 0,
+		},
+	}
+
+	for _, tc := range testCases {
+		ps.Run(tc.name, func() {
+			result := Float64Ptr(tc.input)
+			ps.NotNil(result, "Float64Ptr should return a non-nil pointer")
+			ps.Equal(tc.expected, *result, "dereferenced value should match input")
+		})
+	}
+}

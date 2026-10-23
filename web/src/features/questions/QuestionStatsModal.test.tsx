@@ -12,7 +12,7 @@ const buildTrendPoint = (
 ): QuestionTrendPoint => ({
   date: '2026-07-10',
   practice_count: 0,
-  accuracy_rate: 0,
+  accuracy_rate: null,
   ...overrides,
 });
 
@@ -108,6 +108,7 @@ describe('QuestionStatsModal', () => {
       practice_count_distribution: [],
     });
     vi.spyOn(apiService, 'getQuestionsTrend').mockResolvedValue([
+      buildTrendPoint({ date: '2026-07-08' }),
       buildTrendPoint({
         date: '2026-07-09',
         practice_count: 2,

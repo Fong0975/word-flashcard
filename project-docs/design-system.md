@@ -195,6 +195,7 @@ Contrast budget: every white fill in dark raises the surface luminance, so the d
 | Inline `ErrorMessage` | `.glass-alert-error` | same class |
 | Chart tooltip | frosted dark for **both** themes: `rgba(31,41,55,.85)`, border `rgba(255,255,255,.15)`, text `#f3f4f6`, blur 6px (recharts inline styles cannot read `dark:`) | same |
 | Chart bars | stroke `rgba(255,255,255,.25)` @ 0.5px, fill opacity `0.85` | same |
+| Multi-series chart tooltip items | `GlassTooltipContent`: item text stays `#f3f4f6`; the series color is shown as a 10px swatch (`border-white/50`) instead of tinting the text, so dark series stay legible | same |
 | Chart line dots | `GlassDot`: solid status fill, bar edge stroke, radius 4px (6px while hovered) | same |
 | History line charts | no axis lines or tick marks; tick labels offset 10px from the plot | same |
 
@@ -303,7 +304,7 @@ Reuse these before building new UI (`web/src/components/ui`, `web/src/components
 | Feedback | `Toast`/`ToastContainer`, `ErrorMessage`, `EmptyState`, `LoadingSpinner` |
 | Pagination | `Pagination` (segmented on desktop with `border-gray-300`/`gray-600`, standalone `.glass-interactive` on mobile) |
 | Segmented control | `SegmentedToggle` (`.glass-panel` group; selected segment `.glass-button-primary`, others `.glass-interactive`, `.segmented-divider` between segments). Used for the Stats modal tabs and the question history chart switch |
-| Charts | `chartGlassStyles` constants (`GLASS_TOOLTIP_*`, `CHART_TEXT_CLASSNAME`, `GLASS_BAR_*`, `CHART_AXIS_TICK_MARGIN` / `CHART_X_AXIS_HEIGHT` for line charts without axis lines, `CHART_DOT_RADIUS` / `CHART_ACTIVE_DOT_RADIUS`); `GlassDot` (always-visible line chart point with the bar edge stroke); `PracticeCountBarChart` (practice count distribution bars with heading and caption, shared by the word and question Stats modals) |
+| Charts | `chartGlassStyles` constants (`GLASS_TOOLTIP_*`, `CHART_TEXT_CLASSNAME`, `GLASS_BAR_*`, `CHART_AXIS_TICK_MARGIN` / `CHART_X_AXIS_HEIGHT` for line charts without axis lines, `CHART_DOT_RADIUS` / `CHART_ACTIVE_DOT_RADIUS`); `GlassDot` (always-visible line chart point with the bar edge stroke); `GlassTooltipContent` (frosted-dark tooltip body with series swatches, for multi-series charts such as the Stats modal trend tabs); `PracticeCountBarChart` (practice count distribution bars with heading and caption, shared by the word and question Stats modals) |
 
 ### Icons
 

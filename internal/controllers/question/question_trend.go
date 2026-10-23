@@ -11,7 +11,7 @@ import (
 )
 
 // GetQuestionsTrend @Summary Get daily answer trend across all questions
-// @Description Get daily practice count / accuracy rate across all questions over the last N days, zero-filled for days with no activity
+// @Description Get daily practice count / accuracy rate across all questions over the last N days; days with no activity are included with practice_count 0 and null rates
 // @Tags questions
 // @Produce json
 // @Param days query int false "Number of days to include (default: 30, max: 90)"
