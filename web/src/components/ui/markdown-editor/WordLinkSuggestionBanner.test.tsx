@@ -1,26 +1,26 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { WordLinkSuggestionPopup } from './WordLinkSuggestionPopup';
+import { WordLinkSuggestionBanner } from './WordLinkSuggestionBanner';
 
-describe('WordLinkSuggestionPopup', () => {
-  it('shows the detected word', () => {
+describe('WordLinkSuggestionBanner', () => {
+  it('announces the detected word as a status banner', () => {
     render(
-      <WordLinkSuggestionPopup
+      <WordLinkSuggestionBanner
         word='apple'
         onInsert={vi.fn()}
         onDismiss={vi.fn()}
       />,
     );
 
-    expect(screen.getByText(/apple/)).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent(/apple/);
   });
 
   it('calls onInsert when "Add link" is clicked', async () => {
     const user = userEvent.setup();
     const onInsert = vi.fn();
     render(
-      <WordLinkSuggestionPopup
+      <WordLinkSuggestionBanner
         word='apple'
         onInsert={onInsert}
         onDismiss={vi.fn()}
@@ -35,7 +35,7 @@ describe('WordLinkSuggestionPopup', () => {
     const user = userEvent.setup();
     const onDismiss = vi.fn();
     render(
-      <WordLinkSuggestionPopup
+      <WordLinkSuggestionBanner
         word='apple'
         onInsert={vi.fn()}
         onDismiss={onDismiss}
@@ -46,29 +46,33 @@ describe('WordLinkSuggestionPopup', () => {
     expect(onDismiss).toHaveBeenCalledTimes(1);
   });
 
-  it('does not show queue progress when there is only one candidate', () => {
+  it.each([
+    {
+      name: 'hides queue progress when there is only one candidate',
+      progress: { current: 1, total: 1 },
+      text: /of 1/,
+      shown: false,
+    },
+    {
+      name: 'shows queue progress when cascading through multiple missed candidates',
+      progress: { current: 2, total: 3 },
+      text: /2 of 3/,
+      shown: true,
+    },
+  ])('$name', ({ progress, text, shown }) => {
     render(
-      <WordLinkSuggestionPopup
-        word='apple'
-        progress={{ current: 1, total: 1 }}
-        onInsert={vi.fn()}
-        onDismiss={vi.fn()}
-      />,
-    );
-
-    expect(screen.queryByText(/of 1/)).not.toBeInTheDocument();
-  });
-
-  it('shows queue progress when cascading through multiple missed candidates', () => {
-    render(
-      <WordLinkSuggestionPopup
+      <WordLinkSuggestionBanner
         word='banana'
-        progress={{ current: 2, total: 3 }}
+        progress={progress}
         onInsert={vi.fn()}
         onDismiss={vi.fn()}
       />,
     );
 
-    expect(screen.getByText(/2 of 3/)).toBeInTheDocument();
+    if (shown) {
+      expect(screen.getByText(text)).toBeInTheDocument();
+    } else {
+      expect(screen.queryByText(text)).not.toBeInTheDocument();
+    }
   });
 });

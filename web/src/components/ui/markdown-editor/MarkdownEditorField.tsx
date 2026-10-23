@@ -25,7 +25,7 @@ import { insertSymbol } from './symbolFormatting';
 import { getScrollTopToReveal, measureCaretBounds } from './textareaCaret';
 import { useMarkdownHistory } from './useMarkdownHistory';
 import { insertWordLink } from './wordLinkFormatting';
-import { WordLinkSuggestionPopup } from './WordLinkSuggestionPopup';
+import { WordLinkSuggestionBanner } from './WordLinkSuggestionBanner';
 
 const FORMAT_HANDLERS: Record<
   MarkdownFormatAction,
@@ -322,9 +322,9 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
       />
 
       <div
-        className={`glass-input overflow-hidden focus-within:border-primary-400/70 focus-within:ring-2 focus-within:ring-primary-400/30 dark:focus-within:border-primary-400/50 dark:focus-within:ring-primary-400/20 ${
+        className={`glass-input overflow-hidden transition-[border-color,box-shadow] duration-300 focus-within:border-primary-400/70 focus-within:ring-2 focus-within:ring-primary-400/30 motion-reduce:transition-none dark:focus-within:border-primary-400/50 dark:focus-within:ring-primary-400/20 ${
           isFlex ? 'flex min-h-0 flex-1 flex-col' : 'mb-1'
-        }`}
+        } ${suggestion ? 'glass-glow glass-glow-blue' : ''}`}
       >
         <MarkdownToolbar
           onFormat={handleFormat}
@@ -339,6 +339,14 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
           onUndo={handleUndo}
           onRedo={handleRedo}
         />
+        {suggestion && (
+          <WordLinkSuggestionBanner
+            word={suggestion.word}
+            progress={queueProgress}
+            onInsert={handleInsertWordLink}
+            onDismiss={() => dismissSuggestion(value)}
+          />
+        )}
         {isFlex ? (
           editorContent
         ) : (
@@ -352,15 +360,6 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
           <span>Markdown is supported</span>
         </div>
       </div>
-
-      {suggestion && (
-        <WordLinkSuggestionPopup
-          word={suggestion.word}
-          progress={queueProgress}
-          onInsert={handleInsertWordLink}
-          onDismiss={() => dismissSuggestion(value)}
-        />
-      )}
     </div>
   );
 };
