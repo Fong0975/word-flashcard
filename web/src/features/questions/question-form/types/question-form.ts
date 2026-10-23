@@ -35,6 +35,9 @@ export interface OptionInputProps {
   option: AnswerOption;
   value: string;
   onChange: (option: AnswerOption, value: string) => void;
+  /** Whether this option is marked as the correct answer. */
+  isCorrect: boolean;
+  onSelectCorrect: (option: AnswerOption) => void;
   required?: boolean;
   disabled?: boolean;
 }

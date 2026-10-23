@@ -150,12 +150,19 @@ describe('QuestionFormModal', () => {
       'New question?',
     );
     await user.type(screen.getByLabelText(/Option A/), '4');
-    await user.click(screen.getByLabelText(/Correct Answer/));
-    await user.click(screen.getByRole('menuitem', { name: 'A' }));
+    await user.click(
+      screen.getByRole('radio', {
+        name: 'Mark option A as the correct answer',
+      }),
+    );
 
     await user.click(screen.getByRole('button', { name: 'Add Question' }));
 
-    await waitFor(() => expect(createQuestionSpy).toHaveBeenCalled());
+    await waitFor(() =>
+      expect(createQuestionSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ answer: 'A', option_a: '4' }),
+      ),
+    );
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(onQuestionSaved).toHaveBeenCalled();
   });
@@ -172,11 +179,69 @@ describe('QuestionFormModal', () => {
       'New question?',
     );
     await user.type(screen.getByLabelText(/Option A/), '4');
-    await user.click(screen.getByLabelText(/Correct Answer/));
-    await user.click(screen.getByRole('menuitem', { name: 'A' }));
+    await user.click(
+      screen.getByRole('radio', {
+        name: 'Mark option A as the correct answer',
+      }),
+    );
     await user.click(screen.getByRole('button', { name: 'Add Question' }));
 
     expect(await screen.findByText('network down')).toBeInTheDocument();
+  });
+
+  it('keeps submit disabled until an option is marked as the correct answer', async () => {
+    const user = userEvent.setup();
+    render(<QuestionFormModal isOpen onClose={vi.fn()} mode='create' />);
+
+    await user.type(
+      screen.getByRole('textbox', { name: /Question/ }),
+      'New question?',
+    );
+    await user.type(screen.getByLabelText(/Option A/), '4');
+    const submitButton = screen.getByRole('button', { name: 'Add Question' });
+    expect(submitButton).toBeDisabled();
+
+    await user.click(
+      screen.getByRole('radio', {
+        name: 'Mark option A as the correct answer',
+      }),
+    );
+    expect(submitButton).toBeEnabled();
+  });
+
+  it('pre-selects the saved answer in edit mode and submits a newly chosen one', async () => {
+    const user = userEvent.setup();
+    const updateQuestionSpy = vi
+      .spyOn(apiService, 'updateQuestion')
+      .mockResolvedValue(buildQuestion({ answer: 'C' }));
+    render(
+      <QuestionFormModal
+        isOpen
+        onClose={vi.fn()}
+        mode='edit'
+        question={buildQuestion()}
+      />,
+    );
+
+    expect(
+      screen.getByRole('radio', {
+        name: 'Mark option A as the correct answer',
+      }),
+    ).toBeChecked();
+
+    await user.click(
+      screen.getByRole('radio', {
+        name: 'Mark option C as the correct answer',
+      }),
+    );
+    await user.click(screen.getByRole('button', { name: 'Update Question' }));
+
+    await waitFor(() =>
+      expect(updateQuestionSpy).toHaveBeenCalledWith(
+        1,
+        expect.objectContaining({ answer: 'C' }),
+      ),
+    );
   });
 
   it('calls onClose when Cancel is clicked', async () => {
