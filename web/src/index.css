@@ -416,6 +416,10 @@ body {
     --glass-glow: 239 68 68;
   }
 
+  .glass-glow-blue {
+    --glass-glow: 59 130 246;
+  }
+
   .dark .glass-glow-green {
     --glass-glow: 74 222 128;
   }
@@ -426,6 +430,10 @@ body {
 
   .dark .glass-glow-red {
     --glass-glow: 248 113 113;
+  }
+
+  .dark .glass-glow-blue {
+    --glass-glow: 96 165 250;
   }
 
   /*
@@ -666,6 +674,13 @@ body {
 
   .dark .glass-input {
     color-scheme: dark;
+  }
+
+  /* `.glass-input` is declared after `.glass-glow`, so its own shadow and
+     border would otherwise win when the two are stacked. */
+  .glass-input.glass-glow {
+    @apply shadow-glass-glow;
+    border-color: rgb(var(--glass-glow) / var(--glass-glow-edge));
   }
 
   /* Dim the native date/time picker icon at rest so it recedes into the

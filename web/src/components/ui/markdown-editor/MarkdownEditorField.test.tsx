@@ -166,19 +166,32 @@ describe('MarkdownEditorField', () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       render(<ControlledMarkdownEditorField />);
 
-      await user.type(screen.getByRole('textbox'), '`apple`');
+      const textarea = screen.getByRole('textbox');
+      const editorBox = textarea.closest('.glass-input');
+      await user.type(textarea, '`apple`');
 
       const insertButton = await screen.findByRole('button', {
         name: 'Add link',
       });
+      const banner = screen.getByRole('status');
+      // Sits between the toolbar and the editing body.
+      expect(
+        screen
+          .getByRole('button', { name: 'Undo' })
+          .compareDocumentPosition(banner),
+      ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+      expect(banner.compareDocumentPosition(textarea)).toBe(
+        Node.DOCUMENT_POSITION_FOLLOWING,
+      );
+      expect(editorBox).toHaveClass('glass-glow', 'glass-glow-blue');
+
       await user.click(insertButton);
 
-      expect(screen.getByRole('textbox')).toHaveValue(
-        '`apple`([link](/word/apple))',
-      );
+      expect(textarea).toHaveValue('`apple`([link](/word/apple))');
       expect(
         screen.queryByRole('button', { name: 'Add link' }),
       ).not.toBeInTheDocument();
+      expect(editorBox).not.toHaveClass('glass-glow');
     });
 
     it('dismisses the suggestion without changing the value when Skip is clicked', async () => {
@@ -197,6 +210,9 @@ describe('MarkdownEditorField', () => {
       expect(
         screen.queryByRole('button', { name: 'Add link' }),
       ).not.toBeInTheDocument();
+      expect(
+        screen.getByRole('textbox').closest('.glass-input'),
+      ).not.toHaveClass('glass-glow');
     });
 
     it('undoes an accepted word link as a single step', async () => {
