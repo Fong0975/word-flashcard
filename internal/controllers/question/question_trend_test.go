@@ -9,6 +9,7 @@ import (
 	dbModels "word-flashcard/data/models"
 	"word-flashcard/internal/controllers/common"
 	"word-flashcard/internal/models"
+	"word-flashcard/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -18,7 +19,7 @@ import (
 // TestGetQuestionsTrend tests the GetQuestionsTrend handler. It uses a small
 // 3-day window so the expected zero-filled output is easy to hand-compute:
 // 3 logs on the oldest day of the window (2 correct, 1 incorrect) →
-// accuracy_rate = round1(2*100/3) = 66.7, the other two days stay zero-filled.
+// accuracy_rate = round1(2*100/3) = 66.7, the other two days have a null rate.
 func (suite *ControllerTestSuite) TestGetQuestionsTrend() {
 	testID := 1
 	now := common.NowInReportTimeZone()
@@ -50,9 +51,9 @@ func (suite *ControllerTestSuite) TestGetQuestionsTrend() {
 	assert.Equal(suite.T(), http.StatusOK, w.Code)
 	// Verify the response body
 	expected := []models.QuestionTrendPoint{
-		{Date: dateKeys[0], PracticeCount: 3, AccuracyRate: 66.7},
-		{Date: dateKeys[1], PracticeCount: 0, AccuracyRate: 0},
-		{Date: dateKeys[2], PracticeCount: 0, AccuracyRate: 0},
+		{Date: dateKeys[0], PracticeCount: 3, AccuracyRate: utils.Float64Ptr(66.7)},
+		{Date: dateKeys[1], PracticeCount: 0},
+		{Date: dateKeys[2], PracticeCount: 0},
 	}
 	expectedJSON, marshalErr := json.Marshal(expected)
 	assert.NoError(suite.T(), marshalErr)
@@ -92,9 +93,9 @@ func (suite *ControllerTestSuite) TestGetQuestionsTrendBucketsByReportTimeZone()
 
 	assert.Equal(suite.T(), http.StatusOK, w.Code)
 	expected := []models.QuestionTrendPoint{
-		{Date: dateKeys[0], PracticeCount: 0, AccuracyRate: 0},
-		{Date: dateKeys[1], PracticeCount: 0, AccuracyRate: 0},
-		{Date: dateKeys[2], PracticeCount: 1, AccuracyRate: 100},
+		{Date: dateKeys[0], PracticeCount: 0},
+		{Date: dateKeys[1], PracticeCount: 0},
+		{Date: dateKeys[2], PracticeCount: 1, AccuracyRate: utils.Float64Ptr(100)},
 	}
 	expectedJSON, marshalErr2 := json.Marshal(expected)
 	assert.NoError(suite.T(), marshalErr2)

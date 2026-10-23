@@ -12,10 +12,11 @@ type QuestionAnswerLogEntry struct {
 }
 
 // QuestionTrendPoint is one day's aggregated answer trend for a question,
-// returned by GET /api/questions/{id}/trend. AccuracyRate is 0 on days with
-// PracticeCount == 0 (zero-filled, not omitted).
+// returned by GET /api/questions/{id}/trend. Days with PracticeCount == 0 are
+// still included, but AccuracyRate is null on them so "no answers" stays
+// distinguishable from a genuine 0% accuracy.
 type QuestionTrendPoint struct {
-	Date          string  `json:"date"`
-	PracticeCount int     `json:"practice_count"`
-	AccuracyRate  float64 `json:"accuracy_rate"`
+	Date          string   `json:"date"`
+	PracticeCount int      `json:"practice_count"`
+	AccuracyRate  *float64 `json:"accuracy_rate" extensions:"x-nullable"`
 }

@@ -11,7 +11,7 @@ import (
 )
 
 // GetQuestionsTrend @Summary Get daily answer trend across all questions
-// @Description Get daily practice count / accuracy rate across all questions over the last N days, zero-filled for days with no activity
+// @Description Get daily practice count / accuracy rate across all questions over the last N days; days with no activity are included with practice_count 0 and null rates
 // @Tags questions
 // @Produce json
 // @Param days query int false "Number of days to include (default: 30, max: 90)"
@@ -29,7 +29,7 @@ func (qc *Controller) GetQuestionsTrend(c *gin.Context) {
 
 	// ================ 2. Fetch data from database ================
 	now := common.NowInReportTimeZone()
-	since := now.AddDate(0, 0, -(days - 1))
+	since := common.TrendWindowStart(days, now)
 	where := squirrel.GtOrEq{schema.COMMON_CREATED_AT: since}
 	logs, err := qc.questionAnswerLogPeer.Select([]*string{}, where, nil, nil, nil)
 	if err != nil {

@@ -7,7 +7,6 @@ import {
   Legend,
   ResponsiveContainer,
   Bar,
-  Line,
   ComposedChart,
   XAxis,
   YAxis,
@@ -24,8 +23,11 @@ import {
   GLASS_FILL_OPACITY,
   GLASS_TOOLTIP_STYLE,
   glassLegendFormatter,
+  PRACTICE_COUNT_BAR_COLOR,
 } from '../../components/ui/charts/chartGlassStyles';
+import { GlassTooltipContent } from '../../components/ui/charts/GlassTooltipContent';
 import { PracticeCountBarChart } from '../../components/ui/charts/PracticeCountBarChart';
+import { renderHaloLine } from '../../components/ui/charts/renderHaloLine';
 import { apiService } from '../../lib/api';
 import { WordStatsResponse, WordTrendPoint } from '../../types/api';
 import { FamiliarityLevel } from '../../types/base';
@@ -259,41 +261,37 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
                       tickFormatter={v => `${v}%`}
                     />
                     <Tooltip
-                      labelFormatter={value => formatShortDate(value as string)}
-                      contentStyle={GLASS_TOOLTIP_STYLE}
+                      content={
+                        <GlassTooltipContent labelFormatter={formatShortDate} />
+                      }
                     />
                     <Legend
                       wrapperStyle={{ fontSize: '12px' }}
                       formatter={glassLegendFormatter}
+                      itemSorter={null}
                     />
                     <Bar
                       yAxisId='left'
                       dataKey='practice_count'
-                      fill='#4338ca'
+                      fill={PRACTICE_COUNT_BAR_COLOR}
                       fillOpacity={GLASS_FILL_OPACITY}
                       stroke={GLASS_BAR_STROKE}
                       strokeWidth={GLASS_BAR_STROKE_WIDTH}
                       name='Practices'
                       radius={[2, 2, 0, 0]}
                     />
-                    <Line
-                      yAxisId='right'
-                      dataKey='improvement_rate'
-                      stroke='#c084fc'
-                      strokeWidth={2.5}
-                      dot={false}
-                      activeDot={{ r: 4 }}
-                      name='Improvement (%)'
-                    />
-                    <Line
-                      yAxisId='right'
-                      dataKey='avg_familiarity_score'
-                      stroke='#38bdf8'
-                      strokeWidth={2.5}
-                      dot={false}
-                      activeDot={{ r: 4 }}
-                      name='Avg Familiarity (%)'
-                    />
+                    {renderHaloLine({
+                      yAxisId: 'right',
+                      dataKey: 'avg_familiarity_score',
+                      stroke: '#38bdf8',
+                      name: 'Avg Familiarity (%)',
+                    })}
+                    {renderHaloLine({
+                      yAxisId: 'right',
+                      dataKey: 'improvement_rate',
+                      stroke: '#c084fc',
+                      name: 'Improvement (%)',
+                    })}
                   </ComposedChart>
                 </ResponsiveContainer>
               )}

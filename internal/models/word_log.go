@@ -12,11 +12,12 @@ type WordPracticeLogEntry struct {
 }
 
 // WordTrendPoint is one day's aggregated practice trend for a word, returned
-// by GET /api/words/{id}/trend. ImprovementRate and AvgFamiliarityScore are
-// 0 on days with PracticeCount == 0 (zero-filled, not omitted).
+// by GET /api/words/{id}/trend. Days with PracticeCount == 0 are still
+// included, but ImprovementRate and AvgFamiliarityScore are null on them so
+// "no practice" stays distinguishable from a genuine 0% rate.
 type WordTrendPoint struct {
-	Date                string  `json:"date"`
-	PracticeCount       int     `json:"practice_count"`
-	ImprovementRate     float64 `json:"improvement_rate"`
-	AvgFamiliarityScore float64 `json:"avg_familiarity_score"`
+	Date                string   `json:"date"`
+	PracticeCount       int      `json:"practice_count"`
+	ImprovementRate     *float64 `json:"improvement_rate" extensions:"x-nullable"`
+	AvgFamiliarityScore *float64 `json:"avg_familiarity_score" extensions:"x-nullable"`
 }

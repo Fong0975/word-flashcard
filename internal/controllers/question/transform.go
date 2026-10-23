@@ -5,6 +5,7 @@ import (
 	dbModels "word-flashcard/data/models"
 	"word-flashcard/internal/controllers/common"
 	"word-flashcard/internal/models"
+	"word-flashcard/utils"
 )
 
 // convertToEntities converts database models to API models
@@ -40,9 +41,9 @@ func (qc *Controller) toQuestionAnswerLogEntries(logs []*dbModels.QuestionAnswer
 	return entries
 }
 
-// buildQuestionTrendPoints aggregates answer logs into zero-filled daily
-// trend points. accuracy_rate is the share of that day's log entries with
-// IsCorrect true.
+// buildQuestionTrendPoints aggregates answer logs into one trend point per
+// day, including days without any answer. accuracy_rate is the share of that
+// day's log entries with IsCorrect true, or nil on days without any answer.
 func (qc *Controller) buildQuestionTrendPoints(logs []*dbModels.QuestionAnswerLog, days int, now time.Time) []models.QuestionTrendPoint {
 	dateKeys := common.DailyDateKeys(days, now)
 	points := make([]models.QuestionTrendPoint, len(dateKeys))
@@ -78,7 +79,7 @@ func (qc *Controller) buildQuestionTrendPoints(logs []*dbModels.QuestionAnswerLo
 		i := idx[key]
 		points[i].PracticeCount = a.count
 		if a.count > 0 {
-			points[i].AccuracyRate = common.Round1(float64(a.correct) * 100 / float64(a.count))
+			points[i].AccuracyRate = utils.Float64Ptr(common.Round1(float64(a.correct) * 100 / float64(a.count)))
 		}
 	}
 	return points

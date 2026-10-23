@@ -131,6 +131,16 @@ func DailyDateKeys(days int, now time.Time) []string {
 	return keys
 }
 
+// TrendWindowStart returns 00:00 in ReportTimeZone of the oldest day covered
+// by DailyDateKeys(days, now), for use as the inclusive lower bound of a trend
+// query. Truncating to the start of that day matters: subtracting days from now
+// alone keeps now's time of day, which silently drops every log recorded
+// earlier than that time on the oldest day.
+func TrendWindowStart(days int, now time.Time) time.Time {
+	y, m, d := now.In(reportLocation).AddDate(0, 0, -(days - 1)).Date()
+	return time.Date(y, m, d, 0, 0, 0, 0, reportLocation)
+}
+
 // Round1 rounds f to 1 decimal place, used to keep trend/average values
 // stable and readable across controller responses.
 func Round1(f float64) float64 { return math.Round(f*10) / 10 }

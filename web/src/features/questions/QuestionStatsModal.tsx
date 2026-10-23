@@ -8,7 +8,6 @@ import {
   ResponsiveContainer,
   Cell,
   ComposedChart,
-  Line,
   Legend,
   CartesianGrid,
 } from 'recharts';
@@ -22,10 +21,12 @@ import {
   GLASS_BAR_STROKE_WIDTH,
   GLASS_FILL_OPACITY,
   GLASS_TOOLTIP_CLASSNAME,
-  GLASS_TOOLTIP_STYLE,
   glassLegendFormatter,
+  PRACTICE_COUNT_BAR_COLOR,
 } from '../../components/ui/charts/chartGlassStyles';
+import { GlassTooltipContent } from '../../components/ui/charts/GlassTooltipContent';
 import { PracticeCountBarChart } from '../../components/ui/charts/PracticeCountBarChart';
+import { renderHaloLine } from '../../components/ui/charts/renderHaloLine';
 import { apiService } from '../../lib/api';
 import {
   PracticeCountBucket,
@@ -290,32 +291,31 @@ export const QuestionStatsModal: React.FC<QuestionStatsModalProps> = ({
                       tickFormatter={v => `${v}%`}
                     />
                     <Tooltip
-                      labelFormatter={value => formatShortDate(value as string)}
-                      contentStyle={GLASS_TOOLTIP_STYLE}
+                      content={
+                        <GlassTooltipContent labelFormatter={formatShortDate} />
+                      }
                     />
                     <Legend
                       wrapperStyle={{ fontSize: '12px' }}
                       formatter={glassLegendFormatter}
+                      itemSorter={null}
                     />
                     <Bar
                       yAxisId='left'
                       dataKey='practice_count'
-                      fill='#4338ca'
+                      fill={PRACTICE_COUNT_BAR_COLOR}
                       fillOpacity={GLASS_FILL_OPACITY}
                       stroke={GLASS_BAR_STROKE}
                       strokeWidth={GLASS_BAR_STROKE_WIDTH}
                       name='Practices'
                       radius={[2, 2, 0, 0]}
                     />
-                    <Line
-                      yAxisId='right'
-                      dataKey='accuracy_rate'
-                      stroke='#38bdf8'
-                      strokeWidth={2.5}
-                      dot={false}
-                      activeDot={{ r: 4 }}
-                      name='Accuracy (%)'
-                    />
+                    {renderHaloLine({
+                      yAxisId: 'right',
+                      dataKey: 'accuracy_rate',
+                      stroke: '#38bdf8',
+                      name: 'Accuracy (%)',
+                    })}
                   </ComposedChart>
                 </ResponsiveContainer>
               )}

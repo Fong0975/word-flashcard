@@ -6,6 +6,7 @@ import (
 	"word-flashcard/data/schema"
 	"word-flashcard/internal/controllers/common"
 	"word-flashcard/internal/models"
+	"word-flashcard/utils"
 )
 
 // toWordPracticeLogEntries converts data-layer practice log rows to the API response shape.
@@ -47,10 +48,12 @@ func familiarityLevel(f *string) int {
 	}
 }
 
-// buildWordTrendPoints aggregates practice logs into zero-filled daily trend
-// points. improvement_rate is the share of that day's log entries where
-// familiarity increased relative to previous_familiarity; avg_familiarity_score
-// is the day's mean familiarity level (0/1/2) rescaled to 0-100.
+// buildWordTrendPoints aggregates practice logs into one trend point per day,
+// including days without any practice. improvement_rate is the share of that
+// day's log entries where familiarity increased relative to
+// previous_familiarity; avg_familiarity_score is the day's mean familiarity
+// level (0/1/2) rescaled to 0-100. Both rates stay nil on days without any
+// practice.
 func (wc *Controller) buildWordTrendPoints(logs []*dbModels.WordPracticeLog, days int, now time.Time) []models.WordTrendPoint {
 	dateKeys := common.DailyDateKeys(days, now)
 	points := make([]models.WordTrendPoint, len(dateKeys))
@@ -88,8 +91,8 @@ func (wc *Controller) buildWordTrendPoints(logs []*dbModels.WordPracticeLog, day
 		i := idx[key]
 		points[i].PracticeCount = a.count
 		if a.count > 0 {
-			points[i].ImprovementRate = common.Round1(float64(a.improved) * 100 / float64(a.count))
-			points[i].AvgFamiliarityScore = common.Round1(float64(a.scoreSum) / float64(a.count) / 2 * 100)
+			points[i].ImprovementRate = utils.Float64Ptr(common.Round1(float64(a.improved) * 100 / float64(a.count)))
+			points[i].AvgFamiliarityScore = utils.Float64Ptr(common.Round1(float64(a.scoreSum) / float64(a.count) / 2 * 100))
 		}
 	}
 	return points

@@ -1062,7 +1062,7 @@ const docTemplate = `{
         },
         "/api/questions/trend": {
             "get": {
-                "description": "Get daily practice count / accuracy rate across all questions over the last N days, zero-filled for days with no activity",
+                "description": "Get daily practice count / accuracy rate across all questions over the last N days; days with no activity are included with practice_count 0 and null rates",
                 "produces": [
                     "application/json"
                 ],
@@ -1742,7 +1742,7 @@ const docTemplate = `{
         },
         "/api/words/trend": {
             "get": {
-                "description": "Get daily practice count / improvement rate / average familiarity score across all words over the last N days, zero-filled for days with no activity",
+                "description": "Get daily practice count / improvement rate / average familiarity score across all words over the last N days; days with no activity are included with practice_count 0 and null rates",
                 "produces": [
                     "application/json"
                 ],
@@ -2304,7 +2304,8 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "accuracy_rate": {
-                    "type": "number"
+                    "type": "number",
+                    "x-nullable": true
                 },
                 "date": {
                     "type": "string"
@@ -2452,13 +2453,15 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "avg_familiarity_score": {
-                    "type": "number"
+                    "type": "number",
+                    "x-nullable": true
                 },
                 "date": {
                     "type": "string"
                 },
                 "improvement_rate": {
-                    "type": "number"
+                    "type": "number",
+                    "x-nullable": true
                 },
                 "practice_count": {
                     "type": "integer"
