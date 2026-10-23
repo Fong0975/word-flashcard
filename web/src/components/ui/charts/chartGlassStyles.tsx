@@ -34,6 +34,12 @@ export const GLASS_BAR_STROKE = 'rgba(255, 255, 255, 0.25)';
 export const GLASS_BAR_STROKE_WIDTH = 0.5;
 export const GLASS_FILL_OPACITY = 0.85;
 
+/** Fill of every practice count bar (distribution and daily trend charts), so
+ * "practices" reads as the same series across all Stats charts. Resolved
+ * through a CSS variable because recharts color props can't read Tailwind's
+ * `dark:` variant, and the bars need a deeper shade on the light theme. */
+export const PRACTICE_COUNT_BAR_COLOR = 'var(--chart-practice-bar)';
+
 /**
  * Spacing for line charts drawn without axis lines (history charts whose
  * lowest value sits on the x-axis): the tick labels are pushed away from the

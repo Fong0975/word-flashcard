@@ -26,7 +26,10 @@ export const GlassTooltipContent: React.FC<GlassTooltipContentProps> = ({
   label,
   labelFormatter,
 }) => {
-  if (!active || !payload?.length) {
+  // Series marked `tooltipType='none'` (e.g. line halos) are skipped, matching
+  // recharts' default tooltip content.
+  const items = payload?.filter(entry => entry.type !== 'none') ?? [];
+  if (!active || items.length === 0) {
     return null;
   }
   const heading = label === undefined ? '' : String(label);
@@ -39,7 +42,7 @@ export const GlassTooltipContent: React.FC<GlassTooltipContentProps> = ({
         </div>
       )}
       <ul className='space-y-0.5'>
-        {payload.map(entry => (
+        {items.map(entry => (
           <li
             key={String(entry.dataKey ?? entry.name)}
             className='flex items-center gap-1.5'

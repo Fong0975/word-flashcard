@@ -17,6 +17,7 @@ import {
   GLASS_BAR_STROKE_WIDTH,
   GLASS_FILL_OPACITY,
   GLASS_TOOLTIP_STYLE,
+  PRACTICE_COUNT_BAR_COLOR,
 } from './chartGlassStyles';
 
 interface PracticeCountBarChartProps {
@@ -75,7 +76,7 @@ export const PracticeCountBarChart: React.FC<PracticeCountBarChartProps> = ({
           <Bar
             dataKey='count'
             radius={[3, 3, 0, 0]}
-            fill='#6366f1'
+            fill={PRACTICE_COUNT_BAR_COLOR}
             fillOpacity={GLASS_FILL_OPACITY}
             stroke={GLASS_BAR_STROKE}
             strokeWidth={GLASS_BAR_STROKE_WIDTH}

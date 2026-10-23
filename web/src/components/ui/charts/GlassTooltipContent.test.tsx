@@ -4,7 +4,7 @@ import type { TooltipPayloadEntry } from 'recharts';
 import { GlassTooltipContent } from './GlassTooltipContent';
 
 const PAYLOAD: TooltipPayloadEntry[] = [
-  { name: 'Practices', value: 15, color: '#4338ca', dataKey: 'practice_count' },
+  { name: 'Practices', value: 15, color: '#6366f1', dataKey: 'practice_count' },
   {
     name: 'Accuracy (%)',
     value: 80,
@@ -13,11 +13,20 @@ const PAYLOAD: TooltipPayloadEntry[] = [
   },
 ];
 
+const HALO: TooltipPayloadEntry = {
+  name: 'accuracy_rate',
+  value: 80,
+  color: '#ffffff',
+  dataKey: 'accuracy_rate',
+  type: 'none',
+};
+
 describe('GlassTooltipContent', () => {
   it.each([
     { name: 'inactive', active: false, payload: PAYLOAD },
     { name: 'without a payload', active: true, payload: undefined },
     { name: 'with an empty payload', active: true, payload: [] },
+    { name: 'with only hidden series', active: true, payload: [HALO] },
   ])('renders nothing when $name', ({ active, payload }) => {
     const { container } = render(
       <GlassTooltipContent active={active} payload={payload} label='x' />,
@@ -40,7 +49,7 @@ describe('GlassTooltipContent', () => {
     render(
       <GlassTooltipContent
         active
-        payload={PAYLOAD}
+        payload={[...PAYLOAD, HALO]}
         label='2026-09-24'
         labelFormatter={labelFormatter}
       />,
@@ -51,6 +60,7 @@ describe('GlassTooltipContent', () => {
     expect(screen.getByText('15')).toBeInTheDocument();
     expect(screen.getByText('Accuracy (%)')).toBeInTheDocument();
     expect(screen.getByText('80')).toBeInTheDocument();
+    expect(screen.getAllByRole('listitem')).toHaveLength(PAYLOAD.length);
   });
 
   it('keeps item text uncolored and shows the series color as a swatch', () => {
@@ -59,6 +69,6 @@ describe('GlassTooltipContent', () => {
     const name = screen.getByText('Practices');
     expect(name).not.toHaveAttribute('style');
     const swatch = name.previousElementSibling as HTMLElement;
-    expect(swatch).toHaveStyle({ backgroundColor: '#4338ca' });
+    expect(swatch).toHaveStyle({ backgroundColor: '#6366f1' });
   });
 });

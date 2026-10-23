@@ -191,6 +191,14 @@
   --glass-glow-inner: 0.35;
   --glass-glow-outer: 0.55;
   --glass-glow-edge: 0.7;
+
+  /* Practice count bars (`PRACTICE_COUNT_BAR_COLOR`); one shade deeper than
+     in dark mode so the bars hold up against the light glass surfaces */
+  --chart-practice-bar: #4f46e5;
+
+  /* Outline behind trend lines (`TREND_LINE_HALO_COLOR`), matching each
+     theme's surface so lines stay separable from the bars they cross */
+  --chart-line-halo: #ffffff;
 }
 
 [data-theme='light'] {
@@ -204,6 +212,8 @@
   --glass-glow-inner: 0.3;
   --glass-glow-outer: 0.45;
   --glass-glow-edge: 0.6;
+  --chart-practice-bar: #6366f1;
+  --chart-line-halo: #111827;
 }
 
 /* Smooth scrolling for better UX */
