@@ -1,4 +1,35 @@
+import { isAppleMobileDevice } from '../../utils/platform';
+
 export type SpeechLocale = 'en-US' | 'en-GB';
+
+const WARM_UP_INTERVAL_MS = 5000;
+
+let lastSpeechActivityAt = -Infinity;
+
+/**
+ * Wakes the iOS speech engine with an inaudible utterance so the first real
+ * utterance after an idle period does not lose its opening fraction of a
+ * second. Skipped on other platforms and while the engine is already warm
+ * (recently used or currently speaking). Call it from a user gesture.
+ */
+export const warmUpSpeech = (): void => {
+  if (!window.speechSynthesis || !isAppleMobileDevice()) {
+    return;
+  }
+
+  const now = Date.now();
+  if (
+    window.speechSynthesis.speaking ||
+    now - lastSpeechActivityAt < WARM_UP_INTERVAL_MS
+  ) {
+    return;
+  }
+  lastSpeechActivityAt = now;
+
+  const utterance = new SpeechSynthesisUtterance(' ');
+  utterance.volume = 0;
+  window.speechSynthesis.speak(utterance);
+};
 
 /**
  * Speaks the given text using the Web Speech API.
@@ -17,6 +48,7 @@ export const speakText = (
   }
 
   window.speechSynthesis.cancel();
+  lastSpeechActivityAt = Date.now();
 
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = locale;
