@@ -8,28 +8,9 @@
 
 ![Preview](assets/preview.jpg)
 
-A personal language learning app for building vocabulary and practising with quizzes. Manage your own word cards and custom questions, then test yourself to track your progress.
+A personal language learning app for building vocabulary and practising with quizzes. Manage your own word cards, custom multiple-choice questions and markdown notes, then test yourself to track your progress.
 
-**Words**
-- Add words with multiple definitions, part-of-speech tags, and pronunciation (UK/US audio)
-- Look up a word via the Gemini API and import its definitions in one click (pronunciation audio is not available; the app falls back to your browser's built-in speech synthesis)
-- Mark familiarity level (Unfamiliar / Learning / Familiar) to reflect your current confidence
-- Set reminders on words you want to revisit; clear them once you feel ready
-
-**Questions**
-- Create and manage multiple-choice questions (A / B / C / D) with a correct answer and explanation
-- Track per-question statistics: practice count, error count, and accuracy rate
-
-**Quizzes**
-- Start a word quiz with a configurable count and filter by familiarity level to focus on what you need most
-- Start a question quiz from your custom multiple-choice question bank
-- View your results after each quiz and choose to retake or return home
-- Review statistics charts for words and questions, including familiarity distribution, practice count distribution, and progress trends over time
-
-**Notes**
-- Create and manage note cards with a title and markdown content
-- Write rich notes using a markdown editor with live preview
-- Reorder notes via drag-and-drop or move-up / move-down buttons
+Look up a word with the Gemini API to import its definitions in one click, mark your familiarity level, and review statistics charts of your learning progress.
 
 ## Project Structure
 
@@ -44,26 +25,9 @@ word-flashcard/
 ├── project-docs/                  # Project documentation (e.g. design system)
 ├── scripts/                       # Helper scripts
 ├── utils/                         # [Backend API] Config, database, logging and helper modules
-├── web/                           # React frontend application
-│   ├── public/                   # Public assets
-│   ├── src/                      # React source code
-│   ├── .env.example              # Environment variables template
-│   ├── Dockerfile                # Dockerfile for frontend service
-│   ├── index.html                # Vite entry HTML
-│   ├── package.json              # React dependencies
-│   ├── package-lock.json         # React dependency lock file
-│   ├── tsconfig.json             # TypeScript configuration
-│   ├── vite.config.mts           # Vite build/dev-server configuration
-│   └── vitest.config.mts         # Vitest test configuration
-├── .env.example                  # Environment variables template
-├── .golangci.yml                 # golangci-lint configuration
-├── CLAUDE.md                     # Project instructions for Claude Code
-├── docker-compose.yml            # Definition of multi-container for services in the project
-├── Dockerfile                    # Dockerfile for backend service
-├── go.mod                        # Go module definition
-├── main.go                       # Main server file
-├── README.md                     # This file
-└── VERSION                       # Current application version
+└── web/                           # React frontend application
+    ├── public/                    # Public assets
+    └── src/                       # React source code
 ```
 
 ## Getting Started
@@ -91,63 +55,7 @@ Set up environment variables for both backend and frontend applications:
 
 #### Backend Configuration (`.env`)
 
-Create a `.env` file in the project root directory with the following configuration:
-
-```env
-# Services Port
-# (They will also be used during Docker Compose operations)
-APP_PORT=8080
-FRONTEND_PORT=3000
-
-# CORS Configuration
-# - ALLOWED_ORIGINS: comma-separated browser origins permitted to call the API.
-#   Leave empty to allow any origin. Browser-enforced only -- it is no barrier
-#   to a direct (non-browser) request, and the API has no authentication.
-ALLOWED_ORIGINS=
-
-# Logging Configuration
-# - Level: DEBUG, INFO, WARN, ERROR
-# - LOG_NOTIFY_LEVEL: minimum severity that raises the unread indicator on the
-#   in-app log viewer
-# - WARNING: do NOT use DEBUG in deployment. At DEBUG the application logs full
-#   request and response bodies plus SQL statements with their bound
-#   parameters, which the log viewing API would then expose.
-LOG_FILE_PATH=word-flashcard.log
-LOG_FILE_MAX_SIZE_MB=10
-LOG_LEVEL=INFO
-LOG_NOTIFY_LEVEL=WARN
-
-# Automatic Backup Configuration
-# - BACKUP_ENABLED: set to false to disable the automatic backup scheduler entirely (including the startup backup)
-# - BACKUP_INTERVAL_HOURS: how old the newest backup must be before a new one is due
-# - BACKUP_CHECK_INTERVAL_HOURS: how often to re-check the above
-BACKUP_ENABLED=true
-BACKUP_DIR=backups
-BACKUP_INTERVAL_HOURS=72
-BACKUP_CHECK_INTERVAL_HOURS=24
-BACKUP_RETENTION_COUNT=10
-
-# Dictionary Lookup Configuration (Gemini API)
-# - GEMINI_API_KEY: required for the dictionary lookup feature to work (see
-#   "Getting a Gemini API Key" below). Keep this secret -- it is only ever
-#   sent to Google as a request header, never exposed to the frontend or logged.
-# - GEMINI_MODEL: which Gemini model to call; defaults to gemini-flash-latest.
-GEMINI_API_KEY=your_gemini_api_key
-GEMINI_MODEL=gemini-flash-latest
-
-# Database Configuration
-# Supported types: mysql, postgresql
-DB_TYPE=mysql
-DB_HOST=localhost
-DB_PORT=3306
-DB_USER=root
-DB_PASSWORD=your_password
-DB_NAME=word_flashcard
-
-# Service Environment
-# - Set to `true` to seed the database with demo data on startup
-DEV_MODE=false
-```
+Copy `.env.example` to `.env` in the project root and fill in the values (server ports, CORS, logging, automatic backup, Gemini API key and database connection). Each variable is documented in the file itself.
 
 > **MySQL Charset Requirement**: The database must use `utf8mb4` character set to support full Unicode content (including emoji and multi-byte characters). Use the following SQL when creating the database:
 > ```sql
@@ -166,13 +74,7 @@ The free tier is more than enough for personal use, and no credit card is requir
 
 #### Frontend Configuration (`web/.env`)
 
-Create a `.env` file in the `web/` directory with the following configuration:
-
-```env
-# API Configuration
-VITE_API_HOSTNAME=localhost
-VITE_API_PORT=8080
-```
+Copy `web/.env.example` to `web/.env` and set the API host and port (`VITE_API_HOSTNAME`, `VITE_API_PORT`) to point at your backend.
 
 For detailed database configuration and usage, see [Database Documentation](utils/database/README.md).
 
@@ -353,36 +255,3 @@ The built React application will be available in the `web/build/` directory.
 # Linux/macOS
 ./dist/word-flashcard
 ```
-
-## Docker Deployment
-
-Use Docker to deploy the services for the production environment. Both services build their images from source (`Dockerfile` / `web/Dockerfile`) rather than pulling a pre-built image, and neither Dockerfile depends on a physical `.env` file being present at build time — configuration is passed in as container environment variables and Docker build args instead, resolved from a single `.env` file next to whichever `docker-compose.yml` you use. This also means the stack can be deployed directly from a fresh clone of this repository (e.g. a Portainer stack pointed at this repo), not only via the `scripts\export_docker.bat` snapshot below.
-
-Pick one of the following:
-
-- **Directly from the repository root** — copy `.env.example` to `.env`, fill in the values, then run `docker compose build && docker compose up -d` from the repo root.
-- **Via the `scripts\export_docker.bat` snapshot** — copy `.env.example` to `.env.production` in the repo root and fill in the values, run `scripts\export_docker.bat` to copy everything the Docker host needs (including renaming `.env.production` to `.env`) into the `docker/` directory, then run `docker compose build && docker compose up -d` from inside `docker/`.
-
-Under Docker Compose, `GEMINI_API_KEY` and `DB_PASSWORD` are handed to the backend as Docker secrets (files under `/run/secrets/`, read via `GEMINI_API_KEY_FILE`/`DB_PASSWORD_FILE`) rather than environment variables, so they don't appear in `docker inspect` or the container's environment. They are still sourced from `.env` (or the Portainer stack variables), so both keys must be defined there, even if empty. Outside Docker, the backend falls back to reading the plain `GEMINI_API_KEY`/`DB_PASSWORD` variables.
-
-`web/.env` is not used by either path — the frontend's API host/port are baked into the build as Docker build args instead (see `VITE_API_HOSTNAME`/`VITE_API_PORT` below).
-
-| Variable                 | Description                                                                                                              | Sample Value                     |
-|---------------------------|---------------------------------------------------------------------------------------------------------------------------|-----------------------------------|
-| APP_PORT                  | Port for the main application service (default expose port for docker-compose)                                           | 8080                              |
-| FRONTEND_PORT              | Port for the React frontend service (default expose port for docker-compose)                                             | 3000                              |
-| VITE_API_HOSTNAME          | Hostname for the API service, baked into the frontend build via a Docker build arg                                        | api.flashcard.com                 |
-| VITE_API_PORT              | Port for the API service, baked into the frontend build via a Docker build arg                                            | 8080                              |
-| LOG_HOST_DIR               | Host directory bind-mounted into the backend container's log output; defaults to `.` (wherever `docker-compose.yml` runs from) — override with an absolute path when that directory isn't stable (e.g. deployed via Portainer) | /opt/word-flashcard                |
-| LOG_FILE_PATH              | Log file path inside the container                                                                                        | logs/word-flashcard.log           |
-| LOG_NOTIFY_LEVEL           | Minimum log severity that raises the unread indicator on the in-app log viewer                                             | WARN                              |
-| LOG_STATE_FILE_PATH        | Where the log viewer's "read up to here" watermark is stored; defaults to `.log-read-state.json` beside `LOG_FILE_PATH`     | logs/.log-read-state.json         |
-| ALLOWED_ORIGINS            | Comma-separated browser origins permitted to call the API; empty allows any origin. Browser-enforced only — no barrier to a direct non-browser request | http://192.168.1.50:3000          |
-| GEMINI_API_KEY              | Gemini API key used by the dictionary lookup feature; see "Getting a Gemini API Key" above. Kept server-side only, never sent to the frontend | (your key)                        |
-| GEMINI_MODEL                | Gemini model called for dictionary lookups; defaults to `gemini-flash-latest`                                             | gemini-flash-latest               |
-| BACKUP_ENABLED             | Whether the automatic backup scheduler runs (startup backup + periodic checks)                                            | true                              |
-| BACKUP_HOST_DIR            | Host directory bind-mounted into the backend container's backup output; defaults to `./backups`, same override behavior as `LOG_HOST_DIR` | /opt/word-flashcard/backups        |
-| BACKUP_DIR                 | Automatic backup output directory inside the container                                                                   | backups                           |
-| TEMPLATE_CONFIG_HOST_DIR   | Host directory bind-mounted over the frontend's optional template-buttons config files (`*ButtonsConfig.json`), so they can be swapped without rebuilding the image; defaults to `./web/public/config` | /opt/word-flashcard/config         |
-
-See `.env.example` for the full list of backend variables, including database and backup schedule settings not covered above.
