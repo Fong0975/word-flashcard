@@ -2,7 +2,7 @@ import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { Mock } from 'vitest';
 
-import { speakText } from '../../features/shared/speech';
+import { speakText, warmUpSpeech } from '../../features/shared/speech';
 
 import { SpeechPronunciationButton } from './SpeechPronunciationButton';
 
@@ -14,6 +14,7 @@ describe('SpeechPronunciationButton', () => {
   beforeEach(() => {
     mockedSpeakText.mockReset();
     mockedSpeakText.mockReturnValue(true);
+    (warmUpSpeech as Mock).mockReset();
   });
 
   it.each([
@@ -45,6 +46,18 @@ describe('SpeechPronunciationButton', () => {
       );
     },
   );
+
+  it('warms up speech on pointer down, before the click speaks', async () => {
+    const user = userEvent.setup();
+    render(<SpeechPronunciationButton text='apple' accent='us' />);
+
+    await user.click(screen.getByTitle('American pronunciation'));
+
+    expect(warmUpSpeech).toHaveBeenCalledTimes(1);
+    expect((warmUpSpeech as Mock).mock.invocationCallOrder[0]).toBeLessThan(
+      mockedSpeakText.mock.invocationCallOrder[0],
+    );
+  });
 
   it('shows a playing state while speaking and restores it when finished', async () => {
     const user = userEvent.setup();

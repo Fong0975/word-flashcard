@@ -1,8 +1,105 @@
 import type { Mock } from 'vitest';
 
-import { speakText } from './speech';
+import { isAppleMobileDevice } from '../../utils/platform';
 
-type MockUtterance = { text: string; lang: string };
+import { speakText, warmUpSpeech } from './speech';
+
+vi.mock('../../utils/platform', () => ({ isAppleMobileDevice: vi.fn() }));
+
+type MockUtterance = { text: string; lang: string; volume?: number };
+
+class FakeUtterance {
+  text: string;
+  lang = '';
+  volume = 1;
+  constructor(text: string) {
+    this.text = text;
+  }
+}
+
+describe('warmUpSpeech', () => {
+  const speak = vi.fn();
+  let now = 1_000_000;
+
+  beforeEach(() => {
+    speak.mockReset();
+    vi.useFakeTimers();
+    // Each case starts well outside the previous case's warm-up window.
+    now += 60_000;
+    vi.setSystemTime(now);
+    (
+      global as unknown as { SpeechSynthesisUtterance: unknown }
+    ).SpeechSynthesisUtterance = FakeUtterance;
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    delete (window as unknown as { speechSynthesis?: unknown }).speechSynthesis;
+    delete (global as unknown as { SpeechSynthesisUtterance?: unknown })
+      .SpeechSynthesisUtterance;
+  });
+
+  it.each([
+    {
+      name: 'does nothing when the Web Speech API is unavailable',
+      synthesis: undefined,
+      isApple: true,
+      expectedCalls: 0,
+    },
+    {
+      name: 'does nothing on non-Apple devices',
+      synthesis: { speaking: false },
+      isApple: false,
+      expectedCalls: 0,
+    },
+    {
+      name: 'does nothing while speech is already in progress',
+      synthesis: { speaking: true },
+      isApple: true,
+      expectedCalls: 0,
+    },
+    {
+      name: 'speaks an inaudible utterance on Apple devices',
+      synthesis: { speaking: false },
+      isApple: true,
+      expectedCalls: 1,
+    },
+  ])('$name', ({ synthesis, isApple, expectedCalls }) => {
+    vi.mocked(isAppleMobileDevice).mockReturnValue(isApple);
+    if (synthesis) {
+      (window as unknown as { speechSynthesis: unknown }).speechSynthesis = {
+        ...synthesis,
+        speak,
+      };
+    }
+
+    warmUpSpeech();
+
+    expect(speak).toHaveBeenCalledTimes(expectedCalls);
+    if (expectedCalls > 0) {
+      const utterance = speak.mock.calls[0][0] as MockUtterance;
+      expect(utterance.volume).toBe(0);
+      expect(utterance.text.trim()).toBe('');
+    }
+  });
+
+  it('skips warming up again inside the interval and resumes after it', () => {
+    vi.mocked(isAppleMobileDevice).mockReturnValue(true);
+    (window as unknown as { speechSynthesis: unknown }).speechSynthesis = {
+      speaking: false,
+      speak,
+    };
+
+    warmUpSpeech();
+    vi.advanceTimersByTime(1000);
+    warmUpSpeech();
+    expect(speak).toHaveBeenCalledTimes(1);
+
+    vi.advanceTimersByTime(5000);
+    warmUpSpeech();
+    expect(speak).toHaveBeenCalledTimes(2);
+  });
+});
 
 describe('speakText', () => {
   afterEach(() => {

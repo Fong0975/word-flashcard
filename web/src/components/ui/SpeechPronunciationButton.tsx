@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { SpeechLocale } from '../../features/shared/speech';
+import { SpeechLocale, warmUpSpeech } from '../../features/shared/speech';
 import { useSpeech } from '../../hooks/useSpeech';
 
 interface SpeechPronunciationButtonProps {
@@ -51,6 +51,7 @@ export const SpeechPronunciationButton: React.FC<
 
   return (
     <button
+      onPointerDown={warmUpSpeech}
       onClick={() => speak(text, locale)}
       title={title}
       aria-busy={isSpeaking}
