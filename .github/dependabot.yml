@@ -1,0 +1,47 @@
+version: 2
+updates:
+  # Backend (Go modules)
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+      day: "1"
+      time: "09:00"
+      timezone: "Asia/Taipei"
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: "chore"
+    pull-request-branch-name:
+      prefix: "chore"
+    groups:
+      minor-and-patch:
+        applies-to: version-updates
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+      security:
+        applies-to: security-updates
+        patterns: ["*"]
+
+  # Frontend (npm, web/)
+  - package-ecosystem: "npm"
+    directory: "/web"
+    schedule:
+      interval: "monthly"
+      day: "1"
+      time: "09:00"
+      timezone: "Asia/Taipei"
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: "chore"
+    pull-request-branch-name:
+      prefix: "chore"
+    groups:
+      minor-and-patch:
+        applies-to: version-updates
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+      security:
+        applies-to: security-updates
+        patterns: ["*"]
