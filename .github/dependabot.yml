@@ -5,7 +5,7 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
-      day: "1"
+      day: "monday"
       time: "09:00"
       timezone: "Asia/Taipei"
     cooldown:
@@ -28,7 +28,7 @@ updates:
     directory: "/web"
     schedule:
       interval: "monthly"
-      day: "1"
+      day: "monday"
       time: "09:00"
       timezone: "Asia/Taipei"
     cooldown:
