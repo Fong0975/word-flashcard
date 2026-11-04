@@ -161,9 +161,13 @@ npm run format:check
 
 # Show which files would be changed by Prettier
 npm run format:diff
+
+# TypeScript type checking (Vite and Vitest do not check types)
+# Run the TypeScript compiler without emitting files and report type errors
+npm run type-check
 ```
 
-**Note**: ESLint commands include code quality checks, Prettier formatting rules, and Tailwind CSS class validation (classnames order, custom class detection, conflicting classes). Use pure Prettier commands when you only need fast formatting operations without code quality analysis.
+**Note**: ESLint commands include code quality checks, Prettier formatting rules, and Tailwind CSS class validation (classnames order, custom class detection, conflicting classes). Use pure Prettier commands when you only need fast formatting operations without code quality analysis. Run `npm run type-check` to catch TypeScript type errors, since neither `vite build` nor Vitest performs type checking.
 
 ### Testing
 
