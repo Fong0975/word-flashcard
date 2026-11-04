@@ -21,12 +21,15 @@ import {
   GLASS_BAR_STROKE_WIDTH,
   GLASS_FILL_OPACITY,
   GLASS_TOOLTIP_CLASSNAME,
-  glassLegendFormatter,
-  PRACTICE_COUNT_BAR_COLOR,
+  TREND_BAR_FILL_COLOR,
 } from '../../components/ui/charts/chartGlassStyles';
 import { GlassTooltipContent } from '../../components/ui/charts/GlassTooltipContent';
 import { PracticeCountBarChart } from '../../components/ui/charts/PracticeCountBarChart';
-import { renderHaloLine } from '../../components/ui/charts/renderHaloLine';
+import { TrendLegendContent } from '../../components/ui/charts/TrendLegendContent';
+import {
+  renderHaloLine,
+  TREND_LINE_ACCURACY_COLOR,
+} from '../../components/ui/charts/renderHaloLine';
 import { apiService } from '../../lib/api';
 import {
   PracticeCountBucket,
@@ -297,14 +300,13 @@ export const QuestionStatsModal: React.FC<QuestionStatsModalProps> = ({
                     />
                     <Legend
                       wrapperStyle={{ fontSize: '12px' }}
-                      formatter={glassLegendFormatter}
+                      content={<TrendLegendContent />}
                       itemSorter={null}
                     />
                     <Bar
                       yAxisId='left'
                       dataKey='practice_count'
-                      fill={PRACTICE_COUNT_BAR_COLOR}
-                      fillOpacity={GLASS_FILL_OPACITY}
+                      fill={TREND_BAR_FILL_COLOR}
                       stroke={GLASS_BAR_STROKE}
                       strokeWidth={GLASS_BAR_STROKE_WIDTH}
                       name='Practices'
@@ -313,7 +315,7 @@ export const QuestionStatsModal: React.FC<QuestionStatsModalProps> = ({
                     {renderHaloLine({
                       yAxisId: 'right',
                       dataKey: 'accuracy_rate',
-                      stroke: '#38bdf8',
+                      stroke: TREND_LINE_ACCURACY_COLOR,
                       name: 'Accuracy (%)',
                     })}
                   </ComposedChart>

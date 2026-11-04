@@ -195,9 +195,9 @@ Contrast budget: every white fill in dark raises the surface luminance, so the d
 | Toast | `.glass-panel-dropdown` + status icon chip + 2px progress line | same class |
 | Inline `ErrorMessage` | `.glass-alert-error` | same class |
 | Chart tooltip | frosted dark for **both** themes: `rgba(31,41,55,.85)`, border `rgba(255,255,255,.15)`, text `#f3f4f6`, blur 6px (recharts inline styles cannot read `dark:`) | same |
-| Chart bars | stroke `rgba(255,255,255,.25)` @ 0.5px, fill opacity `0.85`; practice count bars (distribution and trend) fill `--chart-practice-bar` (`PRACTICE_COUNT_BAR_COLOR`) = `#4f46e5` | same, except `--chart-practice-bar` = `#6366f1` |
+| Chart bars | stroke `rgba(255,255,255,.25)` @ 0.5px, fill opacity `0.85` (daily trend bars use `TREND_BAR_FILL_COLOR` = the practice color at 25% alpha, so the legend swatch matches, and the lines on top stay the focus); practice count bars (distribution and trend) fill `--chart-practice-bar` (`PRACTICE_COUNT_BAR_COLOR`) = `#4f46e5` | same, except `--chart-practice-bar` = `#6366f1` |
 | Multi-series chart tooltip items | `GlassTooltipContent`: item text stays `#f3f4f6`; the series color is shown as a 10px swatch (`border-white/50`) instead of tinting the text, so dark series stay legible | same |
-| Trend lines | 2.5px line over a 3.5px halo (`renderHaloLine`), halo `--chart-line-halo` (`TREND_LINE_HALO_COLOR`) = `#ffffff`; hovered dot ringed in the halo color | same, except `--chart-line-halo` = `#111827` |
+| Trend lines | 3.5px line (`renderHaloLine`) with no outline: the 4.5px halo behind it uses `--chart-line-halo` (`TREND_LINE_HALO_COLOR`) = `transparent` in both themes; the Trend legend (`TrendLegendContent`) draws line series as a line with a white-filled dot; data points r 3.5px, white fill with a 2px ring in the line color; line colors `--chart-line-familiarity` = `#20b6cb`, `--chart-line-improvement` / `--chart-line-accuracy` = `#e24a80` | same, except familiarity = `#3fc8dc`, improvement / accuracy = `#ee5a8c` |
 | Chart line dots | `GlassDot`: solid status fill, bar edge stroke, radius 4px (6px while hovered) | same |
 | History line charts | no axis lines or tick marks; tick labels offset 10px from the plot | same |
 

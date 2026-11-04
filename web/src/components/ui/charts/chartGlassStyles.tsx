@@ -40,6 +40,13 @@ export const GLASS_FILL_OPACITY = 0.85;
  * `dark:` variant, and the bars need a deeper shade on the light theme. */
 export const PRACTICE_COUNT_BAR_COLOR = 'var(--chart-practice-bar)';
 
+/** Fill of the daily trend practice count bars: the practice color at 25%
+ * alpha, so the bars sit in the background and the trend lines drawn over them
+ * stay the focus. The alpha lives in the color rather than in `fillOpacity`
+ * because the legend swatch and tooltip swatch read the fill color, and would
+ * otherwise stay fully opaque while the bars are faded. */
+export const TREND_BAR_FILL_COLOR = `color-mix(in srgb, ${PRACTICE_COUNT_BAR_COLOR} 25%, transparent)`;
+
 /**
  * Spacing for line charts drawn without axis lines (history charts whose
  * lowest value sits on the x-axis): the tick labels are pushed away from the
