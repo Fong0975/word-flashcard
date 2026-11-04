@@ -1,6 +1,8 @@
 import {
   renderHaloLine,
+  TREND_LINE_DOT_FILL,
   TREND_LINE_DOT_RADIUS,
+  TREND_LINE_DOT_STROKE_WIDTH,
   TREND_LINE_HALO_COLOR,
   TREND_LINE_HALO_WIDTH,
   TREND_LINE_STROKE_WIDTH,
@@ -50,7 +52,12 @@ describe('renderHaloLine', () => {
       yAxisId: options.yAxisId,
       stroke: options.stroke,
       strokeWidth: TREND_LINE_STROKE_WIDTH,
-      dot: { r: TREND_LINE_DOT_RADIUS, fill: options.stroke, stroke: 'none' },
+      dot: {
+        r: TREND_LINE_DOT_RADIUS,
+        fill: TREND_LINE_DOT_FILL,
+        stroke: options.stroke,
+        strokeWidth: TREND_LINE_DOT_STROKE_WIDTH,
+      },
       name: options.name,
     });
     expect(halo.props).not.toHaveProperty('connectNulls');

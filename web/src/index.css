@@ -196,9 +196,14 @@
      in dark mode so the bars hold up against the light glass surfaces */
   --chart-practice-bar: #4f46e5;
 
-  /* Outline behind trend lines (`TREND_LINE_HALO_COLOR`), matching each
-     theme's surface so lines stay separable from the bars they cross */
-  --chart-line-halo: #ffffff;
+  /* Outline behind trend lines (`TREND_LINE_HALO_COLOR`); transparent in both
+     themes, so lines are drawn without an outline */
+  --chart-line-halo: transparent;
+
+  /* Trend line colors (`TREND_LINE_FAMILIARITY_COLOR` etc.) */
+  --chart-line-familiarity: #20b6cb;
+  --chart-line-improvement: #e24a80;
+  --chart-line-accuracy: #e24a80;
 }
 
 [data-theme='light'] {
@@ -213,7 +218,9 @@
   --glass-glow-outer: 0.45;
   --glass-glow-edge: 0.6;
   --chart-practice-bar: #6366f1;
-  --chart-line-halo: #111827;
+  --chart-line-familiarity: #3fc8dc;
+  --chart-line-improvement: #ee5a8c;
+  --chart-line-accuracy: #ee5a8c;
 }
 
 /* Smooth scrolling for better UX */

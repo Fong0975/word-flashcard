@@ -21,13 +21,18 @@ import {
   GLASS_BAR_STROKE,
   GLASS_BAR_STROKE_WIDTH,
   GLASS_FILL_OPACITY,
+  TREND_BAR_FILL_COLOR,
   GLASS_TOOLTIP_STYLE,
   glassLegendFormatter,
-  PRACTICE_COUNT_BAR_COLOR,
 } from '../../components/ui/charts/chartGlassStyles';
 import { GlassTooltipContent } from '../../components/ui/charts/GlassTooltipContent';
 import { PracticeCountBarChart } from '../../components/ui/charts/PracticeCountBarChart';
-import { renderHaloLine } from '../../components/ui/charts/renderHaloLine';
+import { TrendLegendContent } from '../../components/ui/charts/TrendLegendContent';
+import {
+  renderHaloLine,
+  TREND_LINE_FAMILIARITY_COLOR,
+  TREND_LINE_IMPROVEMENT_COLOR,
+} from '../../components/ui/charts/renderHaloLine';
 import { apiService } from '../../lib/api';
 import { WordStatsResponse, WordTrendPoint } from '../../types/api';
 import { FamiliarityLevel } from '../../types/base';
@@ -267,14 +272,13 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
                     />
                     <Legend
                       wrapperStyle={{ fontSize: '12px' }}
-                      formatter={glassLegendFormatter}
+                      content={<TrendLegendContent />}
                       itemSorter={null}
                     />
                     <Bar
                       yAxisId='left'
                       dataKey='practice_count'
-                      fill={PRACTICE_COUNT_BAR_COLOR}
-                      fillOpacity={GLASS_FILL_OPACITY}
+                      fill={TREND_BAR_FILL_COLOR}
                       stroke={GLASS_BAR_STROKE}
                       strokeWidth={GLASS_BAR_STROKE_WIDTH}
                       name='Practices'
@@ -283,13 +287,13 @@ export const WordStatsModal: React.FC<WordStatsModalProps> = ({
                     {renderHaloLine({
                       yAxisId: 'right',
                       dataKey: 'avg_familiarity_score',
-                      stroke: '#38bdf8',
+                      stroke: TREND_LINE_FAMILIARITY_COLOR,
                       name: 'Avg Familiarity (%)',
                     })}
                     {renderHaloLine({
                       yAxisId: 'right',
                       dataKey: 'improvement_rate',
-                      stroke: '#c084fc',
+                      stroke: TREND_LINE_IMPROVEMENT_COLOR,
                       name: 'Improvement (%)',
                     })}
                   </ComposedChart>
