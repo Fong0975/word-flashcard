@@ -8,8 +8,7 @@ interface DetachedPanelPositionInput {
 }
 
 export type DetachedPanelPosition =
-  | { left: number; top: number }
-  | { left: number; bottom: number };
+  { left: number; top: number } | { left: number; bottom: number };
 
 /**
  * Computes absolute offsets, relative to the panel's offset parent, that place
