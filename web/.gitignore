@@ -7,7 +7,7 @@
 
 # testing
 /coverage
-/ctrf
+/test-results.json
 
 # production
 /build

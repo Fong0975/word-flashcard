@@ -202,12 +202,12 @@ npm test
 # Run tests in interactive watch mode
 npm run test:watch
 
-# Run all tests once with a coverage report (used in CI)
+# Run all tests once with a coverage report
 npm run test:ci
 
-# Run all tests once and additionally generate a CTRF JSON report
-# (used by the Frontend Unit Tests GitHub Actions workflow to post results on pull requests)
-npm run test:ctrf
+# Run all tests once with a coverage report
+# (used by the CI GitHub Actions workflow, which adds JSON reporter flags to post results on pull requests)
+npm run test:coverage
 ```
 
 ### Dependency Vulnerability Scanning
