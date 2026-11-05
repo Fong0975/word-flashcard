@@ -29,5 +29,8 @@ RUN npm install -g serve
 ARG FRONTEND_PORT=3000
 EXPOSE ${FRONTEND_PORT}
 
+# Default to a non-root user; docker-compose overrides it with APP_UID/APP_GID.
+USER 1000:1000
+
 # Set the command to run the server with dynamic port
 CMD serve -s build -l ${FRONTEND_PORT}

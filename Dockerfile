@@ -41,5 +41,8 @@ COPY --from=builder /app/VERSION .
 ARG APP_PORT=8080
 EXPOSE ${APP_PORT}
 
+# Default to a non-root user; docker-compose overrides it with APP_UID/APP_GID.
+USER 1000:1000
+
 # Run the binary
 CMD ["./main"]
