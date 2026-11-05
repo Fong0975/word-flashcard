@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 0 15 * *' # Monthly full security scan
+  workflow_dispatch: # Manual full run
+
+# Cancel superseded runs of the same PR; never cancel runs on main.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions: {}
+
+jobs:
+  ci:
+    uses: Fong0975/library-shared-workflows/.github/workflows/ci.yml@v1
+    # Every scope below is required, even when a stage is disabled: GitHub checks
+    # the permissions of all nested jobs when the run starts.
+    permissions:
+      contents: read
+      pull-requests: write
+      pages: write
+      id-token: write
+    secrets:
+      APP_ID: ${{ secrets.APP_ID }}
+      APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
+    with:
+      # backend coverage-exclude drops files with no unit-testable logic (dev-only
+      # seed script, thin CRUD peers covered indirectly, swag-generated docs, mock
+      # doubles and declarative table schemas); see project-docs/COVERAGE_EXCLUSIONS.md.
+      projects: |
+        [
+          {
+            "name": "backend",
+            "language": "go",
+            "paths": ["**/*.go", "go.mod", "go.sum", ".golangci.yml"],
+            "golangci-lint": "v2.12.2",
+            "coverage-threshold": 60,
+            "coverage-exclude": "word-flashcard/data/demo\\.go|word-flashcard/data/peers/(base|note_peer|question_peer|word_peer|word_definitions_peer|question_answer_log_peer|word_practice_log_peer)\\.go|word-flashcard/docs/docs\\.go|word-flashcard/(data|internal)/mocks/.*_mock\\.go|word-flashcard/data/schema/.*\\.go"
+          },
+          {
+            "name": "web",
+            "language": "node",
+            "dir": "web",
+            "format": "",
+            "lint": "npm run lint:check",
+            "typecheck": "npm run type-check",
+            "coverage-threshold": 80
+          }
+        ]
+      enable-security-scan: true
+      semgrep-configs: p/security-audit p/owasp-top-ten p/golang p/typescript p/react
+      enable-swagger: true
+      swagger-language: go
+      swagger-command: go run github.com/swaggo/swag/cmd/swag@latest init
+      swagger-paths: '["internal/**", "main.go"]'
+      swagger-title: Word Flashcard API Documentation
+      enable-bump-version: true
+      bump-level: minor
+      version-file: VERSION
+      npm-dirs: '["web"]'
