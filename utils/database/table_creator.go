@@ -225,6 +225,9 @@ func getForeignKeyConstraints(columns []domain.Column) []string {
 // getExistingColumnNames returns a lowercase set of column names that already exist in the table.
 // It reuses the same "SELECT ... WHERE 1=0" pattern as tableExists to avoid fetching actual data.
 func getExistingColumnNames(db Database, tableName string) (map[string]bool, error) {
+	// tableName comes from the in-code schema definitions, never user input, and
+	// SQL identifiers cannot be bound as query parameters.
+	// nosemgrep: go.lang.security.audit.database.string-formatted-query.string-formatted-query
 	rows, err := db.Query(fmt.Sprintf("SELECT * FROM %s WHERE 1=0", tableName))
 	if err != nil {
 		return nil, err
@@ -275,11 +278,15 @@ func syncMissingColumns(db Database, tableDef *domain.TableDefinition, dbType st
 		}
 
 		colDef := buildColumnSQL(col, dbType)
+		// Table and column definitions come from the in-code schema, never user
+		// input, and DDL identifiers cannot be bound as query parameters.
 		var alterSQL string
 		if dbType == "mysql" {
 			positionSuffix := columnPositionSuffix(tableDef.Columns, i, existing)
+			// nosemgrep: go.lang.security.audit.database.string-formatted-query.string-formatted-query
 			alterSQL = fmt.Sprintf("ALTER TABLE %s ADD COLUMN %s%s", tableDef.Name, colDef, positionSuffix)
 		} else {
+			// nosemgrep: go.lang.security.audit.database.string-formatted-query.string-formatted-query
 			alterSQL = fmt.Sprintf("ALTER TABLE %s ADD COLUMN %s", tableDef.Name, colDef)
 		}
 
@@ -312,7 +319,9 @@ func columnPositionSuffix(columns []domain.Column, colIndex int, existing map[st
 
 // tableExists checks if a table exists in the database
 func tableExists(db Database, tableName string, dbType string) (bool, error) {
-	// Try to execute a query that would fail if table doesn't exist
+	// Try to execute a query that would fail if table doesn't exist. tableName
+	// comes from the in-code schema definitions, never user input.
+	// nosemgrep: go.lang.security.audit.database.string-formatted-query.string-formatted-query
 	checkQuery := fmt.Sprintf("SELECT 1 FROM %s WHERE 1=0", tableName)
 	_, err := db.Exec(checkQuery)
 

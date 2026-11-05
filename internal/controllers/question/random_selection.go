@@ -3,6 +3,9 @@ package question
 import (
 	"fmt"
 	"log/slog"
+
+	// Only shuffles quiz order; no security-sensitive randomness is needed.
+	// nosemgrep: go.lang.security.audit.crypto.math_random.math-random-used
 	"math/rand"
 	"time"
 	dbModels "word-flashcard/data/models"
