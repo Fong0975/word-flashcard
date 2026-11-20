@@ -2,9 +2,18 @@ Generate a pull request summary for the given git commit SHAs: $ARGUMENTS
 
 ## Steps
 
+0. Resolve the target commit SHAs (call the result `<SHAS>`):
+   - If `$ARGUMENTS` contains one or more commit SHAs, use them as `<SHAS>` and skip the rest of this step.
+   - If `$ARGUMENTS` is empty, automatically collect every commit on the current local branch that differs from the remote, ordered **oldest to newest**, as a replacement for manual user input:
+     1. Run `git log --reverse --date=format:"%Y-%m-%d %H:%M" --format="%h %ad %s" @{upstream}..HEAD` (commits not yet on the upstream branch).
+     2. If the branch has no upstream configured (the command above fails), fall back to `git log --reverse --date=format:"%Y-%m-%d %H:%M" --format="%h %ad %s" HEAD --not --remotes` (commits not reachable from any remote-tracking branch).
+     3. Use the resulting SHAs (the first field of each line), in that order, as `<SHAS>`.
+     4. Remember the full list (time, title, SHA) and mark that the SHAs were **auto-collected**, because it must be shown in the output (see "Auto-collected commit list").
+   - If no SHAs were provided and no differing commits are found, **display an error message** (e.g. "No commit SHA provided and no local commits differ from the remote.") and **stop immediately** — do not run any further steps or generate a summary.
+
 1. Run the following git commands in parallel to gather information:
-   - `git log --no-walk --format="%h %s" $ARGUMENTS` — get commit titles
-   - `git show --stat --no-walk $ARGUMENTS` — get per-commit file change lists
+   - `git log --no-walk --format="%h %s" <SHAS>` — get commit titles
+   - `git show --stat --no-walk <SHAS>` — get per-commit file change lists
 
 2. Based on the changed file paths, classify each change into the appropriate section using these rules:
    - **🖥️ API Enhancements** (Backend): Everything that serves only the Go backend
@@ -36,7 +45,20 @@ Generate a pull request summary for the given git commit SHAs: $ARGUMENTS
 **IMPORTANT — wrap the final output in a code block**: The CLI renders Markdown, which strips formatting symbols (`#`, `**`, `-`, `---`, etc.) from the result. To keep the content copy-pasteable as raw Markdown, output the **entire** final result — from `# Title` through the Squash merge commit title / Suggested branch name block — inside a single fenced code block tagged `markdown`.
 
 - Use a fence of **four backticks** (` ```` `) so that any triple-backtick code blocks inside the PR body do not close it early. If the content itself contains four backticks, use a fence one backtick longer than the longest run inside.
-- Output nothing outside the code block — no preamble, no explanation, no trailing notes.
+- Output nothing outside the code block — no preamble, no explanation, no trailing notes — **except** the "Auto-collected commit list" below when it applies.
+
+### Auto-collected commit list
+
+Only when the SHAs were auto-collected in Step 0 (the user provided none), output a short list **before** the code block, in the order they were collected (oldest to newest). Each line shows time, title, and SHA:
+
+```
+Auto-collected commits (oldest → newest):
+1. 2026-11-18 09:30 | feat: add login form | a1b2c3d
+2. 2026-11-18 10:15 | fix: handle empty input | e4f5a6b
+```
+
+- Keep this list outside the code block so the code block remains pure, copy-pasteable PR content.
+- Do not show this list when the user supplied the SHAs manually.
 
 **IMPORTANT — empty section removal**: If a section has no bullet points, remove its heading, its bullets, AND all surrounding blank lines. The final output must contain no consecutive blank lines and no headings without content beneath them.
 
