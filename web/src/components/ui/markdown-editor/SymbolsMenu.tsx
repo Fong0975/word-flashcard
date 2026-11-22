@@ -63,6 +63,10 @@ export const SymbolsMenu: React.FC<SymbolsMenuProps> = ({
     side: 'right',
   });
 
+  // The inline phone layout indents children under their group, which needs
+  // more room than the collapsed list of short symbols does.
+  const isInlineExpanded = isNarrow && activeGroupIndex !== null;
+
   const wrapperRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const submenuRef = useRef<HTMLDivElement>(null);
@@ -151,7 +155,7 @@ export const SymbolsMenu: React.FC<SymbolsMenuProps> = ({
         openUpward,
       }),
     );
-  }, [isOpen, openUpward]);
+  }, [isOpen, openUpward, isInlineExpanded]);
 
   useLayoutEffect(() => {
     const panel = panelRef.current;
@@ -268,7 +272,7 @@ export const SymbolsMenu: React.FC<SymbolsMenuProps> = ({
         onClick={() => handleInsert(child.value)}
         className={`${ITEM_CLASS_NAME} ${extraClassName}`}
       >
-        {child.label}
+        <span className='truncate'>{child.label}</span>
       </button>
     ));
 
@@ -284,9 +288,12 @@ export const SymbolsMenu: React.FC<SymbolsMenuProps> = ({
         <div
           ref={panelRef}
           style={position ?? undefined}
-          className={`glass-panel-dropdown absolute z-10 w-24 focus:outline-hidden ${openUpward ? 'mb-2' : 'mt-2'}`}
+          className={`glass-panel-dropdown absolute z-10 focus:outline-hidden ${isInlineExpanded ? 'w-40' : 'w-24'} ${openUpward ? 'mb-2' : 'mt-2'}`}
         >
-          <div className='max-h-64 overflow-y-auto py-1' role='menu'>
+          <div
+            className='max-h-64 overflow-x-hidden overflow-y-auto py-1'
+            role='menu'
+          >
             {entries.map((entry, index) => {
               if (entry.kind === 'item') {
                 return (
@@ -298,7 +305,7 @@ export const SymbolsMenu: React.FC<SymbolsMenuProps> = ({
                     onClick={() => handleInsert(entry.value)}
                     className={ITEM_CLASS_NAME}
                   >
-                    {entry.label}
+                    <span className='truncate'>{entry.label}</span>
                   </button>
                 );
               }
@@ -322,7 +329,7 @@ export const SymbolsMenu: React.FC<SymbolsMenuProps> = ({
                     onKeyDown={event => handleGroupKeyDown(event, index)}
                     className={`${ITEM_CLASS_NAME} ${isExpanded ? ACTIVE_GROUP_CLASS_NAME : ''}`}
                   >
-                    {entry.label}
+                    <span className='truncate'>{entry.label}</span>
                     <SymbolsMenuChevron
                       isExpanded={isExpanded}
                       isInline={isNarrow}
@@ -335,7 +342,7 @@ export const SymbolsMenu: React.FC<SymbolsMenuProps> = ({
                       aria-label={entry.label}
                       onKeyDown={handleSubmenuKeyDown}
                     >
-                      {renderChildButtons(entry.children, 'pl-8')}
+                      {renderChildButtons(entry.children, 'pl-6')}
                     </div>
                   )}
                 </React.Fragment>

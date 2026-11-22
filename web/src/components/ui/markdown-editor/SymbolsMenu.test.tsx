@@ -104,6 +104,26 @@ describe('SymbolsMenu', () => {
   );
 
   it.each([
+    { name: 'a wide viewport', isNarrow: false, expectedWidth: 'w-24' },
+    { name: 'a phone-width viewport', isNarrow: true, expectedWidth: 'w-40' },
+  ])(
+    'sizes the panel to $expectedWidth once a group is expanded on $name, without horizontal scroll',
+    async ({ isNarrow, expectedWidth }) => {
+      mockNarrowViewport(isNarrow);
+      const { user } = setup();
+
+      await user.click(screen.getByRole('button', { name: 'Symbols' }));
+      expect(screen.getAllByRole('menu')[0].parentElement).toHaveClass('w-24');
+
+      await user.click(screen.getByRole('menuitem', { name: 'Alert' }));
+
+      const scrollArea = screen.getAllByRole('menu')[0];
+      expect(scrollArea.parentElement).toHaveClass(expectedWidth);
+      expect(scrollArea).toHaveClass('overflow-x-hidden');
+    },
+  );
+
+  it.each([
     { name: 'a wide viewport', isNarrow: false },
     { name: 'a phone-width viewport', isNarrow: true },
   ])(
