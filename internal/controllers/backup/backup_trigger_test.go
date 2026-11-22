@@ -108,6 +108,7 @@ func (suite *ControllerTestSuite) TestTriggerBackup() {
 			suite.True(strings.HasPrefix(file.Name, BackupFilePrefix))
 			suite.True(strings.HasSuffix(file.Name, ".json"))
 			suite.Greater(file.SizeBytes, int64(0))
+			suite.Equal(&models.BackupSummary{Words: 1}, file.Summary)
 
 			_, err := os.Stat(filepath.Join(dir, file.Name))
 			suite.NoError(err)

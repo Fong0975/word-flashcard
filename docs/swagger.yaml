@@ -24,6 +24,17 @@ definitions:
         type: string
       size_bytes:
         type: integer
+      summary:
+        $ref: '#/definitions/models.BackupSummary'
+    type: object
+  models.BackupSummary:
+    properties:
+      notes:
+        type: integer
+      questions:
+        type: integer
+      words:
+        type: integer
     type: object
   models.CambridgeDefinition:
     properties:
@@ -106,6 +117,8 @@ definitions:
         items:
           $ref: '#/definitions/word-flashcard_data_models.Question'
         type: array
+      summary:
+        $ref: '#/definitions/models.BackupSummary'
       word_definitions:
         items:
           $ref: '#/definitions/word-flashcard_data_models.WordDefinition'

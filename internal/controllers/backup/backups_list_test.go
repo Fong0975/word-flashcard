@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"time"
 
+	"word-flashcard/internal/models"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -30,6 +32,9 @@ func (suite *ControllerTestSuite) TestListBackups() {
 		setupDir   func() string
 		wantStatus int
 		wantNames  []string // expected order: name descending
+		// wantSummaries maps a file name to its expected summary; files not
+		// listed must have no summary (a legacy backup without a header).
+		wantSummaries map[string]*models.BackupSummary
 	}{
 		{
 			name:       "missing backup directory returns an empty list",
@@ -45,7 +50,8 @@ func (suite *ControllerTestSuite) TestListBackups() {
 				// chronological order, so a passing test proves sorting
 				// follows the name, not the mtime.
 				suite.writeBackupFile(filepath.Join(dir, BackupFilePrefix+"20240101-000000.json"), newer)
-				suite.writeBackupFile(filepath.Join(dir, BackupFilePrefix+"20240115-000000.json"), older)
+				suite.writeBackupFileWithContent(filepath.Join(dir, BackupFilePrefix+"20240115-000000.json"),
+					`{"summary":{"words":3,"questions":2,"notes":1},"words":[]}`, older)
 				suite.writeBackupFile(filepath.Join(dir, "word-flashcard-export-20240101-000000.json"), newer)
 				suite.writeBackupFile(filepath.Join(dir, "local", BackupFilePrefix+"20240120-000000.json"), newer)
 				return dir
@@ -54,6 +60,9 @@ func (suite *ControllerTestSuite) TestListBackups() {
 			wantNames: []string{
 				BackupFilePrefix + "20240115-000000.json",
 				BackupFilePrefix + "20240101-000000.json",
+			},
+			wantSummaries: map[string]*models.BackupSummary{
+				BackupFilePrefix + "20240115-000000.json": {Words: 3, Questions: 2, Notes: 1},
 			},
 		},
 	}
@@ -74,17 +83,14 @@ func (suite *ControllerTestSuite) TestListBackups() {
 				return
 			}
 
-			var files []struct {
-				Name       string    `json:"name"`
-				SizeBytes  int64     `json:"size_bytes"`
-				ModifiedAt time.Time `json:"modified_at"`
-			}
+			var files []models.BackupFile
 			suite.Require().NoError(json.Unmarshal(w.Body.Bytes(), &files))
 
 			gotNames := make([]string, len(files))
 			for i, f := range files {
 				gotNames[i] = f.Name
 				suite.Greater(f.SizeBytes, int64(0))
+				suite.Equal(tt.wantSummaries[f.Name], f.Summary)
 			}
 			suite.Equal(tt.wantNames, gotNames)
 		})
@@ -95,7 +101,12 @@ func (suite *ControllerTestSuite) TestListBackups() {
 // modification time, so tests can control ordering deterministically instead
 // of relying on real-time gaps between file creations.
 func (suite *ControllerTestSuite) writeBackupFile(path string, modTime time.Time) {
+	suite.writeBackupFileWithContent(path, "{}", modTime)
+}
+
+// writeBackupFileWithContent is writeBackupFile with explicit file content.
+func (suite *ControllerTestSuite) writeBackupFileWithContent(path, content string, modTime time.Time) {
 	suite.Require().NoError(os.MkdirAll(filepath.Dir(path), 0o755))
-	suite.Require().NoError(os.WriteFile(path, []byte("{}"), 0o644))
+	suite.Require().NoError(os.WriteFile(path, []byte(content), 0o644))
 	suite.Require().NoError(os.Chtimes(path, modTime, modTime))
 }

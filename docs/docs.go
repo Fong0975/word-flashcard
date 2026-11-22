@@ -1977,6 +1977,23 @@ const docTemplate = `{
                 },
                 "size_bytes": {
                     "type": "integer"
+                },
+                "summary": {
+                    "$ref": "#/definitions/models.BackupSummary"
+                }
+            }
+        },
+        "models.BackupSummary": {
+            "type": "object",
+            "properties": {
+                "notes": {
+                    "type": "integer"
+                },
+                "questions": {
+                    "type": "integer"
+                },
+                "words": {
+                    "type": "integer"
                 }
             }
         },
@@ -2103,6 +2120,9 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/word-flashcard_data_models.Question"
                     }
+                },
+                "summary": {
+                    "$ref": "#/definitions/models.BackupSummary"
                 },
                 "word_definitions": {
                     "type": "array",

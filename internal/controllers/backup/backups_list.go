@@ -37,6 +37,7 @@ func (bc *Controller) ListBackups(c *gin.Context) {
 			Name:       f.Name,
 			SizeBytes:  f.Size,
 			ModifiedAt: f.ModTime,
+			Summary:    ReadBackupSummary(f.Path),
 		}
 	}
 

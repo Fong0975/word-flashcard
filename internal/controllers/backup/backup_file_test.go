@@ -107,6 +107,8 @@ func (suite *ControllerTestSuite) TestWriteBackupFile() {
 			var export models.DataExport
 			suite.Require().NoError(json.Unmarshal(data, &export))
 			suite.Len(export.Words, 1)
+			suite.Equal(&models.BackupSummary{Words: 1}, export.Summary)
+			suite.True(strings.HasPrefix(string(data), "{\n  \"summary\""), "summary must be the first key")
 			// MarshalIndent output uses a 2-space indent per line after the first.
 			suite.Contains(string(data), "\n  \"exported_at\"")
 		})
