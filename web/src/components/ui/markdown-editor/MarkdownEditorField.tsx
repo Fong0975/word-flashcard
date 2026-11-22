@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 
 import { useTemplateButtons } from '../../../hooks/shared';
 import { useWordLinkSuggestion } from '../../../hooks/useWordLinkSuggestion';
-import { TemplateButton } from '../../../types/components';
+import { SymbolButton, TemplateButton } from '../../../types/components';
 import { appendTemplateText } from '../../../utils/textTemplates';
 import { MarkdownContent } from '../MarkdownContent';
 import { TemplateButtonRow } from '../TemplateButtonRow';
@@ -87,9 +87,10 @@ export const MarkdownEditorField: React.FC<MarkdownEditorFieldProps> = ({
     notifyBlur,
     dismissSuggestion,
   } = useWordLinkSuggestion(excludeWord);
-  const { templateButtonsConfig: symbolButtons } = useTemplateButtons({
-    configFileName: 'markdownEditorSymbolsConfig.json',
-  });
+  const { templateButtonsConfig: symbolButtons } =
+    useTemplateButtons<SymbolButton>({
+      configFileName: 'markdownEditorSymbolsConfig.json',
+    });
   const symbolInsertPositionRef = useRef({ start: 0, end: 0 });
   const history = useMarkdownHistory(value);
   const isComposingRef = useRef(false);

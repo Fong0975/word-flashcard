@@ -16,12 +16,15 @@ interface UseTemplateButtonsProps {
  * The config file is optional (gitignored, developer-provided) — if it's
  * missing or fails to load, `templateButtonsConfig` silently resolves to `[]`
  * and no template buttons are shown.
+ *
+ * `T` is the shape of one config entry; it defaults to `TemplateButton` and is
+ * only widened by configs with a richer format (e.g. the two-level Symbols menu).
  */
-export const useTemplateButtons = (props: UseTemplateButtonsProps) => {
+export const useTemplateButtons = <T = TemplateButton>(
+  props: UseTemplateButtonsProps,
+) => {
   const { configFileName } = props;
-  const [templateButtonsConfig, setTemplateButtonsConfig] = useState<
-    TemplateButton[]
-  >([]);
+  const [templateButtonsConfig, setTemplateButtonsConfig] = useState<T[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -32,7 +35,7 @@ export const useTemplateButtons = (props: UseTemplateButtonsProps) => {
         if (!response.ok) {
           throw new Error(`Unexpected status ${response.status}`);
         }
-        const config: TemplateButton[] = await response.json();
+        const config: T[] = await response.json();
         if (!cancelled) {
           setTemplateButtonsConfig(config);
         }
