@@ -40,47 +40,46 @@ const formatSummary = (summary: BackupSummary): string =>
     pluralize(summary.notes, 'note'),
   ].join(' · ');
 
-const ICON_CLASS_NAME = 'h-4 w-4 shrink-0';
-
 /**
- * Size value of a backup file, preceded by an info icon whose tooltip lists
- * how many words, questions and notes the backup holds. Backups created
- * before the counts were recorded have no summary; they get an empty
- * placeholder of the same width so the sizes stay aligned in the column.
+ * Size value of a backup file. When the backup recorded its row counts, an
+ * info icon precedes the size and the icon and size together are the hover
+ * target of a tooltip listing how many words, questions and notes it holds.
+ * Backups created before the counts were recorded render the size alone,
+ * with no icon and no reserved space.
  */
 export const BackupSizeCell: React.FC<{ backup: BackupFile }> = ({
   backup,
 }) => {
   const size = formatFileSize(backup.size_bytes);
+  const sizeText = (
+    <span>
+      {size.value} <span className='text-xs'>{size.unit}</span>
+    </span>
+  );
+
+  if (!backup.summary) {
+    return sizeText;
+  }
 
   return (
-    <span className='inline-flex items-center gap-1.5'>
-      {backup.summary ? (
-        <Tooltip
-          label='Backup contents'
-          content={formatSummary(backup.summary)}
-        >
-          <svg
-            viewBox='0 0 24 24'
-            className={ICON_CLASS_NAME}
-            fill='none'
-            stroke='currentColor'
-            strokeWidth={1.5}
-            aria-hidden='true'
-          >
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              d='m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z'
-            />
-          </svg>
-        </Tooltip>
-      ) : (
-        <span className={ICON_CLASS_NAME} aria-hidden='true' />
-      )}
-      <span>
-        {size.value} <span className='text-xs'>{size.unit}</span>
-      </span>
-    </span>
+    <Tooltip
+      label='Backup contents'
+      content={formatSummary(backup.summary)}
+      className='gap-0.5'
+    >
+      <svg
+        viewBox='0 0 20 20'
+        className='h-[18px] w-[18px] shrink-0'
+        fill='currentColor'
+        aria-hidden='true'
+      >
+        <path
+          fillRule='evenodd'
+          clipRule='evenodd'
+          d='M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-7-4a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM9 9a.75.75 0 0 0 0 1.5h.253a.25.25 0 0 1 .244.304l-.459 2.066A1.75 1.75 0 0 0 10.747 15H11a.75.75 0 0 0 0-1.5h-.253a.25.25 0 0 1-.244-.304l.459-2.066A1.75 1.75 0 0 0 9.253 9H9Z'
+        />
+      </svg>
+      {sizeText}
+    </Tooltip>
   );
 };

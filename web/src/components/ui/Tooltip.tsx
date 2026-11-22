@@ -12,9 +12,9 @@ import { TooltipPosition, computeTooltipPosition } from './tooltipPosition';
 interface TooltipProps {
   /** Text or markup shown inside the tooltip panel. */
   content: React.ReactNode;
-  /** Accessible name of the trigger; required because the trigger is usually an icon. */
+  /** Accessible name of the trigger; required because it may be an icon without text. */
   label: string;
-  /** Visual content of the trigger, typically a small icon. */
+  /** Visual content of the trigger, e.g. an icon alone or an icon with text. */
   children: React.ReactNode;
   className?: string;
 }
@@ -98,7 +98,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
         onMouseLeave={() => setIsOpen(false)}
         onFocus={() => setIsOpen(true)}
         onBlur={() => setIsOpen(false)}
-        className={`inline-flex items-center justify-center rounded-full text-gray-500 transition-colors hover:text-primary-600 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:outline-hidden dark:text-gray-400 dark:hover:text-primary-300 ${className}`}
+        className={`inline-flex items-center justify-center rounded-md text-gray-500 transition-colors hover:text-primary-600 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:outline-hidden dark:text-gray-400 dark:hover:text-primary-300 ${className}`}
       >
         {children}
       </button>
