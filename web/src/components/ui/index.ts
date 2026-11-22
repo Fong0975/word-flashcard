@@ -14,5 +14,6 @@ export { ModalLoadingFallback } from './ModalLoadingFallback';
 export { Pagination } from './Pagination';
 export { PronunciationButton } from './PronunciationButton';
 export { TemplateButtonRow } from './TemplateButtonRow';
+export { Tooltip } from './Tooltip';
 export { Toast, ToastContainer } from './Toast';
 export type { ToastProps, ToastMessage, ToastContainerProps } from './Toast';
