@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"word-flashcard/internal/models"
 )
 
 // BackupFilePrefix distinguishes a scheduled on-disk backup
@@ -26,6 +28,12 @@ func (bc *Controller) WriteBackupFile(dir string) (string, error) {
 
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return "", fmt.Errorf("failed to create backup directory: %w", err)
+	}
+
+	export.Summary = &models.BackupSummary{
+		Words:     len(export.Words),
+		Questions: len(export.Questions),
+		Notes:     len(export.Notes),
 	}
 
 	filename := fmt.Sprintf("%s%s.json", BackupFilePrefix, time.Now().UTC().Format("20060102-150405"))

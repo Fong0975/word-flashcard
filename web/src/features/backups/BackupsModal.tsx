@@ -10,12 +10,12 @@ import { useAsyncOnOpen } from '../shared/hooks/useAsyncOnOpen';
 import { useToast } from '../../hooks/ui/useToast';
 import { formatDateTimeParts } from '../../utils/dateFormat';
 
+import { BackupSizeCell } from './BackupSizeCell';
+
 interface BackupsModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
-
-const SIZE_UNITS = ['B', 'KB', 'MB', 'GB'];
 
 const JSON_EXTENSION = '.json';
 
@@ -26,30 +26,6 @@ const stripJsonExtension = (name: string): string =>
 /** Extracts a human-readable message from a caught value. */
 const errorMessage = (error: unknown): string =>
   error instanceof Error ? error.message : 'Unknown error';
-
-interface FileSizeParts {
-  value: string;
-  unit: string;
-}
-
-/**
- * Formats a byte count as a human-readable size, split into its number and
- * unit (e.g. `{ value: "482.0", unit: "KB" }`) so the two can be styled apart.
- */
-const formatFileSize = (bytes: number): FileSizeParts => {
-  if (bytes < 1024) {
-    return { value: `${bytes}`, unit: SIZE_UNITS[0] };
-  }
-
-  let value = bytes;
-  let unitIndex = 0;
-  while (value >= 1024 && unitIndex < SIZE_UNITS.length - 1) {
-    value /= 1024;
-    unitIndex += 1;
-  }
-
-  return { value: value.toFixed(1), unit: SIZE_UNITS[unitIndex] };
-};
 
 /**
  * Shows the scheduled backup files (word-flashcard-backup-*.json) currently
@@ -149,7 +125,6 @@ export const BackupsModal: React.FC<BackupsModalProps> = ({
             <tbody>
               {backups.map(backup => {
                 const { date, time } = formatDateTimeParts(backup.modified_at);
-                const size = formatFileSize(backup.size_bytes);
                 return (
                   <tr
                     key={backup.name}
@@ -165,7 +140,7 @@ export const BackupsModal: React.FC<BackupsModalProps> = ({
                       </a>
                     </td>
                     <td className='py-2 pr-3 whitespace-nowrap text-gray-500 dark:text-gray-400'>
-                      {size.value} <span className='text-xs'>{size.unit}</span>
+                      <BackupSizeCell backup={backup} />
                     </td>
                     <td className='py-2 pr-2 whitespace-nowrap text-gray-500 dark:text-gray-400'>
                       <div className='flex flex-col'>

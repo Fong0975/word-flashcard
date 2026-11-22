@@ -15,7 +15,12 @@ import (
 // An empty table serializes as JSON `null` (Go's zero value for a slice),
 // exactly as if the key were omitted entirely; import treats both the same
 // way as an explicit empty list: restore that table to empty.
+//
+// Summary is only populated for on-disk backup files and must stay the first
+// field: ReadBackupSummary relies on it being the first key of the JSON
+// document so it can read the counts without parsing the whole file.
 type DataExport struct {
+	Summary            *BackupSummary              `json:"summary,omitempty"`
 	ExportedAt         time.Time                   `json:"exported_at"`
 	Words              []*models.Word              `json:"words"`
 	WordDefinitions    []*models.WordDefinition    `json:"word_definitions"`

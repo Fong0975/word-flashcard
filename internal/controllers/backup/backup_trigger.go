@@ -36,5 +36,6 @@ func (bc *Controller) TriggerBackup(c *gin.Context) {
 		Name:       info.Name(),
 		SizeBytes:  info.Size(),
 		ModifiedAt: info.ModTime(),
+		Summary:    ReadBackupSummary(path),
 	}, c)
 }
