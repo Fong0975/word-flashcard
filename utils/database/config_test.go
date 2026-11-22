@@ -24,7 +24,7 @@ func TestConfigSuite(t *testing.T) {
 func (suite *ConfigTestSuite) SetupTest() {
 	// Store original environment variables
 	suite.originalEnvVars = make(map[string]string)
-	envVars := []string{"DB_TYPE", "DB_HOST", "DB_PORT", "DB_USER", "DB_PASSWORD", "DB_PASSWORD_FILE", "DB_NAME", "TEST_VAR"}
+	envVars := []string{"DB_HOST", "DB_PORT", "DB_USER", "DB_PASSWORD", "DB_PASSWORD_FILE", "DB_NAME", "TEST_VAR"}
 
 	for _, env := range envVars {
 		if value, exists := os.LookupEnv(env); exists {
@@ -37,7 +37,7 @@ func (suite *ConfigTestSuite) SetupTest() {
 // TearDownTest runs after each test to restore environment
 func (suite *ConfigTestSuite) TearDownTest() {
 	// Clear all test environment variables
-	envVars := []string{"DB_TYPE", "DB_HOST", "DB_PORT", "DB_USER", "DB_PASSWORD", "DB_PASSWORD_FILE", "DB_NAME", "TEST_VAR"}
+	envVars := []string{"DB_HOST", "DB_PORT", "DB_USER", "DB_PASSWORD", "DB_PASSWORD_FILE", "DB_NAME", "TEST_VAR"}
 	for _, env := range envVars {
 		os.Unsetenv(env)
 	}
@@ -54,12 +54,10 @@ func (suite *ConfigTestSuite) TestLoadConfigDefaults() {
 	suite.Require().NoError(err, "LoadConfig() should not return error")
 
 	// Verify default values
-	suite.Equal("mysql", config.Type, "Expected Type=mysql")
 	suite.Equal("localhost", config.Host, "Expected Host=localhost")
 	suite.Equal(3306, config.Port, "Expected Port=3306")
 	suite.Equal("root", config.User, "Expected User=root")
 	suite.Equal("word_flashcard", config.DatabaseName, "Expected DatabaseName=word_flashcard")
-	suite.Equal("disable", config.SSLMode, "Expected SSLMode=disable")
 	suite.Equal(25, config.MaxOpenConns, "Expected MaxOpenConns=25")
 	suite.Equal(25, config.MaxIdleConns, "Expected MaxIdleConns=25")
 }
@@ -67,9 +65,8 @@ func (suite *ConfigTestSuite) TestLoadConfigDefaults() {
 // TestLoadConfigWithCustomEnvironmentVariables tests configuration loading with custom environment variables
 func (suite *ConfigTestSuite) TestLoadConfigWithCustomEnvironmentVariables() {
 	// Set custom environment variables
-	os.Setenv("DB_TYPE", "postgresql")
 	os.Setenv("DB_HOST", "testhost")
-	os.Setenv("DB_PORT", "5432")
+	os.Setenv("DB_PORT", "3307")
 	os.Setenv("DB_USER", "testuser")
 	os.Setenv("DB_PASSWORD", "testpass")
 	os.Setenv("DB_NAME", "testdb")
@@ -77,9 +74,8 @@ func (suite *ConfigTestSuite) TestLoadConfigWithCustomEnvironmentVariables() {
 	config, err := LoadConfig()
 	suite.Require().NoError(err, "LoadConfig() should not return error")
 
-	suite.Equal("postgresql", config.Type, "Expected Type=postgresql")
 	suite.Equal("testhost", config.Host, "Expected Host=testhost")
-	suite.Equal(5432, config.Port, "Expected Port=5432")
+	suite.Equal(3307, config.Port, "Expected Port=3307")
 	suite.Equal("testuser", config.User, "Expected User=testuser")
 	suite.Equal("testpass", config.Password, "Expected Password=testpass")
 	suite.Equal("testdb", config.DatabaseName, "Expected DatabaseName=testdb")
@@ -137,14 +133,6 @@ func (suite *ConfigTestSuite) TestLoadConfigWithInvalidPort() {
 
 	_, err := LoadConfig()
 	suite.Error(err, "Expected error for invalid port")
-}
-
-// TestLoadConfigWithUnsupportedDatabaseType tests error handling for unsupported database type
-func (suite *ConfigTestSuite) TestLoadConfigWithUnsupportedDatabaseType() {
-	os.Setenv("DB_TYPE", "oracle")
-
-	_, err := LoadConfig()
-	suite.Error(err, "Expected error for unsupported database type")
 }
 
 // TestGetEnvOrDefaultWithExistingVar tests reading environment variable when it exists

@@ -32,24 +32,24 @@ func createTestColumnDefinitions() []domain.Column {
 	return []domain.Column{
 		{
 			Name:          "id",
-			Type:          domain.ColumnType{MySQL: "INT", PostgreSQL: "INTEGER"},
+			Type:          domain.ColumnType{MySQL: "INT"},
 			PrimaryKey:    true,
 			AutoIncrement: true,
 			NotNull:       true,
 		},
 		{
 			Name:    "name",
-			Type:    domain.ColumnType{MySQL: "VARCHAR(255)", PostgreSQL: "VARCHAR(255)"},
+			Type:    domain.ColumnType{MySQL: "VARCHAR(255)"},
 			NotNull: true,
 		},
 		{
 			Name:    "email",
-			Type:    domain.ColumnType{MySQL: "VARCHAR(255)", PostgreSQL: "VARCHAR(255)"},
+			Type:    domain.ColumnType{MySQL: "VARCHAR(255)"},
 			Unique:  true,
 		},
 		{
 			Name:    "category_id",
-			Type:    domain.ColumnType{MySQL: "INT", PostgreSQL: "INTEGER"},
+			Type:    domain.ColumnType{MySQL: "INT"},
 			NotNull: true,
 			Index:   true,
 			ForeignKey: &domain.ForeignKey{
@@ -59,12 +59,12 @@ func createTestColumnDefinitions() []domain.Column {
 		},
 		{
 			Name:    "created_at",
-			Type:    domain.ColumnType{MySQL: "TIMESTAMP", PostgreSQL: "TIMESTAMP"},
+			Type:    domain.ColumnType{MySQL: "TIMESTAMP"},
 			Default: "CURRENT_TIMESTAMP",
 		},
 		{
 			Name:    "updated_at",
-			Type:    domain.ColumnType{MySQL: "TIMESTAMP", PostgreSQL: "TIMESTAMP"},
+			Type:    domain.ColumnType{MySQL: "TIMESTAMP"},
 			Default: "CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP",
 		},
 	}
@@ -90,12 +90,11 @@ func createTestTableDefinitionForCreator() *domain.TableDefinition {
 	}
 }
 
-// Test CREATE TABLE SQL generation for different databases
+// Test CREATE TABLE SQL generation
 func (suite *tableCreatorTestSuite) TestGetCreateSQL() {
 	testTable := createTestTableDefinitionForCreator()
 
-	// Test MySQL CREATE SQL
-	mysqlSQL := GetCreateSQL(testTable, "mysql")
+	createSQL := GetCreateSQL(testTable)
 
 	expectedSubstrings := []string{
 		"CREATE TABLE IF NOT EXISTS test_table",
@@ -109,34 +108,9 @@ func (suite *tableCreatorTestSuite) TestGetCreateSQL() {
 	}
 
 	for _, expected := range expectedSubstrings {
-		if !strings.Contains(mysqlSQL, expected) {
-			suite.t.Errorf("MySQL SQL missing expected substring: %s\nActual SQL: %s", expected, mysqlSQL)
+		if !strings.Contains(createSQL, expected) {
+			suite.t.Errorf("SQL missing expected substring: %s\nActual SQL: %s", expected, createSQL)
 		}
-	}
-
-	// Test PostgreSQL CREATE SQL
-	postgresSQL := GetCreateSQL(testTable, "postgresql")
-
-	expectedPostgresSubstrings := []string{
-		"CREATE TABLE IF NOT EXISTS test_table",
-		"id SERIAL NOT NULL PRIMARY KEY",
-		"name VARCHAR(255) NOT NULL",
-		"email VARCHAR(255) UNIQUE",
-		"category_id INTEGER NOT NULL",
-		"created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
-		"updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP", // PostgreSQL doesn't support ON UPDATE
-		"FOREIGN KEY (category_id) REFERENCES categories(id)",
-	}
-
-	for _, expected := range expectedPostgresSubstrings {
-		if !strings.Contains(postgresSQL, expected) {
-			suite.t.Errorf("PostgreSQL SQL missing expected substring: %s\nActual SQL: %s", expected, postgresSQL)
-		}
-	}
-
-	// PostgreSQL should not contain ON UPDATE
-	if strings.Contains(postgresSQL, "ON UPDATE") {
-		suite.t.Error("PostgreSQL SQL should not contain 'ON UPDATE' clause")
 	}
 }
 
@@ -145,68 +119,51 @@ func (suite *tableCreatorTestSuite) TestBuildColumnSQL() {
 	tests := []struct {
 		name     string
 		column   domain.Column
-		dbType   string
 		expected []string // substrings that should be present
 	}{
 		{
-			name: "MySQL auto increment primary key",
+			name: "Auto increment primary key",
 			column: domain.Column{
 				Name:          "id",
-				Type:          domain.ColumnType{MySQL: "INT", PostgreSQL: "INTEGER"},
+				Type:          domain.ColumnType{MySQL: "INT"},
 				PrimaryKey:    true,
 				AutoIncrement: true,
 				NotNull:       true,
 			},
-			dbType:   "mysql",
 			expected: []string{"id", "INT", "AUTO_INCREMENT", "NOT NULL", "PRIMARY KEY"},
-		},
-		{
-			name: "PostgreSQL auto increment primary key",
-			column: domain.Column{
-				Name:          "id",
-				Type:          domain.ColumnType{MySQL: "INT", PostgreSQL: "INTEGER"},
-				PrimaryKey:    true,
-				AutoIncrement: true,
-				NotNull:       true,
-			},
-			dbType:   "postgresql",
-			expected: []string{"id", "SERIAL", "NOT NULL", "PRIMARY KEY"},
 		},
 		{
 			name: "Required text field",
 			column: domain.Column{
 				Name:    "name",
-				Type:    domain.ColumnType{MySQL: "VARCHAR(255)", PostgreSQL: "VARCHAR(255)"},
+				Type:    domain.ColumnType{MySQL: "VARCHAR(255)"},
 				NotNull: true,
 			},
-			dbType:   "mysql",
 			expected: []string{"name", "VARCHAR(255)", "NOT NULL"},
 		},
 		{
 			name: "Unique field",
 			column: domain.Column{
 				Name:   "email",
-				Type:   domain.ColumnType{MySQL: "VARCHAR(255)", PostgreSQL: "VARCHAR(255)"},
+				Type:   domain.ColumnType{MySQL: "VARCHAR(255)"},
 				Unique: true,
 			},
-			dbType:   "mysql",
 			expected: []string{"email", "VARCHAR(255)", "UNIQUE"},
 		},
 		{
 			name: "Field with default value",
 			column: domain.Column{
 				Name:    "status",
-				Type:    domain.ColumnType{MySQL: "VARCHAR(50)", PostgreSQL: "VARCHAR(50)"},
+				Type:    domain.ColumnType{MySQL: "VARCHAR(50)"},
 				Default: "'active'",
 			},
-			dbType:   "mysql",
 			expected: []string{"status", "VARCHAR(50)", "DEFAULT", "'active'"},
 		},
 	}
 
 	for _, tt := range tests {
 		suite.t.Run(tt.name, func(t *testing.T) {
-			result := buildColumnSQL(tt.column, tt.dbType)
+			result := buildColumnSQL(tt.column)
 
 			for _, expected := range tt.expected {
 				if !strings.Contains(result, expected) {
@@ -247,15 +204,14 @@ func (suite *tableCreatorTestSuite) TestGetPrimaryKeyColumns() {
 	}
 }
 
-// Test index SQL generation for different databases
+// Test index SQL generation
 func (suite *tableCreatorTestSuite) TestGetIndexSQL() {
 	testTable := createTestTableDefinitionForCreator()
 
-	// Test MySQL index SQL
-	mysqlIndexes := GetIndexSQL(testTable, "mysql")
+	indexes := GetIndexSQL(testTable)
 
-	if len(mysqlIndexes) != 3 {
-		suite.t.Errorf("Expected 3 index SQL statements, got %d", len(mysqlIndexes))
+	if len(indexes) != 3 {
+		suite.t.Errorf("Expected 3 index SQL statements, got %d", len(indexes))
 	}
 
 	// Check for regular index, unique index, and category_id index
@@ -263,7 +219,7 @@ func (suite *tableCreatorTestSuite) TestGetIndexSQL() {
 	uniqueIndexFound := false
 	categoryIndexFound := false
 
-	for _, indexSQL := range mysqlIndexes {
+	for _, indexSQL := range indexes {
 		if strings.Contains(indexSQL, "idx_test_table_idx_name") && strings.Contains(indexSQL, "CREATE INDEX") && !strings.Contains(indexSQL, "UNIQUE") {
 			regularIndexFound = true
 		}
@@ -285,11 +241,6 @@ func (suite *tableCreatorTestSuite) TestGetIndexSQL() {
 		suite.t.Error("Category ID index SQL not found")
 	}
 
-	// Test PostgreSQL index SQL (should be same as MySQL for basic indexes)
-	postgresIndexes := GetIndexSQL(testTable, "postgresql")
-	if len(postgresIndexes) != 3 {
-		suite.t.Errorf("Expected 3 PostgreSQL index SQL statements, got %d", len(postgresIndexes))
-	}
 }
 
 // Test column-level Unique attribute creates unique indexes
@@ -299,29 +250,29 @@ func (suite *tableCreatorTestSuite) TestGetIndexSQL_ColumnLevelUniqueIndex() {
 		Columns: []domain.Column{
 			{
 				Name:       "id",
-				Type:       domain.ColumnType{MySQL: "INT", PostgreSQL: "INTEGER"},
+				Type:       domain.ColumnType{MySQL: "INT"},
 				PrimaryKey: true,
 			},
 			{
 				Name:   "username",
-				Type:   domain.ColumnType{MySQL: "VARCHAR(255)", PostgreSQL: "VARCHAR(255)"},
+				Type:   domain.ColumnType{MySQL: "VARCHAR(255)"},
 				Unique: true, // Should create unique index
 			},
 			{
 				Name:  "category_id",
-				Type:  domain.ColumnType{MySQL: "INT", PostgreSQL: "INTEGER"},
+				Type:  domain.ColumnType{MySQL: "INT"},
 				Index: true, // Should create regular index
 			},
 			{
 				Name: "description",
-				Type: domain.ColumnType{MySQL: "TEXT", PostgreSQL: "TEXT"},
+				Type: domain.ColumnType{MySQL: "TEXT"},
 				// No index attributes
 			},
 		},
 		Indexes: []domain.Index{}, // No explicit indexes
 	}
 
-	indexes := GetIndexSQL(testTable, "mysql")
+	indexes := GetIndexSQL(testTable)
 
 	// Should create 2 indexes: unique for username and regular for category_id
 	if len(indexes) != 2 {
@@ -355,7 +306,7 @@ func (suite *tableCreatorTestSuite) TestCreateDatabaseTables() {
 	testTable := createTestTableDefinitionForCreator()
 	RegisterTable(testTable)
 
-	db, mock, cleanup := createMockDatabase(suite.t, "mysql")
+	db, mock, cleanup := createMockDatabase(suite.t)
 	defer cleanup()
 
 	// Mock table existence check (table doesn't exist)
@@ -373,7 +324,7 @@ func (suite *tableCreatorTestSuite) TestCreateDatabaseTables() {
 		WillReturnResult(sqlmock.NewResult(0, 0))
 
 	// Execute test
-	err := CreateDatabaseTables(db, "mysql")
+	err := CreateDatabaseTables(db)
 	if err != nil {
 		suite.t.Errorf("CreateDatabaseTables() failed: %v", err)
 	}
@@ -391,7 +342,7 @@ func (suite *tableCreatorTestSuite) TestCreateDatabaseTablesWithFailure() {
 	testTable := createTestTableDefinitionForCreator()
 	RegisterTable(testTable)
 
-	db, mock, cleanup := createMockDatabase(suite.t, "mysql")
+	db, mock, cleanup := createMockDatabase(suite.t)
 	defer cleanup()
 
 	// Mock table existence check (table doesn't exist)
@@ -403,7 +354,7 @@ func (suite *tableCreatorTestSuite) TestCreateDatabaseTablesWithFailure() {
 		WillReturnError(sqlmock.ErrCancelled)
 
 	// Execute test
-	err := CreateDatabaseTables(db, "mysql")
+	err := CreateDatabaseTables(db)
 	if err == nil {
 		suite.t.Error("Expected CreateDatabaseTables() to fail, but it succeeded")
 	}
@@ -421,7 +372,7 @@ func (suite *tableCreatorTestSuite) TestCreateDatabaseTablesIndexFailure() {
 	testTable := createTestTableDefinitionForCreator()
 	RegisterTable(testTable)
 
-	db, mock, cleanup := createMockDatabase(suite.t, "mysql")
+	db, mock, cleanup := createMockDatabase(suite.t)
 	defer cleanup()
 
 	// Mock table existence check (table doesn't exist)
@@ -441,7 +392,7 @@ func (suite *tableCreatorTestSuite) TestCreateDatabaseTablesIndexFailure() {
 		WillReturnResult(sqlmock.NewResult(0, 0))
 
 	// Execute test - should succeed even if index creation fails
-	err := CreateDatabaseTables(db, "mysql")
+	err := CreateDatabaseTables(db)
 	if err != nil {
 		suite.t.Errorf("CreateDatabaseTables() should not fail on index errors, but got: %v", err)
 	}
@@ -455,58 +406,38 @@ func (suite *tableCreatorTestSuite) TestCreateDatabaseTablesIndexFailure() {
 // Test tableExists function for database table existence
 func (suite *tableCreatorTestSuite) TestTableExistsInDatabase() {
 	tests := []struct {
-		name          string
-		dbType        string
-		tableName     string
-		execError     error
+		name           string
+		tableName      string
+		execError      error
 		expectedExists bool
-		expectError   bool
+		expectError    bool
 	}{
 		{
-			name:          "Table exists - MySQL",
-			dbType:        "mysql",
-			tableName:     "users",
-			execError:     nil,
+			name:           "Table exists",
+			tableName:      "users",
+			execError:      nil,
 			expectedExists: true,
-			expectError:   false,
+			expectError:    false,
 		},
 		{
-			name:          "Table does not exist - MySQL",
-			dbType:        "mysql",
-			tableName:     "nonexistent_table",
-			execError:     errors.New("Table 'testdb.nonexistent_table' doesn't exist"),
+			name:           "Table does not exist",
+			tableName:      "nonexistent_table",
+			execError:      errors.New("Table 'testdb.nonexistent_table' doesn't exist"),
 			expectedExists: false,
-			expectError:   false, // Should be handled as table doesn't exist, not an error
+			expectError:    false, // Should be handled as table doesn't exist, not an error
 		},
 		{
-			name:          "Table exists - PostgreSQL",
-			dbType:        "postgresql",
-			tableName:     "users",
-			execError:     nil,
-			expectedExists: true,
-			expectError:   false,
-		},
-		{
-			name:          "Table does not exist - PostgreSQL",
-			dbType:        "postgresql",
-			tableName:     "missing_table",
-			execError:     errors.New("relation \"missing_table\" does not exist"),
+			name:           "Database connection error",
+			tableName:      "any_table",
+			execError:      errors.New("connection lost to database server"),
 			expectedExists: false,
-			expectError:   false,
-		},
-		{
-			name:          "Database connection error",
-			dbType:        "mysql",
-			tableName:     "any_table",
-			execError:     errors.New("connection lost to database server"),
-			expectedExists: false,
-			expectError:   true, // This should be treated as a real error
+			expectError:    true, // This should be treated as a real error
 		},
 	}
 
 	for _, tt := range tests {
 		suite.t.Run(tt.name, func(t *testing.T) {
-			db, mock, cleanup := createMockDatabase(t, tt.dbType)
+			db, mock, cleanup := createMockDatabase(t)
 			defer cleanup()
 
 			expectedQuery := "SELECT 1 FROM " + tt.tableName + " WHERE 1=0"
@@ -516,7 +447,7 @@ func (suite *tableCreatorTestSuite) TestTableExistsInDatabase() {
 				mock.ExpectExec(expectedQuery).WillReturnResult(sqlmock.NewResult(0, 0))
 			}
 
-			exists, err := tableExists(db, tt.tableName, tt.dbType)
+			exists, err := tableExists(db, tt.tableName)
 
 			if tt.expectError && err == nil {
 				suite.t.Error("Expected error but got nil")
@@ -547,7 +478,7 @@ func (suite *tableCreatorTestSuite) TestCreateDatabaseTablesSkipsExistingTables(
 	testTable := createTestTableDefinitionForCreator()
 	RegisterTable(testTable)
 
-	db, mock, cleanup := createMockDatabase(suite.t, "mysql")
+	db, mock, cleanup := createMockDatabase(suite.t)
 	defer cleanup()
 
 	// Mock table existence check (table exists)
@@ -566,7 +497,7 @@ func (suite *tableCreatorTestSuite) TestCreateDatabaseTablesSkipsExistingTables(
 		WillReturnResult(sqlmock.NewResult(0, 0))
 
 	// Execute test
-	err := CreateDatabaseTables(db, "mysql")
+	err := CreateDatabaseTables(db)
 	if err != nil {
 		suite.t.Errorf("CreateDatabaseTables() failed: %v", err)
 	}
@@ -584,7 +515,7 @@ func (suite *tableCreatorTestSuite) TestCreateDatabaseTablesSyncsMissingColumns(
 	testTable := createTestTableDefinitionForCreator()
 	RegisterTable(testTable)
 
-	db, mock, cleanup := createMockDatabase(suite.t, "mysql")
+	db, mock, cleanup := createMockDatabase(suite.t)
 	defer cleanup()
 
 	// Mock table existence check (table exists)
@@ -609,7 +540,7 @@ func (suite *tableCreatorTestSuite) TestCreateDatabaseTablesSyncsMissingColumns(
 		WillReturnResult(sqlmock.NewResult(0, 0))
 
 	// Execute test
-	err := CreateDatabaseTables(db, "mysql")
+	err := CreateDatabaseTables(db)
 	if err != nil {
 		suite.t.Errorf("CreateDatabaseTables() failed: %v", err)
 	}
@@ -627,7 +558,7 @@ func (suite *tableCreatorTestSuite) TestCreateDatabaseTablesCreatesNonExistingTa
 	testTable := createTestTableDefinitionForCreator()
 	RegisterTable(testTable)
 
-	db, mock, cleanup := createMockDatabase(suite.t, "mysql")
+	db, mock, cleanup := createMockDatabase(suite.t)
 	defer cleanup()
 
 	// Mock table existence check (table doesn't exist)
@@ -645,7 +576,7 @@ func (suite *tableCreatorTestSuite) TestCreateDatabaseTablesCreatesNonExistingTa
 		WillReturnResult(sqlmock.NewResult(0, 0))
 
 	// Execute test
-	err := CreateDatabaseTables(db, "mysql")
+	err := CreateDatabaseTables(db)
 	if err != nil {
 		suite.t.Errorf("CreateDatabaseTables() failed: %v", err)
 	}
@@ -669,12 +600,12 @@ func (suite *tableCreatorTestSuite) TestGetForeignKeyConstraints() {
 			columns: []domain.Column{
 				{
 					Name:       "id",
-					Type:       domain.ColumnType{MySQL: "INT", PostgreSQL: "INTEGER"},
+					Type:       domain.ColumnType{MySQL: "INT"},
 					PrimaryKey: true,
 				},
 				{
 					Name: "name",
-					Type: domain.ColumnType{MySQL: "VARCHAR(255)", PostgreSQL: "VARCHAR(255)"},
+					Type: domain.ColumnType{MySQL: "VARCHAR(255)"},
 				},
 			},
 			expectedCount:    0,
@@ -685,12 +616,12 @@ func (suite *tableCreatorTestSuite) TestGetForeignKeyConstraints() {
 			columns: []domain.Column{
 				{
 					Name:       "id",
-					Type:       domain.ColumnType{MySQL: "INT", PostgreSQL: "INTEGER"},
+					Type:       domain.ColumnType{MySQL: "INT"},
 					PrimaryKey: true,
 				},
 				{
 					Name: "user_id",
-					Type: domain.ColumnType{MySQL: "INT", PostgreSQL: "INTEGER"},
+					Type: domain.ColumnType{MySQL: "INT"},
 					ForeignKey: &domain.ForeignKey{
 						Table:  "users",
 						Column: "id",
@@ -707,12 +638,12 @@ func (suite *tableCreatorTestSuite) TestGetForeignKeyConstraints() {
 			columns: []domain.Column{
 				{
 					Name:       "id",
-					Type:       domain.ColumnType{MySQL: "INT", PostgreSQL: "INTEGER"},
+					Type:       domain.ColumnType{MySQL: "INT"},
 					PrimaryKey: true,
 				},
 				{
 					Name: "user_id",
-					Type: domain.ColumnType{MySQL: "INT", PostgreSQL: "INTEGER"},
+					Type: domain.ColumnType{MySQL: "INT"},
 					ForeignKey: &domain.ForeignKey{
 						Table:  "users",
 						Column: "id",
@@ -720,7 +651,7 @@ func (suite *tableCreatorTestSuite) TestGetForeignKeyConstraints() {
 				},
 				{
 					Name: "category_id",
-					Type: domain.ColumnType{MySQL: "INT", PostgreSQL: "INTEGER"},
+					Type: domain.ColumnType{MySQL: "INT"},
 					ForeignKey: &domain.ForeignKey{
 						Table:  "categories",
 						Column: "id",

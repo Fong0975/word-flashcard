@@ -28,39 +28,24 @@ func (s *connectionTestSuite) SetupTest() {
 // createTestConfig creates a default test configuration
 func createTestConfig() *DBConfig {
 	return &DBConfig{
-		Type:         "mysql",
 		Host:         "localhost",
 		Port:         3306,
 		User:         "testuser",
 		Password:     "testpass",
 		DatabaseName: "testdb",
-		SSLMode:      "disable",
 		MaxOpenConns: 25,
 		MaxIdleConns: 25,
 	}
 }
 
-// createPostgreSQLTestConfig creates a PostgreSQL test configuration
-func createPostgreSQLTestConfig() *DBConfig {
-	config := createTestConfig()
-	config.Type = "postgresql"
-	config.Port = 5432
-	return config
-}
-
 // createMockDatabase creates a UniversalDatabase with mock SQL connection
-func createMockDatabase(t *testing.T, dbType string) (*UniversalDatabase, sqlmock.Sqlmock, func()) {
+func createMockDatabase(t *testing.T) (*UniversalDatabase, sqlmock.Sqlmock, func()) {
 	mockDB, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("Failed to create sqlmock: %v", err)
 	}
 
-	config := createTestConfig()
-	if dbType == "postgresql" {
-		config = createPostgreSQLTestConfig()
-	}
-
-	db := NewUniversalDatabase(config)
+	db := NewUniversalDatabase(createTestConfig())
 	db.db = mockDB
 
 	cleanup := func() {
@@ -74,7 +59,7 @@ func createMockDatabase(t *testing.T, dbType string) (*UniversalDatabase, sqlmoc
 
 // TestConnect tests successful database connection and disconnection
 func (s *connectionTestSuite) TestConnect() {
-	db, mock, _ := createMockDatabase(s.t, "mysql")
+	db, mock, _ := createMockDatabase(s.t)
 
 	// Test that database connection is established
 	s.NotNil(db.db, "Database connection should be established")
@@ -108,7 +93,7 @@ func stringPtr(s string) *string {
 
 // TestSelect tests selecting records from database
 func (s *connectionTestSuite) TestSelect() {
-	db, mock, cleanup := createMockDatabase(s.t, "mysql")
+	db, mock, cleanup := createMockDatabase(s.t)
 	defer cleanup()
 
 	// Mock expects a SELECT query
@@ -139,7 +124,7 @@ func (s *connectionTestSuite) TestSelect() {
 
 // TestSelectWithLimit tests selecting records with LIMIT clause
 func (s *connectionTestSuite) TestSelectWithLimit() {
-	db, mock, cleanup := createMockDatabase(s.t, "mysql")
+	db, mock, cleanup := createMockDatabase(s.t)
 	defer cleanup()
 
 	// Mock expects a SELECT query with LIMIT
@@ -171,7 +156,7 @@ func (s *connectionTestSuite) TestSelectWithLimit() {
 
 // TestSelectWithOffset tests selecting records with OFFSET clause
 func (s *connectionTestSuite) TestSelectWithOffset() {
-	db, mock, cleanup := createMockDatabase(s.t, "mysql")
+	db, mock, cleanup := createMockDatabase(s.t)
 	defer cleanup()
 
 	// Mock expects a SELECT query with OFFSET
@@ -203,7 +188,7 @@ func (s *connectionTestSuite) TestSelectWithOffset() {
 
 // TestSelectWithLimitAndOffset tests selecting records with both LIMIT and OFFSET clauses
 func (s *connectionTestSuite) TestSelectWithLimitAndOffset() {
-	db, mock, cleanup := createMockDatabase(s.t, "mysql")
+	db, mock, cleanup := createMockDatabase(s.t)
 	defer cleanup()
 
 	// Mock expects a SELECT query with LIMIT and OFFSET
@@ -234,98 +219,36 @@ func (s *connectionTestSuite) TestSelectWithLimitAndOffset() {
 	s.NoError(mock.ExpectationsWereMet())
 }
 
-// TestSelectWithLimitAndOffsetPostgreSQL tests LIMIT/OFFSET with PostgreSQL
-func (s *connectionTestSuite) TestSelectWithLimitAndOffsetPostgreSQL() {
-	db, mock, cleanup := createMockDatabase(s.t, "postgresql")
-	defer cleanup()
-
-	// Mock expects a SELECT query with LIMIT and OFFSET using PostgreSQL placeholder format
-	rows := sqlmock.NewRows([]string{"id", "name"}).
-		AddRow(3, "Test User 3").
-		AddRow(4, "Test User 4")
-
-	mock.ExpectQuery("SELECT \\* FROM users ORDER BY name LIMIT 2 OFFSET 2").
-		WillReturnRows(rows)
-
-	// Prepare test parameters
-	orderBy := []*string{stringPtr("name")}
-	limit := uint64(2)
-	offset := uint64(2)
-	var results []testUser
-
-	// Test Select method with both limit and offset
-	err := db.Select("users", nil, nil, orderBy, &limit, &offset, &results)
-
-	s.NoError(err, "PostgreSQL Select with limit and offset should succeed")
-	s.Len(results, 2, "Should return 2 users")
-	s.Equal(3, results[0].Id)
-	s.Equal("Test User 3", results[0].Name)
-	s.Equal(4, results[1].Id)
-	s.Equal("Test User 4", results[1].Name)
-
-	// Verify all expectations were met
-	s.NoError(mock.ExpectationsWereMet())
-}
-
-// TestSelectWithTermsTranslation tests that terms in orderBy are correctly translated for different databases
+// TestSelectWithTermsTranslation tests that terms in orderBy are correctly translated to MySQL syntax
 func (s *connectionTestSuite) TestSelectWithTermsTranslation() {
-	// Common test parameters
 	orderBy := []*string{stringPtr(TERM_MAPPING_FUNC_RANDOM)}
 	var results []testUser
 
-	// Test MySQL translation
-	{
-		db, mock, cleanup := createMockDatabase(s.t, "mysql")
-		defer cleanup()
+	db, mock, cleanup := createMockDatabase(s.t)
+	defer cleanup()
 
-		// Mock expects SELECT query with RAND() for MySQL
-		rows := sqlmock.NewRows([]string{"id", "name"}).
-			AddRow(1, "Test User 1").
-			AddRow(2, "Test User 2")
+	// Mock expects SELECT query with RAND()
+	rows := sqlmock.NewRows([]string{"id", "name"}).
+		AddRow(1, "Test User 1").
+		AddRow(2, "Test User 2")
 
-		mock.ExpectQuery("SELECT \\* FROM users ORDER BY RAND\\(\\)").
-			WillReturnRows(rows)
+	mock.ExpectQuery("SELECT \\* FROM users ORDER BY RAND\\(\\)").
+		WillReturnRows(rows)
 
-		// Test Select method
-		err := db.Select("users", nil, nil, orderBy, nil, nil, &results)
+	err := db.Select("users", nil, nil, orderBy, nil, nil, &results)
 
-		s.NoError(err, "MySQL Select with terms translation should succeed")
-		s.Len(results, 2, "Should return 2 users")
+	s.NoError(err, "Select with terms translation should succeed")
+	s.Len(results, 2, "Should return 2 users")
 
-		// Verify all expectations were met
-		s.NoError(mock.ExpectationsWereMet())
-	}
-
-	// Test PostgreSQL translation
-	{
-		db, mock, cleanup := createMockDatabase(s.t, "postgresql")
-		defer cleanup()
-
-		// Mock expects SELECT query with RANDOM() for PostgreSQL
-		rows := sqlmock.NewRows([]string{"id", "name"}).
-			AddRow(3, "Test User 3").
-			AddRow(4, "Test User 4")
-
-		mock.ExpectQuery("SELECT \\* FROM users ORDER BY RANDOM\\(\\)").
-			WillReturnRows(rows)
-
-		// Test Select method
-		results = []testUser{} // Reset results
-		err := db.Select("users", nil, nil, orderBy, nil, nil, &results)
-
-		s.NoError(err, "PostgreSQL Select with terms translation should succeed")
-		s.Len(results, 2, "Should return 2 users")
-
-		// Verify all expectations were met
-		s.NoError(mock.ExpectationsWereMet())
-	}
+	// Verify all expectations were met
+	s.NoError(mock.ExpectationsWereMet())
 }
 
 // ========== Insert Tests ==========
 
 // TestInsert tests inserting records into database
 func (s *connectionTestSuite) TestInsert() {
-	db, mock, cleanup := createMockDatabase(s.t, "mysql")
+	db, mock, cleanup := createMockDatabase(s.t)
 	defer cleanup()
 
 	// Test data to insert
@@ -422,7 +345,7 @@ func (s *connectionTestSuite) TestUpdate() {
 
 	for _, tt := range tests {
 		s.Run(tt.name, func() {
-			db, mock, cleanup := createMockDatabase(s.t, "mysql")
+			db, mock, cleanup := createMockDatabase(s.t)
 			defer cleanup()
 
 			if tt.disconnected {
@@ -514,7 +437,7 @@ func (s *connectionTestSuite) TestDelete() {
 
 	for _, tt := range tests {
 		s.Run(tt.name, func() {
-			db, mock, cleanup := createMockDatabase(s.t, "mysql")
+			db, mock, cleanup := createMockDatabase(s.t)
 			defer cleanup()
 
 			if tt.disconnected {
@@ -545,7 +468,7 @@ func (s *connectionTestSuite) TestDelete() {
 
 // TestCount tests counting records with WHERE condition
 func (s *connectionTestSuite) TestCount() {
-	db, mock, cleanup := createMockDatabase(s.t, "mysql")
+	db, mock, cleanup := createMockDatabase(s.t)
 	defer cleanup()
 
 	// Create where condition
@@ -571,7 +494,7 @@ func (s *connectionTestSuite) TestCount() {
 
 // TestExec tests executing raw SQL queries
 func (s *connectionTestSuite) TestExec() {
-	db, mock, cleanup := createMockDatabase(s.t, "mysql")
+	db, mock, cleanup := createMockDatabase(s.t)
 	defer cleanup()
 
 	// Mock expects an SQL execution
@@ -597,7 +520,7 @@ func (s *connectionTestSuite) TestExec() {
 func (s *connectionTestSuite) TestQuery() {
 	// Test successful query returning rows with expected columns
 	{
-		db, mock, cleanup := createMockDatabase(s.t, "mysql")
+		db, mock, cleanup := createMockDatabase(s.t)
 		defer cleanup()
 
 		rows := sqlmock.NewRows([]string{"id", "name"}).
@@ -622,7 +545,7 @@ func (s *connectionTestSuite) TestQuery() {
 
 	// Test query failure propagates error
 	{
-		db, mock, cleanup := createMockDatabase(s.t, "mysql")
+		db, mock, cleanup := createMockDatabase(s.t)
 		defer cleanup()
 
 		mock.ExpectQuery("SELECT \\* FROM missing_table WHERE 1=0").
@@ -638,7 +561,7 @@ func (s *connectionTestSuite) TestQuery() {
 
 	// Test query on disconnected database
 	{
-		db, _, cleanup := createMockDatabase(s.t, "mysql")
+		db, _, cleanup := createMockDatabase(s.t)
 		defer cleanup()
 
 		db.db = nil
@@ -691,47 +614,6 @@ func (s *connectionTestSuite) TestBuildMySQLDSN() {
 	}
 }
 
-// TestBuildPostgreSQLDSN tests building the PostgreSQL data source name string
-func (s *connectionTestSuite) TestBuildPostgreSQLDSN() {
-	tests := []struct {
-		name     string
-		config   *DBConfig
-		expected string
-	}{
-		{
-			name: "standard config",
-			config: &DBConfig{
-				User:         "testuser",
-				Password:     "testpass",
-				Host:         "localhost",
-				Port:         5432,
-				DatabaseName: "testdb",
-				SSLMode:      "disable",
-			},
-			expected: "host=localhost port=5432 user=testuser password=testpass dbname=testdb sslmode=disable",
-		},
-		{
-			name: "different host, port and sslmode",
-			config: &DBConfig{
-				User:         "admin",
-				Password:     "secret",
-				Host:         "db.example.com",
-				Port:         6432,
-				DatabaseName: "flashcards",
-				SSLMode:      "require",
-			},
-			expected: "host=db.example.com port=6432 user=admin password=secret dbname=flashcards sslmode=require",
-		},
-	}
-
-	for _, tt := range tests {
-		s.Run(tt.name, func() {
-			db := NewUniversalDatabase(tt.config)
-			s.Equal(tt.expected, db.buildPostgreSQLDSN())
-		})
-	}
-}
-
 // ========== Connection Configuration Tests ==========
 
 // TestConfigureConnection tests applying connection pool settings to the underlying *sql.DB
@@ -747,7 +629,7 @@ func (s *connectionTestSuite) TestConfigureConnection() {
 
 	for _, tt := range tests {
 		s.Run(tt.name, func() {
-			db, _, cleanup := createMockDatabase(s.t, "mysql")
+			db, _, cleanup := createMockDatabase(s.t)
 			defer cleanup()
 
 			db.config.MaxOpenConns = tt.maxOpenConns
@@ -760,57 +642,25 @@ func (s *connectionTestSuite) TestConfigureConnection() {
 	}
 }
 
-// TestTranslateDatabaseTerms tests the translateDatabaseTerms method for different database types
+// TestTranslateDatabaseTerms tests the translateDatabaseTerms method
 func (s *connectionTestSuite) TestTranslateDatabaseTerms() {
-	// Test MySQL database term translation
-	{
-		db, _, cleanup := createMockDatabase(s.t, "mysql")
-		defer cleanup()
+	db, _, cleanup := createMockDatabase(s.t)
+	defer cleanup()
 
-		// Test single pattern replacement
-		input := "{FUNC_RANDOM}"
-		result := db.translateDatabaseTerms(input)
-		s.Equal("RAND()", result, "Should translate {FUNC_RANDOM} to RAND() for MySQL")
-
-		// Test pattern within larger string
-		input2 := "ORDER BY {FUNC_RANDOM}, id ASC"
-		result2 := db.translateDatabaseTerms(input2)
-		s.Equal("ORDER BY RAND(), id ASC", result2, "Should translate pattern within larger string for MySQL")
-
-		// Test multiple occurrences
-		input3 := "SELECT {FUNC_RANDOM} AS rand1, {FUNC_RANDOM} AS rand2"
-		result3 := db.translateDatabaseTerms(input3)
-		s.Equal("SELECT RAND() AS rand1, RAND() AS rand2", result3, "Should translate multiple occurrences for MySQL")
-
-		// Test string without patterns
-		input4 := "ORDER BY name ASC"
-		result4 := db.translateDatabaseTerms(input4)
-		s.Equal("ORDER BY name ASC", result4, "Should not modify string without patterns")
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{name: "single pattern", input: "{FUNC_RANDOM}", expected: "RAND()"},
+		{name: "pattern within larger string", input: "ORDER BY {FUNC_RANDOM}, id ASC", expected: "ORDER BY RAND(), id ASC"},
+		{name: "multiple occurrences", input: "SELECT {FUNC_RANDOM} AS rand1, {FUNC_RANDOM} AS rand2", expected: "SELECT RAND() AS rand1, RAND() AS rand2"},
+		{name: "string without patterns is unchanged", input: "ORDER BY name ASC", expected: "ORDER BY name ASC"},
 	}
 
-	// Test PostgreSQL database term translation
-	{
-		db, _, cleanup := createMockDatabase(s.t, "postgresql")
-		defer cleanup()
-
-		// Test single pattern replacement
-		input := "{FUNC_RANDOM}"
-		result := db.translateDatabaseTerms(input)
-		s.Equal("RANDOM()", result, "Should translate {FUNC_RANDOM} to RANDOM() for PostgreSQL")
-
-		// Test pattern within larger string
-		input2 := "ORDER BY {FUNC_RANDOM}, id ASC"
-		result2 := db.translateDatabaseTerms(input2)
-		s.Equal("ORDER BY RANDOM(), id ASC", result2, "Should translate pattern within larger string for PostgreSQL")
-
-		// Test multiple occurrences
-		input3 := "SELECT {FUNC_RANDOM} AS rand1, {FUNC_RANDOM} AS rand2"
-		result3 := db.translateDatabaseTerms(input3)
-		s.Equal("SELECT RANDOM() AS rand1, RANDOM() AS rand2", result3, "Should translate multiple occurrences for PostgreSQL")
-
-		// Test string without patterns
-		input4 := "ORDER BY name ASC"
-		result4 := db.translateDatabaseTerms(input4)
-		s.Equal("ORDER BY name ASC", result4, "Should not modify string without patterns")
+	for _, tt := range tests {
+		s.Run(tt.name, func() {
+			s.Equal(tt.expected, db.translateDatabaseTerms(tt.input))
+		})
 	}
 }
