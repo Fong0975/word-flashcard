@@ -42,14 +42,20 @@ Generate a pull request summary for the given git commit SHAs: $ARGUMENTS
 
 ## Output format
 
-**IMPORTANT — wrap the final output in a code block**: The CLI renders Markdown, which strips formatting symbols (`#`, `**`, `-`, `---`, etc.) from the result. To keep the content copy-pasteable as raw Markdown, output the **entire** final result — from `# Title` through the Squash merge commit title / Suggested branch name block — inside a single fenced code block tagged `markdown`.
+The output has two copy-pasteable parts, each wrapped in its own fenced code block tagged `markdown`:
+
+1. **PR body** — matches `.github/pull_request_template.md` exactly, so it can be pasted straight into the PR description.
+2. **Merge metadata** — the Squash merge commit title and Suggested branch name.
+
+**IMPORTANT — use code blocks**: The CLI renders Markdown, which strips formatting symbols (`#`, `-`, etc.). To keep the content copy-pasteable as raw Markdown, each part must be inside a fenced code block.
 
 - Use a fence of **four backticks** (` ```` `) so that any triple-backtick code blocks inside the PR body do not close it early. If the content itself contains four backticks, use a fence one backtick longer than the longest run inside.
-- Output nothing outside the code block — no preamble, no explanation, no trailing notes — **except** the "Auto-collected commit list" below when it applies.
+- Output nothing outside the two code blocks — no preamble, no explanation, no trailing notes — **except** the "Auto-collected commit list" below when it applies.
+- Do not add anything to the PR body that is not in `.github/pull_request_template.md` (no `---` separator, no extra headings). If the template changes, follow the template.
 
 ### Auto-collected commit list
 
-Only when the SHAs were auto-collected in Step 0 (the user provided none), output a short list **before** the code block, in the order they were collected (oldest to newest). Each line shows time, title, and SHA:
+Only when the SHAs were auto-collected in Step 0 (the user provided none), output a short list **before** the code blocks, in the order they were collected (oldest to newest). Each line shows time, title, and SHA:
 
 ```
 Auto-collected commits (oldest → newest):
@@ -57,22 +63,21 @@ Auto-collected commits (oldest → newest):
 2. 2026-11-18 10:15 | fix: handle empty input | e4f5a6b
 ```
 
-- Keep this list outside the code block so the code block remains pure, copy-pasteable PR content.
+- Keep this list outside the code blocks so they remain pure, copy-pasteable content.
 - Do not show this list when the user supplied the SHAs manually.
 
-**IMPORTANT — empty section removal**: If a section has no bullet points, remove its heading, its bullets, AND all surrounding blank lines. The final output must contain no consecutive blank lines and no headings without content beneath them.
+**IMPORTANT — empty section removal**: If a section under `## Feature Changes` has no bullet points, remove its heading, its bullets, AND all surrounding blank lines. The final output must contain no consecutive blank lines and no headings without content beneath them.
+
+### Part 1 — PR body
 
 `````
 ````markdown
-# Title
-feat/fix: <Title Case summary of what changed>
-
+# feat/fix: <Title Case summary of what changed>
 ## Summary
 <2–3 sentences. Focus on what the user can now do or what problem is solved.
 Do NOT describe implementation details or list files. Write in English.>
 
-## Features Changes
-
+## Feature Changes
 ### 🖥️ API Enhancements
 - <Feature-focused bullet. What capability changed, not which file was edited.>
 
@@ -84,41 +89,42 @@ Do NOT describe implementation details or list files. Write in English.>
 
 ### ⚙️ Others
 - <Feature-focused bullet.>
+````
+`````
 
----
+The first line replaces the template's `# Title` placeholder with the actual PR title.
+
+### Part 2 — Merge metadata
+
+`````
+````markdown
 **Squash merge commit title**
 feat/fix: <Sentence case summary of what changed>
+
 **Suggested branch name**
 feat/fix/<kebab-case-summary>
 ````
 `````
 
-For example, if only `web/` files were changed, the output must look like:
+### Example
+
+If only `web/` files were changed, Part 1 must look like:
 
 `````
 ````markdown
-# Title
-feat: <Title Case summary>
-
+# feat: <Title Case summary>
 ## Summary
 <summary text>
 
-## Features Changes
-
+## Feature Changes
 ### 🌍 Webpage Enhancements
 - <bullet>
-
----
-**Squash merge commit title**
-feat: <Sentence case summary>
-**Suggested branch name**
-feat/<kebab-case-summary>
 ````
 `````
 
 ## Capitalization rules
 
-- **PR Title** (`feat/fix:` line under `# Title`): words after the prefix follow **Title Case**
+- **PR Title** (the `feat/fix:` heading line at the top of the PR body): words after the prefix follow **Title Case**
   - Example: `feat: Add Web Speech API Fallback and Improve Navigation State`
 - **Squash merge commit title**: same content but follows **Sentence case**
   - Example: `feat: Add web speech API fallback and improve navigation state`
