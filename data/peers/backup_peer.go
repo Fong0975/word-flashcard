@@ -6,7 +6,6 @@ import (
 	"reflect"
 
 	"word-flashcard/data/schema"
-	"word-flashcard/utils/database"
 
 	"github.com/Masterminds/squirrel"
 )
@@ -33,7 +32,6 @@ var restoreOrder = []string{
 // table wiped before it's rewritten.
 type BackupPeer struct {
 	*BasePeer
-	dbType string
 }
 
 // NewBackupPeer creates a new BackupPeer instance
@@ -43,15 +41,7 @@ func NewBackupPeer() (*BackupPeer, error) {
 		return nil, err
 	}
 
-	config, err := database.LoadConfig()
-	if err != nil {
-		return nil, err
-	}
-
-	return &BackupPeer{
-		BasePeer: base,
-		dbType:   config.Type,
-	}, nil
+	return &BackupPeer{BasePeer: base}, nil
 }
 
 // RestoreAll replaces the entire contents of the database with payload,
@@ -86,7 +76,7 @@ func (bp *BackupPeer) restore(tx *sql.Tx, payload *RestorePayload) error {
 		return err
 	}
 
-	pf := placeholderFormat(bp.dbType)
+	pf := squirrel.Question
 	if err := restoreTable(tx, pf, schema.WORD_TABLE_NAME, payload.Words); err != nil {
 		return err
 	}
@@ -104,12 +94,6 @@ func (bp *BackupPeer) restore(tx *sql.Tx, payload *RestorePayload) error {
 	}
 	if err := restoreTable(tx, pf, schema.WORD_PRACTICE_LOG_TABLE_NAME, payload.WordPracticeLogs); err != nil {
 		return err
-	}
-
-	if bp.dbType == "postgresql" {
-		if err := bp.resyncSequences(tx); err != nil {
-			return err
-		}
 	}
 
 	return nil
@@ -133,33 +117,6 @@ func (bp *BackupPeer) deleteAllTables(tx *sql.Tx) error {
 	}
 
 	return nil
-}
-
-// resyncSequences advances each table's PostgreSQL SERIAL sequence past the
-// highest id just restored. Unlike MySQL's AUTO_INCREMENT, explicitly
-// inserting a row with a given id does not advance a SERIAL sequence, so
-// without this the next auto-generated id could collide with a restored row.
-func (bp *BackupPeer) resyncSequences(tx *sql.Tx) error {
-	for _, table := range restoreOrder {
-		query := fmt.Sprintf(
-			`SELECT setval(pg_get_serial_sequence('%s', 'id'), COALESCE((SELECT MAX(id) FROM %s), 1))`,
-			table, table,
-		)
-		if _, err := tx.Exec(query); err != nil {
-			return fmt.Errorf("failed to resync sequence for table %s: %w", table, err)
-		}
-	}
-
-	return nil
-}
-
-// placeholderFormat mirrors utils/database/connection.go's own choice: `?`
-// placeholders for MySQL, `$1, $2, ...` for PostgreSQL.
-func placeholderFormat(dbType string) squirrel.PlaceholderFormat {
-	if dbType == "postgresql" {
-		return squirrel.Dollar
-	}
-	return squirrel.Question
 }
 
 // restoreTable inserts every row into table, preserving every field

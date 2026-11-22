@@ -2,31 +2,24 @@ package domain
 
 import "fmt"
 
-// ColumnType represents database column data types
+// ColumnType represents a database column data type
 type ColumnType struct {
-	MySQL      string
-	PostgreSQL string
+	MySQL string
 }
 
-// Common column types for both databases
+// Common column types
 var (
-	IntType     = ColumnType{MySQL: "INT", PostgreSQL: "INTEGER"}
-	BigIntType  = ColumnType{MySQL: "BIGINT", PostgreSQL: "BIGINT"}
+	IntType     = ColumnType{MySQL: "INT"}
+	BigIntType  = ColumnType{MySQL: "BIGINT"}
 	VarcharType = func(length int) ColumnType {
-		return ColumnType{
-			MySQL:      fmt.Sprintf("VARCHAR(%d)", length),
-			PostgreSQL: fmt.Sprintf("VARCHAR(%d)", length),
-		}
+		return ColumnType{MySQL: fmt.Sprintf("VARCHAR(%d)", length)}
 	}
-	TextType      = ColumnType{MySQL: "TEXT", PostgreSQL: "TEXT"}
-	TimestampType = ColumnType{MySQL: "TIMESTAMP", PostgreSQL: "TIMESTAMP"}
-	DatetimeType  = ColumnType{MySQL: "DATETIME", PostgreSQL: "TIMESTAMP"}
-	BooleanType   = ColumnType{MySQL: "TINYINT(1)", PostgreSQL: "BOOLEAN"}
+	TextType      = ColumnType{MySQL: "TEXT"}
+	TimestampType = ColumnType{MySQL: "TIMESTAMP"}
+	DatetimeType  = ColumnType{MySQL: "DATETIME"}
+	BooleanType   = ColumnType{MySQL: "TINYINT(1)"}
 	DecimalType   = func(precision, scale int) ColumnType {
-		return ColumnType{
-			MySQL:      fmt.Sprintf("DECIMAL(%d,%d)", precision, scale),
-			PostgreSQL: fmt.Sprintf("DECIMAL(%d,%d)", precision, scale),
-		}
+		return ColumnType{MySQL: fmt.Sprintf("DECIMAL(%d,%d)", precision, scale)}
 	}
 )
 

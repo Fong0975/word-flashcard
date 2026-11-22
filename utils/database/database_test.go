@@ -238,7 +238,6 @@ func (suite *databaseTestSuite) TestNewDatabaseError() {
 // Test BaseDatabase initialization and table name generation
 func (suite *databaseTestSuite) TestNewBaseDatabase() {
 	config := &DBConfig{
-		Type:         "mysql",
 		Host:         "localhost",
 		Port:         3306,
 		User:         "testuser",

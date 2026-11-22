@@ -52,7 +52,7 @@ func NewDatabaseError(operation string, err error) *DatabaseError {
 	}
 }
 
-// BaseDatabase provides common functionality for both MySQL and PostgreSQL
+// BaseDatabase provides common functionality shared by Database implementations
 type BaseDatabase struct {
 	config            *DBConfig
 	db                *sql.DB

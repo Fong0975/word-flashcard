@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/go-sql-driver/mysql"
-	"github.com/lib/pq"
 )
 
 func TestIsDuplicateEntryError(t *testing.T) {
@@ -25,16 +24,6 @@ func TestIsDuplicateEntryError(t *testing.T) {
 			expected: false,
 		},
 		{
-			name:     "postgres unique violation error",
-			err:      &pq.Error{Code: postgresUniqueViolationErrorCode},
-			expected: true,
-		},
-		{
-			name:     "postgres non-unique-violation error",
-			err:      &pq.Error{Code: "42601"},
-			expected: false,
-		},
-		{
 			name:     "generic non-driver error",
 			err:      errors.New("some failure"),
 			expected: false,
@@ -47,11 +36,6 @@ func TestIsDuplicateEntryError(t *testing.T) {
 		{
 			name:     "mysql duplicate entry error wrapped in DatabaseError",
 			err:      NewDatabaseError("insert", &mysql.MySQLError{Number: mysqlDuplicateEntryErrorNumber, Message: "Duplicate entry"}),
-			expected: true,
-		},
-		{
-			name:     "postgres unique violation error wrapped in DatabaseError",
-			err:      NewDatabaseError("insert", &pq.Error{Code: postgresUniqueViolationErrorCode}),
 			expected: true,
 		},
 	}

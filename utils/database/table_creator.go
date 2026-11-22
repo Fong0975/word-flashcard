@@ -9,26 +9,26 @@ import (
 )
 
 // CreateDatabaseTables creates all registered tables in the database
-func CreateDatabaseTables(db Database, dbType string) error {
+func CreateDatabaseTables(db Database) error {
 	tables := GetAllTables()
 
 	slog.Info("Initializing database tables", "count", len(tables))
 
 	for tableName, tableDef := range tables {
 		// Check if table already exists
-		exists, err := tableExists(db, tableDef.Name, dbType)
+		exists, err := tableExists(db, tableDef.Name)
 		if err != nil {
 			return fmt.Errorf("failed to check if table %s exists: %v", tableName, err)
 		}
 
 		if exists {
 			slog.Debug("Table already exists, syncing columns", "table", tableName)
-			if err := syncMissingColumns(db, tableDef, dbType); err != nil {
+			if err := syncMissingColumns(db, tableDef); err != nil {
 				return fmt.Errorf("failed to sync columns for table %s: %v", tableName, err)
 			}
 		} else {
 			// Generate CREATE TABLE SQL
-			createSQL := GetCreateSQL(tableDef, dbType)
+			createSQL := GetCreateSQL(tableDef)
 
 			// Execute CREATE TABLE
 			_, err := db.Exec(createSQL)
@@ -40,7 +40,7 @@ func CreateDatabaseTables(db Database, dbType string) error {
 		}
 
 		// Create indexes (even if table already exists, indexes might be new)
-		indexSQLs := GetIndexSQL(tableDef, dbType)
+		indexSQLs := GetIndexSQL(tableDef)
 		for _, indexSQL := range indexSQLs {
 			_, err := db.Exec(indexSQL)
 			if err != nil {
@@ -54,13 +54,13 @@ func CreateDatabaseTables(db Database, dbType string) error {
 	return nil
 }
 
-// GetCreateSQL generates CREATE TABLE SQL for the specified database type
-func GetCreateSQL(td *domain.TableDefinition, dbType string) string {
+// GetCreateSQL generates CREATE TABLE SQL
+func GetCreateSQL(td *domain.TableDefinition) string {
 	var columns []string
 
 	// Add columns
 	for _, col := range td.Columns {
-		columnSQL := buildColumnSQL(col, dbType)
+		columnSQL := buildColumnSQL(col)
 		columns = append(columns, columnSQL)
 	}
 
@@ -80,34 +80,15 @@ func GetCreateSQL(td *domain.TableDefinition, dbType string) string {
 }
 
 // buildColumnSQL builds SQL for a single column
-func buildColumnSQL(col domain.Column, dbType string) string {
+func buildColumnSQL(col domain.Column) string {
 	var parts []string
 
 	// Column name and type
-	var colType string
-	switch dbType {
-	case "mysql":
-		colType = col.Type.MySQL
-	case "postgresql":
-		colType = col.Type.PostgreSQL
-	default:
-		colType = col.Type.MySQL
-	}
-
-	parts = append(parts, col.Name, colType)
+	parts = append(parts, col.Name, col.Type.MySQL)
 
 	// Auto increment
 	if col.AutoIncrement {
-		if dbType == "mysql" {
-			parts = append(parts, "AUTO_INCREMENT")
-		} else if dbType == "postgresql" {
-			// PostgreSQL uses SERIAL for auto increment
-			if colType == "INTEGER" {
-				parts[1] = "SERIAL"
-			} else if colType == "BIGINT" {
-				parts[1] = "BIGSERIAL"
-			}
-		}
+		parts = append(parts, "AUTO_INCREMENT")
 	}
 
 	// Not null constraint
@@ -117,12 +98,7 @@ func buildColumnSQL(col domain.Column, dbType string) string {
 
 	// Default value
 	if col.Default != "" {
-		if strings.Contains(col.Default, "ON UPDATE") && dbType == "postgresql" {
-			// PostgreSQL doesn't support ON UPDATE, use only CURRENT_TIMESTAMP
-			parts = append(parts, "DEFAULT", "CURRENT_TIMESTAMP")
-		} else {
-			parts = append(parts, "DEFAULT", col.Default)
-		}
+		parts = append(parts, "DEFAULT", col.Default)
 	}
 
 	// Primary key (for single column)
@@ -150,7 +126,7 @@ func getPrimaryKeyColumns(columns []domain.Column) []string {
 }
 
 // GetIndexSQL generates CREATE INDEX SQL statements
-func GetIndexSQL(td *domain.TableDefinition, dbType string) []string {
+func GetIndexSQL(td *domain.TableDefinition) []string {
 	var indexSQLs []string
 
 	// 1. Process explicitly defined indexes from Indexes array
@@ -248,13 +224,9 @@ func getExistingColumnNames(db Database, tableName string) (map[string]bool, err
 
 // syncMissingColumns adds any columns present in tableDef that do not yet exist in the database table.
 // It reuses buildColumnSQL to generate the column definition for each ALTER TABLE statement.
-//
-// Column positioning behaviour differs by database type:
-//   - MySQL: supports ADD COLUMN ... AFTER <col> / FIRST, so columns are inserted at the
-//     position defined in the schema by locating the nearest preceding column that already exists.
-//   - PostgreSQL: does not support column positioning natively; new columns are always
-//     appended at the end of the table. Attempting AFTER/FIRST would cause a syntax error.
-func syncMissingColumns(db Database, tableDef *domain.TableDefinition, dbType string) error {
+// Columns are inserted at the position defined in the schema (ADD COLUMN ... AFTER <col> / FIRST)
+// by locating the nearest preceding column that already exists.
+func syncMissingColumns(db Database, tableDef *domain.TableDefinition) error {
 	existing, err := getExistingColumnNames(db, tableDef.Name)
 	if err != nil {
 		return fmt.Errorf("failed to get existing columns for table %s: %v", tableDef.Name, err)
@@ -277,18 +249,12 @@ func syncMissingColumns(db Database, tableDef *domain.TableDefinition, dbType st
 			continue
 		}
 
-		colDef := buildColumnSQL(col, dbType)
+		colDef := buildColumnSQL(col)
+		positionSuffix := columnPositionSuffix(tableDef.Columns, i, existing)
 		// Table and column definitions come from the in-code schema, never user
 		// input, and DDL identifiers cannot be bound as query parameters.
-		var alterSQL string
-		if dbType == "mysql" {
-			positionSuffix := columnPositionSuffix(tableDef.Columns, i, existing)
-			// nosemgrep: go.lang.security.audit.database.string-formatted-query.string-formatted-query
-			alterSQL = fmt.Sprintf("ALTER TABLE %s ADD COLUMN %s%s", tableDef.Name, colDef, positionSuffix)
-		} else {
-			// nosemgrep: go.lang.security.audit.database.string-formatted-query.string-formatted-query
-			alterSQL = fmt.Sprintf("ALTER TABLE %s ADD COLUMN %s", tableDef.Name, colDef)
-		}
+		// nosemgrep: go.lang.security.audit.database.string-formatted-query.string-formatted-query
+		alterSQL := fmt.Sprintf("ALTER TABLE %s ADD COLUMN %s%s", tableDef.Name, colDef, positionSuffix)
 
 		if _, err := db.Exec(alterSQL); err != nil {
 			return fmt.Errorf("failed to add column %s to table %s: %v", col.Name, tableDef.Name, err)
@@ -318,7 +284,7 @@ func columnPositionSuffix(columns []domain.Column, colIndex int, existing map[st
 }
 
 // tableExists checks if a table exists in the database
-func tableExists(db Database, tableName string, dbType string) (bool, error) {
+func tableExists(db Database, tableName string) (bool, error) {
 	// Try to execute a query that would fail if table doesn't exist. tableName
 	// comes from the in-code schema definitions, never user input.
 	// nosemgrep: go.lang.security.audit.database.string-formatted-query.string-formatted-query
@@ -326,11 +292,8 @@ func tableExists(db Database, tableName string, dbType string) (bool, error) {
 	_, err := db.Exec(checkQuery)
 
 	if err != nil {
-		// If error contains "doesn't exist" or similar, table doesn't exist
-		errorMsg := strings.ToLower(err.Error())
-		if strings.Contains(errorMsg, "doesn't exist") ||
-			strings.Contains(errorMsg, "does not exist") ||
-			strings.Contains(errorMsg, "relation") && strings.Contains(errorMsg, "does not exist") {
+		// MySQL reports a missing table as "Table '...' doesn't exist"
+		if strings.Contains(strings.ToLower(err.Error()), "doesn't exist") {
 			return false, nil
 		}
 		// Other error, return it

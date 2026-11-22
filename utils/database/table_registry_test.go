@@ -34,19 +34,19 @@ func createTestTableDefinition() *domain.TableDefinition {
 		Columns: []domain.Column{
 			{
 				Name:          "id",
-				Type:          domain.ColumnType{MySQL: "INT", PostgreSQL: "INTEGER"},
+				Type:          domain.ColumnType{MySQL: "INT"},
 				PrimaryKey:    true,
 				AutoIncrement: true,
 				NotNull:       true,
 			},
 			{
 				Name:    "name",
-				Type:    domain.ColumnType{MySQL: "VARCHAR(255)", PostgreSQL: "VARCHAR(255)"},
+				Type:    domain.ColumnType{MySQL: "VARCHAR(255)"},
 				NotNull: true,
 			},
 			{
 				Name: "email",
-				Type: domain.ColumnType{MySQL: "VARCHAR(255)", PostgreSQL: "VARCHAR(255)"},
+				Type: domain.ColumnType{MySQL: "VARCHAR(255)"},
 				Unique: true,
 			},
 		},
