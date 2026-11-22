@@ -11,7 +11,6 @@ import (
 
 	"github.com/Masterminds/squirrel"
 	_ "github.com/go-sql-driver/mysql"
-	_ "github.com/lib/pq"
 )
 
 // Database syntax pattern constants
@@ -20,34 +19,21 @@ const (
 	TERM_MAPPING_FUNC_RANDOM = "{FUNC_RANDOM}"
 )
 
-// DatabaseTermsMapping maps syntax patterns to database-specific implementations
-var DatabaseTermsMapping = map[string]map[string]string{
-	TERM_MAPPING_FUNC_RANDOM: {
-		"mysql":      "RAND()",
-		"postgresql": "RANDOM()",
-	},
+// DatabaseTermsMapping maps syntax patterns to their MySQL implementations
+var DatabaseTermsMapping = map[string]string{
+	TERM_MAPPING_FUNC_RANDOM: "RAND()",
 }
 
-// UniversalDatabase implements the Database interface for both MySQL and PostgreSQL
+// UniversalDatabase implements the Database interface for MySQL
 type UniversalDatabase struct {
 	*BaseDatabase
 }
 
 // ================================= Connection Management =================================
 
-// NewUniversalDatabase creates a new database instance that works with both MySQL and PostgreSQL
+// NewUniversalDatabase creates a new MySQL database instance
 func NewUniversalDatabase(config *DBConfig) *UniversalDatabase {
-	var placeholderFormat squirrel.PlaceholderFormat
-	switch config.Type {
-	case "mysql":
-		placeholderFormat = squirrel.Question
-	case "postgresql":
-		placeholderFormat = squirrel.Dollar
-	default:
-		placeholderFormat = squirrel.Question // Default to MySQL format
-	}
-
-	base := NewBaseDatabase(config, placeholderFormat)
+	base := NewBaseDatabase(config, squirrel.Question)
 	return &UniversalDatabase{
 		BaseDatabase: base,
 	}
@@ -55,21 +41,7 @@ func NewUniversalDatabase(config *DBConfig) *UniversalDatabase {
 
 // Connect establishes a connection to the database
 func (u *UniversalDatabase) Connect() error {
-	var dsn string
-	var driverName string
-
-	switch u.config.Type {
-	case "mysql":
-		dsn = u.buildMySQLDSN()
-		driverName = "mysql"
-	case "postgresql":
-		dsn = u.buildPostgreSQLDSN()
-		driverName = "postgres"
-	default:
-		return NewDatabaseError("connect", fmt.Errorf("unsupported database type: %s", u.config.Type))
-	}
-
-	db, err := sql.Open(driverName, dsn)
+	db, err := sql.Open("mysql", u.buildMySQLDSN())
 	if err != nil {
 		return NewDatabaseError("connect", err)
 	}
@@ -444,7 +416,7 @@ func (u *UniversalDatabase) InitializeTables() error {
 		return NewDatabaseError("initialize_tables", fmt.Errorf("not connected"))
 	}
 
-	return CreateDatabaseTables(u, u.config.Type)
+	return CreateDatabaseTables(u)
 }
 
 // buildMySQLDSN builds MySQL data source name
@@ -457,13 +429,6 @@ func (u *UniversalDatabase) buildMySQLDSN() string {
 		u.config.User, u.config.Password,
 		u.config.Host, u.config.Port,
 		u.config.DatabaseName)
-}
-
-// buildPostgreSQLDSN builds PostgreSQL data source name
-func (u *UniversalDatabase) buildPostgreSQLDSN() string {
-	return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
-		u.config.Host, u.config.Port, u.config.User, u.config.Password,
-		u.config.DatabaseName, u.config.SSLMode)
 }
 
 // GetDB returns the underlying sql.DB connection
@@ -492,13 +457,11 @@ func (u *UniversalDatabase) logQuery(sql string, args []interface{}) {
 	slog.Debug("Executing query", "sql", sql, "args", query)
 }
 
-// translateDatabaseTerms replaces syntax patterns in the input string with database-specific implementations
+// translateDatabaseTerms replaces syntax patterns in the input string with their MySQL implementations
 func (u *UniversalDatabase) translateDatabaseTerms(input string) string {
 	result := input
-	for pattern, dbMapping := range DatabaseTermsMapping {
-		if dbTerm, exists := dbMapping[u.config.Type]; exists {
-			result = strings.ReplaceAll(result, pattern, dbTerm)
-		}
+	for pattern, dbTerm := range DatabaseTermsMapping {
+		result = strings.ReplaceAll(result, pattern, dbTerm)
 	}
 	return result
 }

@@ -10,11 +10,6 @@ func NewDatabase(config *DBConfig) (Database, error) {
 		return nil, fmt.Errorf("database config is required")
 	}
 
-	// Validate database type
-	if config.Type != "mysql" && config.Type != "postgresql" {
-		return nil, fmt.Errorf("unsupported database type: %s", config.Type)
-	}
-
 	return NewUniversalDatabase(config), nil
 }
 
