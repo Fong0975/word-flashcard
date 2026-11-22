@@ -79,6 +79,18 @@ export interface TemplateButton {
   readonly value: string;
 }
 
+/**
+ * A Symbols menu entry that opens a second-level submenu instead of inserting
+ * text itself; each child is inserted like a plain `TemplateButton`.
+ */
+export interface SymbolGroupButton {
+  readonly label: string;
+  readonly children: readonly TemplateButton[];
+}
+
+/** One entry of `markdownEditorSymbolsConfig.json`: a plain symbol or a two-level group. */
+export type SymbolButton = TemplateButton | SymbolGroupButton;
+
 // ===== ENTITY REVIEW TAB PROPS =====
 
 /**

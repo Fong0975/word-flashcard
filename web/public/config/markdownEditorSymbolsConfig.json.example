@@ -30,5 +30,30 @@
   {
     "label": "—",
     "value": "—"
+  },
+  {
+    "label": "Alert",
+    "children": [
+      {
+        "label": "NOTE",
+        "value": "> [!NOTE]\n> "
+      },
+      {
+        "label": "TIP",
+        "value": "> [!TIP]\n> "
+      },
+      {
+        "label": "IMPORTANT",
+        "value": "> [!IMPORTANT]\n> "
+      },
+      {
+        "label": "WARNING",
+        "value": "> [!WARNING]\n> "
+      },
+      {
+        "label": "CAUTION",
+        "value": "> [!CAUTION]\n> "
+      }
+    ]
   }
 ]

@@ -1,7 +1,8 @@
 import React from 'react';
 
-import { TemplateButton } from '../../../types/components';
-import { DropdownMenu } from '../DropdownMenu';
+import { SymbolButton } from '../../../types/components';
+
+import { SymbolsMenu } from './SymbolsMenu';
 
 export type MarkdownFormatAction =
   | 'bold'
@@ -18,7 +19,7 @@ interface MarkdownToolbarProps {
   disabled?: boolean;
   isPreview: boolean;
   onTogglePreview: (isPreview: boolean) => void;
-  symbolButtons?: TemplateButton[];
+  symbolButtons?: SymbolButton[];
   onOpenSymbolMenu?: () => void;
   onInsertSymbol?: (value: string) => void;
   canUndo?: boolean;
@@ -248,11 +249,10 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
         {symbolButtons.length > 0 && (
           <>
             <ToolbarDivider />
-            <DropdownMenu
-              className='shrink-0'
+            <SymbolsMenu
               disabled={formatButtonsDisabled}
-              menuWidthClassName='w-24'
-              detached
+              items={symbolButtons}
+              onInsert={value => onInsertSymbol?.(value)}
               trigger={
                 <button
                   type='button'
@@ -265,11 +265,6 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
                   <SymbolsIcon />
                 </button>
               }
-              items={symbolButtons.map((button, index) => ({
-                id: `${button.label}-${index}`,
-                label: button.label,
-                onClick: () => onInsertSymbol?.(button.value),
-              }))}
             />
           </>
         )}
