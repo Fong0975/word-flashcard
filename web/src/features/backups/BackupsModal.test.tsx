@@ -85,6 +85,28 @@ describe('BackupsModal', () => {
     expect(rows[2]).toHaveTextContent('2.0 MB');
   });
 
+  it('shows an info tooltip with the counts only on rows that have a summary', async () => {
+    const user = userEvent.setup();
+    vi.spyOn(apiService, 'getBackupFiles').mockResolvedValue([
+      buildBackup({
+        name: 'word-flashcard-backup-20260115-000000.json',
+        summary: { words: 10, questions: 4, notes: 1 },
+      }),
+      buildBackup({ name: 'word-flashcard-backup-20260101-000000.json' }),
+    ]);
+
+    render(<BackupsModal isOpen onClose={vi.fn()} />);
+    await screen.findByText('word-flashcard-backup-20260115-000000');
+
+    const triggers = screen.getAllByRole('button', { name: 'Backup contents' });
+    expect(triggers).toHaveLength(1);
+
+    await user.hover(triggers[0]);
+    expect(screen.getByRole('tooltip')).toHaveTextContent(
+      '10 words · 4 questions · 1 note',
+    );
+  });
+
   it('does not show the .json extension in the Name column', async () => {
     vi.spyOn(apiService, 'getBackupFiles').mockResolvedValue([
       buildBackup({ name: 'word-flashcard-backup-20260101-000000.json' }),

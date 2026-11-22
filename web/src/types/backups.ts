@@ -10,4 +10,13 @@ export interface BackupFile {
   readonly name: string;
   readonly size_bytes: number;
   readonly modified_at: string;
+  /** Absent for backups created before the counts were recorded in the file header. */
+  readonly summary?: BackupSummary;
+}
+
+/** Mirrors the backend's `internal/models.BackupSummary`. */
+export interface BackupSummary {
+  readonly words: number;
+  readonly questions: number;
+  readonly notes: number;
 }
