@@ -1,10 +1,9 @@
 # Database Module
 
-A unified database operation module that supports both MySQL and PostgreSQL, providing a simple and easy-to-use CRUD interface.
+A database operation module for MySQL, providing a simple and easy-to-use CRUD interface.
 
 ## Features
 
-- 🔄 Support for MySQL and PostgreSQL
 - 🚀 Unified CRUD operation interface using Squirrel query builder
 - ⚙️ Environment variable configuration management
 - 🔗 Automatic connection pool management
@@ -23,7 +22,6 @@ Install the required dependencies:
 
 ```bash
 go get github.com/go-sql-driver/mysql
-go get github.com/lib/pq
 go get github.com/Masterminds/squirrel
 ```
 
@@ -32,8 +30,6 @@ go get github.com/Masterminds/squirrel
 Set up database connection information in your project's `.env` file:
 
 ```env
-# Database type (mysql or postgresql)
-DB_TYPE=mysql
 DB_HOST=localhost
 DB_PORT=3306
 DB_USER=root
@@ -45,7 +41,6 @@ DB_NAME=word_flashcard
 
 The following parameters are predefined in the code and don't need to be set in `.env`:
 
-- **SSL Mode**: `disable`
 - **Max Open Connections**: `25`
 - **Max Idle Connections**: `25`
 
@@ -60,7 +55,7 @@ utils/database/
 ├── config.go                 # Configuration management and environment loading
 ├── factory.go                # Database factory functions
 ├── database.go               # Core database interface and utility functions
-├── connection.go             # UniversalDatabase implementation (MySQL/PostgreSQL)
+├── connection.go             # UniversalDatabase implementation (MySQL)
 ├── table_registry.go         # Table registration and management system
 ├── table_creator.go          # SQL generation and table creation
 └── README.md                 # This file
@@ -84,9 +79,9 @@ utils/database/
 - String conversion utilities (`camelToSnake`, `snakeToCamel`)
 
 #### 4. Universal Database Implementation (`connection.go`)
-- `UniversalDatabase`: Unified implementation supporting both MySQL and PostgreSQL
-- Automatic placeholder format handling (`?` for MySQL, `$1` for PostgreSQL)
-- Database-specific SQL generation for INSERT operations
+- `UniversalDatabase`: MySQL implementation of the `Database` interface
+- Uses `?` placeholders via Squirrel
+- Translates the `{FUNC_RANDOM}` term to MySQL's `RAND()` in `ORDER BY` clauses
 
 #### 5. Table Management System
 - **Registry (`table_registry.go`)**: Thread-safe in-memory table definition storage
@@ -101,14 +96,14 @@ utils/database/
 
 ```go
 // Predefined column types
-IntType                        // INT / INTEGER
-BigIntType                     // BIGINT / BIGINT
+IntType                        // INT
+BigIntType                     // BIGINT
 VarcharType(length)           // VARCHAR(length)
-TextType                      // TEXT / TEXT
-TimestampType                 // TIMESTAMP / TIMESTAMP
-DatetimeType                  // DATETIME / TIMESTAMP
-BooleanType                   // TINYINT(1) / BOOLEAN
-DecimalType(precision, scale) // DECIMAL(p,s) / DECIMAL(p,s)
+TextType                      // TEXT
+TimestampType                 // TIMESTAMP
+DatetimeType                  // DATETIME
+BooleanType                   // TINYINT(1)
+DecimalType(precision, scale) // DECIMAL(p,s)
 ```
 
 ### Defining New Tables
@@ -182,10 +177,7 @@ Columns added to an existing table are **never removed or modified** — only ad
 
 ### Column Positioning
 
-| Database   | Behaviour |
-|------------|-----------|
-| MySQL      | `ADD COLUMN ... AFTER <prev>` / `FIRST` — preserves the order defined in `TableDefinition.Columns` |
-| PostgreSQL | New columns are always appended at the end (PostgreSQL does not support `AFTER`/`FIRST`) |
+New columns are added with `ADD COLUMN ... AFTER <prev>` / `FIRST`, which preserves the order defined in `TableDefinition.Columns`.
 
 ### Usage
 
@@ -194,8 +186,7 @@ No code change is required. Simply update the `TableDefinition` to include the n
 ```go
 // Before: definition has [id, name]
 // After:  definition has [id, name, score]
-// → ALTER TABLE users ADD COLUMN score INT AFTER name   (MySQL)
-// → ALTER TABLE users ADD COLUMN score INT              (PostgreSQL)
+// → ALTER TABLE users ADD COLUMN score INT AFTER name
 ```
 
 ## Quick Start
@@ -241,13 +232,13 @@ func main() {
 
 ```go
 config := &database.DBConfig{
-    Type:         "mysql",
     Host:         "localhost",
     Port:         3306,
     User:         "root",
     Password:     "password",
     DatabaseName: "word_flashcard",
-    // Other parameters use defaults: SSLMode, MaxOpenConns, MaxIdleConns
+    MaxOpenConns: 25,
+    MaxIdleConns: 25,
 }
 
 db, err := database.NewDatabase(config)
@@ -386,7 +377,6 @@ err = db.Select("words", nil, nil, orderBy, &limit, nil, &results)
 1. Always use `ORDER BY` with pagination to ensure consistent results
 2. Use appropriate page sizes (typically 10-100 records per page)
 3. Consider database performance with large offsets
-4. Both MySQL and PostgreSQL are fully supported
 
 ### Count Records
 
@@ -523,28 +513,6 @@ exists := database.TableExists("words")
 // Clear registry (mainly for testing)
 database.ClearRegistry()
 ```
-
-## Database Type Differences
-
-### MySQL vs PostgreSQL
-
-| Feature | MySQL | PostgreSQL |
-|---------|-------|------------|
-| Placeholder | `?` | `$1, $2, $3...` |
-| Auto Increment | `AUTO_INCREMENT` | `SERIAL` |
-| Insert Return | `LastInsertId()` | `RETURNING id` |
-| Boolean Type | `TINYINT(1)` | `BOOLEAN` |
-| Timestamp Update | `ON UPDATE CURRENT_TIMESTAMP` | Not supported |
-| Column Positioning (ADD COLUMN) | `AFTER <col>` / `FIRST` supported | Always appended at end |
-
-### Automatic Handling
-
-The `UniversalDatabase` automatically handles these differences:
-
-- Placeholder format conversion
-- INSERT statement generation
-- Data type mapping
-- SQL dialect differences
 
 ## Best Practices
 

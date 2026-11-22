@@ -4,7 +4,6 @@
 [![Node.js](https://img.shields.io/badge/Node.js-24%2B-5FA04E?logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![npm](https://img.shields.io/badge/npm-required-CB3837?logo=npm&logoColor=white)](https://www.npmjs.com/)
 [![MySQL](https://img.shields.io/badge/MySQL-supported-4479A1?logo=mysql&logoColor=white)](https://www.mysql.com/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-supported-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 
 ![Preview](assets/preview.jpg)
 
