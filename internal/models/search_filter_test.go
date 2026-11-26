@@ -77,6 +77,70 @@ func (suite *SearchFilterTestSuite) TestIsEmpty() {
 	}
 }
 
+// TestValidateKeys tests the ValidateKeys method
+func (suite *SearchFilterTestSuite) TestValidateKeys() {
+	allowed := []string{"title", "content"}
+
+	testCases := []struct {
+		name     string
+		filter   SearchFilter
+		errorMsg string
+	}{
+		{
+			name:   "empty filter",
+			filter: SearchFilter{},
+		},
+		{
+			name: "all keys allowed",
+			filter: suite.createFilter("OR",
+				suite.createCondition("title", "like", "%a%"),
+				suite.createCondition("content", "like", "%a%"),
+			),
+		},
+		{
+			name: "unknown key after an allowed one",
+			filter: suite.createFilter("OR",
+				suite.createCondition("title", "like", "%a%"),
+				suite.createCondition("sort_order", "eq", "1"),
+			),
+			errorMsg: `condition 2: unsupported key "sort_order"`,
+		},
+		{
+			name: "empty key",
+			filter: suite.createFilter("AND",
+				suite.createCondition("", "eq", "a"),
+			),
+			errorMsg: `condition 1: unsupported key ""`,
+		},
+		{
+			name: "key matching is case sensitive",
+			filter: suite.createFilter("AND",
+				suite.createCondition("Title", "eq", "a"),
+			),
+			errorMsg: `condition 1: unsupported key "Title"`,
+		},
+		{
+			name: "SQL expression as key",
+			filter: suite.createFilter("AND",
+				suite.createCondition("1=1 OR title", "eq", "a"),
+			),
+			errorMsg: `condition 1: unsupported key "1=1 OR title"`,
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.T().Run(tc.name, func(t *testing.T) {
+			err := tc.filter.ValidateKeys(allowed)
+
+			if tc.errorMsg == "" {
+				assert.NoError(t, err)
+			} else {
+				assert.ErrorContains(t, err, tc.errorMsg)
+			}
+		})
+	}
+}
+
 // TestToSqlizer tests the ToSqlizer method
 func (suite *SearchFilterTestSuite) TestToSqlizer() {
 	testCases := []struct {

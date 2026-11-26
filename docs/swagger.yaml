@@ -1064,8 +1064,9 @@ paths:
     post:
       consumes:
       - application/json
-      description: Search for notes using specified filter criteria. Supports equal,
-        not equal, in, not in, like and other operations with pagination.
+      description: 'Search for notes using specified filter criteria. Supports equal,
+        not equal, in, not in, like and other operations with pagination. Allowed
+        condition keys: title, content.'
       parameters:
       - description: Search filter criteria
         in: body

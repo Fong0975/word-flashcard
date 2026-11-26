@@ -11,7 +11,7 @@ import (
 )
 
 // SearchNotes @Summary Search notes with filters and pagination
-// @Description Search for notes using specified filter criteria. Supports equal, not equal, in, not in, like and other operations with pagination.
+// @Description Search for notes using specified filter criteria. Supports equal, not equal, in, not in, like and other operations with pagination. Allowed condition keys: title, content.
 // @Tags notes
 // @Accept json
 // @Produce json
@@ -61,6 +61,10 @@ func (nc *Controller) SearchNotes(c *gin.Context) {
 	}
 
 	// ================ 4. Convert filter to SQL condition ================
+	if err := searchReq.ValidateKeys(noteSearchableColumns); err != nil {
+		common.ResponseError(http.StatusBadRequest, "Invalid search filter", models.ErrCodeInvalidRequest, err, c)
+		return
+	}
 	where, err := searchReq.ToSqlizer()
 	if err != nil {
 		common.ResponseError(http.StatusBadRequest, "Invalid search filter", models.ErrCodeInvalidRequest, err, c)

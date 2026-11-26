@@ -645,7 +645,7 @@ const docTemplate = `{
         },
         "/api/notes/search": {
             "post": {
-                "description": "Search for notes using specified filter criteria. Supports equal, not equal, in, not in, like and other operations with pagination.",
+                "description": "Search for notes using specified filter criteria. Supports equal, not equal, in, not in, like and other operations with pagination. Allowed condition keys: title, content.",
                 "consumes": [
                     "application/json"
                 ],
