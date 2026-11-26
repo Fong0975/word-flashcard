@@ -37,6 +37,7 @@ export const API_ENDPOINTS = {
   wordLogs: (wordId: number) => `/words/${wordId}/logs`,
   questions: '/questions',
   questionById: (questionId: number) => `/questions/${questionId}`,
+  questionsSearch: '/questions/search',
   questionsRandom: '/questions/random',
   questionsCount: '/questions/count',
   questionsStats: '/questions/stats',

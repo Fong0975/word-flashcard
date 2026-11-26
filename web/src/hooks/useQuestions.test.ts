@@ -34,53 +34,68 @@ describe('useQuestions', () => {
   });
 
   it('fetches with the given sort option', async () => {
-    vi.spyOn(apiService, 'getAllQuestions').mockResolvedValue([]);
+    vi.spyOn(apiService, 'searchQuestions').mockResolvedValue([]);
     vi.spyOn(apiService, 'getQuestionsCount').mockResolvedValue({ count: 0 });
 
     renderHook(() => useQuestions({ sort: 'question_asc' }));
 
     await waitFor(() =>
-      expect(apiService.getAllQuestions).toHaveBeenCalledWith(
+      expect(apiService.searchQuestions).toHaveBeenCalledWith(
         expect.objectContaining({ sort: 'question_asc' }),
       ),
     );
   });
 
-  it('filters client-side by question text, case-insensitively', async () => {
-    const matching = buildQuestion({
-      id: 1,
-      question: 'What is the capital of France?',
-    });
-    const nonMatching = buildQuestion({ id: 2, question: 'What is 2 + 2?' });
-    vi.spyOn(apiService, 'getAllQuestions').mockResolvedValue([
-      matching,
-      nonMatching,
-    ]);
-    vi.spyOn(apiService, 'getQuestionsCount').mockResolvedValue({ count: 2 });
+  it.each([
+    { name: 'a single word', term: 'France', pattern: '%France%' },
+    {
+      name: 'a trimmed phrase as one keyword',
+      term: '  take off ',
+      pattern: '%take off%',
+    },
+    {
+      name: 'wildcards matched literally',
+      term: '50%_',
+      pattern: '%50\\%\\_%',
+    },
+    { name: 'a blank term without a filter', term: '   ', pattern: null },
+  ])(
+    'searches the list and count on the server with $name',
+    async ({ term, pattern }) => {
+      const listSpy = vi
+        .spyOn(apiService, 'searchQuestions')
+        .mockResolvedValue([]);
+      const countSpy = vi
+        .spyOn(apiService, 'getQuestionsCount')
+        .mockResolvedValue({ count: 0 });
+      const expectedFilter =
+        pattern === null
+          ? undefined
+          : {
+              conditions: [
+                'question',
+                'option_a',
+                'option_b',
+                'option_c',
+                'option_d',
+              ].map(key => ({ key, operator: 'like', value: pattern })),
+              logic: 'OR',
+            };
 
-    const { result } = renderHook(() => useQuestions());
-    await waitFor(() => expect(result.current.loading).toBe(false));
+      const { result } = renderHook(() =>
+        useQuestions({ initialSearchTerm: term }),
+      );
+      await waitFor(() => expect(result.current.loading).toBe(false));
 
-    act(() => {
-      result.current.setSearchTerm('FRANCE');
-    });
-    await waitFor(() => expect(result.current.loading).toBe(false));
+      expect(listSpy.mock.lastCall?.[0]?.searchFilter).toEqual(expectedFilter);
+      expect(countSpy).toHaveBeenLastCalledWith(expectedFilter);
+    },
+  );
 
-    expect(result.current.questions.map(q => q.id)).toEqual([1]);
-  });
-
-  it('filters client-side by any answer option', async () => {
-    const matching = buildQuestion({
-      id: 1,
-      question: 'Pick one',
-      option_c: 'Paris',
-    });
-    const nonMatching = buildQuestion({ id: 2, question: 'Pick another' });
-    vi.spyOn(apiService, 'getAllQuestions').mockResolvedValue([
-      matching,
-      nonMatching,
-    ]);
-    vi.spyOn(apiService, 'getQuestionsCount').mockResolvedValue({ count: 2 });
+  it('keeps the server results without filtering them again', async () => {
+    const question = buildQuestion({ question: 'Unrelated text' });
+    vi.spyOn(apiService, 'searchQuestions').mockResolvedValue([question]);
+    vi.spyOn(apiService, 'getQuestionsCount').mockResolvedValue({ count: 1 });
 
     const { result } = renderHook(() => useQuestions());
     await waitFor(() => expect(result.current.loading).toBe(false));
@@ -90,12 +105,12 @@ describe('useQuestions', () => {
     });
     await waitFor(() => expect(result.current.loading).toBe(false));
 
-    expect(result.current.questions.map(q => q.id)).toEqual([1]);
+    expect(result.current.questions).toEqual([question]);
   });
 
   it('mirrors entities/fetchEntities as questions/fetchQuestions', async () => {
     const question = buildQuestion();
-    vi.spyOn(apiService, 'getAllQuestions').mockResolvedValue([question]);
+    vi.spyOn(apiService, 'searchQuestions').mockResolvedValue([question]);
     vi.spyOn(apiService, 'getQuestionsCount').mockResolvedValue({ count: 1 });
 
     const { result } = renderHook(() => useQuestions());

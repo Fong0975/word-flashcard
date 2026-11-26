@@ -2,6 +2,8 @@
 
 import type { Mock } from 'vitest';
 
+import { SearchOperation, SearchLogic } from '../types/base';
+
 import { apiService } from './api';
 import { API_CONFIG, API_ENDPOINTS } from './api-config';
 import { buildMockResponse } from './apiTestHelpers';
@@ -14,15 +16,51 @@ describe('ApiService - questions', () => {
     global.fetch = fetchMock as unknown as typeof fetch;
   });
 
-  it('sends a GET request for getAllQuestions', async () => {
-    fetchMock.mockResolvedValueOnce(buildMockResponse([]));
+  it.each([
+    {
+      name: 'without a filter',
+      params: {},
+      query: '',
+      body: {},
+    },
+    {
+      name: 'with a filter, pagination and sort',
+      params: {
+        limit: 20,
+        offset: 40,
+        sort: 'count_practise',
+        searchFilter: {
+          conditions: [
+            {
+              key: 'question',
+              operator: SearchOperation.LIKE,
+              value: '%a%',
+            },
+          ],
+          logic: SearchLogic.OR,
+        },
+      },
+      query: '?limit=20&offset=40&sort=count_practise',
+      body: {
+        conditions: [{ key: 'question', operator: 'like', value: '%a%' }],
+        logic: 'OR',
+      },
+    },
+  ])(
+    'sends a POST request for searchQuestions $name',
+    async ({ params, query, body }) => {
+      fetchMock.mockResolvedValueOnce(buildMockResponse([]));
 
-    await apiService.getAllQuestions();
+      await apiService.searchQuestions(params);
 
-    const [url, options] = fetchMock.mock.calls[0];
-    expect(url).toBe(`${API_CONFIG.baseURL}${API_ENDPOINTS.questions}`);
-    expect(options.method).toBe('GET');
-  });
+      const [url, options] = fetchMock.mock.calls[0];
+      expect(url).toBe(
+        `${API_CONFIG.baseURL}${API_ENDPOINTS.questionsSearch}${query}`,
+      );
+      expect(options.method).toBe('POST');
+      expect(JSON.parse(options.body)).toEqual(body);
+    },
+  );
 
   it('sends a GET request for getQuestion', async () => {
     fetchMock.mockResolvedValueOnce(buildMockResponse({ id: 9 }));
@@ -88,15 +126,34 @@ describe('ApiService - questions', () => {
     expect(JSON.parse(options.body)).toEqual(request);
   });
 
-  it('sends a GET request for getQuestionsCount', async () => {
-    fetchMock.mockResolvedValueOnce(buildMockResponse({ count: 0 }));
+  it.each([
+    { name: 'without a filter', filter: undefined, body: {} },
+    {
+      name: 'with a filter',
+      filter: {
+        conditions: [
+          { key: 'option_a', operator: SearchOperation.LIKE, value: '%a%' },
+        ],
+        logic: SearchLogic.OR,
+      },
+      body: {
+        conditions: [{ key: 'option_a', operator: 'like', value: '%a%' }],
+        logic: 'OR',
+      },
+    },
+  ])(
+    'sends a POST request for getQuestionsCount $name',
+    async ({ filter, body }) => {
+      fetchMock.mockResolvedValueOnce(buildMockResponse({ count: 0 }));
 
-    await apiService.getQuestionsCount();
+      await apiService.getQuestionsCount(filter);
 
-    const [url, options] = fetchMock.mock.calls[0];
-    expect(url).toBe(`${API_CONFIG.baseURL}${API_ENDPOINTS.questionsCount}`);
-    expect(options.method).toBe('GET');
-  });
+      const [url, options] = fetchMock.mock.calls[0];
+      expect(url).toBe(`${API_CONFIG.baseURL}${API_ENDPOINTS.questionsCount}`);
+      expect(options.method).toBe('POST');
+      expect(JSON.parse(options.body)).toEqual(body);
+    },
+  );
 
   it('sends a GET request for getQuestionStats', async () => {
     fetchMock.mockResolvedValueOnce(

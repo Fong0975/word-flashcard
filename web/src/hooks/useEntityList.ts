@@ -27,12 +27,12 @@ import { SearchFilter, BaseEntity } from '../types/base';
  *   }
  * });
  *
- * // Client-side search example (Questions)
- * const questionsHook = useEntityList({
- *   entityName: 'questions',
+ * // Client-side search example
+ * const itemsHook = useEntityList({
+ *   entityName: 'items',
  *   apiService: {
- *     fetchList: (params) => apiService.getAllQuestions(params),
- *     getCount: () => apiService.getQuestionsCount(),
+ *     fetchList: (params) => fetchItems(params),
+ *     getCount: () => fetchItemsCount(),
  *   },
  *   searchConfig: {
  *     type: 'client',
