@@ -4,6 +4,8 @@ import { WordQuizResult } from '../../../types/api';
 import { FamiliarityLevel } from '../../../types/base';
 import { QuizLoadingScreen } from '../../shared/components/QuizLoadingScreen';
 import { QuizErrorScreen } from '../../shared/components/QuizErrorScreen';
+import { useReminderNote } from '../../shared/hooks/useReminderNote';
+import { ReminderNoteInput } from '../../shared/components/ReminderNoteInput';
 import { apiService } from '../../../lib/api';
 import { getApiErrorMessage } from '../../../lib/apiErrorMessage';
 import { generateQuizSessionId } from '../../../utils/quizSessionId';
@@ -16,10 +18,8 @@ import { WordQuizNavHeader } from './components/WordQuizNavHeader';
 import { WordQuestionDisplay } from './components/WordQuestionDisplay';
 import { PronunciationControls } from './components/PronunciationControls';
 import { WordDefinitionsPanel } from './components/WordDefinitionsPanel';
-import { ReminderNoteInput } from './components/ReminderNoteInput';
 import { FamiliarityRatingButtons } from './components/FamiliarityRatingButtons';
 import { useWordQuizData } from './hooks/useWordQuizData';
-import { useReminderNote } from './hooks/useReminderNote';
 import { useWordQuizStep } from './hooks/useWordQuizStep';
 
 interface WordQuizProps {
@@ -259,6 +259,7 @@ export const WordQuiz: React.FC<WordQuizProps> = ({
 
               {/* Reminder Note Section */}
               <ReminderNoteInput
+                description='Have a note to remember? Set a reminder before rating.'
                 enabled={reminderEnabled}
                 text={reminderText}
                 onEnabledChange={setReminderEnabled}

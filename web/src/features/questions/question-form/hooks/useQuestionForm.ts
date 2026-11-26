@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 
 import { Question } from '../../../../types/api';
+import { useReminderNote } from '../../../shared/hooks/useReminderNote';
 import { QuestionFormData, AnswerOption } from '../types';
 import { validateQuestionForm } from '../utils';
 
@@ -51,6 +52,19 @@ const getInitialFormData = (
     : createEmptyFormData();
 
 /**
+ * Returns the reminder note the form starts from: that of the question being
+ * edited, or blank when creating.
+ *
+ * @param mode - Whether the form creates a new question or edits an existing one
+ * @param question - The question being edited, if any
+ * @returns The starting reminder note
+ */
+const getInitialReminder = (
+  mode: 'create' | 'edit',
+  question?: Question,
+): string => (mode === 'edit' ? (question?.reminder ?? '') : '');
+
+/**
  * Checks whether two form data values hold the same content.
  *
  * @param a - First form data
@@ -74,13 +88,23 @@ export const useQuestionForm = ({
 }: UseQuestionFormProps) => {
   const [formData, setFormData] =
     useState<QuestionFormData>(createEmptyFormData);
+  const {
+    reminderEnabled,
+    reminderText,
+    effectiveReminder,
+    setReminderEnabled,
+    setReminderText,
+    initReminder,
+    resetReminder,
+  } = useReminderNote();
 
   // Initialize form values when modal opens or question changes
   useEffect(() => {
     if ((mode === 'edit' && question) || mode === 'create') {
       setFormData(getInitialFormData(mode, question));
+      initReminder(getInitialReminder(mode, question));
     }
-  }, [mode, question, isOpen]);
+  }, [mode, question, isOpen, initReminder]);
 
   // Form field handlers
   const handleQuestionChange = useCallback((value: string) => {
@@ -122,19 +146,26 @@ export const useQuestionForm = ({
   // Reset form
   const resetForm = useCallback(() => {
     setFormData(createEmptyFormData());
-  }, []);
+    resetReminder();
+  }, [resetReminder]);
 
   // Form validation
   const validationError = validateQuestionForm(formData);
   const isValid = validationError === null;
 
-  const isDirty = !isSameFormData(formData, getInitialFormData(mode, question));
+  // The reminder is compared against what submitting would actually send, so
+  // that ticking its checkbox without typing a note does not count as a change.
+  const isDirty =
+    !isSameFormData(formData, getInitialFormData(mode, question)) ||
+    effectiveReminder !== getInitialReminder(mode, question).trim();
 
   return {
     formData,
     isValid,
     isDirty,
     validationError,
+    reminderState: { reminderEnabled, reminderText },
+    effectiveReminder,
     handlers: {
       handleQuestionChange,
       handleAnswerChange,
@@ -142,6 +173,8 @@ export const useQuestionForm = ({
       handleNotesChange,
       handleReferenceChange,
       setReferenceFromTemplate,
+      handleReminderEnabledChange: setReminderEnabled,
+      handleReminderTextChange: setReminderText,
     },
     resetForm,
   };

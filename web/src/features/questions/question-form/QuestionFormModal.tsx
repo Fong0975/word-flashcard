@@ -8,6 +8,7 @@ import { UnsavedChangesDialog } from '../../../components/ui/UnsavedChangesDialo
 import { useTemplateButtons } from '../../../hooks/shared';
 import { useUnsavedChangesGuard } from '../../../hooks/ui/useUnsavedChangesGuard';
 import { Question } from '../../../types/api';
+import { ReminderFormField } from '../../shared/components/ReminderFormField';
 import { formatFormDataForCopy } from '../question-detail/utils/questionFormat';
 
 import { useQuestionForm } from './hooks/useQuestionForm';
@@ -44,6 +45,8 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
     formData,
     isValid,
     isDirty,
+    reminderState,
+    effectiveReminder,
     handlers: {
       handleQuestionChange,
       handleAnswerChange,
@@ -51,6 +54,8 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
       handleNotesChange,
       handleReferenceChange,
       setReferenceFromTemplate,
+      handleReminderEnabledChange,
+      handleReminderTextChange,
     },
     resetForm,
   } = useQuestionForm({ mode, question, isOpen });
@@ -147,6 +152,17 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
                 templateButtons={notesTemplateButtons}
               />
 
+              {mode === 'edit' && (
+                <ReminderFormField
+                  description='Have a note to remember? Set a reminder for this question.'
+                  enabled={reminderState.reminderEnabled}
+                  text={reminderState.reminderText}
+                  onEnabledChange={handleReminderEnabledChange}
+                  onTextChange={handleReminderTextChange}
+                  disabled={isSubmitting}
+                />
+              )}
+
               <FormErrorMessage error={error} />
             </div>
           </div>
@@ -160,7 +176,9 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
             isSubmitting={isSubmitting}
             isFormValid={isValid}
             onCancel={handleClose}
-            onSubmit={() => handleSubmit(formData)}
+            onSubmit={() =>
+              handleSubmit({ ...formData, reminder: effectiveReminder })
+            }
             className='flex justify-end space-x-3 pt-4 pb-2'
           />
         </div>

@@ -23,6 +23,7 @@ var questionSearchableColumns = []string{
 	schema.QUESTION_OPTION_B,
 	schema.QUESTION_OPTION_C,
 	schema.QUESTION_OPTION_D,
+	schema.QUESTION_REMINDER,
 }
 
 // Controller handles question-related requests

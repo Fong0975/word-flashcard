@@ -11,7 +11,7 @@ import (
 
 // SearchQuestions @Summary Search questions with filters and pagination
 // @Description Search questions using filter criteria with pagination and multi-column sorting. An empty body returns all questions.
-// @Description Allowed condition keys: question, option_a, option_b, option_c, option_d.
+// @Description Allowed condition keys: question, option_a, option_b, option_c, option_d, reminder.
 // @Tags questions
 // @Accept json
 // @Produce json

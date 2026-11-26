@@ -405,6 +405,8 @@ definitions:
         type: string
       reference:
         type: string
+      reminder:
+        type: string
       updated_at:
         type: string
     type: object
@@ -486,6 +488,8 @@ definitions:
       question:
         type: string
       reference:
+        type: string
+      reminder:
         type: string
       selected_option:
         type: string
@@ -1309,7 +1313,7 @@ paths:
       - application/json
       description: 'Count the questions matching the filter criteria. An empty body
         counts all questions. Allowed condition keys: question, option_a, option_b,
-        option_c, option_d.'
+        option_c, option_d, reminder.'
       parameters:
       - description: Search filter criteria
         in: body
@@ -1373,7 +1377,7 @@ paths:
       - application/json
       description: |-
         Search questions using filter criteria with pagination and multi-column sorting. An empty body returns all questions.
-        Allowed condition keys: question, option_a, option_b, option_c, option_d.
+        Allowed condition keys: question, option_a, option_b, option_c, option_d, reminder.
       parameters:
       - description: Search filter criteria
         in: body

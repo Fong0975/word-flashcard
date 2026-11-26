@@ -13,6 +13,7 @@ type Question struct {
 	Answer               *string    `db:"answer" json:"answer"`
 	Reference            *string    `db:"reference" json:"reference"`
 	Notes                *string    `db:"notes" json:"notes"`
+	Reminder             *string    `db:"reminder" json:"reminder"`
 	CountPractise        *int       `db:"count_practise" json:"count_practise"`
 	CountFailurePractise *int       `db:"count_failure_practise" json:"count_failure_practise"`
 	LastAnsweredAt       *time.Time `db:"last_answered_at" json:"last_answered_at"`

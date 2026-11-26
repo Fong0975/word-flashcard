@@ -415,6 +415,22 @@ class ApiService {
     );
   }
 
+  /**
+   * Updates only a question's reminder note, leaving its content and practice
+   * statistics untouched. An empty string clears the note.
+   */
+  async updateQuestionReminder(
+    id: number,
+    reminder: string,
+    options?: ApiRequestOptions,
+  ): Promise<Question> {
+    return this.put<Question>(
+      API_ENDPOINTS.questionById(id),
+      { reminder },
+      options,
+    );
+  }
+
   async deleteQuestion(id: number, options?: ApiRequestOptions): Promise<void> {
     await this.delete<void>(API_ENDPOINTS.questionById(id), options);
   }

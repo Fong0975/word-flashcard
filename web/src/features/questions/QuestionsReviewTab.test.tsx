@@ -78,6 +78,7 @@ vi.mock('./question-form/QuestionFormModal', () => ({
               count_practise: 0,
               notes: '',
               reference: '',
+              reminder: null,
             })
           }
         >

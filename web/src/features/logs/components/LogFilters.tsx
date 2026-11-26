@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { QuickFilterButton } from '../../words/QuickFilterButton';
+import { QuickFilterButton } from '../../shared/components/QuickFilterButton';
 import { LOG_LEVELS, LogLevel } from '../../../types/logs';
 import { LOG_LEVEL_DOT_CLASSES } from '../constants';
 

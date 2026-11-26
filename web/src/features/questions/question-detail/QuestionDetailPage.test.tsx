@@ -29,6 +29,7 @@ const buildQuestion = (overrides: Partial<Question> = {}): Question => ({
   count_practise: 0,
   notes: '',
   reference: '',
+  reminder: null,
   ...overrides,
 });
 
@@ -159,6 +160,48 @@ describe('QuestionDetailPage', () => {
     await user.click(screen.getByRole('button', { name: 'Go back' }));
 
     expect(mockNavigate).toHaveBeenCalledWith('/?tab=questions');
+  });
+
+  it('clears the reminder from the banner without reloading the question', async () => {
+    const user = userEvent.setup();
+    const getQuestionSpy = vi
+      .spyOn(apiService, 'getQuestion')
+      .mockResolvedValue(buildQuestion({ reminder: 'Check the tense' }));
+    const clearSpy = vi
+      .spyOn(apiService, 'updateQuestionReminder')
+      .mockResolvedValue(buildQuestion({ reminder: '' }));
+
+    renderPage();
+    expect(await screen.findByText('Check the tense')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Clear reminder' }));
+    await user.click(screen.getByRole('button', { name: 'Clear' }));
+
+    await waitFor(() =>
+      expect(screen.queryByText('Check the tense')).not.toBeInTheDocument(),
+    );
+    expect(clearSpy).toHaveBeenCalledWith(1, '');
+    expect(getQuestionSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows a toast when clearing the reminder fails', async () => {
+    const user = userEvent.setup();
+    vi.spyOn(apiService, 'getQuestion').mockResolvedValue(
+      buildQuestion({ reminder: 'Check the tense' }),
+    );
+    vi.spyOn(apiService, 'updateQuestionReminder').mockRejectedValue(
+      new Error('clear failed'),
+    );
+
+    renderPage();
+    await screen.findByText('Check the tense');
+
+    await user.click(screen.getByRole('button', { name: 'Clear reminder' }));
+    await user.click(screen.getByRole('button', { name: 'Clear' }));
+
+    expect(
+      await screen.findByText('Failed to clear reminder: clear failed'),
+    ).toBeInTheDocument();
   });
 
   it('toggles the answer and explanation section', async () => {

@@ -70,7 +70,7 @@ func validateWordDefinitionFields(definition models.WordDefinition, isUpdate boo
 	}
 
 	// Validate definition field: TEXT, NOT NULL for creation
-	if err := common.ValidateStringField(definition.Definition, isUpdate, "definition", 21845, false); err != nil {
+	if err := common.ValidateTextField(definition.Definition, isUpdate, "definition", false); err != nil {
 		return err
 	}
 

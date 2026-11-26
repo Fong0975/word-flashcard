@@ -20,6 +20,7 @@ const buildQuestion = (overrides: Partial<Question> = {}): Question => ({
   count_practise: 0,
   notes: '',
   reference: '',
+  reminder: null,
   ...overrides,
 });
 
@@ -240,6 +241,71 @@ describe('QuestionFormModal', () => {
       expect(updateQuestionSpy).toHaveBeenCalledWith(
         1,
         expect.objectContaining({ answer: 'C' }),
+      ),
+    );
+  });
+
+  it.each<{ mode: 'create' | 'edit'; shown: boolean }>([
+    { mode: 'create', shown: false },
+    { mode: 'edit', shown: true },
+  ])('shows the reminder field in $mode mode: $shown', ({ mode, shown }) => {
+    render(
+      <QuestionFormModal
+        isOpen
+        onClose={vi.fn()}
+        mode={mode}
+        question={mode === 'edit' ? buildQuestion() : undefined}
+      />,
+    );
+
+    expect(screen.queryByText('Reminder') !== null).toBe(shown);
+  });
+
+  it.each<{
+    name: string;
+    act: (user: ReturnType<typeof userEvent.setup>) => Promise<void>;
+    expected: string;
+  }>([
+    {
+      name: 'an edited note',
+      act: async user => {
+        const input = screen.getByPlaceholderText('Enter reminder note...');
+        await user.clear(input);
+        await user.type(input, '  renewed note  ');
+      },
+      expected: 'renewed note',
+    },
+    {
+      name: 'an empty string once the note is unticked',
+      act: user =>
+        user.click(
+          screen.getByRole('checkbox', { name: 'Set a reminder note' }),
+        ),
+      expected: '',
+    },
+  ])('submits $name in edit mode', async ({ act, expected }) => {
+    const user = userEvent.setup();
+    const question = buildQuestion({ reminder: 'old note' });
+    const updateQuestionSpy = vi
+      .spyOn(apiService, 'updateQuestion')
+      .mockResolvedValue(question);
+    render(
+      <QuestionFormModal
+        isOpen
+        onClose={vi.fn()}
+        mode='edit'
+        question={question}
+      />,
+    );
+    expect(screen.getByDisplayValue('old note')).toBeInTheDocument();
+
+    await act(user);
+    await user.click(screen.getByRole('button', { name: 'Update Question' }));
+
+    await waitFor(() =>
+      expect(updateQuestionSpy).toHaveBeenCalledWith(
+        1,
+        expect.objectContaining({ reminder: expected }),
       ),
     );
   });

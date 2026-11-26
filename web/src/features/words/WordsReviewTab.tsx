@@ -27,6 +27,14 @@ import {
   FAMILIARITY_LABELS,
   getFamiliarityDisplayColors,
 } from '../shared/constants/familiarity';
+import {
+  WITH_REMINDER_CONDITIONS,
+  WITH_REMINDER_FILTER,
+} from '../shared/constants/reminder';
+import {
+  QuickFilterBar,
+  QuickFilterOption,
+} from '../shared/components/QuickFilterBar';
 
 import { WordFormModal } from './word-form';
 import { WordCard } from './WordCard';
@@ -34,7 +42,6 @@ import {
   hasExactWordMatch,
   useAddWordFromSearch,
 } from './useAddWordFromSearch';
-import { QuickFilterButton } from './QuickFilterButton';
 
 // Pulls in `recharts`, so it's only downloaded once the stats modal is
 // actually opened rather than as part of the main bundle.
@@ -54,11 +61,7 @@ const SORT_OPTIONS = [
   { label: 'Practice count (reversed)', value: '-count_practise,word' },
 ] as const;
 
-const WORD_QUICK_FILTERS: readonly {
-  key: string;
-  label: string;
-  dotClassName?: string;
-}[] = [
+const WORD_QUICK_FILTERS: readonly QuickFilterOption[] = [
   {
     key: 'familiarity:red',
     label: FAMILIARITY_LABELS[FamiliarityLevel.RED],
@@ -74,11 +77,7 @@ const WORD_QUICK_FILTERS: readonly {
     label: FAMILIARITY_LABELS[FamiliarityLevel.GREEN],
     dotClassName: getFamiliarityDisplayColors(FamiliarityLevel.GREEN).dot,
   },
-  {
-    key: 'withReminder',
-    label: 'With Reminder',
-    dotClassName: 'bg-gray-500',
-  },
+  WITH_REMINDER_FILTER,
 ];
 
 export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
@@ -125,11 +124,8 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
       });
     }
 
-    if (activeFilters.includes('withReminder')) {
-      conditions.push(
-        { key: 'reminder', operator: SearchOperation.IS_NOT_NULL },
-        { key: 'reminder', operator: SearchOperation.IS_NOT_EMPTY },
-      );
+    if (activeFilters.includes(WITH_REMINDER_FILTER.key)) {
+      conditions.push(...WITH_REMINDER_CONDITIONS);
     }
 
     return conditions;
@@ -256,20 +252,11 @@ export const WordsReviewTab: React.FC<WordsReviewTabProps> = ({
         }}
         toolbarContent={sortToolbar}
         quickFiltersContent={
-          <div className='flex flex-wrap items-center gap-2'>
-            <span className='text-sm text-gray-500 dark:text-gray-400'>
-              Filters:
-            </span>
-            {WORD_QUICK_FILTERS.map(filter => (
-              <QuickFilterButton
-                key={filter.key}
-                label={filter.label}
-                isActive={activeFilters.includes(filter.key)}
-                onClick={() => toggleFilter(filter.key)}
-                dotClassName={filter.dotClassName}
-              />
-            ))}
-          </div>
+          <QuickFilterBar
+            filters={WORD_QUICK_FILTERS}
+            activeFilters={activeFilters}
+            onToggle={toggleFilter}
+          />
         }
         entityListHook={patchedWordsHook}
         onTotalCountClick={() => setIsStatsOpen(true)}

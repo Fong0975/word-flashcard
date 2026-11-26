@@ -957,7 +957,7 @@ const docTemplate = `{
         },
         "/api/questions/count": {
             "post": {
-                "description": "Count the questions matching the filter criteria. An empty body counts all questions. Allowed condition keys: question, option_a, option_b, option_c, option_d.",
+                "description": "Count the questions matching the filter criteria. An empty body counts all questions. Allowed condition keys: question, option_a, option_b, option_c, option_d, reminder.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1053,7 +1053,7 @@ const docTemplate = `{
         },
         "/api/questions/search": {
             "post": {
-                "description": "Search questions using filter criteria with pagination and multi-column sorting. An empty body returns all questions.\nAllowed condition keys: question, option_a, option_b, option_c, option_d.",
+                "description": "Search questions using filter criteria with pagination and multi-column sorting. An empty body returns all questions.\nAllowed condition keys: question, option_a, option_b, option_c, option_d, reminder.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2634,6 +2634,9 @@ const docTemplate = `{
                 "reference": {
                     "type": "string"
                 },
+                "reminder": {
+                    "type": "string"
+                },
                 "updated_at": {
                     "type": "string"
                 }
@@ -2757,6 +2760,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "reference": {
+                    "type": "string"
+                },
+                "reminder": {
                     "type": "string"
                 },
                 "selected_option": {

@@ -60,6 +60,7 @@ export interface Question extends BaseEntity {
   readonly count_practise: number;
   readonly notes: string;
   readonly reference: string;
+  readonly reminder: string | null;
 }
 
 // ===== REQUEST TYPES =====
@@ -110,6 +111,7 @@ export interface UpdateQuestionRequest {
   readonly option_d?: string;
   readonly notes: string;
   readonly reference: string;
+  readonly reminder?: string;
   readonly count_practise?: number;
   readonly count_failure_practise?: number;
   readonly practiced?: boolean;

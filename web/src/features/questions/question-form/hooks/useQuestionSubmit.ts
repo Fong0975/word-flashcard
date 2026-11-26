@@ -53,6 +53,7 @@ export const useQuestionSubmit = ({
             option_d: formData.options.D.trim() || '',
             notes: formData.notes.trim(),
             reference: formData.reference.trim(),
+            reminder: formData.reminder,
           });
         }
 

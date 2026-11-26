@@ -13,6 +13,7 @@ const (
 	QUESTION_ANSWER                 = "answer"
 	QUESTION_REFERENCE              = "reference"
 	QUESTION_NOTES                  = "notes"
+	QUESTION_REMINDER               = "reminder"
 	QUESTION_COUNT_PRACTISE         = "count_practise"
 	QUESTION_COUNT_FAILURE_PRACTISE = "count_failure_practise"
 	QUESTION_LAST_ANSWERED_AT       = "last_answered_at"
@@ -68,6 +69,11 @@ func QuestionsTable() *domain.TableDefinition {
 			{
 				Name:    QUESTION_NOTES,
 				Type:    domain.TextType,
+				NotNull: false,
+			},
+			{
+				Name:    QUESTION_REMINDER,
+				Type:    domain.VarcharType(100),
 				NotNull: false,
 			},
 			{

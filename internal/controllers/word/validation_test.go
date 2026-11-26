@@ -130,6 +130,7 @@ func (suite *HelperTestSuite) TestValidateWordFields() {
 	validFam := schema.WORD_FAMILIARITY_GREEN
 	invalidFam := "blue"
 	longReminder := strings.Repeat("r", 101)
+	maxChineseReminder := strings.Repeat("提", 100)
 	longQuizSessionID := strings.Repeat("s", 37)
 
 	testCases := []testCase{
@@ -174,6 +175,15 @@ func (suite *HelperTestSuite) TestValidateWordFields() {
 			wantErr:    true,
 			wantErrMsg: "word is invalid",
 			wantDetail: []any{"reason", "exceeds max length", "length", 256, "max", 255},
+		},
+		{
+			name: "create - reminder with 100 Chinese characters",
+			input: &models.Word{
+				Word:     &validWord,
+				Reminder: &maxChineseReminder,
+			},
+			isUpdate: false,
+			wantErr:  false,
 		},
 		{
 			name: "create - reminder too long",
@@ -235,7 +245,7 @@ func (suite *HelperTestSuite) TestValidateWordDefinitionFields() {
 	validPOS := "noun"
 	validDef := "a short definition"
 	longPOS := strings.Repeat("a", 51)
-	longText := strings.Repeat("b", 21846)
+	longText := strings.Repeat("b", common.MaxTextBytes+1)
 	multiPOS := "noun,verb"
 	unknownPOS := "prepositional phrase"
 	partlyUnknownPOS := "noun,idiom"
@@ -351,7 +361,7 @@ func (suite *HelperTestSuite) TestValidateWordDefinitionFields() {
 			isUpdate:   false,
 			wantErr:    true,
 			wantErrMsg: "definition is invalid",
-			wantDetail: []any{"reason", "exceeds max length", "length", 21846, "max", 21845},
+			wantDetail: []any{"reason", "exceeds max length", "length", common.MaxTextBytes + 1, "max", common.MaxTextBytes},
 		},
 	}
 

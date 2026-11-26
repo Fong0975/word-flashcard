@@ -4,3 +4,4 @@
 
 export * from './familiarity';
 export * from './quiz';
+export * from './reminder';

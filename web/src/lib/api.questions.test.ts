@@ -102,6 +102,23 @@ describe('ApiService - questions', () => {
     expect(JSON.parse(options.body)).toEqual(payload);
   });
 
+  it.each([
+    { name: 'sets', reminder: 'check the tense' },
+    { name: 'clears', reminder: '' },
+  ])(
+    'sends a PUT request carrying only the reminder when it $name one',
+    async ({ reminder }) => {
+      fetchMock.mockResolvedValueOnce(buildMockResponse({ id: 1 }));
+
+      await apiService.updateQuestionReminder(1, reminder);
+
+      const [url, options] = fetchMock.mock.calls[0];
+      expect(url).toBe(`${API_CONFIG.baseURL}${API_ENDPOINTS.questionById(1)}`);
+      expect(options.method).toBe('PUT');
+      expect(JSON.parse(options.body)).toEqual({ reminder });
+    },
+  );
+
   it('sends a DELETE request for deleteQuestion', async () => {
     fetchMock.mockResolvedValueOnce(
       buildMockResponse(undefined, { contentType: null }),

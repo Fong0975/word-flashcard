@@ -22,6 +22,7 @@ export interface QuestionFormData {
   };
   notes: string;
   reference: string;
+  reminder?: string;
 }
 
 export interface QuestionFormSubmitCallbacks {

@@ -14,6 +14,7 @@ import {
   MAX_SHORT_DETAIL_WIDTH,
   NOT_FOUND_DETAIL,
 } from '../../../utils/pageTitle';
+import { ReminderBanner } from '../../shared/components/ReminderBanner';
 
 import { useQuestionActions } from './hooks/useQuestionActions';
 import { useQuestionStats } from './hooks/useQuestionStats';
@@ -55,6 +56,15 @@ export const QuestionDetailPage: React.FC = () => {
   useEffect(() => {
     fetchQuestion();
   }, [fetchQuestion]);
+
+  // Applies the response directly rather than refetching, so that clearing the
+  // note does not swap the whole page for the loading spinner.
+  const handleClearReminder = useCallback(async () => {
+    if (!question) {
+      return;
+    }
+    setQuestion(await apiService.updateQuestionReminder(question.id, ''));
+  }, [question]);
 
   const titleDetail = isLoading
     ? undefined
@@ -131,6 +141,15 @@ export const QuestionDetailPage: React.FC = () => {
         }
         body={
           <div className='space-y-6'>
+            {question.reminder && (
+              <ReminderBanner
+                reminder={question.reminder}
+                entityName='question'
+                onClear={handleClearReminder}
+                onError={showError}
+              />
+            )}
+
             <OptionsDisplay options={stats.availableOptions} />
 
             <PracticeStats
