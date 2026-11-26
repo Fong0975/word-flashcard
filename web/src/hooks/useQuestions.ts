@@ -2,7 +2,12 @@ import { useMemo, useRef } from 'react';
 
 import { apiService } from '../lib/api';
 import { Question } from '../types/api';
-import { SearchFilter, SearchOperation, SearchLogic } from '../types/base';
+import {
+  SearchCondition,
+  SearchFilter,
+  SearchOperation,
+  SearchLogic,
+} from '../types/base';
 import { EntityListHook } from '../types';
 import { escapeLikePattern } from '../utils/searchFilters';
 
@@ -22,6 +27,11 @@ export interface UseQuestionsOptions {
   initialPage?: number;
   initialSearchTerm?: string;
   autoFetch?: boolean;
+  /**
+   * Additional filter conditions to AND with keyword search results. Pass a
+   * stable reference, as a new one rebuilds the search.
+   */
+  extraConditions?: readonly SearchCondition[];
   sort?: string;
 }
 
@@ -38,28 +48,36 @@ const SEARCHABLE_QUESTION_KEYS = [
 
 /**
  * Builds a filter matching questions whose text or any answer option contains
- * the whole search term.
+ * the whole search term, narrowed by any extra conditions.
+ *
+ * A filter has a single logic operator, so it cannot OR the keyword across
+ * fields and also AND the extra conditions. With extra conditions, the keyword
+ * is therefore matched against the question text only.
  *
  * @param searchTerm - Raw search input; surrounding whitespace is ignored.
- * @returns The filter, or `undefined` when the term is blank.
+ * @param extraConditions - Conditions every result must also satisfy.
+ * @returns The filter, or `undefined` when there is nothing to filter by.
  */
 const createQuestionsSearchFilter = (
   searchTerm: string,
+  extraConditions: readonly SearchCondition[] = [],
 ): SearchFilter | undefined => {
+  const hasExtra = extraConditions.length > 0;
   const keyword = searchTerm.trim();
-  if (!keyword) {
+  const keywordKeys = hasExtra
+    ? (['question'] as const)
+    : SEARCHABLE_QUESTION_KEYS;
+  const value = `%${escapeLikePattern(keyword)}%`;
+  const keywordConditions: SearchCondition[] = keyword
+    ? keywordKeys.map(key => ({ key, operator: SearchOperation.LIKE, value }))
+    : [];
+
+  const conditions = [...keywordConditions, ...extraConditions];
+  if (conditions.length === 0) {
     return undefined;
   }
 
-  const value = `%${escapeLikePattern(keyword)}%`;
-  return {
-    conditions: SEARCHABLE_QUESTION_KEYS.map(key => ({
-      key,
-      operator: SearchOperation.LIKE,
-      value,
-    })),
-    logic: SearchLogic.OR,
-  };
+  return { conditions, logic: hasExtra ? SearchLogic.AND : SearchLogic.OR };
 };
 
 export const useQuestions = (
@@ -70,6 +88,7 @@ export const useQuestions = (
     initialPage = 1,
     initialSearchTerm = '',
     autoFetch = true,
+    extraConditions,
     sort,
   } = options;
 
@@ -89,14 +108,15 @@ export const useQuestions = (
       },
       searchConfig: {
         type: 'server',
-        createSearchFilter: createQuestionsSearchFilter,
+        createSearchFilter: searchTerm =>
+          createQuestionsSearchFilter(searchTerm, extraConditions),
       },
       itemsPerPage,
       initialPage,
       initialSearchTerm,
       autoFetch,
     }),
-    [itemsPerPage, initialPage, initialSearchTerm, autoFetch],
+    [itemsPerPage, initialPage, initialSearchTerm, autoFetch, extraConditions],
   );
 
   // Use the generic hook

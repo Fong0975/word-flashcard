@@ -8,6 +8,12 @@ import {
 } from '../../hooks/shared/useModalManager';
 import { EntityReviewTab } from '../shared/components/EntityReviewTab';
 import { useUrlSyncedEntityList } from '../shared/hooks/useUrlSyncedEntityList';
+import { useQuickFilters } from '../shared/hooks/useQuickFilters';
+import { QuickFilterBar } from '../shared/components/QuickFilterBar';
+import {
+  WITH_REMINDER_CONDITIONS,
+  WITH_REMINDER_FILTER,
+} from '../shared/constants/reminder';
 import { QuizSetupModal } from '../shared/components/QuizSetupModal';
 import { ActionButton } from '../../components/ui';
 import { ModalLoadingFallback } from '../../components/ui/ModalLoadingFallback';
@@ -25,6 +31,9 @@ const QuestionStatsModal = lazy(() =>
 );
 
 const SESSION_SEARCH_KEY = 'question-review-search';
+const SESSION_QUICK_FILTERS_KEY = 'question-review-quick-filters';
+
+const QUESTION_QUICK_FILTERS = [WITH_REMINDER_FILTER];
 
 const SORT_OPTIONS = [
   { label: 'Default', value: '' },
@@ -48,6 +57,10 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({
   const modalManager = useModalManager();
   const [isStatsOpen, setIsStatsOpen] = useState(false);
 
+  const { activeFilters, toggleFilter, filtersKey } = useQuickFilters(
+    SESSION_QUICK_FILTERS_KEY,
+  );
+
   // Read the persisted search term from sessionStorage once on mount (clears when browser closes).
   const initialSessionTerm = useRef(
     sessionStorage.getItem(SESSION_SEARCH_KEY) ?? '',
@@ -63,11 +76,21 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({
     [searchParams],
   );
 
+  // Memoized because a new reference would rebuild the search on every render
+  const extraConditions = useMemo(
+    () =>
+      activeFilters.includes(WITH_REMINDER_FILTER.key)
+        ? WITH_REMINDER_CONDITIONS
+        : undefined,
+    [activeFilters],
+  );
+
   const questionsHook = useQuestions({
     itemsPerPage: 20,
     autoFetch: true,
     initialPage: urlPage,
     initialSearchTerm: initialSessionTerm.current,
+    extraConditions,
     sort: initialUrlSort,
   });
 
@@ -78,8 +101,7 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({
   } = useUrlSyncedEntityList({
     entityListHook: questionsHook,
     sessionSearchKey: SESSION_SEARCH_KEY,
-    // This tab has no quick filters
-    filtersKey: '',
+    filtersKey,
   });
 
   const handleNew = () => {
@@ -154,6 +176,13 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({
         onRefresh: () => questionsHook.refresh(),
       }}
       toolbarContent={sortToolbar}
+      quickFiltersContent={
+        <QuickFilterBar
+          filters={QUESTION_QUICK_FILTERS}
+          activeFilters={activeFilters}
+          onToggle={toggleFilter}
+        />
+      }
       entityListHook={patchedQuestionsHook}
       onTotalCountClick={() => setIsStatsOpen(true)}
       renderCard={(question, index) => (

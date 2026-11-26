@@ -3,6 +3,7 @@ import type { MockInstance } from 'vitest';
 
 import { apiService } from '../lib/api';
 import { Question } from '../types/api';
+import { SearchCondition, SearchOperation } from '../types/base';
 
 import { useQuestions } from './useQuestions';
 
@@ -92,6 +93,42 @@ describe('useQuestions', () => {
       expect(countSpy).toHaveBeenLastCalledWith(expectedFilter);
     },
   );
+
+  const extraConditions: SearchCondition[] = [
+    { key: 'reminder', operator: SearchOperation.IS_NOT_NULL },
+  ];
+
+  it.each([
+    {
+      name: 'only the extra conditions without a keyword',
+      term: '',
+      conditions: extraConditions,
+    },
+    {
+      name: 'the extra conditions and a keyword on the question text only',
+      term: ' 50% ',
+      conditions: [
+        { key: 'question', operator: 'like', value: '%50\\%%' },
+        ...extraConditions,
+      ],
+    },
+  ])('ANDs $name', async ({ term, conditions }) => {
+    const listSpy = vi
+      .spyOn(apiService, 'searchQuestions')
+      .mockResolvedValue([]);
+    const countSpy = vi
+      .spyOn(apiService, 'getQuestionsCount')
+      .mockResolvedValue({ count: 0 });
+    const expectedFilter = { conditions, logic: 'AND' };
+
+    const { result } = renderHook(() =>
+      useQuestions({ initialSearchTerm: term, extraConditions }),
+    );
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(listSpy.mock.lastCall?.[0]?.searchFilter).toEqual(expectedFilter);
+    expect(countSpy).toHaveBeenLastCalledWith(expectedFilter);
+  });
 
   it('keeps the server results without filtering them again', async () => {
     const question = buildQuestion({ question: 'Unrelated text' });
