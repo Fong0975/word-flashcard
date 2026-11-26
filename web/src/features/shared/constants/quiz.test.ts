@@ -4,6 +4,8 @@ import {
   getAccuracyTone,
   getAccuracyToneClass,
   getAnswerGlowClass,
+  getImprovementTone,
+  getScoreBadgeColor,
   getScoreColor,
 } from './quiz';
 
@@ -41,14 +43,41 @@ describe('getAccuracyRateColor', () => {
   });
 });
 
+describe('getImprovementTone', () => {
+  it.each([
+    { rate: 0, expected: 'red' },
+    { rate: 0.1, expected: 'yellow' },
+    { rate: 20, expected: 'yellow' },
+    { rate: 20.1, expected: 'green' },
+    { rate: 100, expected: 'green' },
+  ])('maps $rate% to $expected', ({ rate, expected }) => {
+    expect(getImprovementTone(rate)).toBe(expected);
+  });
+});
+
 describe('getScoreColor', () => {
   it.each([
-    { percentage: 80, expected: 'text-green-600 dark:text-green-400' },
-    { percentage: 60, expected: 'text-yellow-600 dark:text-yellow-400' },
-    { percentage: 59, expected: 'text-red-600 dark:text-red-400' },
-  ])('returns the score color for $percentage%', ({ percentage, expected }) => {
-    expect(getScoreColor(percentage)).toBe(expected);
+    {
+      tone: 'green' as const,
+      expected: 'text-green-600 dark:text-green-400',
+    },
+    {
+      tone: 'yellow' as const,
+      expected: 'text-yellow-600 dark:text-yellow-400',
+    },
+    { tone: 'red' as const, expected: 'text-red-600 dark:text-red-400' },
+  ])('returns the score color for the $tone tone', ({ tone, expected }) => {
+    expect(getScoreColor(tone)).toBe(expected);
   });
+});
+
+describe('getScoreBadgeColor', () => {
+  it.each(['green', 'yellow', 'red'] as const)(
+    'returns the %s capsule colors',
+    tone => {
+      expect(getScoreBadgeColor(tone)).toContain(`bg-${tone}-100`);
+    },
+  );
 });
 
 describe('getAccuracyTextColor', () => {
