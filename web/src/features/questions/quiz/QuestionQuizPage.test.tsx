@@ -90,6 +90,7 @@ const mockResults: QuestionQuizResult[] = [
       count_practise: 1,
       notes: '',
       reference: '',
+      reminder: null,
     },
     userAnswer: 'A',
     isCorrect: true,

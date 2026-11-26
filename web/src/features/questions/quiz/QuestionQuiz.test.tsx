@@ -19,6 +19,7 @@ const buildQuestion = (overrides: Partial<Question> = {}): Question => ({
   count_practise: 0,
   notes: '',
   reference: '',
+  reminder: null,
   ...overrides,
 });
 

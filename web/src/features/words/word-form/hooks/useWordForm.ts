@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 
 import { Word } from '../../../../types/api';
 import { FamiliarityLevel } from '../../../../types/base';
+import { useReminderNote } from '../../../shared/hooks/useReminderNote';
 import { WordFormData } from '../types';
 
 interface UseWordFormProps {
@@ -41,18 +42,24 @@ export const useWordForm = ({ mode, word, isOpen }: UseWordFormProps) => {
     word: '',
     familiarity: FamiliarityLevel.GREEN,
   });
-  const [reminderEnabled, setReminderEnabled] = useState(false);
-  const [reminderText, setReminderText] = useState('');
+  const {
+    reminderEnabled,
+    reminderText,
+    effectiveReminder,
+    setReminderEnabled,
+    setReminderText,
+    initReminder,
+    resetReminder,
+  } = useReminderNote();
 
   // Initialize form values when modal opens or word changes
   useEffect(() => {
     if ((mode === 'edit' && word) || mode === 'create') {
       const initial = getInitialValues(mode, word);
       setFormData({ word: initial.word, familiarity: initial.familiarity });
-      setReminderEnabled(Boolean(initial.reminder));
-      setReminderText(initial.reminder);
+      initReminder(initial.reminder);
     }
-  }, [mode, word, isOpen]);
+  }, [mode, word, isOpen, initReminder]);
 
   // Form field handlers
   const handleWordChange = useCallback((value: string) => {
@@ -66,26 +73,14 @@ export const useWordForm = ({ mode, word, isOpen }: UseWordFormProps) => {
     [],
   );
 
-  const handleReminderEnabledChange = useCallback((enabled: boolean) => {
-    setReminderEnabled(enabled);
-    if (!enabled) {
-      setReminderText('');
-    }
-  }, []);
-
-  const handleReminderTextChange = useCallback((text: string) => {
-    setReminderText(text);
-  }, []);
-
   // Reset form
   const resetForm = useCallback(() => {
     setFormData({
       word: '',
       familiarity: FamiliarityLevel.GREEN,
     });
-    setReminderEnabled(false);
-    setReminderText('');
-  }, []);
+    resetReminder();
+  }, [resetReminder]);
 
   // Form validation
   const isValid = Boolean(formData.word.trim());
@@ -93,7 +88,6 @@ export const useWordForm = ({ mode, word, isOpen }: UseWordFormProps) => {
   // Compared against what submitting would actually send, so that ticking the
   // reminder checkbox without typing a note does not count as a change.
   const initialValues = getInitialValues(mode, word);
-  const effectiveReminder = reminderEnabled ? reminderText.trim() : '';
   const isDirty =
     formData.word !== initialValues.word ||
     formData.familiarity !== initialValues.familiarity ||
@@ -104,11 +98,12 @@ export const useWordForm = ({ mode, word, isOpen }: UseWordFormProps) => {
     isValid,
     isDirty,
     reminderState: { reminderEnabled, reminderText },
+    effectiveReminder,
     handlers: {
       handleWordChange,
       handleFamiliarityChange,
-      handleReminderEnabledChange,
-      handleReminderTextChange,
+      handleReminderEnabledChange: setReminderEnabled,
+      handleReminderTextChange: setReminderText,
     },
     resetForm,
   };

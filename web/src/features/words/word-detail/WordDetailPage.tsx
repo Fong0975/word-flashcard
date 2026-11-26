@@ -5,7 +5,6 @@ import { apiService } from '../../../lib/api';
 import { getApiErrorMessage } from '../../../lib/apiErrorMessage';
 import { Word, WordDefinition } from '../../../types/api';
 import { DetailPageLayout } from '../../../components/layout';
-import { ConfirmationDialog } from '../../../components/ui/ConfirmationDialog';
 import { ToastContainer } from '../../../components/ui';
 import { useToast } from '../../../hooks/ui/useToast';
 import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
@@ -13,6 +12,7 @@ import { NOT_FOUND_DETAIL } from '../../../utils/pageTitle';
 import { WordFormModal } from '../word-form';
 import { DefinitionFormModal } from '../definition-form';
 import { createExactWordSearchFilter } from '../word-form/utils';
+import { ReminderBanner } from '../../shared/components/ReminderBanner';
 import { ExternalDictionaryState } from '../definition-form/hooks/useDictionaryData';
 import { CambridgeApiResponse } from '../definition-form/types';
 
@@ -99,29 +99,17 @@ export const WordDetailPage: React.FC = () => {
       : word.word;
   useDocumentTitle('Word', titleDetail);
 
-  const [showClearReminderConfirm, setShowClearReminderConfirm] =
-    useState(false);
-  const [isClearingReminder, setIsClearingReminder] = useState(false);
-
   const handleClearReminder = useCallback(async () => {
     if (!word) {
       return;
     }
-    try {
-      setIsClearingReminder(true);
-      await apiService.updateWordFields(word.id, {
-        word: word.word,
-        familiarity: word.familiarity,
-        reminder: '',
-      });
-      setShowClearReminderConfirm(false);
-      fetchWord();
-    } catch (error) {
-      showError('Failed to clear reminder: ' + getApiErrorMessage(error));
-    } finally {
-      setIsClearingReminder(false);
-    }
-  }, [word, fetchWord, showError]);
+    await apiService.updateWordFields(word.id, {
+      word: word.word,
+      familiarity: word.familiarity,
+      reminder: '',
+    });
+    fetchWord();
+  }, [word, fetchWord]);
 
   const handleWordSaved = useCallback(
     (newWordText?: string) => {
@@ -219,42 +207,13 @@ export const WordDetailPage: React.FC = () => {
         body={
           <>
             {word.reminder && (
-              <div className='mb-4 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-700/50 dark:bg-amber-900/20'>
-                <svg
-                  className='mt-0.5 h-4 w-4 shrink-0 text-amber-700 dark:text-amber-400'
-                  fill='currentColor'
-                  viewBox='0 0 20 20'
-                >
-                  <path
-                    fillRule='evenodd'
-                    d='M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z'
-                    clipRule='evenodd'
-                  />
-                </svg>
-                <p className='min-w-0 flex-1 text-sm text-amber-800 dark:text-amber-300'>
-                  {word.reminder}
-                </p>
-                <button
-                  type='button'
-                  onClick={() => setShowClearReminderConfirm(true)}
-                  className='focus-ring-warning mt-0.5 shrink-0 rounded-md text-amber-700 transition-colors hover:text-amber-900 dark:text-amber-500 dark:hover:text-amber-300'
-                  aria-label='Clear reminder'
-                >
-                  <svg
-                    className='h-4 w-4'
-                    fill='none'
-                    viewBox='0 0 24 24'
-                    strokeWidth='2'
-                    stroke='currentColor'
-                  >
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      d='M6 18L18 6M6 6l12 12'
-                    />
-                  </svg>
-                </button>
-              </div>
+              <ReminderBanner
+                reminder={word.reminder}
+                entityName='word'
+                onClear={handleClearReminder}
+                onError={showError}
+                className='mb-4'
+              />
             )}
             <DefinitionsList
               definitions={word.definitions || []}
@@ -286,19 +245,6 @@ export const WordDetailPage: React.FC = () => {
         isOpen={wordActions.showDeleteConfirm}
         onConfirm={wordActions.handleDeleteWordConfirm}
         onCancel={wordActions.handleDeleteWordCancel}
-      />
-
-      {/* Clear Reminder Confirmation Dialog */}
-      <ConfirmationDialog
-        isOpen={showClearReminderConfirm}
-        title='Clear Reminder'
-        message='Are you sure you want to clear the reminder for this word?'
-        confirmText='Clear'
-        cancelText='Cancel'
-        onConfirm={handleClearReminder}
-        onCancel={() => setShowClearReminderConfirm(false)}
-        variant='warning'
-        isConfirming={isClearingReminder}
       />
 
       {/* Definition Form Modal for Adding */}

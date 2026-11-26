@@ -30,6 +30,7 @@ const buildQuestion = (overrides: Partial<Question> = {}): Question => ({
   count_practise: 0,
   notes: '',
   reference: '',
+  reminder: null,
   ...overrides,
 });
 
@@ -116,6 +117,33 @@ describe('useQuestionSubmit', () => {
       notes: 'notes',
       reference: 'ref',
     });
+  });
+
+  it.each([
+    { name: 'a new note', reminder: 'check the tense' },
+    { name: 'an empty string that clears the note', reminder: '' },
+  ])('sends $name as the reminder in edit mode', async ({ reminder }) => {
+    const question = buildQuestion();
+    const updateQuestionSpy = vi
+      .spyOn(apiService, 'updateQuestion')
+      .mockResolvedValue(question);
+    const { result } = renderHook(() =>
+      useQuestionSubmit({
+        mode: 'edit',
+        question,
+        callbacks: buildCallbacks(),
+        resetForm: vi.fn(),
+      }),
+    );
+
+    await act(async () => {
+      await result.current.handleSubmit(buildFormData({ reminder }));
+    });
+
+    expect(updateQuestionSpy).toHaveBeenCalledWith(
+      1,
+      expect.objectContaining({ reminder }),
+    );
   });
 
   it('sets an error message and does not close on failure', async () => {

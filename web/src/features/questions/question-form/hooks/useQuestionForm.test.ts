@@ -24,6 +24,7 @@ const buildQuestion = (overrides: Partial<Question> = {}): Question => ({
   count_practise: 0,
   notes: 'some notes',
   reference: 'some reference',
+  reminder: null,
   ...overrides,
 });
 
@@ -69,6 +70,38 @@ describe('useQuestionForm', () => {
       D: '',
     });
   });
+
+  it.each([
+    {
+      name: 'an existing reminder',
+      reminder: 'check the tense',
+      expected: { reminderEnabled: true, reminderText: 'check the tense' },
+    },
+    {
+      name: 'no reminder',
+      reminder: null,
+      expected: { reminderEnabled: false, reminderText: '' },
+    },
+  ])(
+    'starts the reminder state from $name and clears it on reset',
+    ({ reminder, expected }) => {
+      const question = buildQuestion({ reminder });
+      const { result } = renderHook(() =>
+        useQuestionForm({ mode: 'edit', question, isOpen: true }),
+      );
+
+      expect(result.current.reminderState).toEqual(expected);
+
+      act(() => {
+        result.current.resetForm();
+      });
+
+      expect(result.current.reminderState).toEqual({
+        reminderEnabled: false,
+        reminderText: '',
+      });
+    },
+  );
 
   it('updates individual fields via the handlers', () => {
     const { result } = renderHook(() =>
@@ -199,6 +232,27 @@ describe('useQuestionForm', () => {
       question: buildQuestion(),
       edit: handlers => handlers.handleReferenceChange('other reference'),
       expected: true,
+    },
+    {
+      name: 'dirty when the reminder text is changed',
+      mode: 'edit',
+      question: buildQuestion({ reminder: 'old note' }),
+      edit: handlers => handlers.handleReminderTextChange('new note'),
+      expected: true,
+    },
+    {
+      name: 'dirty when an existing reminder is disabled',
+      mode: 'edit',
+      question: buildQuestion({ reminder: 'old note' }),
+      edit: handlers => handlers.handleReminderEnabledChange(false),
+      expected: true,
+    },
+    {
+      name: 'clean when the reminder is enabled without a note',
+      mode: 'edit',
+      question: buildQuestion(),
+      edit: handlers => handlers.handleReminderEnabledChange(true),
+      expected: false,
     },
   ])('isDirty is $name', ({ mode, question, edit, expected }) => {
     const { result } = renderHook(() =>

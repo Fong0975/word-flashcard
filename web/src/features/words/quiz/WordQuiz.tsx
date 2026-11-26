@@ -4,6 +4,7 @@ import { WordQuizResult } from '../../../types/api';
 import { FamiliarityLevel } from '../../../types/base';
 import { QuizLoadingScreen } from '../../shared/components/QuizLoadingScreen';
 import { QuizErrorScreen } from '../../shared/components/QuizErrorScreen';
+import { useReminderNote } from '../../shared/hooks/useReminderNote';
 import { apiService } from '../../../lib/api';
 import { getApiErrorMessage } from '../../../lib/apiErrorMessage';
 import { generateQuizSessionId } from '../../../utils/quizSessionId';
@@ -19,7 +20,6 @@ import { WordDefinitionsPanel } from './components/WordDefinitionsPanel';
 import { ReminderNoteInput } from './components/ReminderNoteInput';
 import { FamiliarityRatingButtons } from './components/FamiliarityRatingButtons';
 import { useWordQuizData } from './hooks/useWordQuizData';
-import { useReminderNote } from './hooks/useReminderNote';
 import { useWordQuizStep } from './hooks/useWordQuizStep';
 
 interface WordQuizProps {

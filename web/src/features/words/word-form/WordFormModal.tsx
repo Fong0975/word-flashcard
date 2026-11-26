@@ -6,6 +6,7 @@ import { FormErrorMessage } from '../../../components/ui/FormErrorMessage';
 import { UnsavedChangesDialog } from '../../../components/ui/UnsavedChangesDialog';
 import { useUnsavedChangesGuard } from '../../../hooks/ui/useUnsavedChangesGuard';
 import { Word } from '../../../types/api';
+import { ReminderFormField } from '../../shared/components/ReminderFormField';
 
 import { WordFormModalProps } from './types';
 import { useWordForm, useWordSearch, useWordSubmit } from './hooks';
@@ -82,12 +83,12 @@ export const WordFormModal: React.FC<WordFormModalProps> = ({
       if (e) {
         e.preventDefault();
       }
-      const { reminderEnabled, reminderText } = formLogic.reminderState;
-      const reminder =
-        reminderEnabled && reminderText.trim() ? reminderText.trim() : '';
-      submitLogic.handleSubmit({ ...formLogic.formData, reminder });
+      submitLogic.handleSubmit({
+        ...formLogic.formData,
+        reminder: formLogic.effectiveReminder,
+      });
     },
-    [submitLogic.handleSubmit, formLogic.formData, formLogic.reminderState], // eslint-disable-line react-hooks/exhaustive-deps
+    [submitLogic.handleSubmit, formLogic.formData, formLogic.effectiveReminder], // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   // Reset search when modal closes
@@ -135,46 +136,14 @@ export const WordFormModal: React.FC<WordFormModalProps> = ({
 
           {/* Reminder Note - Only show in edit mode */}
           {mode === 'edit' && (
-            <div>
-              <p className='mb-1 text-sm font-medium text-gray-700 dark:text-gray-300'>
-                Reminder
-              </p>
-              <p className='mb-2 text-xs text-gray-500 dark:text-gray-400'>
-                Have a note to remember? Set a reminder before rating.
-              </p>
-              <div className='space-y-2 pl-3'>
-                <label className='flex cursor-pointer items-center gap-2'>
-                  <input
-                    type='checkbox'
-                    checked={formLogic.reminderState.reminderEnabled}
-                    onChange={e =>
-                      formLogic.handlers.handleReminderEnabledChange(
-                        e.target.checked,
-                      )
-                    }
-                    disabled={submitLogic.isSubmitting}
-                    className='glass-checkbox'
-                  />
-                  <span className='text-sm text-gray-600 dark:text-gray-400'>
-                    Set a reminder note
-                  </span>
-                </label>
-                <input
-                  type='text'
-                  value={formLogic.reminderState.reminderText}
-                  onChange={e =>
-                    formLogic.handlers.handleReminderTextChange(e.target.value)
-                  }
-                  disabled={
-                    !formLogic.reminderState.reminderEnabled ||
-                    submitLogic.isSubmitting
-                  }
-                  placeholder='Enter reminder note...'
-                  maxLength={100}
-                  className='glass-input w-full px-3 py-1.5'
-                />
-              </div>
-            </div>
+            <ReminderFormField
+              description='Have a note to remember? Set a reminder before rating.'
+              enabled={formLogic.reminderState.reminderEnabled}
+              text={formLogic.reminderState.reminderText}
+              onEnabledChange={formLogic.handlers.handleReminderEnabledChange}
+              onTextChange={formLogic.handlers.handleReminderTextChange}
+              disabled={submitLogic.isSubmitting}
+            />
           )}
 
           <div className='space-y-3 pt-6'>

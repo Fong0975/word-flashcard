@@ -42,6 +42,7 @@ export interface ExportedQuestion extends BaseEntity {
   readonly answer: string;
   readonly reference: string | null;
   readonly notes: string | null;
+  readonly reminder: string | null;
   readonly count_practise: number;
   readonly count_failure_practise: number;
   readonly last_answered_at: string | null;
