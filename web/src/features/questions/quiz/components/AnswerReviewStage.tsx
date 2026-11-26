@@ -71,7 +71,7 @@ export const AnswerReviewStage: React.FC<AnswerReviewStageProps> = ({
         notes={question.notes}
       />
 
-      {children}
+      <div className='mt-12'>{children}</div>
     </div>
   </div>
 );
