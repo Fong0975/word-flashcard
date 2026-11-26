@@ -7,6 +7,7 @@ import (
 // ControllerInterface defines the interface for question controller
 type ControllerInterface interface {
 	ListQuestions(c *gin.Context)
+	SearchQuestions(c *gin.Context)
 	GetQuestions(c *gin.Context)
 	RandomQuestions(c *gin.Context)
 	CreateQuestions(c *gin.Context)

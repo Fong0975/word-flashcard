@@ -2,7 +2,9 @@ import { useMemo, useRef } from 'react';
 
 import { apiService } from '../lib/api';
 import { Question } from '../types/api';
+import { SearchFilter, SearchOperation, SearchLogic } from '../types/base';
 import { EntityListHook } from '../types';
+import { escapeLikePattern } from '../utils/searchFilters';
 
 import { useEntityList, UseEntityListOptions } from './useEntityList';
 
@@ -18,6 +20,7 @@ export interface UseQuestionsActions {
 export interface UseQuestionsOptions {
   itemsPerPage?: number;
   initialPage?: number;
+  initialSearchTerm?: string;
   autoFetch?: boolean;
   sort?: string;
 }
@@ -25,12 +28,47 @@ export interface UseQuestionsOptions {
 export interface UseQuestionsReturn
   extends UseQuestionsState, UseQuestionsActions, EntityListHook<Question> {}
 
+const SEARCHABLE_QUESTION_KEYS = [
+  'question',
+  'option_a',
+  'option_b',
+  'option_c',
+  'option_d',
+] as const;
+
+/**
+ * Builds a filter matching questions whose text or any answer option contains
+ * the whole search term.
+ *
+ * @param searchTerm - Raw search input; surrounding whitespace is ignored.
+ * @returns The filter, or `undefined` when the term is blank.
+ */
+const createQuestionsSearchFilter = (
+  searchTerm: string,
+): SearchFilter | undefined => {
+  const keyword = searchTerm.trim();
+  if (!keyword) {
+    return undefined;
+  }
+
+  const value = `%${escapeLikePattern(keyword)}%`;
+  return {
+    conditions: SEARCHABLE_QUESTION_KEYS.map(key => ({
+      key,
+      operator: SearchOperation.LIKE,
+      value,
+    })),
+    logic: SearchLogic.OR,
+  };
+};
+
 export const useQuestions = (
   options: UseQuestionsOptions = {},
 ): UseQuestionsReturn => {
   const {
     itemsPerPage = 20,
     initialPage = 1,
+    initialSearchTerm = '',
     autoFetch = true,
     sort,
   } = options;
@@ -46,36 +84,19 @@ export const useQuestions = (
       entityName: 'questions',
       apiService: {
         fetchList: params =>
-          apiService.getAllQuestions({ ...params, sort: sortRef.current }),
-        getCount: () => apiService.getQuestionsCount(),
+          apiService.searchQuestions({ ...params, sort: sortRef.current }),
+        getCount: searchFilter => apiService.getQuestionsCount(searchFilter),
       },
       searchConfig: {
-        type: 'client',
-        filterPredicate: (question: Question, searchTerm: string): boolean => {
-          const searchTermLower = searchTerm.toLowerCase();
-          return (
-            question.question.toLowerCase().includes(searchTermLower) ||
-            question.option_a.toLowerCase().includes(searchTermLower) ||
-            !!(
-              question.option_b &&
-              question.option_b.toLowerCase().includes(searchTermLower)
-            ) ||
-            !!(
-              question.option_c &&
-              question.option_c.toLowerCase().includes(searchTermLower)
-            ) ||
-            !!(
-              question.option_d &&
-              question.option_d.toLowerCase().includes(searchTermLower)
-            )
-          );
-        },
+        type: 'server',
+        createSearchFilter: createQuestionsSearchFilter,
       },
       itemsPerPage,
       initialPage,
+      initialSearchTerm,
       autoFetch,
     }),
-    [itemsPerPage, initialPage, autoFetch],
+    [itemsPerPage, initialPage, initialSearchTerm, autoFetch],
   );
 
   // Use the generic hook

@@ -7,6 +7,7 @@ import (
 	"word-flashcard/internal/controllers/common"
 	"word-flashcard/internal/models"
 
+	"github.com/Masterminds/squirrel"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,6 +24,13 @@ import (
 // @Failure 500 {object} models.ErrorResponse "Internal server error - Failed to fetch data from database"
 // @Router /api/questions [get]
 func (qc *Controller) ListQuestions(c *gin.Context) {
+	qc.respondQuestionList(c, nil)
+}
+
+// respondQuestionList writes the page of questions matching where, using the
+// limit, offset and sort query parameters. A nil where matches all questions.
+// Invalid parameters and database failures are written as error responses.
+func (qc *Controller) respondQuestionList(c *gin.Context, where squirrel.Sqlizer) {
 	// ================ 1. Parse pagination parameters ================
 	limit, offset, err := common.ParseLimitAndOffsetFromPath(c)
 	if err != nil {
@@ -56,7 +64,7 @@ func (qc *Controller) ListQuestions(c *gin.Context) {
 	}
 
 	// ================ 3. Fetch data from database ================
-	questions, err := qc.questionPeer.Select([]*string{}, nil, orderByClauses, &limitPtr, &offsetPtr)
+	questions, err := qc.questionPeer.Select([]*string{}, where, orderByClauses, &limitPtr, &offsetPtr)
 	if err != nil {
 		common.ResponseError(http.StatusInternalServerError, "Failed to fetch data from database", models.ErrCodeInternalError, err, c)
 		return

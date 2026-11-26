@@ -109,12 +109,13 @@ func SetupAPIRoutesWithDependencies(router *gin.Engine, deps *ControllerDependen
 
 	// Question routes
 	apiGroup.GET("/questions", deps.QuestionController.ListQuestions)
+	apiGroup.POST("/questions/search", deps.QuestionController.SearchQuestions)
 	apiGroup.GET("/questions/:id", deps.QuestionController.GetQuestions)
 	apiGroup.POST("/questions/random", deps.QuestionController.RandomQuestions)
 	apiGroup.POST("/questions", deps.QuestionController.CreateQuestions)
 	apiGroup.PUT("/questions/:id", deps.QuestionController.UpdateQuestions)
 	apiGroup.DELETE("/questions/:id", deps.QuestionController.DeleteQuestions)
-	apiGroup.GET("/questions/count", deps.QuestionController.CountQuestions)
+	apiGroup.POST("/questions/count", deps.QuestionController.CountQuestions)
 	apiGroup.GET("/questions/stats", deps.QuestionController.StatsQuestions)
 	apiGroup.GET("/questions/trend", deps.QuestionController.GetQuestionsTrend)
 	apiGroup.GET("/questions/:id/logs", deps.QuestionController.GetQuestionLogs)

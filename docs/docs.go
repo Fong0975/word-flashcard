@@ -645,7 +645,7 @@ const docTemplate = `{
         },
         "/api/notes/search": {
             "post": {
-                "description": "Search for notes using specified filter criteria. Supports equal, not equal, in, not in, like and other operations with pagination.",
+                "description": "Search for notes using specified filter criteria. Supports equal, not equal, in, not in, like and other operations with pagination. Allowed condition keys: title, content.",
                 "consumes": [
                     "application/json"
                 ],
@@ -956,8 +956,8 @@ const docTemplate = `{
             }
         },
         "/api/questions/count": {
-            "get": {
-                "description": "Get the total count of questions in the database",
+            "post": {
+                "description": "Count the questions matching the filter criteria. An empty body counts all questions. Allowed condition keys: question, option_a, option_b, option_c, option_d.",
                 "consumes": [
                     "application/json"
                 ],
@@ -967,15 +967,31 @@ const docTemplate = `{
                 "tags": [
                     "questions"
                 ],
+                "parameters": [
+                    {
+                        "description": "Search filter criteria",
+                        "name": "searchFilter",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/models.SearchFilter"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Total count of questions",
+                        "description": "Count of questions matching the filter criteria",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
                                 "type": "integer",
                                 "format": "int64"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid request body or filter",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
@@ -1022,6 +1038,71 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad request - Invalid request body or count parameter",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to fetch data from database",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/questions/search": {
+            "post": {
+                "description": "Search questions using filter criteria with pagination and multi-column sorting. An empty body returns all questions.\nAllowed condition keys: question, option_a, option_b, option_c, option_d.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "questions"
+                ],
+                "parameters": [
+                    {
+                        "description": "Search filter criteria",
+                        "name": "searchFilter",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/models.SearchFilter"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Maximum number of records to return (default: 100, max: 1000)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of records to skip (default: 0)",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort columns/expressions, comma-separated. Format: col,-col,(expr),-(expr). Allowed: id,question,answer,count_practise,count_failure_practise,created_at,updated_at",
+                        "name": "sort",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Questions found matching the search criteria",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/word-flashcard_internal_models.Question"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid request body, filter, or query parameters",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }

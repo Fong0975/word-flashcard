@@ -53,6 +53,7 @@ export const EntityReviewSearchBar: React.FC<EntityReviewSearchBarProps> = ({
         onCompositionEnd={onCompositionEnd}
         className={`glass-panel block w-full rounded-md py-2 pl-10 ${onAdd ? 'pr-16' : 'pr-8'} leading-5 text-gray-900 placeholder-gray-500 focus:border-primary-400/70 focus:ring-2 focus:ring-primary-400/30 focus:outline-hidden sm:text-sm dark:text-white dark:placeholder-gray-400 dark:focus:border-primary-400/50 dark:focus:ring-primary-400/20`}
         placeholder={placeholder}
+        aria-label={placeholder}
       />
       {value && (
         <div className='absolute inset-y-0 right-0 flex items-center gap-1 pr-3'>

@@ -377,13 +377,16 @@ class ApiService {
 
   // Questions API methods
 
-  async getAllQuestions(
+  async searchQuestions(
     params: QuestionsSearchParams = {},
     options?: ApiRequestOptions,
   ): Promise<Question[]> {
-    const endpoint = `${API_ENDPOINTS.questions}${buildListQueryString(params)}`;
+    const endpoint = `${API_ENDPOINTS.questionsSearch}${buildListQueryString(params)}`;
 
-    return this.get<Question[]>(endpoint, options);
+    // An empty body returns all questions
+    const requestBody = params.searchFilter ? params.searchFilter : {};
+
+    return this.post<Question[]>(endpoint, requestBody, options);
   }
 
   async getQuestion(
@@ -428,9 +431,14 @@ class ApiService {
   }
 
   async getQuestionsCount(
+    searchFilter?: SearchFilter,
     options?: ApiRequestOptions,
   ): Promise<{ count: number }> {
-    return this.get<{ count: number }>(API_ENDPOINTS.questionsCount, options);
+    return this.post<{ count: number }>(
+      API_ENDPOINTS.questionsCount,
+      searchFilter || {},
+      options,
+    );
   }
 
   async getWordStats(options?: ApiRequestOptions): Promise<WordStatsResponse> {

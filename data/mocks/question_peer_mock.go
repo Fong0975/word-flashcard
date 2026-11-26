@@ -55,8 +55,8 @@ func (_e *MockQuestionPeer_Expecter) Delete(where interface{}) *mock.Call {
 }
 
 // Count expecter method
-func (_e *MockQuestionPeer_Expecter) Count() *mock.Call {
-	return _e.mock.On("Count")
+func (_e *MockQuestionPeer_Expecter) Count(where interface{}) *mock.Call {
+	return _e.mock.On("Count", where)
 }
 
 // Select mock implementation
@@ -146,19 +146,19 @@ func (_m *MockQuestionPeer) Delete(where squirrel.Sqlizer) (int64, error) {
 }
 
 // Count mock implementation
-func (_m *MockQuestionPeer) Count() (int64, error) {
-	ret := _m.Called()
+func (_m *MockQuestionPeer) Count(where squirrel.Sqlizer) (int64, error) {
+	ret := _m.Called(where)
 
 	var r0 int64
-	if rf, ok := ret.Get(0).(func() int64); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(squirrel.Sqlizer) int64); ok {
+		r0 = rf(where)
 	} else {
 		r0 = ret.Get(0).(int64)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(squirrel.Sqlizer) error); ok {
+		r1 = rf(where)
 	} else {
 		r1 = ret.Error(1)
 	}

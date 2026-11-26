@@ -8,9 +8,10 @@ import (
 	"word-flashcard/utils"
 )
 
-// convertToEntities converts database models to API models
+// convertToEntities converts database models to API models.
+// It never returns nil, so an empty result is serialized as [] rather than null.
 func (qc *Controller) convertToEntities(questions []*dbModels.Question) []*models.Question {
-	var questionEntities []*models.Question
+	questionEntities := make([]*models.Question, 0, len(questions))
 	for _, question := range questions {
 		questionEntity := new(models.Question).FromDataModel(question)
 		questionEntities = append(questionEntities, questionEntity)

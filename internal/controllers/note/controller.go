@@ -14,6 +14,12 @@ var noteSortableColumns = []string{
 	schema.COMMON_UPDATED_AT,
 }
 
+// noteSearchableColumns defines the columns allowed as search filter keys for the notes table.
+var noteSearchableColumns = []string{
+	schema.NOTE_TITLE,
+	schema.NOTE_CONTENT,
+}
+
 // Controller handles note-related requests
 type Controller struct {
 	notePeer peers.NotePeerInterface

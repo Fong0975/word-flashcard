@@ -16,6 +16,15 @@ var questionSortableColumns = []string{
 	schema.COMMON_UPDATED_AT,
 }
 
+// questionSearchableColumns defines the columns allowed as search filter keys for the questions table.
+var questionSearchableColumns = []string{
+	schema.QUESTION_QUESTION,
+	schema.QUESTION_OPTION_A,
+	schema.QUESTION_OPTION_B,
+	schema.QUESTION_OPTION_C,
+	schema.QUESTION_OPTION_D,
+}
+
 // Controller handles question-related requests
 type Controller struct {
 	questionPeer          peers.QuestionPeerInterface

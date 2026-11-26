@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/Masterminds/squirrel"
@@ -26,6 +27,19 @@ type SearchFilter struct {
 
 func (s SearchFilter) IsEmpty() bool {
 	return len(s.Conditions) == 0
+}
+
+// ValidateKeys checks that every condition key is one of the allowed column names.
+// Keys are written into the SQL statement as identifiers rather than bound as
+// parameters, so callers must run this on client-supplied filters before ToSqlizer.
+// It returns an error naming the first key that is not allowed; an empty filter is valid.
+func (s SearchFilter) ValidateKeys(allowed []string) error {
+	for i, condition := range s.Conditions {
+		if !slices.Contains(allowed, condition.Key) {
+			return fmt.Errorf("condition %d: unsupported key %q. Supported keys: %s", i+1, condition.Key, strings.Join(allowed, ", "))
+		}
+	}
+	return nil
 }
 
 // ToSqlizer converts the SearchFilter to squirrel.Sqlizer with logic operator support

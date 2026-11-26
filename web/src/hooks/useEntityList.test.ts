@@ -270,4 +270,74 @@ describe('useEntityList', () => {
       await expect(result.current.refresh()).rejects.toThrow('refresh failed');
     });
   });
+
+  it.each([
+    { name: 'late success', olderFails: false, olderSettlesFirst: false },
+    { name: 'late failure', olderFails: true, olderSettlesFirst: false },
+    { name: 'early success', olderFails: false, olderSettlesFirst: true },
+    { name: 'early failure', olderFails: true, olderSettlesFirst: true },
+  ])(
+    'ignores a superseded request: $name',
+    async ({ olderFails, olderSettlesFirst }) => {
+      const settlers: {
+        resolve: (entities: TestEntity[]) => void;
+        reject: (error: Error) => void;
+      }[] = [];
+      const apiService: ApiServiceConfig<TestEntity> = {
+        fetchList: () =>
+          new Promise<TestEntity[]>((resolve, reject) => {
+            settlers.push({ resolve, reject });
+          }),
+        getCount: vi.fn().mockResolvedValue({ count: 1 }),
+      };
+      const newerEntities = [buildEntity(2, 'newer')];
+
+      const { result } = renderHook(() =>
+        useEntityList<TestEntity>({
+          entityName: 'items',
+          apiService,
+          searchConfig: clientSearchConfig,
+          autoFetch: false,
+        }),
+      );
+
+      let older!: Promise<string | undefined>;
+      let newer!: Promise<string | undefined>;
+      act(() => {
+        older = result.current.fetchEntities(1);
+        newer = result.current.fetchEntities(1);
+      });
+
+      const settleOlder = () =>
+        act(async () => {
+          if (olderFails) {
+            settlers[0].reject(new Error('stale'));
+          } else {
+            settlers[0].resolve([buildEntity(1, 'older')]);
+          }
+          // The superseded caller still learns the outcome of its own request
+          await expect(older).resolves.toBe(olderFails ? 'stale' : undefined);
+        });
+
+      if (olderSettlesFirst) {
+        await settleOlder();
+        expect(result.current.loading).toBe(true);
+        expect(result.current.entities).toEqual([]);
+        expect(result.current.error).toBeNull();
+      }
+
+      await act(async () => {
+        settlers[1].resolve(newerEntities);
+        await newer;
+      });
+
+      if (!olderSettlesFirst) {
+        await settleOlder();
+      }
+
+      expect(result.current.loading).toBe(false);
+      expect(result.current.entities).toEqual(newerEntities);
+      expect(result.current.error).toBeNull();
+    },
+  );
 });

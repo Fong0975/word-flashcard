@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { EntityReviewSearchBar } from './EntityReviewSearchBar';
 
 describe('EntityReviewSearchBar', () => {
-  it('renders the value and placeholder', () => {
+  it('renders the value and uses the placeholder as accessible name', () => {
     render(
       <EntityReviewSearchBar
         value='cat'
@@ -16,7 +16,9 @@ describe('EntityReviewSearchBar', () => {
       />,
     );
 
-    expect(screen.getByPlaceholderText('Search words...')).toHaveValue('cat');
+    const input = screen.getByRole('textbox', { name: 'Search words...' });
+    expect(input).toHaveValue('cat');
+    expect(input).toHaveAttribute('placeholder', 'Search words...');
   });
 
   it('calls onChange as the user types', async () => {

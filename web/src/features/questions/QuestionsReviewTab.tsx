@@ -1,12 +1,4 @@
-import React, {
-  lazy,
-  Suspense,
-  useMemo,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { lazy, Suspense, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { useQuestions } from '../../hooks/useQuestions';
@@ -15,6 +7,7 @@ import {
   MODAL_NAMES,
 } from '../../hooks/shared/useModalManager';
 import { EntityReviewTab } from '../shared/components/EntityReviewTab';
+import { useUrlSyncedEntityList } from '../shared/hooks/useUrlSyncedEntityList';
 import { QuizSetupModal } from '../shared/components/QuizSetupModal';
 import { ActionButton } from '../../components/ui';
 import { ModalLoadingFallback } from '../../components/ui/ModalLoadingFallback';
@@ -30,6 +23,8 @@ const QuestionStatsModal = lazy(() =>
     default: m.QuestionStatsModal,
   })),
 );
+
+const SESSION_SEARCH_KEY = 'question-review-search';
 
 const SORT_OPTIONS = [
   { label: 'Default', value: '' },
@@ -49,132 +44,43 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({
   className = '',
 }) => {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const modalManager = useModalManager();
   const [isStatsOpen, setIsStatsOpen] = useState(false);
+
+  // Read the persisted search term from sessionStorage once on mount (clears when browser closes).
+  const initialSessionTerm = useRef(
+    sessionStorage.getItem(SESSION_SEARCH_KEY) ?? '',
+  );
 
   const urlPage = useMemo(() => {
     const p = parseInt(searchParams.get('page') || '1', 10);
     return isNaN(p) || p < 1 ? 1 : p;
   }, [searchParams]);
 
-  const urlSort = useMemo(() => searchParams.get('sort') || '', [searchParams]);
+  const initialUrlSort = useMemo(
+    () => searchParams.get('sort') || '',
+    [searchParams],
+  );
 
   const questionsHook = useQuestions({
     itemsPerPage: 20,
     autoFetch: true,
     initialPage: urlPage,
-    sort: urlSort,
+    initialSearchTerm: initialSessionTerm.current,
+    sort: initialUrlSort,
   });
 
-  const setUrlPage = useCallback(
-    (page: number) => {
-      setSearchParams(
-        prev => {
-          const next = new URLSearchParams(prev);
-          if (page <= 1) {
-            next.delete('page');
-          } else {
-            next.set('page', page.toString());
-          }
-          return next;
-        },
-        { replace: true },
-      );
-    },
-    [setSearchParams],
-  );
-
-  // Keep a stable ref to fetchEntities to avoid stale closures in the effect below
-  const fetchEntitiesRef = useRef(questionsHook.fetchEntities);
-  fetchEntitiesRef.current = questionsHook.fetchEntities;
-
-  // Keep a ref to current page to check inside the effect without adding it as a dep
-  const currentPageRef = useRef(questionsHook.currentPage);
-  currentPageRef.current = questionsHook.currentPage;
-
-  // Sync URL → hook: when the URL page param changes externally (address bar, browser history),
-  // fetch the corresponding page in the hook.
-  useEffect(() => {
-    if (urlPage !== currentPageRef.current) {
-      fetchEntitiesRef.current(urlPage);
-    }
-  }, [urlPage]);
-
-  // Sync URL → hook: when the sort param changes, reset to page 1 and refetch.
-  const prevSortRef = useRef(urlSort);
-  useEffect(() => {
-    if (urlSort !== prevSortRef.current) {
-      prevSortRef.current = urlSort;
-      fetchEntitiesRef.current(1);
-    }
-  }, [urlSort]);
-
-  // Wrapped pagination actions: update URL only; the effect above handles the actual fetch.
-  const wrappedGoToPage = useCallback(
-    async (page: number) => {
-      setUrlPage(page);
-    },
-    [setUrlPage],
-  );
-
-  const wrappedNextPage = useCallback(async () => {
-    if (questionsHook.hasNext) {
-      setUrlPage(urlPage + 1);
-    }
-  }, [questionsHook.hasNext, urlPage, setUrlPage]);
-
-  const wrappedPreviousPage = useCallback(async () => {
-    if (questionsHook.hasPrevious) {
-      setUrlPage(urlPage - 1);
-    }
-  }, [questionsHook.hasPrevious, urlPage, setUrlPage]);
-
-  const wrappedGoToFirst = useCallback(async () => {
-    setUrlPage(1);
-  }, [setUrlPage]);
-
-  const wrappedGoToLast = useCallback(async () => {
-    setUrlPage(questionsHook.totalPages);
-  }, [questionsHook.totalPages, setUrlPage]);
-
-  const patchedQuestionsHook = useMemo(
-    () => ({
-      ...questionsHook,
-      goToPage: wrappedGoToPage,
-      nextPage: wrappedNextPage,
-      previousPage: wrappedPreviousPage,
-      goToFirst: wrappedGoToFirst,
-      goToLast: wrappedGoToLast,
-    }),
-    [
-      questionsHook,
-      wrappedGoToPage,
-      wrappedNextPage,
-      wrappedPreviousPage,
-      wrappedGoToFirst,
-      wrappedGoToLast,
-    ],
-  );
-
-  const handleSortChange = useCallback(
-    (value: string) => {
-      setSearchParams(
-        prev => {
-          const next = new URLSearchParams(prev);
-          next.delete('page');
-          if (value) {
-            next.set('sort', value);
-          } else {
-            next.delete('sort');
-          }
-          return next;
-        },
-        { replace: true },
-      );
-    },
-    [setSearchParams],
-  );
+  const {
+    patchedHook: patchedQuestionsHook,
+    urlSort,
+    handleSortChange,
+  } = useUrlSyncedEntityList({
+    entityListHook: questionsHook,
+    sessionSearchKey: SESSION_SEARCH_KEY,
+    // This tab has no quick filters
+    filtersKey: '',
+  });
 
   const handleNew = () => {
     modalManager.openModal(MODAL_NAMES.ADD);
@@ -232,7 +138,8 @@ export const QuestionsReviewTab: React.FC<QuestionsReviewTabProps> = ({
         title: 'Question Review',
         entityName: 'Question',
         entityNamePlural: 'Questions',
-        enableSearch: false,
+        enableSearch: true,
+        searchPlaceholder: 'Search questions and options...',
         enableQuiz: true,
         emptyStateConfig: {
           icon: '🧠',
