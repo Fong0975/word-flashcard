@@ -54,6 +54,7 @@ func (qs *QuestionModelTestSuite) TestQuestionToDataModel() {
 	optionA := "Paris"
 	reference := "Geography 101"
 	notes := "Common knowledge"
+	reminder := "check the capital"
 	countPractise := 5
 	countFailurePractise := 1
 
@@ -66,6 +67,7 @@ func (qs *QuestionModelTestSuite) TestQuestionToDataModel() {
 				Answer:               tc.answer,
 				Reference:            &reference,
 				Notes:                &notes,
+				Reminder:             &reminder,
 				CountPractise:        &countPractise,
 				CountFailurePractise: &countFailurePractise,
 			}
@@ -84,6 +86,9 @@ func (qs *QuestionModelTestSuite) TestQuestionToDataModel() {
 			}
 			if qs.NotNil(dm.Question) {
 				qs.Equal(questionText, *dm.Question)
+			}
+			if qs.NotNil(dm.Reminder) {
+				qs.Equal(reminder, *dm.Reminder)
 			}
 			if qs.NotNil(dm.CountPractise) {
 				qs.Equal(countPractise, *dm.CountPractise)

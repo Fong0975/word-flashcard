@@ -49,7 +49,12 @@ func (qc *Controller) validateQuestionFields(question *models.Question, isUpdate
 	}
 
 	// notes: TEXT, Allow NULL
-	if err := common.ValidateStringField(question.Notes, isUpdate, "notes", 21845, true); err != nil {
+	if err := common.ValidateTextField(question.Notes, isUpdate, "notes", true); err != nil {
+		return err
+	}
+
+	// reminder: VARCHAR(100), Allow NULL
+	if err := common.ValidateStringField(question.Reminder, isUpdate, "reminder", 100, true); err != nil {
 		return err
 	}
 

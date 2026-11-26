@@ -13,9 +13,5 @@ func (nc *Controller) validateNoteFields(note *models.Note, isUpdate bool) error
 	}
 
 	// content: TEXT, Allow NULL
-	if err := common.ValidateStringField(note.Content, isUpdate, "content", 21845, true); err != nil {
-		return err
-	}
-
-	return nil
+	return common.ValidateTextField(note.Content, isUpdate, "content", true)
 }

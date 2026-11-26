@@ -184,6 +184,45 @@ func (suite *HelperTestSuite) TestValidateQuestionFields() {
 			wantDetail: []any{"reason", "exceeds max length", "length", 256, "max", 255},
 		},
 		{
+			name: "update - invalid notes",
+			input: func() *models.Question {
+				q := testQuestion
+				invalidStr := strings.Repeat("q", common.MaxTextBytes+1)
+				q.Notes = &invalidStr
+				return &q
+			}(),
+			isUpdate:   true,
+			wantErr:    true,
+			wantErrMsg: "notes is invalid",
+			wantDetail: []any{"reason", "exceeds max length", "length", common.MaxTextBytes + 1, "max", common.MaxTextBytes},
+		},
+		{
+			name:     "update - reminder only",
+			input:    &models.Question{Reminder: utils.StrPtr("check the tense")},
+			isUpdate: true,
+			wantErr:  false,
+		},
+		{
+			name:     "update - empty reminder clears the note",
+			input:    &models.Question{Reminder: utils.StrPtr("")},
+			isUpdate: true,
+			wantErr:  false,
+		},
+		{
+			name:     "update - reminder with 100 Chinese characters",
+			input:    &models.Question{Reminder: utils.StrPtr(strings.Repeat("提", 100))},
+			isUpdate: true,
+			wantErr:  false,
+		},
+		{
+			name:       "update - reminder too long",
+			input:      &models.Question{Reminder: utils.StrPtr(strings.Repeat("r", 101))},
+			isUpdate:   true,
+			wantErr:    true,
+			wantErrMsg: "reminder is invalid",
+			wantDetail: []any{"reason", "exceeds max length", "length", 101, "max", 100},
+		},
+		{
 			name: "update - invalid count_practise",
 			input: func() *models.Question {
 				q := testQuestion

@@ -9,7 +9,7 @@ import (
 )
 
 // CountQuestions @Summary Count questions matching filter criteria
-// @Description Count the questions matching the filter criteria. An empty body counts all questions. Allowed condition keys: question, option_a, option_b, option_c, option_d.
+// @Description Count the questions matching the filter criteria. An empty body counts all questions. Allowed condition keys: question, option_a, option_b, option_c, option_d, reminder.
 // @Tags questions
 // @Accept json
 // @Produce json

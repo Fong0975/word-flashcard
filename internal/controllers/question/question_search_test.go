@@ -150,6 +150,15 @@ func (suite *HelperTestSuite) TestParseQuestionSearchFilter() {
 			expectedOK: true,
 		},
 		{
+			name:        "reminder presence filter",
+			requestBody: `{"conditions":[{"key":"reminder","operator":"is_not_null"},{"key":"reminder","operator":"is_not_empty"}],"logic":"AND"}`,
+			expectedWhere: squirrel.And{
+				squirrel.NotEq{"reminder": nil},
+				squirrel.NotEq{"reminder": ""},
+			},
+			expectedOK: true,
+		},
+		{
 			name:        "existing column that is not searchable",
 			requestBody: `{"conditions":[{"key":"notes","operator":"like","value":"%a%"}],"logic":"OR"}`,
 		},

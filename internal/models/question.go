@@ -17,6 +17,7 @@ type Question struct {
 	Answer               *string `json:"answer"`
 	Reference            *string `json:"reference"`
 	Notes                *string `json:"notes"`
+	Reminder             *string `json:"reminder"`
 	CountPractise        *int    `json:"count_practise"`
 	CountFailurePractise *int    `json:"count_failure_practise"`
 	Practiced            bool    `json:"practiced,omitempty"`
@@ -34,6 +35,7 @@ func (q *Question) FromDataModel(dbQuestion *models.Question) *Question {
 	q.Answer = dbQuestion.Answer
 	q.Reference = dbQuestion.Reference
 	q.Notes = dbQuestion.Notes
+	q.Reminder = dbQuestion.Reminder
 	q.CountPractise = dbQuestion.CountPractise
 	q.CountFailurePractise = dbQuestion.CountFailurePractise
 
@@ -58,6 +60,7 @@ func (q *Question) ToDataModel() *models.Question {
 		Answer:               upperAnswer,
 		Reference:            q.Reference,
 		Notes:                q.Notes,
+		Reminder:             q.Reminder,
 		CountPractise:        q.CountPractise,
 		CountFailurePractise: q.CountFailurePractise,
 	}
