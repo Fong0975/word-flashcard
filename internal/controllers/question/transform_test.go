@@ -79,4 +79,7 @@ func (suite *HelperTestSuite) TestConvertToEntities() {
 	expected, err := json.Marshal(expectedQuestions)
 	assert.NoError(suite.T(), err)
 	assert.Equal(suite.T(), string(expected), string(result))
+
+	// Empty input must not produce a nil slice
+	assert.Equal(suite.T(), []*models.Question{}, suite.controller.convertToEntities(nil))
 }

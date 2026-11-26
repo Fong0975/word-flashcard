@@ -23,6 +23,15 @@ func (m *MockQuestionController) ListQuestions(c *gin.Context) {
 	})
 }
 
+// SearchQuestions mock implementation
+func (m *MockQuestionController) SearchQuestions(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"method":     "SearchQuestions",
+		"controller": "QuestionController",
+		"status":     "ok",
+	})
+}
+
 // GetQuestions mock implementation
 func (m *MockQuestionController) GetQuestions(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{

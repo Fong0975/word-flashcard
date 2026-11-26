@@ -72,10 +72,10 @@ func (qp *QuestionPeer) Delete(where squirrel.Sqlizer) (int64, error) {
 	return result, nil
 }
 
-// Count returns the total number of Question records in the database
-func (qp *QuestionPeer) Count() (int64, error) {
-	// Perform the count operation without any where conditions
-	result, err := qp.db.Count(qp.tableName, nil)
+// Count returns the number of Question records matching the criteria; a nil where counts all records
+func (qp *QuestionPeer) Count(where squirrel.Sqlizer) (int64, error) {
+	// Perform the count operation
+	result, err := qp.db.Count(qp.tableName, where)
 	if err != nil {
 		return 0, err
 	}

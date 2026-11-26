@@ -39,10 +39,7 @@ func (qc *Controller) RandomQuestions(c *gin.Context) {
 	}
 
 	// ================ 3. Transform data to API model ================
-	var questionEntities = []*models.Question{}
-	if len(questions) > 0 {
-		questionEntities = qc.convertToEntities(questions)
-	}
+	questionEntities := qc.convertToEntities(questions)
 
 	// ================ 4. Send response ================
 	common.ResponseSuccess(http.StatusOK, questionEntities, c)
