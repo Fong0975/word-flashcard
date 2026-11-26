@@ -1,37 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
 import { QuestionQuizResult } from '../../../types/api';
-import { calculateAccuracyRate } from '../question-detail/utils/accuracyCalculation';
 import { QuizLoadingScreen } from '../../shared/components/QuizLoadingScreen';
+import { ReminderNoteInput } from '../../shared/components/ReminderNoteInput';
+import { FormErrorMessage } from '../../../components/ui/FormErrorMessage';
 import { apiService } from '../../../lib/api';
 import { getApiErrorMessage } from '../../../lib/apiErrorMessage';
 
 import { OptionsSelectionList } from './components/OptionsSelectionList';
-import { AnswerReviewList } from './components/AnswerReviewList';
-import { ReferenceAndExplanation } from './components/ReferenceAndExplanation';
+import { AnswerReviewStage } from './components/AnswerReviewStage';
 import { useQuestionQuizData } from './hooks/useQuestionQuizData';
+import { useQuestionReminder } from './hooks/useQuestionReminder';
 import { useShuffledOptions } from './hooks/useShuffledOptions';
-
-const formatAccuracy = (
-  countPractise: number,
-  countFailurePractise: number,
-): string => {
-  if (countPractise === 0) {
-    return 'N/A';
-  }
-  return `${calculateAccuracyRate(countPractise, countFailurePractise)}%`;
-};
-
-const formatAccuracyWithCount = (
-  countPractise: number,
-  countFailurePractise: number,
-): string => {
-  const rate = formatAccuracy(countPractise, countFailurePractise);
-  if (countPractise === 0) {
-    return rate;
-  }
-  return `${rate} (${countPractise - countFailurePractise}/${countPractise})`;
-};
+import { formatAccuracyWithCount } from './utils/formatAccuracy';
 
 export interface NextActionProps {
   onClick: () => void;
@@ -72,6 +53,16 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
   const [showAnswer, setShowAnswer] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const {
+    reminderEnabled,
+    reminderText,
+    setReminderEnabled,
+    setReminderText,
+    getPendingReminder,
+    saveReminder,
+    saveError: reminderError,
+    resetReminder,
+  } = useQuestionReminder({ onError });
 
   const currentQuestion = questions[currentQuestionIndex];
   const { shuffledOptions, shuffledAnswer } =
@@ -164,11 +155,24 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
     onError,
   ]);
 
-  const handleNextQuestion = useCallback(() => {
+  const handleNextQuestion = useCallback(async () => {
     if (isSubmitting) {
       return;
     }
     setIsSubmitting(true);
+
+    // Only awaited when there is a note to save, so that moving on without one
+    // stays immediate. A failed save keeps the quiz on this question.
+    const pendingReminder = getPendingReminder();
+    if (
+      pendingReminder !== undefined &&
+      !(await saveReminder(currentQuestion.id, pendingReminder))
+    ) {
+      setIsSubmitting(false);
+      return;
+    }
+    resetReminder();
+
     if (currentQuestionIndex < questions.length - 1) {
       // Move to next question
       setCurrentQuestionIndex(currentQuestionIndex + 1);
@@ -182,6 +186,10 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
     setIsSubmitting(false);
   }, [
     isSubmitting,
+    getPendingReminder,
+    saveReminder,
+    resetReminder,
+    currentQuestion,
     currentQuestionIndex,
     questions.length,
     results,
@@ -296,51 +304,25 @@ export const QuestionQuiz: React.FC<QuestionQuizProps> = ({
             </div>
           </>
         ) : (
-          // Stage 2: Answer and explanation. The negative margin pushes the
-          // scrollbar into the card's horizontal padding, and the matching
-          // padding keeps the content clear of it.
-          <div className='-mr-2 flex-1 overflow-y-auto pr-2 lg:-mr-3 lg:pr-3'>
-            <div>
-              <span className='sr-only'>
-                Result: {isCorrect ? 'correct' : 'incorrect'}
-              </span>
-              {/* Question Display */}
-              <div className='mb-6'>
-                <p className='text-supporting mb-1 text-xs'>
-                  #{currentQuestion.id}
-                </p>
-                <h1 className='mb-1 text-xl leading-relaxed font-bold text-gray-900 lg:text-2xl dark:text-white'>
-                  {currentQuestion.question}
-                </h1>
-                <p className='text-supporting mb-4 text-xs'>
-                  Accuracy:{' '}
-                  {formatAccuracyWithCount(
-                    currentQuestion.count_practise,
-                    currentQuestion.count_failure_practise,
-                  )}{' '}
-                  →{' '}
-                  {formatAccuracyWithCount(
-                    results[results.length - 1].updatedStats.countPractise,
-                    results[results.length - 1].updatedStats
-                      .countFailurePractise,
-                  )}
-                </p>
-
-                {/* All Options (with correct answer highlighted) */}
-                <AnswerReviewList
-                  options={shuffledOptions}
-                  selectedAnswer={selectedAnswer}
-                  correctAnswer={shuffledAnswer}
-                  isCorrect={isCorrect}
-                />
-              </div>
-
-              <ReferenceAndExplanation
-                reference={currentQuestion.reference}
-                notes={currentQuestion.notes}
-              />
-            </div>
-          </div>
+          // Stage 2: Answer and explanation
+          <AnswerReviewStage
+            question={currentQuestion}
+            options={shuffledOptions}
+            selectedAnswer={selectedAnswer}
+            correctAnswer={shuffledAnswer}
+            isCorrect={isCorrect}
+            updatedStats={results[results.length - 1].updatedStats}
+          >
+            <ReminderNoteInput
+              description='Have a note to remember? Set a reminder before moving on.'
+              enabled={reminderEnabled}
+              text={reminderText}
+              onEnabledChange={setReminderEnabled}
+              onTextChange={setReminderText}
+              disabled={isSubmitting}
+            />
+            <FormErrorMessage error={reminderError} />
+          </AnswerReviewStage>
         )}
       </div>
     );

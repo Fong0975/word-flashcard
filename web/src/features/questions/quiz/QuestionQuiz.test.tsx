@@ -1,34 +1,12 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { Mock, MockInstance } from 'vitest';
+import type { MockInstance } from 'vitest';
 
 import { Question } from '../../../types/api';
 import { apiService } from '../../../lib/api';
 
-import { QuestionQuiz, NextActionProps } from './QuestionQuiz';
-
-const buildQuestion = (overrides: Partial<Question> = {}): Question => ({
-  id: 1,
-  question: 'What is 2 + 2?',
-  answer: 'A',
-  option_a: '4',
-  option_b: '3',
-  option_c: '5',
-  option_d: '6',
-  count_failure_practise: 0,
-  count_practise: 0,
-  notes: '',
-  reference: '',
-  reminder: null,
-  ...overrides,
-});
-
-const noop = () => {};
-
-const lastNextAction = (spy: Mock): NextActionProps | null => {
-  const { calls } = spy.mock;
-  return calls.length > 0 ? calls[calls.length - 1][0] : null;
-};
+import { QuestionQuiz } from './QuestionQuiz';
+import { buildQuestion, lastNextAction, noop } from './questionQuizTestHelpers';
 
 describe('QuestionQuiz', () => {
   let consoleErrorSpy: MockInstance;
