@@ -132,9 +132,13 @@ export const useEntityList = <T extends BaseEntity>(
 
   const mounted = useRef(false);
   const previousSearchTerm = useRef(initialSearchTerm);
+  // Responses can arrive out of order, so only the latest request may update state
+  const latestRequestId = useRef(0);
 
   const fetchEntities = useCallback(
     async (page?: number) => {
+      const requestId = ++latestRequestId.current;
+
       setState(prev => ({
         ...prev,
         loading: true,
@@ -162,6 +166,10 @@ export const useEntityList = <T extends BaseEntity>(
           apiService.fetchList(params),
           apiService.getCount(searchFilter),
         ]);
+
+        if (requestId !== latestRequestId.current) {
+          return undefined;
+        }
 
         let entities = entitiesResponse;
         if (entities === null || !Array.isArray(entities)) {
@@ -205,13 +213,15 @@ export const useEntityList = <T extends BaseEntity>(
           `Failed to fetch ${entityName}`,
         );
 
-        setState(prev => ({
-          ...prev,
-          loading: false,
-          error: errorMessage,
-          entities: [],
-          totalCount: 0,
-        }));
+        if (requestId === latestRequestId.current) {
+          setState(prev => ({
+            ...prev,
+            loading: false,
+            error: errorMessage,
+            entities: [],
+            totalCount: 0,
+          }));
+        }
 
         // Returned (not thrown) so callers like nextPage/goToPage can keep
         // relying on the `error` state without needing a try/catch; `refresh`
