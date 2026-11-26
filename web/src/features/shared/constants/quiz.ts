@@ -16,6 +16,9 @@ export const ACCURACY_THRESHOLDS = {
   MEDIUM: 60,
 } as const;
 
+/** Highest word quiz improvement percentage still shown as `yellow`. */
+const IMPROVEMENT_YELLOW_MAX = 20;
+
 export type AccuracyTone = 'green' | 'yellow' | 'red';
 
 /**
@@ -48,6 +51,14 @@ const SCORE_COLORS: Record<AccuracyTone, string> = {
   red: 'text-red-600 dark:text-red-400',
 };
 
+const SCORE_BADGE_COLORS: Record<AccuracyTone, string> = {
+  green:
+    'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200 border-green-200 dark:border-green-700',
+  yellow:
+    'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 border-yellow-200 dark:border-yellow-700',
+  red: 'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200 border-red-200 dark:border-red-700',
+};
+
 /**
  * `-700` in light keeps small text at WCAG AA on translucent glass, where the
  * `-600` shades of `SCORE_COLORS` (sized for large numerals) fall short.
@@ -71,10 +82,41 @@ export const getAccuracyRateColor = (rate: number): string =>
   ACCURACY_RATE_COLORS[getAccuracyTone(rate)];
 
 /**
- * Get score color for quiz results
+ * Map a word quiz improvement percentage to its status tone. It has its own
+ * scale because words already at the top familiarity cannot improve, so the
+ * accuracy thresholds would be too strict.
+ *
+ * @param rate - Improvement percentage (0-100)
+ * @returns `red` when nothing improved, `yellow` up to and including the yellow
+ *   limit, otherwise `green`
  */
-export const getScoreColor = (percentage: number): string =>
-  SCORE_COLORS[getAccuracyTone(percentage)];
+export const getImprovementTone = (rate: number): AccuracyTone => {
+  if (rate <= 0) {
+    return 'red';
+  }
+  if (rate <= IMPROVEMENT_YELLOW_MAX) {
+    return 'yellow';
+  }
+  return 'green';
+};
+
+/**
+ * Get the text color of a quiz result's headline score.
+ *
+ * @param tone - Status tone of the score
+ * @returns Tailwind text color classes for both themes
+ */
+export const getScoreColor = (tone: AccuracyTone): string => SCORE_COLORS[tone];
+
+/**
+ * Get the surface, text and border classes of the capsule shown under a quiz
+ * score.
+ *
+ * @param tone - Status tone of the score
+ * @returns Tailwind color classes for both themes
+ */
+export const getScoreBadgeColor = (tone: AccuracyTone): string =>
+  SCORE_BADGE_COLORS[tone];
 
 /**
  * Get the text color for body-sized accuracy statistics on a glass surface.

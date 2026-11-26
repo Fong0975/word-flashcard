@@ -1,9 +1,10 @@
 import React from 'react';
 
 import { QuestionQuizResult } from '../../../types/api';
+import { QuizScoreHero } from '../../shared/components/QuizScoreHero';
 import {
   ACCURACY_THRESHOLDS,
-  getScoreColor,
+  getAccuracyTone,
 } from '../../shared/constants/quiz';
 import { calculateAccuracyRate } from '../question-detail/utils/accuracyCalculation';
 
@@ -20,16 +21,6 @@ export const QuestionQuizResults: React.FC<QuestionQuizResultsProps> = ({
     totalQuestions > 0
       ? Math.round((correctAnswers / totalQuestions) * 100)
       : 0;
-
-  const getScoreBadgeColor = (percentage: number) => {
-    if (percentage >= ACCURACY_THRESHOLDS.HIGH) {
-      return 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200 border-green-200 dark:border-green-700';
-    }
-    if (percentage >= ACCURACY_THRESHOLDS.MEDIUM) {
-      return 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 border-yellow-200 dark:border-yellow-700';
-    }
-    return 'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200 border-red-200 dark:border-red-700';
-  };
 
   const getOptionText = (result: QuestionQuizResult, key: string | null) => {
     if (!key) {
@@ -86,18 +77,11 @@ export const QuestionQuizResults: React.FC<QuestionQuizResultsProps> = ({
 
       {/* Score Summary */}
       <div className='glass-panel mb-8 rounded-xl p-8'>
-        <div className='text-center'>
-          <div
-            className={`mb-4 text-6xl font-bold ${getScoreColor(accuracyPercentage)}`}
-          >
-            {accuracyPercentage}%
-          </div>
-          <div
-            className={`inline-flex items-center rounded-full border px-4 py-2 font-semibold md:text-lg ${getScoreBadgeColor(accuracyPercentage)}`}
-          >
-            {correctAnswers} out of {totalQuestions} correct
-          </div>
-        </div>
+        <QuizScoreHero
+          percentage={accuracyPercentage}
+          tone={getAccuracyTone(accuracyPercentage)}
+          caption={`${correctAnswers} out of ${totalQuestions} correct`}
+        />
 
         {/* Statistics */}
         <div className='mt-8 grid grid-cols-3 gap-6 border-t border-gray-200 pt-8 dark:border-gray-700'>

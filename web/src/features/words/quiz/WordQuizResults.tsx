@@ -2,11 +2,13 @@ import React from 'react';
 
 import { WordQuizResult } from '../../../types/api';
 import { FamiliarityLevel } from '../../../types/base';
+import { QuizScoreHero } from '../../shared/components/QuizScoreHero';
 import {
   FAMILIARITY_LABELS,
   getFamiliarityDisplayColors,
   getFamiliarityLabel,
 } from '../../shared/constants/familiarity';
+import { getImprovementTone } from '../../shared/constants/quiz';
 
 interface WordQuizResultsProps {
   results: WordQuizResult[];
@@ -121,6 +123,13 @@ export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
     },
   );
 
+  // Same formula and 1-decimal rounding as the `improvement_rate` of the Word
+  // Statistics trend, so a quiz reads on the same scale as that chart.
+  const improvementRate =
+    totalQuestions > 0
+      ? Math.round((improvementCount * 1000) / totalQuestions) / 10
+      : 0;
+
   const summaryRows: { heading: string; stats: SummaryStatProps[] }[] = [
     {
       heading: 'After',
@@ -179,10 +188,12 @@ export const WordQuizResults: React.FC<WordQuizResultsProps> = ({
 
       {/* Summary */}
       <div className='glass-panel mt-4 mb-8 grid grid-cols-1 gap-4 rounded-xl p-8'>
-        {/* Total Number */}
-        <div className='text-center text-6xl font-bold text-gray-700 dark:text-gray-200'>
-          {totalQuestions}
-        </div>
+        <QuizScoreHero
+          percentage={improvementRate}
+          tone={getImprovementTone(improvementRate)}
+          percentageLabel='improvement rate'
+          caption={`Improvement across ${totalQuestions} ${totalQuestions === 1 ? 'word' : 'words'}`}
+        />
 
         {summaryRows.map(row => (
           <div

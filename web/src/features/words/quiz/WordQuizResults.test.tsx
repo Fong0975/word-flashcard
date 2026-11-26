@@ -44,6 +44,33 @@ describe('WordQuizResults', () => {
     expect(screen.getByText('Quiz Results (3 words)')).toBeInTheDocument();
   });
 
+  it.each([
+    { improved: 0, total: 0, rate: '0%', words: '0 words' },
+    { improved: 1, total: 1, rate: '100%', words: '1 word' },
+    { improved: 0, total: 2, rate: '0%', words: '2 words' },
+    { improved: 1, total: 3, rate: '33.3%', words: '3 words' },
+    { improved: 2, total: 3, rate: '66.7%', words: '3 words' },
+  ])(
+    'summarizes $improved of $total improved as $rate',
+    ({ improved, total, rate, words }) => {
+      const results = Array.from({ length: total }, (_, index) =>
+        buildResult({
+          word: buildWord({ id: index + 1 }),
+          oldFamiliarity: FamiliarityLevel.RED,
+          newFamiliarity:
+            index < improved ? FamiliarityLevel.YELLOW : FamiliarityLevel.RED,
+        }),
+      );
+
+      render(<WordQuizResults results={results} />);
+
+      expect(screen.getByLabelText('improvement rate')).toHaveTextContent(rate);
+      expect(
+        screen.getByText(`Improvement across ${words}`),
+      ).toBeInTheDocument();
+    },
+  );
+
   it('tallies the familiarity distribution and change counts', () => {
     const results: WordQuizResult[] = [
       // red -> yellow: improvement, counts toward "yellow"
