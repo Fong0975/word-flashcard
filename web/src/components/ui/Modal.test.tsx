@@ -26,6 +26,34 @@ describe('Modal', () => {
     expect(screen.getByText('Body content')).toBeInTheDocument();
   });
 
+  it.each([
+    {
+      name: 'applies the default content padding',
+      contentClassName: undefined,
+      expected: 'px-2 py-4 md:px-3 lg:px-4',
+    },
+    {
+      name: 'replaces the content padding with contentClassName',
+      contentClassName: 'p-0',
+      expected: 'p-0',
+    },
+    {
+      name: 'removes the content padding with an empty contentClassName',
+      contentClassName: '',
+      expected: '',
+    },
+  ])('$name', ({ contentClassName, expected }) => {
+    render(
+      <Modal isOpen onClose={vi.fn()} contentClassName={contentClassName}>
+        <p>Body content</p>
+      </Modal>,
+    );
+
+    expect(screen.getByText('Body content').parentElement?.className).toBe(
+      expected,
+    );
+  });
+
   it('calls onClose when the close button is clicked', async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();

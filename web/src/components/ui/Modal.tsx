@@ -10,6 +10,8 @@ interface ModalProps {
   children: React.ReactNode;
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
   className?: string;
+  /** Replaces the default padding of the content wrapper. */
+  contentClassName?: string;
   disableBackdropClose?: boolean;
   disableEscapeClose?: boolean;
 }
@@ -21,6 +23,7 @@ export const Modal: React.FC<ModalProps> = ({
   children,
   maxWidth = 'lg',
   className = '',
+  contentClassName = 'px-2 py-4 md:px-3 lg:px-4',
   disableBackdropClose = false,
   disableEscapeClose = false,
 }) => {
@@ -109,7 +112,7 @@ export const Modal: React.FC<ModalProps> = ({
           )}
 
           {/* Content */}
-          <div className='px-2 py-4 md:px-3 lg:px-4'>{children}</div>
+          <div className={contentClassName}>{children}</div>
 
           {/* Close button when no title */}
           {!title && (

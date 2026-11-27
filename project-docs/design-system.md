@@ -297,6 +297,7 @@ Reuse these before building new UI (`web/src/components/ui`, `web/src/components
 | Top bar | `Header` (`glass-panel-strong`, `border-x-0 border-t-0`) |
 | Tabs | `TabNavigation` / `TabContent` (active: `border-primary-500 text-primary-600 dark:text-primary-400`; inactive: `gray-500`/`gray-400`, hover `gray-700`/`gray-300`) |
 | Modal | `Modal` (`glass-panel-strong rounded-lg shadow-xl`, scrim `black/30`, header divider `gray-200`/`gray-700`) |
+| Tall form modal | `SectionedModal` (`Modal` with fixed header and footer around a scrollable body, `h-[90vh]`; panel uses `overflow-clip`, never `overflow-hidden`) |
 | Confirm | `ConfirmationDialog` (`danger` / `warning` / `info`) |
 | Menu | `DropdownMenu`, `ActionButton` (selected item: `primary-500/10` + `primary-700` light, `primary-400/20` + `primary-200` dark) |
 | Section | `CollapsibleSection` (`glass-panel-card`, hover `gray-100/80` / `gray-800/70`); optional `iconPath` draws a decorative `gray-500` / `gray-400` icon before the title |
