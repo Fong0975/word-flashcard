@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 
-import { Modal, ToastContainer } from '../../../components/ui';
+import { ToastContainer } from '../../../components/ui';
 import { CopyButton } from '../../../components/ui/CopyButton';
+import { SectionedModal } from '../../../components/ui/SectionedModal';
 import { UnsavedChangesDialog } from '../../../components/ui/UnsavedChangesDialog';
 import { useToast } from '../../../hooks/ui/useToast';
 import { useUnsavedChangesGuard } from '../../../hooks/ui/useUnsavedChangesGuard';
@@ -103,131 +104,124 @@ export const DefinitionFormModal: React.FC<DefinitionFormModalProps> = ({
   };
 
   return (
-    <Modal
+    <SectionedModal
       isOpen={isOpen}
       onClose={unsavedChangesGuard.requestLeave}
       maxWidth='xl'
-      className='max-h-[95vh] overflow-hidden'
       disableBackdropClose={true}
-    >
-      <div className='-m-6 -mt-4 flex h-[90vh] flex-col'>
-        {/* Fixed Header */}
-        <div className='mb-2 shrink-0 px-6 pt-4 pb-0'>
-          <div className='border-b border-gray-200 pb-2 dark:border-gray-700'>
-            <h2 className='text-2xl font-bold text-gray-900 dark:text-white'>
-              {mode === 'edit' ? 'Edit Definition' : 'Add New Definition'}
-            </h2>
-            {wordText && (
-              <div className='mt-1 flex items-center'>
-                <p className='text-lg text-gray-600 dark:text-gray-400'>
-                  for &quot;
-                  <a
-                    className='focus-ring rounded-xs font-semibold text-gray-800 dark:text-primary-500 hover:dark:text-primary-300'
-                    href={`https://dictionary.cambridge.org/zht/%E8%A9%9E%E5%85%B8/%E8%8B%B1%E8%AA%9E-%E6%BC%A2%E8%AA%9E-%E7%B9%81%E9%AB%94/${wordText}`}
-                    target='_blank'
-                    rel='noopener noreferrer'
-                  >
-                    {wordText}
-                  </a>
-                  &quot;
-                </p>
-                <CopyButton
-                  text={wordText}
-                  title='Copy word text to clipboard'
-                  successText='Word copied!'
-                  className='ml-2'
-                />
-              </div>
+      header={
+        <div className='border-b border-gray-200 pb-2 dark:border-gray-700'>
+          <h2 className='text-2xl font-bold text-gray-900 dark:text-white'>
+            {mode === 'edit' ? 'Edit Definition' : 'Add New Definition'}
+          </h2>
+          {wordText && (
+            <div className='mt-1 flex items-center'>
+              <p className='text-lg text-gray-600 dark:text-gray-400'>
+                for &quot;
+                <a
+                  className='focus-ring rounded-xs font-semibold text-gray-800 dark:text-primary-500 hover:dark:text-primary-300'
+                  href={`https://dictionary.cambridge.org/zht/%E8%A9%9E%E5%85%B8/%E8%8B%B1%E8%AA%9E-%E6%BC%A2%E8%AA%9E-%E7%B9%81%E9%AB%94/${wordText}`}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                >
+                  {wordText}
+                </a>
+                &quot;
+              </p>
+              <CopyButton
+                text={wordText}
+                title='Copy word text to clipboard'
+                successText='Word copied!'
+                className='ml-2'
+              />
+            </div>
+          )}
+        </div>
+      }
+      footer={
+        <div className='mb-2 flex justify-end space-x-3 border-t border-gray-200 pt-3 dark:border-gray-700'>
+          <button
+            type='button'
+            onClick={onClose}
+            disabled={formLogic.isSubmitting}
+            className='glass-interactive glass-border-subtle rounded-md px-6 py-2 text-sm font-medium text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-300'
+          >
+            Cancel
+          </button>
+          <button
+            type='button'
+            onClick={formLogic.handlers.handleSubmit}
+            disabled={formLogic.isSubmitting || !formLogic.isFormValid}
+            className='glass-button-primary rounded-md px-6 py-2 text-sm font-medium'
+          >
+            {formLogic.isSubmitting ? (
+              <>
+                <svg
+                  className='mr-2 -ml-1 inline h-4 w-4 animate-spin text-white'
+                  fill='none'
+                  viewBox='0 0 24 24'
+                >
+                  <circle
+                    className='opacity-25'
+                    cx='12'
+                    cy='12'
+                    r='10'
+                    stroke='currentColor'
+                    strokeWidth='4'
+                  ></circle>
+                  <path
+                    className='opacity-75'
+                    fill='currentColor'
+                    d='m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+                  ></path>
+                </svg>
+                {mode === 'edit'
+                  ? 'Updating Definition...'
+                  : 'Adding Definition...'}
+              </>
+            ) : mode === 'edit' ? (
+              'Update Definition'
+            ) : (
+              'Add Definition'
             )}
-          </div>
+          </button>
         </div>
+      }
+      overlays={
+        <>
+          {/* Toast Notifications */}
+          <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
 
-        {/* Scrollable Content */}
-        <div className='min-h-0 flex-1 space-y-6 overflow-y-auto px-6 py-4'>
-          {/* Cambridge Dictionary Section */}
-          <DictionaryLookup
-            wordText={wordText}
-            dictionaryData={dictionaryLogic.dictionaryData}
-            isLoadingDictionary={dictionaryLogic.isLoadingDictionary}
-            dictionaryError={dictionaryLogic.dictionaryError}
-            isCollapsed={dictionaryLogic.isCollapsed}
-            onFetchDictionary={dictionaryLogic.fetchDictionaryData}
-            onToggleCollapsed={dictionaryLogic.toggleCollapsed}
-            onApplyPronunciation={handleApplyPronunciation}
-            onApplyDefinition={handleApplyDefinition}
+          <UnsavedChangesDialog
+            isOpen={unsavedChangesGuard.showConfirm}
+            onConfirm={unsavedChangesGuard.confirmLeave}
+            onCancel={unsavedChangesGuard.cancelLeave}
           />
-
-          {/* Form Fields Section */}
-          <FormFields
-            formData={formLogic.formData}
-            isFormValid={formLogic.isFormValid}
-            partOfSpeechOptions={formLogic.constants.PART_OF_SPEECH_OPTIONS}
-            noteButtonsConfig={noteButtonsConfig}
-            handlers={formLogic.handlers}
-            wordText={wordText}
-          />
-        </div>
-
-        {/* Fixed Footer */}
-        <div className='shrink-0 px-6 pt-0 pb-4'>
-          <div className='mb-2 flex justify-end space-x-3 border-t border-gray-200 pt-3 dark:border-gray-700'>
-            <button
-              type='button'
-              onClick={onClose}
-              disabled={formLogic.isSubmitting}
-              className='glass-interactive glass-border-subtle rounded-md px-6 py-2 text-sm font-medium text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-300'
-            >
-              Cancel
-            </button>
-            <button
-              type='button'
-              onClick={formLogic.handlers.handleSubmit}
-              disabled={formLogic.isSubmitting || !formLogic.isFormValid}
-              className='glass-button-primary rounded-md px-6 py-2 text-sm font-medium'
-            >
-              {formLogic.isSubmitting ? (
-                <>
-                  <svg
-                    className='mr-2 -ml-1 inline h-4 w-4 animate-spin text-white'
-                    fill='none'
-                    viewBox='0 0 24 24'
-                  >
-                    <circle
-                      className='opacity-25'
-                      cx='12'
-                      cy='12'
-                      r='10'
-                      stroke='currentColor'
-                      strokeWidth='4'
-                    ></circle>
-                    <path
-                      className='opacity-75'
-                      fill='currentColor'
-                      d='m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
-                    ></path>
-                  </svg>
-                  {mode === 'edit'
-                    ? 'Updating Definition...'
-                    : 'Adding Definition...'}
-                </>
-              ) : mode === 'edit' ? (
-                'Update Definition'
-              ) : (
-                'Add Definition'
-              )}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Toast Notifications */}
-      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
-
-      <UnsavedChangesDialog
-        isOpen={unsavedChangesGuard.showConfirm}
-        onConfirm={unsavedChangesGuard.confirmLeave}
-        onCancel={unsavedChangesGuard.cancelLeave}
+        </>
+      }
+    >
+      {/* Cambridge Dictionary Section */}
+      <DictionaryLookup
+        wordText={wordText}
+        dictionaryData={dictionaryLogic.dictionaryData}
+        isLoadingDictionary={dictionaryLogic.isLoadingDictionary}
+        dictionaryError={dictionaryLogic.dictionaryError}
+        isCollapsed={dictionaryLogic.isCollapsed}
+        onFetchDictionary={dictionaryLogic.fetchDictionaryData}
+        onToggleCollapsed={dictionaryLogic.toggleCollapsed}
+        onApplyPronunciation={handleApplyPronunciation}
+        onApplyDefinition={handleApplyDefinition}
       />
-    </Modal>
+
+      {/* Form Fields Section */}
+      <FormFields
+        formData={formLogic.formData}
+        isFormValid={formLogic.isFormValid}
+        partOfSpeechOptions={formLogic.constants.PART_OF_SPEECH_OPTIONS}
+        noteButtonsConfig={noteButtonsConfig}
+        handlers={formLogic.handlers}
+        wordText={wordText}
+      />
+    </SectionedModal>
   );
 };
